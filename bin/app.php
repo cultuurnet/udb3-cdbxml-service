@@ -11,9 +11,9 @@ $app = require __DIR__ . '/../bootstrap.php';
 $app->register(
     new ConsoleServiceProvider(),
     [
-        'console.name'              => 'MyApplication',
+        'console.name'              => 'UDB3 cdbxml service',
         'console.version'           => '1.0.0',
-        'console.project_directory' => __DIR__.'/..'
+        'console.project_directory' => __DIR__ . '/..'
     ]
 );
 
