@@ -353,12 +353,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "a3d41ba4d2da90654074826b2d43cea70a7cdf5c"
+                "reference": "f5915bd9b5c9a61173b856c053e61ae3fcb1deeb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/a3d41ba4d2da90654074826b2d43cea70a7cdf5c",
-                "reference": "a3d41ba4d2da90654074826b2d43cea70a7cdf5c",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/f5915bd9b5c9a61173b856c053e61ae3fcb1deeb",
+                "reference": "f5915bd9b5c9a61173b856c053e61ae3fcb1deeb",
                 "shasum": ""
             },
             "require": {
@@ -388,7 +388,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-23 11:08:02"
+            "time": "2016-03-23 16:07:50"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -728,15 +728,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/silex-amqp.git",
-                "reference": "02cdee9a73398be69bb09880d311e2ef00d04796"
+                "reference": "c5966e2213631d26243b60998d35694ab96dc594"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/02cdee9a73398be69bb09880d311e2ef00d04796",
-                "reference": "02cdee9a73398be69bb09880d311e2ef00d04796",
+                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/c5966e2213631d26243b60998d35694ab96dc594",
+                "reference": "c5966e2213631d26243b60998d35694ab96dc594",
                 "shasum": ""
             },
             "require": {
+                "knplabs/console-service-provider": "~1.0",
                 "silex/silex": "~1.3"
             },
             "require-dev": {
@@ -753,7 +754,7 @@
             },
             "autoload": {
                 "psr-4": {
-                    "Vendor\\Package\\": "src/"
+                    "CultuurNet\\SilexAMQP\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -761,7 +762,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2016-03-23 14:36:14"
+            "time": "2016-03-23 15:49:39"
         },
         {
             "name": "cultuurnet/udb2-domain-events",
