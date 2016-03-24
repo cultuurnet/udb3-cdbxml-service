@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8fdf4cd2fbb6d1d4fd20f45ac8543f07",
-    "content-hash": "ad5405271dfd0d23e9f0ad040cac4fea",
+    "hash": "d9f358718f01be02a9ee2b79e4004964",
+    "content-hash": "60be509ddd380c24f7b272f5668d3e71",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -353,12 +353,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "4ce141d9f46a83992b0cac62e957fa2673b069a7"
+                "reference": "25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/4ce141d9f46a83992b0cac62e957fa2673b069a7",
-                "reference": "4ce141d9f46a83992b0cac62e957fa2673b069a7",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47",
+                "reference": "25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47",
                 "shasum": ""
             },
             "require": {
@@ -391,7 +391,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-24 10:45:02"
+            "time": "2016-03-24 11:45:33"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -584,16 +584,16 @@
         },
         {
             "name": "cultuurnet/deserializer",
-            "version": "dev-master",
+            "version": "dev-feature/III-844",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/deserializer.git",
-                "reference": "0269302e0c2630066d6a525b10412d429283f6d2"
+                "reference": "8935ab80635482107a99b5a441943ecf8af62401"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/0269302e0c2630066d6a525b10412d429283f6d2",
-                "reference": "0269302e0c2630066d6a525b10412d429283f6d2",
+                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/8935ab80635482107a99b5a441943ecf8af62401",
+                "reference": "8935ab80635482107a99b5a441943ecf8af62401",
                 "shasum": ""
             },
             "require": {
@@ -627,7 +627,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2015-07-02 15:59:14"
+            "time": "2016-03-24 11:03:28"
         },
         {
             "name": "cultuurnet/entry",
@@ -768,65 +768,17 @@
             "time": "2016-03-23 15:49:39"
         },
         {
-            "name": "cultuurnet/udb2-domain-events",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cultuurnet/udb2-domain-events.git",
-                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/1f2857b4cd957c17e051536a8402d8e595d08453",
-                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453",
-                "shasum": ""
-            },
-            "require": {
-                "cultuurnet/deserializer": "~0.1",
-                "nicolopignatelli/valueobjects": "~2.0"
-            },
-            "require-dev": {
-                "phing/phing": "~2.10",
-                "phpunit/phpunit": "~4.3",
-                "satooshi/php-coveralls": "~0.7",
-                "squizlabs/php_codesniffer": "~2.2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "CultuurNet\\UDB2DomainEvents\\": "src\\"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Kristof Coomans",
-                    "email": "kristof@2dotstwice.be"
-                }
-            ],
-            "description": "PHP models for domain events in UiTdatabank version 2",
-            "time": "2016-03-22 08:50:32"
-        },
-        {
             "name": "cultuurnet/udb3",
-            "version": "dev-master",
+            "version": "dev-feature/III-844",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "6fa57b13ade91eb53acb3c149f30c83b1907bc1e"
+                "reference": "d4368127eb894f5c78ac188d5e55b76bcc9ea425"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/6fa57b13ade91eb53acb3c149f30c83b1907bc1e",
-                "reference": "6fa57b13ade91eb53acb3c149f30c83b1907bc1e",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/d4368127eb894f5c78ac188d5e55b76bcc9ea425",
+                "reference": "d4368127eb894f5c78ac188d5e55b76bcc9ea425",
                 "shasum": ""
             },
             "require": {
@@ -895,7 +847,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-03-22 13:30:53"
+            "time": "2016-03-24 10:58:37"
         },
         {
             "name": "danielstjules/stringy",
@@ -4868,11 +4820,25 @@
             "alias_normalized": "0.1.0.0",
             "version": "dev-feature/III-844",
             "package": "cultuurnet/broadway-amqp"
+        },
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-844",
+            "package": "cultuurnet/deserializer"
+        },
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-844",
+            "package": "cultuurnet/udb3"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "cultuurnet/broadway-amqp": 20
+        "cultuurnet/broadway-amqp": 20,
+        "cultuurnet/deserializer": 20,
+        "cultuurnet/udb3": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
