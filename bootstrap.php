@@ -1,12 +1,14 @@
 <?php
 
 use Broadway\EventHandling\SimpleEventBus;
+use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Silex\Application;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
+use ValueObjects\String\String;
 
 $app = new Application();
 
@@ -49,18 +51,12 @@ $app['logger.amqp.event_bus_forwarder'] = $app->share(
 $app['deserializer_locator'] = $app->share(
     function (Application $app) {
         $deserializerLocator = new SimpleDeserializerLocator();
-        $deserializerLocator->registerDeserializer(
-            new StringLiteral(
-                'application/vnd.cultuurnet.udb2-events.event-created+json'
-            ),
-            new \CultuurNet\UDB2DomainEvents\EventCreatedJSONDeserializer()
-        );
-        $deserializerLocator->registerDeserializer(
-            new StringLiteral(
-                'application/vnd.cultuurnet.udb2-events.event-updated+json'
-            ),
-            new \CultuurNet\UDB2DomainEvents\EventUpdatedJSONDeserializer()
-        );
+        foreach (\CultuurNet\UDB3\Event\Events\ContentTypes::MAP as $payloadClass => $contentType) {
+            $deserializerLocator->registerDeserializer(
+                new String($contentType),
+                new DomainMessageJSONDeserializer($payloadClass)
+            );
+        }
         return $deserializerLocator;
     }
 );
