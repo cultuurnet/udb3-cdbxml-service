@@ -1,12 +1,14 @@
 <?php
 
 use Broadway\EventHandling\SimpleEventBus;
+use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB3\UDB2\AMQP\EventBusForwardingConsumer;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Silex\Application;
-use ValueObjects\String\String;
+use ValueObjects\Number\Natural;
+use ValueObjects\String\String as StringLiteral;
 
 $app = new Application();
 
@@ -30,47 +32,66 @@ $app['event_bus.udb3-core'] = $app->share(
  */
 $app['debug'] = $app['config']['debug'] === true;
 
+
+$app['logger.amqp.event_bus_forwarder'] = $app->share(
+    function (Application $app) {
+        $logger = new Monolog\Logger('amqp.event_bus_forwarder');
+        $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
+
+        $logFileHandler = new \Monolog\Handler\StreamHandler(
+            __DIR__ . '/log/amqp.log',
+            \Monolog\Logger::DEBUG
+        );
+        $logger->pushHandler($logFileHandler);
+
+        return $logger;
+    }
+);
+
+$app['deserializer_locator'] = $app->share(
+    function (Application $app) {
+        $deserializerLocator = new SimpleDeserializerLocator();
+        $deserializerLocator->registerDeserializer(
+            new StringLiteral(
+                'application/vnd.cultuurnet.udb2-events.event-created+json'
+            ),
+            new \CultuurNet\UDB2DomainEvents\EventCreatedJSONDeserializer()
+        );
+        $deserializerLocator->registerDeserializer(
+            new StringLiteral(
+                'application/vnd.cultuurnet.udb2-events.event-updated+json'
+            ),
+            new \CultuurNet\UDB2DomainEvents\EventUpdatedJSONDeserializer()
+        );
+        return $deserializerLocator;
+    }
+);
+
+$app['event_bus_forwarding_consumer_factory'] = $app->share(
+    function (Application $app) {
+        return new EventBusForwardingConsumerFactory(
+            Natural::fromNative($app['config']['consumerExecutionDelay']),
+            $app['config']['amqp'],
+            $app['logger.amqp.event_bus_forwarder'],
+            $app['deserializer_locator'],
+            $app['event_bus.udb3-core']
+        );
+    }
+);
+
 foreach (['udb3-core'] as $consumerId) {
     $app['amqp.' . $consumerId] = $app->share(
         function (Application $app) use ($consumerId) {
             $consumerConfig = $app['config']['amqp']['consumers'][$consumerId];
-            $amqpConfig = $host = $app['config']['amqp'];
-            $connection = new AMQPStreamConnection(
-                $amqpConfig['host'],
-                $amqpConfig['port'],
-                $amqpConfig['user'],
-                $amqpConfig['password'],
-                $amqpConfig['vhost']
-            );
+            $exchange = new StringLiteral($consumerConfig['exchange']);
+            $queue = new StringLiteral($consumerConfig['queue']);
 
-            $deserializerLocator = new SimpleDeserializerLocator();
-            $deserializerLocator->registerDeserializer(
-                new String(
-                    'application/vnd.cultuurnet.udb2-events.event-created+json'
-                ),
-                new \CultuurNet\UDB2DomainEvents\EventCreatedJSONDeserializer()
-            );
-            $deserializerLocator->registerDeserializer(
-                new String(
-                    'application/vnd.cultuurnet.udb2-events.event-updated+json'
-                ),
-                new \CultuurNet\UDB2DomainEvents\EventUpdatedJSONDeserializer()
-            );
+            /** @var EventBusForwardingConsumerFactory $consumerFactory */
+            $consumerFactory = $app['event_bus_forwarding_consumer_factory'];
 
-            $eventBusForwardingConsumer = new EventBusForwardingConsumer(
-                $connection,
-                $app['event_bus.' . $consumerId],
-                $deserializerLocator,
-                new String($amqpConfig['consumer_tag']),
-                new String($consumerConfig['exchange']),
-                new String($consumerConfig['queue'])
-            );
+            $eventBusForwardingConsumer = $consumerFactory->create($exchange, $queue);
 
-            $logger = new Monolog\Logger('amqp.udb3-core');
-            $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
-            $eventBusForwardingConsumer->setLogger($logger);
-
-            return $connection;
+            return $eventBusForwardingConsumer->getConnection();
         }
     );
 }

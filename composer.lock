@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "55192cf9ddae6356f5bd1620219611a2",
-    "content-hash": "ac9c6e6cc8e8bb4dd1d2484fecd171bd",
+    "hash": "8e664bd5215351d4bf50b8632f420d13",
+    "content-hash": "cbc77667942beb46001a498291c15295",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -349,21 +349,24 @@
         },
         {
             "name": "cultuurnet/broadway-amqp",
-            "version": "dev-feature/III-536",
+            "version": "dev-feature/III-844",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "20e46f8685ab9ff87d9f1f7bf8cd007f7cceaca7"
+                "reference": "f2fa4384d1729add7ca60bfc35d334a3ca636001"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/20e46f8685ab9ff87d9f1f7bf8cd007f7cceaca7",
-                "reference": "20e46f8685ab9ff87d9f1f7bf8cd007f7cceaca7",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/f2fa4384d1729add7ca60bfc35d334a3ca636001",
+                "reference": "f2fa4384d1729add7ca60bfc35d334a3ca636001",
                 "shasum": ""
             },
             "require": {
                 "broadway/broadway": "~0.5.2",
-                "php-amqplib/php-amqplib": "2.5.*"
+                "cultuurnet/deserializer": "~0.1",
+                "nicolopignatelli/valueobjects": "~2.0",
+                "php-amqplib/php-amqplib": "2.5.*",
+                "psr/log": "~1.0"
             },
             "require-dev": {
                 "phing/phing": "~2.11",
@@ -388,7 +391,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-23 20:25:29"
+            "time": "2016-03-23 15:48:01"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -4921,7 +4924,7 @@
         {
             "alias": "0.1",
             "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-536",
+            "version": "dev-feature/III-844",
             "package": "cultuurnet/broadway-amqp"
         }
     ],
