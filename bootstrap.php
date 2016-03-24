@@ -52,8 +52,8 @@ $app['deserializer_locator'] = $app->share(
     function (Application $app) {
         $deserializerLocator = new SimpleDeserializerLocator();
         $maps =
-            \CultuurNet\UDB3\Event\Events\ContentTypes::MAP +
-            \CultuurNet\UDB3\Place\Events\ContentTypes::MAP;
+            \CultuurNet\UDB3\Event\Events\ContentTypes::map() +
+            \CultuurNet\UDB3\Place\Events\ContentTypes::map();
 
         foreach ($maps as $payloadClass => $contentType) {
             $deserializerLocator->registerDeserializer(
