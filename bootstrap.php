@@ -51,7 +51,11 @@ $app['logger.amqp.event_bus_forwarder'] = $app->share(
 $app['deserializer_locator'] = $app->share(
     function (Application $app) {
         $deserializerLocator = new SimpleDeserializerLocator();
-        foreach (\CultuurNet\UDB3\Event\Events\ContentTypes::MAP as $payloadClass => $contentType) {
+        $maps =
+            \CultuurNet\UDB3\Event\Events\ContentTypes::MAP +
+            \CultuurNet\UDB3\Place\Events\ContentTypes::MAP;
+
+        foreach ($maps as $payloadClass => $contentType) {
             $deserializerLocator->registerDeserializer(
                 new String($contentType),
                 new DomainMessageJSONDeserializer($payloadClass)
