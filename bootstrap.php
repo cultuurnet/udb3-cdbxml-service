@@ -3,9 +3,7 @@
 use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
-use CultuurNet\UDB3\UDB2\AMQP\EventBusForwardingConsumer;
 use DerAlex\Silex\YamlConfigServiceProvider;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Silex\Application;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
