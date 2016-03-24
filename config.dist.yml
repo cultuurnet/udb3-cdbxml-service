@@ -1,2 +1,13 @@
 debug: false
 bootstrap: []
+amqp:
+  host:
+  port: 5672
+  vhost:
+  user:
+  password:
+  consumer_tag:
+  consumers:
+    udb3-core:
+      exchange:
+      queue:

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "63296d94a7f8cb5c577aaa6a1ba2572b",
-    "content-hash": "04c2ab6ab7047598c0acde0d8a31080c",
+    "hash": "55192cf9ddae6356f5bd1620219611a2",
+    "content-hash": "ac9c6e6cc8e8bb4dd1d2484fecd171bd",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -353,12 +353,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "f5915bd9b5c9a61173b856c053e61ae3fcb1deeb"
+                "reference": "20e46f8685ab9ff87d9f1f7bf8cd007f7cceaca7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/f5915bd9b5c9a61173b856c053e61ae3fcb1deeb",
-                "reference": "f5915bd9b5c9a61173b856c053e61ae3fcb1deeb",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/20e46f8685ab9ff87d9f1f7bf8cd007f7cceaca7",
+                "reference": "20e46f8685ab9ff87d9f1f7bf8cd007f7cceaca7",
                 "shasum": ""
             },
             "require": {
@@ -388,7 +388,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-23 16:07:50"
+            "time": "2016-03-23 20:25:29"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -893,6 +893,64 @@
             ],
             "description": "UDB3 PHP libraries",
             "time": "2016-03-22 13:30:53"
+        },
+        {
+            "name": "cultuurnet/udb3-udb2-bridge",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cultuurnet/udb3-udb2-bridge.git",
+                "reference": "45c9750b5ac5b3660527372dc51b8a7febe56cdd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-udb2-bridge/zipball/45c9750b5ac5b3660527372dc51b8a7febe56cdd",
+                "reference": "45c9750b5ac5b3660527372dc51b8a7febe56cdd",
+                "shasum": ""
+            },
+            "require": {
+                "cultuurnet/auth": "~1.2",
+                "cultuurnet/cdb": "~2.2.0",
+                "cultuurnet/entry": "~0.1",
+                "cultuurnet/udb2-domain-events": "~0.1",
+                "cultuurnet/udb3": "~0.1"
+            },
+            "provide": {
+                "ext-redis": "*"
+            },
+            "require-dev": {
+                "phing/phing": "~2.10",
+                "phpunit/phpunit": "~4.3",
+                "satooshi/php-coveralls": "~0.7",
+                "squizlabs/php_codesniffer": "~2.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CultuurNet\\UDB3\\UDB2\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Kristof Coomans",
+                    "email": "kristof@2dotstwice.be"
+                },
+                {
+                    "name": "Bram Cordie",
+                    "email": "bram@2dotstwice.be"
+                }
+            ],
+            "description": "PHP libraries for bridging UDB3 with UDB2",
+            "time": "2016-03-09 08:13:15"
         },
         {
             "name": "danielstjules/stringy",
