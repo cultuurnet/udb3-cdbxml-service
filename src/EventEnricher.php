@@ -2,21 +2,25 @@
 
 namespace CultuurNet\UDB3\CDBXMLService;
 
+use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
+use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
-use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 
 /**
- * Class EventEnricher
- *  Enrich UDB3 domain events with additional data required to project to CDBXML.
- * @package CultuurNet\UDB3\CDBXMLService
+ * Enrich UDB3 domain events with additional data required to project to CDBXML.
  */
 class EventEnricher implements EventListenerInterface
 {
+    /**
+     * @var EventBusInterface
+     */
+    private $eventBus;
+
     /**
      * @var DocumentRepositoryInterface
      */
@@ -35,17 +39,25 @@ class EventEnricher implements EventListenerInterface
     ];
 
     /**
-     * EventEnricher constructor.
+     * @param EventBusInterface $eventBus
+     * @param DocumentRepositoryInterface $organizerRepository
+     * @param DocumentRepositoryInterface $offerRepository
      */
     public function __construct(
+        EventBusInterface $eventBus,
         DocumentRepositoryInterface $organizerRepository,
         DocumentRepositoryInterface $offerRepository
     ) {
+        $this->eventBus = $eventBus;
         $this->organizerRepository = $organizerRepository;
         $this->offerRepository = $offerRepository;
     }
 
-
+    /**
+     * Enriches the payload of specific Domain Messages and re-publishes them on an event bus.
+     *
+     * @param DomainMessage $domainMessage
+     */
     public function handle(DomainMessage $domainMessage)
     {
         $className = get_class($domainMessage->getPayload());
@@ -53,16 +65,44 @@ class EventEnricher implements EventListenerInterface
         if (isset(self::$eventHandlers[$className])) {
             $handler = self::$eventHandlers[$className];
             $enrichedPayload = $this->{$handler}($domainMessage);
+
             $enrichedMessage = new DomainMessage(
-                // $_$
+                $domainMessage->getId(),
+                $domainMessage->getPlayhead(),
+                $domainMessage->getMetadata(),
+                $enrichedPayload,
+                $domainMessage->getRecordedOn()
+            );
+
+            $this->eventBus->publish(
+                new DomainEventStream([$enrichedMessage])
             );
         }
     }
 
-    private function enrichOrganizerUpdated(OrganizerUpdated $organizerUpdated) {
-        $organizerDocument = $this->organizerRepository->get(
-            $organizerUpdated->getOrganizerId()
+    /**
+     * @param EventOrganizerUpdated|PlaceOrganizerUpdated $organizerUpdated
+     * @return EnrichedOrganizerUpdated
+     */
+    private function enrichOrganizerUpdated($organizerUpdated) {
+        $organizerId = $organizerUpdated->getItemId();
+
+        return new EnrichedOrganizerUpdated(
+            $organizerUpdated->getItemId(),
+            $organizerId,
+            $this->getOrganizerName($organizerId)
         );
+    }
+
+    /**
+     * @param string $organizerId
+     * @return string
+     * @throws \CultureFeed_Cdb_ParseException
+     */
+    private function getOrganizerName($organizerId)
+    {
+        $name = '';
+        $organizerDocument = $this->organizerRepository->get($organizerId);
 
         $organizer = \CultureFeed_Cdb_Item_Actor::parseFromCdbXml(
             new \SimpleXMLElement($organizerDocument->getCDBXML())
@@ -70,20 +110,13 @@ class EventEnricher implements EventListenerInterface
 
         /** @var \CultureFeed_Cdb_Data_Detail[] $details */
         $details = $organizer->getDetails();
-        $detail = null;
-
         foreach ($details as $languageDetail) {
-            // The first language detail found will be used to retrieve
-            // properties from which in UDB3 are not any longer considered
-            // to be language specific.
-            if (!$detail) {
-                $detail = $languageDetail;
-            }
+            // Organizer name is not translatable in Event CDBXML and we don't have a "base language" so we just pick
+            // the first one we find.
+            $name = $languageDetail->getTitle();
+            break;
         }
 
-        $name = isset($detail) ? $detail->getTitle() : '';
-
-        return new EnrichedOrganizerUpdated($organizerUpdated->getItemId(), $name);
+        return $name;
     }
-    
 }
