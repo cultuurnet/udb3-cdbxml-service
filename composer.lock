@@ -353,12 +353,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47"
+                "reference": "c465c5197b3572b2ed948d92586c8363ada5d9ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47",
-                "reference": "25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/c465c5197b3572b2ed948d92586c8363ada5d9ea",
+                "reference": "c465c5197b3572b2ed948d92586c8363ada5d9ea",
                 "shasum": ""
             },
             "require": {
@@ -391,7 +391,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-24 11:45:33"
+            "time": "2016-03-24 13:39:26"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -773,12 +773,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "0162c3e5b59a83f468c34417d32717a68c042599"
+                "reference": "5336ffc523acfe3b76e626e43dfb97815facca84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/0162c3e5b59a83f468c34417d32717a68c042599",
-                "reference": "0162c3e5b59a83f468c34417d32717a68c042599",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/5336ffc523acfe3b76e626e43dfb97815facca84",
+                "reference": "5336ffc523acfe3b76e626e43dfb97815facca84",
                 "shasum": ""
             },
             "require": {
@@ -847,7 +847,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-03-24 13:30:26"
+            "time": "2016-03-24 13:57:30"
         },
         {
             "name": "danielstjules/stringy",
