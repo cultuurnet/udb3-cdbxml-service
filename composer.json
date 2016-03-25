@@ -1,5 +1,5 @@
 {
-    "name": "vendor/package",
+    "name": "cultuurnet/udb3-cbxml-service",
     "description": "Brief description of this Silex application",
     "type": "project",
     "license": "Apache-2.0",
@@ -23,12 +23,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Vendor\\Package\\": "src/"
+            "CultuurNet\\UDB3\\CDBXMLService\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Vendor\\Package\\": "tests/"
+            "CultuurNet\\UDB3\\CDBXMLService\\": "tests/"
         }
     },
     "minimum-stability": "dev",
