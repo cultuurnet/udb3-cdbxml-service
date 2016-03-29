@@ -1,6 +1,9 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\Repository;
+namespace CultuurNet\UDB3\CDBXMLService\ReadModel\Repository;
+
+use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\CDBXMLDocument;
+use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentGoneException;
 
 interface DocumentRepositoryInterface
 {

@@ -7,8 +7,8 @@ use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
-use CultuurNet\UDB3\CDBXMLService\Repository\CDBXMLDocument;
-use CultuurNet\UDB3\CDBXMLService\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\CDBXMLDocument;
+use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 

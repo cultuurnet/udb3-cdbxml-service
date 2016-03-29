@@ -1,10 +1,11 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService;
+namespace CultuurNet\UDB3\CDBXMLService\ReadModel;
 
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventListenerInterface;
-use CultuurNet\UDB3\CDBXMLService\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CDBXMLService\CDBXMLPublisherInterface;
+use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
 
 /**
  * Class OfferToEventCDBXMLProjector

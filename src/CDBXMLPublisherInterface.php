@@ -3,7 +3,7 @@
 namespace CultuurNet\UDB3\CDBXMLService;
 
 use Broadway\Domain\DomainMessage;
-use CultuurNet\UDB3\CDBXMLService\Repository\CDBXMLDocument;
+use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\CDBXMLDocument;
 
 interface CDBXMLPublisherInterface
 {

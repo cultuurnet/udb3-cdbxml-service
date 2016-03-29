@@ -6,7 +6,7 @@ use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\EventListenerInterface;
-use CultuurNet\UDB3\CDBXMLService\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 
@@ -32,7 +32,7 @@ class EventEnricher implements EventListenerInterface
 
     /**
      * @param EventBusInterface $eventBus
-     * @param DocumentRepositoryInterface $organizerRepository
+     * @param \CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface $organizerRepository
      */
     public function __construct(
         EventBusInterface $eventBus,
