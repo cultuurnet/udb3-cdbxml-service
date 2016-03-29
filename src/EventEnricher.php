@@ -6,8 +6,6 @@ use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\EventListenerInterface;
-use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 
@@ -33,9 +31,7 @@ class EventEnricher implements EventListenerInterface
 
     private static $eventHandlers = [
         EventOrganizerUpdated::class => 'enrichOrganizerUpdated',
-        PlaceOrganizerUpdated::class => 'enrichOrganizerUpdated',
-        EventCreated::class => 'enrichEventCreated',
-        MajorInfoUpdated::class => 'enrichMajorInfoUpdated'
+        PlaceOrganizerUpdated::class => 'enrichOrganizerUpdated'
     ];
 
     /**
