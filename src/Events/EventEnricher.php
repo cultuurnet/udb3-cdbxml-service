@@ -25,11 +25,6 @@ class EventEnricher implements EventListenerInterface
      */
     private $organizerRepository;
 
-    /**
-     * @var DocumentRepositoryInterface
-     */
-    private $offerRepository;
-
     private static $eventHandlers = [
         EventOrganizerUpdated::class => 'enrichOrganizerUpdated',
         PlaceOrganizerUpdated::class => 'enrichOrganizerUpdated'
@@ -38,16 +33,13 @@ class EventEnricher implements EventListenerInterface
     /**
      * @param EventBusInterface $eventBus
      * @param DocumentRepositoryInterface $organizerRepository
-     * @param DocumentRepositoryInterface $offerRepository
      */
     public function __construct(
         EventBusInterface $eventBus,
-        DocumentRepositoryInterface $organizerRepository,
-        DocumentRepositoryInterface $offerRepository
+        DocumentRepositoryInterface $organizerRepository
     ) {
         $this->eventBus = $eventBus;
         $this->organizerRepository = $organizerRepository;
-        $this->offerRepository = $offerRepository;
     }
 
     /**
@@ -61,7 +53,9 @@ class EventEnricher implements EventListenerInterface
 
         if (isset(self::$eventHandlers[$className])) {
             $handler = self::$eventHandlers[$className];
-            $enrichedPayload = $this->{$handler}($domainMessage);
+            $enrichedPayload = $this->{$handler}(
+                $domainMessage->getPayload()
+            );
 
             $enrichedMessage = new DomainMessage(
                 $domainMessage->getId(),
@@ -82,7 +76,7 @@ class EventEnricher implements EventListenerInterface
      * @return EnrichedOrganizerUpdated
      */
     private function enrichOrganizerUpdated($organizerUpdated) {
-        $organizerId = $organizerUpdated->getItemId();
+        $organizerId = $organizerUpdated->getOrganizerId();
 
         return new EnrichedOrganizerUpdated(
             $organizerUpdated->getItemId(),
