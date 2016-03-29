@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\CDBXMLService;
 
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventListenerInterface;
+use CultuurNet\UDB3\CDBXMLService\Repository\DocumentRepositoryInterface;
 
 /**
  * Class OfferToEventCDBXMLProjector

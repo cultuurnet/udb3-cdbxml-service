@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService;
+namespace CultuurNet\UDB3\CDBXMLService\Repository;
 
 use Broadway\ReadModel\ReadModelInterface;
 
