@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "35ab84f7623f3bb506d5a12fb9109a39",
-    "content-hash": "0d330a7f96831177d4e3ed8802c38fd4",
+    "hash": "3e8b0235534650aa50c2c7e2549b7b3d",
+    "content-hash": "7f82818d2f7fc115d559fc897ff236a9",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -353,12 +353,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "bccf1d898c634299cbc759ae486e8f2eff5b7e60"
+                "reference": "3a04770078265e34e90e93009bae0579ef313e4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/bccf1d898c634299cbc759ae486e8f2eff5b7e60",
-                "reference": "bccf1d898c634299cbc759ae486e8f2eff5b7e60",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/3a04770078265e34e90e93009bae0579ef313e4b",
+                "reference": "3a04770078265e34e90e93009bae0579ef313e4b",
                 "shasum": ""
             },
             "require": {
@@ -392,7 +392,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-30 12:46:51"
+            "time": "2016-03-30 13:00:54"
         },
         {
             "name": "cultuurnet/calendar-summary",
