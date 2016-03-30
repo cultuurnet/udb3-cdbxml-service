@@ -6,6 +6,7 @@ use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\EventListenerInterface;
+use CultuurNet\UDB3\Cdb\ActorItemFactoryInterface;
 use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
@@ -26,6 +27,11 @@ class EventEnricher implements EventListenerInterface
      */
     private $organizerRepository;
 
+    /**
+     * @var ActorItemFactoryInterface
+     */
+    private $actorItemFactory;
+
     private static $eventHandlers = [
         EventOrganizerUpdated::class => 'enrichOrganizerUpdated',
         PlaceOrganizerUpdated::class => 'enrichOrganizerUpdated'
@@ -33,14 +39,17 @@ class EventEnricher implements EventListenerInterface
 
     /**
      * @param EventBusInterface $eventBus
-     * @param \CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface $organizerRepository
+     * @param DocumentRepositoryInterface $organizerRepository
+     * @param ActorItemFactoryInterface $actorItemFactory
      */
     public function __construct(
         EventBusInterface $eventBus,
-        DocumentRepositoryInterface $organizerRepository
+        DocumentRepositoryInterface $organizerRepository,
+        ActorItemFactoryInterface $actorItemFactory
     ) {
         $this->eventBus = $eventBus;
         $this->organizerRepository = $organizerRepository;
+        $this->actorItemFactory = $actorItemFactory;
     }
 
     /**
@@ -89,15 +98,14 @@ class EventEnricher implements EventListenerInterface
     /**
      * @param string $organizerId
      * @return string
-     * @throws \CultureFeed_Cdb_ParseException
      */
     private function getOrganizerName($organizerId)
     {
         $name = '';
         $organizerDocument = $this->organizerRepository->get($organizerId);
 
-        $organizer = \CultureFeed_Cdb_Item_Actor::parseFromCdbXml(
-            new \SimpleXMLElement($organizerDocument->getCDBXML())
+        $organizer = $this->actorItemFactory->createFromCdbXml(
+            $organizerDocument->getCDBXML()
         );
 
         /** @var \CultureFeed_Cdb_Data_Detail[] $details */
