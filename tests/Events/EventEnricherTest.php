@@ -7,9 +7,11 @@ use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
+use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\CDBXMLDocument;
 use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 
 class EventEnricherTest extends \PHPUnit_Framework_TestCase
@@ -25,6 +27,11 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
     private $organizerRepository;
 
     /**
+     * @var ActorItemFactory
+     */
+    private $actorItemFactory;
+
+    /**
      * @var EventEnricher
      */
     private $enricher;
@@ -34,9 +41,14 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
         $this->eventBus = $this->getMock(EventBusInterface::class);
         $this->organizerRepository = $this->getMock(DocumentRepositoryInterface::class);
 
+        $this->actorItemFactory = new ActorItemFactory(
+            \CultureFeed_Cdb_Xml::namespaceUriForVersion('3.3')
+        );
+
         $this->enricher = new EventEnricher(
             $this->eventBus,
-            $this->organizerRepository
+            $this->organizerRepository,
+            $this->actorItemFactory
         );
     }
 
@@ -44,7 +56,7 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
      * @test
      * @dataProvider organizerUpdatedDataProvider
      *
-     * @param EventOrganizerUpdated|PlaceOrganizerUpdated $organizerUpdated
+     * @param AbstractOrganizerUpdated $organizerUpdated
      * @param EnrichedOrganizerUpdated $expectedEnrichedOrganizerUpdated
      */
     public function it_enriches_organizer_updated_events(
@@ -56,7 +68,7 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
 
         $organizerDocument = new CDBXMLDocument(
             $organizerId,
-            $this->getCDBXML($organizerId)
+            file_get_contents(__DIR__ . '/samples/actor.xml')
         );
 
         $this->organizerRepository->expects($this->once())
@@ -77,7 +89,7 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->eventBus->expects($this->once())
-            ->method('dispatch')
+            ->method('publish')
             ->with(new DomainEventStream([$expectedEnrichedDomainMessage]));
 
         $originalDomainMessage = new DomainMessage(
@@ -96,20 +108,34 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
      */
     public function organizerUpdatedDataProvider()
     {
+        $eventOrganizerUpdated = new EventOrganizerUpdated(
+            'item-id',
+            '404EE8DE-E828-9C07-FE7D12DC4EB24480'
+        );
+
+        $enrichedEventOrganizerUpdated = new EnrichedOrganizerUpdated(
+            $eventOrganizerUpdated,
+            'DE Studio'
+        );
+
+        $placeOrganizerUpdated = new PlaceOrganizerUpdated(
+            'item-id',
+            '404EE8DE-E828-9C07-FE7D12DC4EB24480'
+        );
+        $enrichedPlaceOrganizerUpdated = new EnrichedOrganizerUpdated(
+            $placeOrganizerUpdated,
+            'DE Studio'
+        );
+
         return [
             [
-                new EventOrganizerUpdated('item-id', '1'),
-                new EnrichedOrganizerUpdated('item-id', '1', 'Foo'),
+                $eventOrganizerUpdated,
+                $enrichedEventOrganizerUpdated,
+            ],
+            [
+                $placeOrganizerUpdated,
+                $enrichedPlaceOrganizerUpdated,
             ],
         ];
-    }
-
-    /**
-     * @param string $organizerId
-     * @return string
-     */
-    private function getCDBXML($organizerId)
-    {
-        return file_get_contents(__DIR__ . '/data/actor-' . $organizerId . '.xml');
     }
 }
