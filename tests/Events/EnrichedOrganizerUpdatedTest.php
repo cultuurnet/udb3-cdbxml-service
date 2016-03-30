@@ -2,6 +2,8 @@
 
 namespace CultuurNet\UDB3\CDBXMLService\Events;
 
+use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
+
 class EnrichedOrganizerUpdatedTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -9,18 +11,19 @@ class EnrichedOrganizerUpdatedTest extends \PHPUnit_Framework_TestCase
      */
     public function it_returns_all_properties()
     {
-        $itemId = '123';
-        $organizerId = '456';
-        $name = 'Foo Bar';
+        $organizerUpdated = new OrganizerUpdated(
+            'event-id-123',
+            'organizer-id-456'
+        );
+
+        $name = 'Organizer Name';
 
         $enrichedOrganizerUpdated = new EnrichedOrganizerUpdated(
-            $itemId,
-            $organizerId,
+            $organizerUpdated,
             $name
         );
 
-        $this->assertEquals($itemId, $enrichedOrganizerUpdated->getItemId());
-        $this->assertEquals($organizerId, $enrichedOrganizerUpdated->getOrganizerId());
+        $this->assertEquals($organizerUpdated, $enrichedOrganizerUpdated->getOriginalEvent());
         $this->assertEquals($name, $enrichedOrganizerUpdated->getName());
     }
 }

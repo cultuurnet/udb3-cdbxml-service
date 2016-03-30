@@ -1,54 +1,28 @@
 <?php
 
 namespace CultuurNet\UDB3\CDBXMLService\Events;
+use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 
 /**
  * Generic "OrganizerUpdated" event with additional info.
- * Makes no assumptions about offer type because it doesn't matter for the CDBXML projections.
+ *
+ * @method AbstractOrganizerUpdated getOriginalEvent()
  */
-class EnrichedOrganizerUpdated
+class EnrichedOrganizerUpdated extends AbstractEnrichedEvent
 {
-    /**
-     * @var string
-     */
-    private $itemId;
-
-    /**
-     * @var string
-     */
-    private $organizerId;
-
     /**
      * @var string
      */
     private $name;
 
     /**
-     * @param string $itemId
-     * @param string $organizerId
+     * @param AbstractOrganizerUpdated $originalEvent
      * @param string $name
      */
-    public function __construct($itemId, $organizerId, $name)
+    public function __construct(AbstractOrganizerUpdated $originalEvent, $name)
     {
-        $this->itemId = $itemId;
-        $this->organizerId = $organizerId;
+        parent::__construct($originalEvent);
         $this->name = $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getItemId()
-    {
-        return $this->itemId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOrganizerId()
-    {
-        return $this->organizerId;
     }
 
     /**
