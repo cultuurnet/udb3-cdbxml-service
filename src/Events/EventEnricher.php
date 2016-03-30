@@ -8,6 +8,7 @@ use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 
 /**
@@ -72,16 +73,16 @@ class EventEnricher implements EventListenerInterface
     }
 
     /**
-     * @param EventOrganizerUpdated|PlaceOrganizerUpdated $organizerUpdated
+     * @param AbstractOrganizerUpdated $organizerUpdated
      * @return EnrichedOrganizerUpdated
      */
-    private function enrichOrganizerUpdated($organizerUpdated) {
-        $organizerId = $organizerUpdated->getOrganizerId();
-
+    private function enrichOrganizerUpdated(AbstractOrganizerUpdated $organizerUpdated)
+    {
         return new EnrichedOrganizerUpdated(
-            $organizerUpdated->getItemId(),
-            $organizerId,
-            $this->getOrganizerName($organizerId)
+            $organizerUpdated,
+            $this->getOrganizerName(
+                $organizerUpdated->getOrganizerId()
+            )
         );
     }
 
