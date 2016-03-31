@@ -1,27 +1,27 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\ReadModel;
+namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventListenerInterface;
-use CultuurNet\UDB3\CDBXMLService\CDBXMLPublisherInterface;
-use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 
 /**
- * Class OfferToEventCDBXMLProjector
+ * Class OfferToEventCdbXmlProjector
  *  This projector takes UDB3 domain messages and projects them to CDBXML and
  *  then publishes the changes to a public URL.
  *
- * @package CultuurNet\UDB3\CDBXMLService
+ * @package CultuurNet\UDB3\CdbXmlService
  */
-class OfferToEventCDBXMLProjector implements EventListenerInterface
+class OfferToEventCdbXmlProjector implements EventListenerInterface
 {
     /**
-     * OfferToEventCDBXMLProjector constructor.
+     * OfferToEventCdbXmlProjector constructor.
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepositoryInterface,
-        CDBXMLPublisherInterface $CDBXMLPublisher
+        CdbXmlPublisherInterface $CDBXMLPublisher
     ) {
     }
 

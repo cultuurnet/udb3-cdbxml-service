@@ -1,13 +1,13 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\Events;
+namespace CultuurNet\UDB3\CdbXmlService\Events;
 
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactoryInterface;
-use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
@@ -105,7 +105,7 @@ class EventEnricher implements EventListenerInterface
         $organizerDocument = $this->organizerRepository->get($organizerId);
 
         $organizer = $this->actorItemFactory->createFromCdbXml(
-            $organizerDocument->getCDBXML()
+            $organizerDocument->getCdbXml()
         );
 
         /** @var \CultureFeed_Cdb_Data_Detail[] $details */

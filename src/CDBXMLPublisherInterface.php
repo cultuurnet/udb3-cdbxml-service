@@ -1,19 +1,19 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService;
+namespace CultuurNet\UDB3\CdbXmlService;
 
 use Broadway\Domain\DomainMessage;
-use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\CDBXMLDocument;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 
-interface CDBXMLPublisherInterface
+interface CdbXmlPublisherInterface
 {
     /**
-     * @param CDBXMLDocument $CDBXMLDocument
+     * @param CdbXmlDocument $CDBXMLDocument
      * @param DomainMessage $domainMessage
      * @return mixed
      */
     public function publish(
-        CDBXMLDocument $CDBXMLDocument,
+        CdbXmlDocument $CDBXMLDocument,
         DomainMessage $domainMessage
     );
 }

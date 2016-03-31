@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\ReadModel\Repository;
+namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use Doctrine\Common\Cache\Cache;
 
@@ -21,7 +21,7 @@ class CacheDocumentRepository implements DocumentRepositoryInterface
 
     /**
      * @param string $id
-     * @return CDBXMLDocument|null
+     * @return CdbXmlDocument|null
      */
     public function get($id)
     {
@@ -35,17 +35,17 @@ class CacheDocumentRepository implements DocumentRepositoryInterface
             return null;
         }
 
-        return new CDBXMLDocument($id, $value);
+        return new CdbXmlDocument($id, $value);
     }
 
     /**
-     * @param CDBXMLDocument $document
+     * @param CdbXmlDocument $document
      */
-    public function save(CDBXMLDocument $document)
+    public function save(CdbXmlDocument $document)
     {
         $this->cache->save(
             $document->getId(),
-            $document->getCDBXML(),
+            $document->getCdbXml(),
             0
         );
     }

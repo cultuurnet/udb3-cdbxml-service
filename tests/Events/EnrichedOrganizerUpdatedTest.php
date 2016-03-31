@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\Events;
+namespace CultuurNet\UDB3\CdbXmlService\Events;
 
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 

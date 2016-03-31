@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\ReadModel\Repository;
+namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 class DocumentGoneException extends \RuntimeException
 {

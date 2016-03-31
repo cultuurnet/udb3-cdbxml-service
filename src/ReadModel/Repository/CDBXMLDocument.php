@@ -1,10 +1,10 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\ReadModel\Repository;
+namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use Broadway\ReadModel\ReadModelInterface;
 
-class CDBXMLDocument implements ReadModelInterface
+class CdbXmlDocument implements ReadModelInterface
 {
     /**
      * @var string
@@ -14,16 +14,16 @@ class CDBXMLDocument implements ReadModelInterface
     /**
      * @var string
      */
-    private $cdbxml;
+    private $cdbXml;
 
     /**
      * @param string $id
-     * @param string $cdbxml
+     * @param string $cdbXml
      */
-    public function __construct($id, $cdbxml)
+    public function __construct($id, $cdbXml)
     {
         $this->id = $id;
-        $this->cdbxml = $cdbxml;
+        $this->cdbXml = $cdbXml;
     }
 
     /**
@@ -36,7 +36,7 @@ class CDBXMLDocument implements ReadModelInterface
     /**
      * @return string
      */
-    public function getCDBXML() {
-        return $this->cdbxml;
+    public function getCdbXml() {
+        return $this->cdbXml;
     }
 }

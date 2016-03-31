@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\CDBXMLService\Events;
+namespace CultuurNet\UDB3\CdbXmlService\Events;
 
 use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainEventStream;
@@ -8,8 +8,8 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
-use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\CDBXMLDocument;
-use CultuurNet\UDB3\CDBXMLService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
@@ -66,7 +66,7 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
         $itemId = $organizerUpdated->getItemId();
         $organizerId = $organizerUpdated->getOrganizerId();
 
-        $organizerDocument = new CDBXMLDocument(
+        $organizerDocument = new CdbXmlDocument(
             $organizerId,
             file_get_contents(__DIR__ . '/samples/actor.xml')
         );
