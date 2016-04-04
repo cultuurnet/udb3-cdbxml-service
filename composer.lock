@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3e8b0235534650aa50c2c7e2549b7b3d",
-    "content-hash": "7f82818d2f7fc115d559fc897ff236a9",
+    "hash": "4d6016d053c1d54ba495664dab877bf7",
+    "content-hash": "84d25681b361759b8aac7afde5e6a6e2",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -353,18 +353,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "3a04770078265e34e90e93009bae0579ef313e4b"
+                "reference": "25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/3a04770078265e34e90e93009bae0579ef313e4b",
-                "reference": "3a04770078265e34e90e93009bae0579ef313e4b",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47",
+                "reference": "25da0dc1e6cb4dd8af0ca4fb233fa8f3766d5d47",
                 "shasum": ""
             },
             "require": {
-                "2dotstwice/collection": "~1.1",
                 "broadway/broadway": "~0.5.2",
-                "cultuurnet/deserializer": "dev-feature/III-844 as 0.1",
+                "cultuurnet/deserializer": "~0.1",
                 "nicolopignatelli/valueobjects": "~2.0",
                 "php-amqplib/php-amqplib": "2.5.*",
                 "psr/log": "~1.0"
@@ -392,7 +391,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-30 13:00:54"
+            "time": "2016-03-24 11:45:33"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -589,12 +588,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/deserializer.git",
-                "reference": "8935ab80635482107a99b5a441943ecf8af62401"
+                "reference": "7657fd9f1171b87d7eeed88e831696f8f817cbc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/8935ab80635482107a99b5a441943ecf8af62401",
-                "reference": "8935ab80635482107a99b5a441943ecf8af62401",
+                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/7657fd9f1171b87d7eeed88e831696f8f817cbc0",
+                "reference": "7657fd9f1171b87d7eeed88e831696f8f817cbc0",
                 "shasum": ""
             },
             "require": {
@@ -628,7 +627,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2016-03-24 11:03:28"
+            "time": "2016-03-31 07:13:21"
         },
         {
             "name": "cultuurnet/entry",
@@ -767,6 +766,54 @@
             ],
             "description": "AMQP integration for Silex projects",
             "time": "2016-03-23 15:49:39"
+        },
+        {
+            "name": "cultuurnet/udb2-domain-events",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cultuurnet/udb2-domain-events.git",
+                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/1f2857b4cd957c17e051536a8402d8e595d08453",
+                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453",
+                "shasum": ""
+            },
+            "require": {
+                "cultuurnet/deserializer": "~0.1",
+                "nicolopignatelli/valueobjects": "~2.0"
+            },
+            "require-dev": {
+                "phing/phing": "~2.10",
+                "phpunit/phpunit": "~4.3",
+                "satooshi/php-coveralls": "~0.7",
+                "squizlabs/php_codesniffer": "~2.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CultuurNet\\UDB2DomainEvents\\": "src\\"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Kristof Coomans",
+                    "email": "kristof@2dotstwice.be"
+                }
+            ],
+            "description": "PHP models for domain events in UiTdatabank version 2",
+            "time": "2016-03-22 08:50:32"
         },
         {
             "name": "cultuurnet/udb3",

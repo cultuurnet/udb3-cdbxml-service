@@ -8,12 +8,12 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 interface CdbXmlPublisherInterface
 {
     /**
-     * @param CdbXmlDocument $CDBXMLDocument
+     * @param CdbXmlDocument $cdbXmlDocument
      * @param DomainMessage $domainMessage
      * @return mixed
      */
     public function publish(
-        CdbXmlDocument $CDBXMLDocument,
+        CdbXmlDocument $cdbXmlDocument,
         DomainMessage $domainMessage
     );
 }
