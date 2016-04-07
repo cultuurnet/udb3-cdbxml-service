@@ -32,7 +32,7 @@ class CDBXMLPublisher implements CdbXmlPublisherInterface
     /**
      * @var SpecificationInterface
      */
-    private $isNewPublication;
+    private $newPublication;
     
     /**
      * CDBXMLPublisher constructor.
@@ -54,7 +54,7 @@ class CDBXMLPublisher implements CdbXmlPublisherInterface
         $authorId = $domainMessage->getMetadata()->serialize()['user_id'];
 
         // todo: implement specification
-        if ($this->isNewPublication($domainMessage)) {
+        if ($this->newPublication->isSatisfiedBy($domainMessage)) {
             $event = new EventCreated(
                 new StringLiteral($id),
                 new DateTimeImmutable(),
