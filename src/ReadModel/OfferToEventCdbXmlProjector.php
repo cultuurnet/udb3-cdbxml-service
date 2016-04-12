@@ -11,24 +11,44 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterfa
  * Class OfferToEventCdbXmlProjector
  * This projector takes UDB3 domain messages, projects them to CdbXml and then
  * publishes the changes to a public URL.
- *
- * @package CultuurNet\UDB3\CdbXmlService
  */
 class OfferToEventCdbXmlProjector implements EventListenerInterface
 {
     /**
-     * OfferToEventCdbXmlProjector constructor.
+     * @var DocumentRepositoryInterface
+     */
+    private $documentRepository;
+
+    /**
+     * @var CdbXmlPublisherInterface
+     */
+    private $cdbXmlPublisher;
+
+    /**
+     * @param DocumentRepositoryInterface $documentRepository
      */
     public function __construct(
-        DocumentRepositoryInterface $documentRepositoryInterface,
-        CdbXmlPublisherInterface $CDBXMLPublisher
+        DocumentRepositoryInterface $documentRepository
     ) {
+        $this->documentRepository = $documentRepository;
+        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
     }
 
+    /**
+     * @param CdbXmlPublisherInterface $cdbXmlPublisher
+     * @return OfferToEventCdbXmlProjector
+     */
+    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
+    {
+        $c = clone $this;
+        $c->cdbXmlPublisher = $cdbXmlPublisher;
+        return $c;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function handle(DomainMessage $domainMessage)
     {
-        // TODO: Implement handle() method.
     }
-
-
 }
