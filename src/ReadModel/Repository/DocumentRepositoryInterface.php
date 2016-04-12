@@ -16,9 +16,9 @@ interface DocumentRepositoryInterface
     public function get($id);
 
     /**
-     * @param CdbXmlDocument $readModel
+     * @param CdbXmlDocument $cdbXmlDocument
      */
-    public function save(CdbXmlDocument $readModel);
+    public function save(CdbXmlDocument $cdbXmlDocument);
 
     /**
      * @param string $id
