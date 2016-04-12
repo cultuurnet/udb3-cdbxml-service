@@ -29,14 +29,16 @@ class CdbXmlDocument implements ReadModelInterface
     /**
      * @return string
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
     /**
      * @return string
      */
-    public function getCdbXml() {
+    public function getCdbXml()
+    {
         return $this->cdbXml;
     }
 }

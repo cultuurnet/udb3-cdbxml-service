@@ -17,7 +17,7 @@ use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
 
-class CDBXMLPublisher implements CdbXmlPublisherInterface
+class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
 {
     /**
      * @var EventBusInterface
@@ -43,6 +43,7 @@ class CDBXMLPublisher implements CdbXmlPublisherInterface
     ) {
         $this->eventBus = $eventBus;
         $this->iriGenerator = $iriGenerator;
+        $this->newPublication = new NewPublication();
     }
 
     public function publish(
@@ -53,7 +54,6 @@ class CDBXMLPublisher implements CdbXmlPublisherInterface
         $location = $this->iriGenerator->iri($id);
         $authorId = $domainMessage->getMetadata()->serialize()['user_id'];
 
-        // todo: implement specification
         if ($this->newPublication->isSatisfiedBy($domainMessage)) {
             $event = new EventCreated(
                 new StringLiteral($id),

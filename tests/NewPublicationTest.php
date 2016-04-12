@@ -21,7 +21,7 @@ class NewPublicationTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-       $this->specification = new NewPublication();
+        $this->specification = new NewPublication();
     }
 
     /**
@@ -40,7 +40,7 @@ class NewPublicationTest extends \PHPUnit_Framework_TestCase
             [$this->createDomainMessageForEventClass(EventCreated::class)],
             [$this->createDomainMessageForEventClass(EventImportedFromUDB2::class)],
             [$this->createDomainMessageForEventClass(PlaceCreated::class)],
-            [$this->createDomainMessageForEventClass(PlaceImportedFromUDB2::class)]
+            [$this->createDomainMessageForEventClass(PlaceImportedFromUDB2::class)],
         ];
     }
 
