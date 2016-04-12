@@ -9,8 +9,8 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterfa
 
 /**
  * Class OfferToEventCdbXmlProjector
- *  This projector takes UDB3 domain messages and projects them to CDBXML and
- *  then publishes the changes to a public URL.
+ * This projector takes UDB3 domain messages, projects them to CdbXml and then
+ * publishes the changes to a public URL.
  *
  * @package CultuurNet\UDB3\CdbXmlService
  */
