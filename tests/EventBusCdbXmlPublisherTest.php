@@ -16,6 +16,7 @@ use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Place\Events\DescriptionUpdated;
 use CultuurNet\UDB3\Title;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
@@ -72,10 +73,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::fromString($publicationDate)
         );
-        $document = new CdbXmlDocument(
-            $documentId,
-            '<?xml version=\'1.0\'?><_/>'
-        );
+        $document = $this->getEmptyDocument($documentId);
 
         $this->iriGenerator
             ->expects($this->once())
@@ -140,5 +138,82 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             );
 
         $this->publisher->publish($document, $originalDomainMessage);
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider eventAndUrlProvider
+     *
+     * @param DomainMessage $domainMessage
+     * @param $urlSuffix
+     */
+    public function it_should_specify_the_type_of_the_item_when_generating_the_public_url(
+        $itemId,
+        DomainMessage $domainMessage,
+        $urlSuffix
+    ) {
+        $this->iriGenerator
+            ->expects($this->once())
+            ->method('iri')
+            ->with($urlSuffix)
+            ->willReturn('http://dirk.de/' . $urlSuffix);
+
+        $this->publisher->publish(
+            $this->getEmptyDocument($itemId),
+            $domainMessage
+        );
+    }
+
+    public function eventAndUrlProvider()
+    {
+        return [
+            [
+                'F5FBFB15-7E38-44A2-96AB-7C1F1364F5D3',
+                new DomainMessage(
+                    UUID::generateAsString(),
+                    0,
+                    new Metadata(['user_id' => 'me-me']),
+                    new TitleTranslated(
+                        'F5FBFB15-7E38-44A2-96AB-7C1F1364F5D3',
+                        new Language('nl'),
+                        new StringLiteral('c')
+                    ),
+                    DateTime::now()
+                ),
+                'event/F5FBFB15-7E38-44A2-96AB-7C1F1364F5D3',
+            ],
+            [
+                'DA899093-F7B8-47B9-AC7D-95A52A793F0E',
+                new DomainMessage(
+                    UUID::generateAsString(),
+                    0,
+                    new Metadata(['user_id' => 'me-me']),
+                    new DescriptionUpdated(
+                        'DA899093-F7B8-47B9-AC7D-95A52A793F0E',
+                        new Language('nl')
+                    ),
+                    DateTime::now()
+                ),
+                'place/DA899093-F7B8-47B9-AC7D-95A52A793F0E',
+            ],
+        ];
+    }
+
+    /**
+     * @param string|null $documentId
+     *  If left empty a UUID will be generated.
+     *
+     * @return CdbXmlDocument
+     */
+    private function getEmptyDocument($documentId = null)
+    {
+        $documentId ? $documentId : UUID::generateAsString();
+        $document = new CdbXmlDocument(
+            $documentId,
+            '<?xml version=\'1.0\'?><_/>'
+        );
+
+        return $document;
     }
 }

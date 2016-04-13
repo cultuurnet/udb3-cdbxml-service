@@ -11,6 +11,8 @@ use CultuurNet\BroadwayAMQP\SpecificationInterface;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\Event\Events\ContentTypes as EventContentTypes;
+use CultuurNet\UDB3\Place\Events\ContentTypes as PlaceContentTypes;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 use DateTimeImmutable;
 use ValueObjects\Identity\UUID;
@@ -50,7 +52,7 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         CdbXmlDocument $cdbXmlDocument,
         DomainMessage $domainMessage
     ) {
-        $id = $cdbXmlDocument->getId();
+        $id = $this->identifyEventType($domainMessage) . '/' . $cdbXmlDocument->getId();
         $location = $this->iriGenerator->iri($id);
         $authorId = $domainMessage->getMetadata()->serialize()['user_id'];
 
@@ -79,5 +81,35 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         );
 
         $this->eventBus->publish(new DomainEventStream([$message]));
+    }
+
+    /**
+     * @param DomainMessage $domainMessage
+     * @return string
+     */
+    private function identifyEventType(DomainMessage $domainMessage)
+    {
+        $typeMap = [
+            'event' => EventContentTypes::map(),
+            'place' => PlaceContentTypes::map(),
+        ];
+        $domainEvent = $domainMessage->getPayload();
+        $eventClass = get_class($domainEvent);
+
+        $findType = function ($eventType, $typeName) use ($typeMap, $eventClass) {
+            if ($eventType) {
+                return $eventType;
+            } else {
+                return array_key_exists($eventClass, $typeMap[$typeName]) ? $typeName : null;
+            }
+        };
+
+        $type = array_reduce(array_keys($typeMap), $findType);
+
+        if (!$type) {
+            throw new \InvalidArgumentException();
+        }
+        
+        return $type;
     }
 }

@@ -4,6 +4,8 @@ use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
+use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
+use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Silex\Application;
 use ValueObjects\Number\Natural;
@@ -32,6 +34,26 @@ $app['event_bus.udb3-core'] = $app->share(
  */
 $app['debug'] = $app['config']['debug'] === true;
 
+$app['document_iri_generator'] = $app->share(
+    function ($app) {
+        return new CallableIriGenerator(
+            // documents are typed and this should be clear in the iri
+            // type and id are expected here, /-separated, eg: "event/B1BBDD85-4643-405E-852D-7D2D4D0E56BA"
+            function ($typeAndCdbid) use ($app) {
+                return $app['config']['url'] . $typeAndCdbid;
+            }
+        );
+    }
+);
+
+$app['cdbxml_publisher'] = $app->share(
+    function (Application $app) {
+        return new EventBusCdbXmlPublisher(
+            $app['document_iri_generator'],
+            $app['event.bus.udb3-core']
+        );
+    }
+);
 
 $app['logger.amqp.event_bus_forwarder'] = $app->share(
     function (Application $app) {
