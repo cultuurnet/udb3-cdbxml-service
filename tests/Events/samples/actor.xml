@@ -1,69 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-    <actor asset="true" availablefrom="2013-08-07T13:07:18" availableto="2100-01-01T00:00:00" createdby="villanella"
-           creationdate="2010-01-06T13:46:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480"
-           externalid="404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2013-08-07T13:07:18"
-           lastupdatedby="stan@cultuurnet.be" owner="Invoerders Algemeen ">
+    <actor cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480">
         <actordetails>
             <actordetail lang="nl">
-                <calendarsummary>ma tot zo</calendarsummary>
-                <media>
-                    <file creationdate="26/04/2013 11:13:05" main="true">
-                        <copyright>DE Studio</copyright>
-                        <filename>604a9015-7297-44d0-9937-d7b7cce07e69.jpg</filename>
-                        <filetype>jpeg</filetype>
-                        <hlink>
-                            //media.uitdatabank.be/20100106/604a9015-7297-44d0-9937-d7b7cce07e69.jpg
-                        </hlink>
-                    </file>
-                </media>
-                <shortdescription>
-                    Met DE STUDIO vinden Laika, Theater Froe Froe, luxemburg, Muziektheater Transparant, Het Gevolg, De
-                    Maan, De Spiegel en Villanella eindelijk dè ideale zaal om lange reeksen voorstellingen te spelen,
-                    voor kinderen en jongeren, voor families, voor scholen. DE STUDIO biedt het kwalitatieve kinder- en
-                    jongerentheater eindelijk een vaste speelplek voor Antwerpen.
-                </shortdescription>
                 <title>DE Studio</title>
             </actordetail>
             <actordetail lang="fr">
-                <calendarsummary>lu à sa</calendarsummary>
-                <media>
-                    <file creationdate="26/04/2013 11:13:05" main="true">
-                        <copyright>Le Studio</copyright>
-                        <filename>604a9015-7297-44d0-9937-d7b7cce07e69.jpg</filename>
-                        <filetype>jpeg</filetype>
-                        <hlink>
-                            //media.uitdatabank.be/20100106/604a9015-7297-44d0-9937-d7b7cce07e69.jpg
-                        </hlink>
-                    </file>
-                </media>
-                <shortdescription>
-                    Avec LE STUDIO Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Cras justo odio,
-                    dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper.
-                </shortdescription>
                 <title>LE Studio</title>
             </actordetail>
         </actordetails>
         <categories>
             <category catid="8.11.0.0.0" type="actortype">Organisator(en)</category>
         </categories>
-        <contactinfo>
-            <address>
-                <physical>
-                    <city>Antwerpen</city>
-                    <country>BE</country>
-                    <gis>
-                        <xcoordinate>4.403666</xcoordinate>
-                        <ycoordinate>51.212489</ycoordinate>
-                    </gis>
-                    <housenr>4</housenr>
-                    <street>Maarschalk Gerardstraat</street>
-                    <zipcode>2000</zipcode>
-                </physical>
-            </address>
-            <mail reservation="true">info@villanella.be</mail>
-            <phone reservation="true" type="phone">+32 3 260 96 10</phone>
-            <url main="true">http://www.destudio.com</url>
-        </contactinfo>
     </actor>
 </cdbxml>
