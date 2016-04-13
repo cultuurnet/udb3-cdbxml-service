@@ -118,10 +118,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::now()
         );
-        $document = new CdbXmlDocument(
-            'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-            '<?xml version=\'1.0\'?><_/>'
-        );
+        $document = $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5');
 
         $this->eventBus
             ->expects($this->once())
@@ -201,14 +198,12 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string|null $documentId
-     *  If left empty a UUID will be generated.
+     * @param string $documentId
      *
      * @return CdbXmlDocument
      */
-    private function getEmptyDocument($documentId = null)
+    private function getEmptyDocument($documentId)
     {
-        $documentId ? $documentId : UUID::generateAsString();
         $document = new CdbXmlDocument(
             $documentId,
             '<?xml version=\'1.0\'?><_/>'
