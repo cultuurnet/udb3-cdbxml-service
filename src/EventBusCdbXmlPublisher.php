@@ -15,6 +15,7 @@ use CultuurNet\UDB3\Event\Events\ContentTypes as EventContentTypes;
 use CultuurNet\UDB3\Place\Events\ContentTypes as PlaceContentTypes;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 use DateTimeImmutable;
+use InvalidArgumentException;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
@@ -86,6 +87,7 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
     /**
      * @param DomainMessage $domainMessage
      * @return string
+     * @throws InvalidArgumentException
      */
     private function identifyEventType(DomainMessage $domainMessage)
     {
@@ -107,7 +109,9 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         $type = array_reduce(array_keys($typeMap), $findType);
 
         if (!$type) {
-            throw new \InvalidArgumentException();
+            throw new InvalidArgumentException(
+                'An offer type could not be determined for the domain-event with class: ' . $eventClass
+            );
         }
         
         return $type;

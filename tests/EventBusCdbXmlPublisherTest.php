@@ -16,8 +16,10 @@ use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Place\Events\DescriptionUpdated;
 use CultuurNet\UDB3\Title;
+use InvalidArgumentException;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
@@ -195,6 +197,28 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                 'place/DA899093-F7B8-47B9-AC7D-95A52A793F0E',
             ],
         ];
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_publish_an_item_when_unable_to_determine_its_offer_type()
+    {
+        $document = $this->getEmptyDocument('2A6959C5-08B9-4FDE-88AD-54C17DA24FCA');
+        $domainMessage = new DomainMessage(
+            UUID::generateAsString(),
+            0,
+            new Metadata(['user_id' => 'me-me']),
+            new OrganizerCreated('2A6959C5-08B9-4FDE-88AD-54C17DA24FCA', new Title('henk'), [], [], [], [], []),
+            DateTime::now()
+        );
+
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'An offer type could not be determined for the domain-event with class: ' . OrganizerCreated::class
+        );
+
+        $this->publisher->publish($document, $domainMessage);
     }
 
     /**
