@@ -12,3 +12,7 @@ amqp:
     udb3-core:
       exchange: udb3.bramcordie.e.udb3
       queue: udb3.bramcordie.q.udb3-cdbxml
+cache:
+  redis:
+    host: 127.0.0.1
+    database: 1
