@@ -5,13 +5,13 @@ amqp:
   host: orange-gnu.rmq.cloudamqp.com
   port: 5672
   vhost: udb3-udb2acc
-  user: udb3.bramcordie
-  password: x0YL3kGJK6
-  consumer_tag: udb3.bramcordie
+  user: username
+  password: pwd
+  consumer_tag: consumer-tag
   consumers:
     udb3-core:
-      exchange: udb3.bramcordie.e.udb3
-      queue: udb3.bramcordie.q.udb3-cdbxml
+      exchange: exchange-name
+      queue: queue-name
 cache:
   redis:
     host: 127.0.0.1
