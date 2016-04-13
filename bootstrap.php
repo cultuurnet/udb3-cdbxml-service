@@ -77,7 +77,7 @@ $app['amqp_publisher'] = $app->share(
     function (Application $app) {
         /** @var AMQPStreamConnection $connection */
         $connection = $app['amqp_connection'];
-        $exchange = $app['config']['amqp']['publish']['udb2']['exchange'];
+        $exchange = $app['config']['amqp']['publishers']['udb2']['exchange'];
 
         $map = [
             \CultuurNet\UDB2DomainEvents\EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
