@@ -4,6 +4,10 @@ use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Silex\Application;
 use ValueObjects\Number\Natural;
@@ -21,9 +25,62 @@ $app['event_bus.udb3-core'] = $app->share(
     function (Application $app) {
         $bus =  new SimpleEventBus();
 
-        // @todo Subscribe listeners.
+        $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
 
         return $bus;
+    }
+);
+
+$app['organizer_to_actor_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        return new OrganizerToActorCdbXmlProjector(
+            $app['cdbxml_actor_repository'],
+            $app['cdbxml_document_factory'],
+            $app['address_factory']
+        );
+    }
+);
+
+$app['cache'] = $app->share(
+    function (Application $app) {
+        $parameters = $app['config']['cache']['redis'];
+
+        return function ($cachePrefix) use ($parameters) {
+            return new Doctrine\Common\Cache\PredisCache(
+                new Predis\Client(
+                    $parameters,
+                    [
+                        'prefix' => $cachePrefix . '_',
+                    ]
+                )
+            );
+        };
+    }
+);
+
+$app['cdbxml_actor_repository'] = $app->share(
+    function (Application $app) {
+        return new CacheDocumentRepository(
+            $app['cdbxml_actor_cache']
+        );
+    }
+);
+
+$app['cdbxml_actor_cache'] = $app->share(
+    function (Application $app) {
+        return $app['cache']('cdbxml_actor');
+    }
+);
+
+$app['cdbxml_document_factory'] = $app->share(
+    function () {
+        return new CdbXmlDocumentFactory('3.3');
+    }
+);
+
+$app['address_factory'] = $app->share(
+    function () {
+        return new AddressFactory();
     }
 );
 
