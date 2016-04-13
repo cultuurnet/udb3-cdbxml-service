@@ -4,6 +4,9 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventListenerInterface;
+use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
+use CultuurNet\UDB3\Cdb\ActorItemFactory;
+use CultuurNet\UDB3\Cdb\ActorItemFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
@@ -11,6 +14,8 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
+use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
+use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 
 class OrganizerToActorCdbXmlProjector implements EventListenerInterface
 {
@@ -64,6 +69,9 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @uses applyOrganizerCreated()
+     * @uses applyActorImportedFromUdb2()
      */
     public function handle(DomainMessage $domainMessage)
     {
@@ -72,6 +80,8 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
 
         $handlers = [
             OrganizerCreated::class => 'applyOrganizerCreated',
+            OrganizerImportedFromUDB2::class => 'applyActorImportedFromUdb2',
+            OrganizerUpdatedFromUDB2::class => 'applyActorImportedFromUdb2',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -137,6 +147,25 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
         $actor->setCategories($categoryList);
 
         // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+    }
+
+    /**
+     * @param ActorImportedFromUDB2 $actorImportedFromUdb2
+     * @return CdbXmlDocument
+     */
+    private function applyActorImportedFromUdb2(ActorImportedFromUDB2 $actorImportedFromUdb2)
+    {
+        // Convert the imported CdbXml to a CultureFeed Actor so we can convert
+        // it to a different CdbXml format in the CdbXmlDocumentFactory if
+        // necessary. (Eg. namespaced to non-namespaced, or 3.2 to 3.3, ...)
+        // @todo Remove this hard dependency on ActorItemFactory if possible.
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            $actorImportedFromUdb2->getCdbXmlNamespaceUri(),
+            $actorImportedFromUdb2->getCdbXml()
+        );
+
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
     }

@@ -6,12 +6,15 @@ use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
+use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
+use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 
@@ -47,7 +50,10 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             new OrganizerToActorCdbXmlProjector(
                 $this->repository,
                 new CdbXmlDocumentFactory('3.3'),
-                new AddressFactory()
+                new AddressFactory(),
+                new ActorItemFactory(
+                    \CultureFeed_Cdb_Xml::namespaceUriForVersion('3.3')
+                )
             )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
     }
@@ -77,8 +83,60 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
 
         $domainMessage = $this->createDomainMessage($id, $event);
 
-        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/actor-with-contact-info.xml');
-        $expectedCdbXmlDocument = new CdbXmlDocument($id, $expectedCdbXml);
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_organizer_imported_from_udb2()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $event = new OrganizerImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('actor-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_organizer_updated_from_udb2()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $event = new OrganizerUpdatedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('actor-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor.xml')
+        );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
@@ -113,6 +171,15 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             $event,
             $dateTime
         );
+    }
+
+    /**
+     * @param string $fileName
+     * @return string
+     */
+    private function loadCdbXmlFromFile($fileName)
+    {
+        return file_get_contents(__DIR__ . '/Repository/samples/' . $fileName);
     }
 
     /**
