@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1140b319948770f8ea826d4e5030e5e3",
-    "content-hash": "0d9a9f6c4e426ae9b1aef3afb1fd0afa",
+    "hash": "3ec933b212aa98ff6aec7eb28a9d2378",
+    "content-hash": "7a258aff536f4680c6c3d3ccffbe2ed0",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -349,16 +349,16 @@
         },
         {
             "name": "cultuurnet/broadway-amqp",
-            "version": "dev-master",
+            "version": "dev-feature/III-836",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "8952b7f545ff5324233301a05eadb3f13094b4d2"
+                "reference": "1c1e95d0aa29fd53e2fdb03be6002e871fb9d134"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/8952b7f545ff5324233301a05eadb3f13094b4d2",
-                "reference": "8952b7f545ff5324233301a05eadb3f13094b4d2",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/1c1e95d0aa29fd53e2fdb03be6002e871fb9d134",
+                "reference": "1c1e95d0aa29fd53e2fdb03be6002e871fb9d134",
                 "shasum": ""
             },
             "require": {
@@ -392,7 +392,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-31 11:54:04"
+            "time": "2016-04-13 15:00:35"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -822,12 +822,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "3b918d3026305915385cb92deebe77225cdf2903"
+                "reference": "0633fe5f26694a49464e8c2df0124a74c6c06662"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/3b918d3026305915385cb92deebe77225cdf2903",
-                "reference": "3b918d3026305915385cb92deebe77225cdf2903",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/0633fe5f26694a49464e8c2df0124a74c6c06662",
+                "reference": "0633fe5f26694a49464e8c2df0124a74c6c06662",
                 "shasum": ""
             },
             "require": {
@@ -896,7 +896,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-04-12 14:18:39"
+            "time": "2016-04-13 12:03:32"
         },
         {
             "name": "danielstjules/stringy",
@@ -4872,12 +4872,19 @@
         {
             "alias": "0.1",
             "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-836",
+            "package": "cultuurnet/broadway-amqp"
+        },
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
             "version": "dev-feature/III-845",
             "package": "cultuurnet/udb3"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
+        "cultuurnet/broadway-amqp": 20,
         "cultuurnet/udb3": 20
     },
     "prefer-stable": true,

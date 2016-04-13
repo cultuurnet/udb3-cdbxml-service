@@ -57,7 +57,7 @@ $app['cdbxml_publisher'] = $app->share(
     }
 );
 
-$app['amqp_connection'] = $app->share(
+$app['amqp.connection'] = $app->share(
     function (Application $app) {
         $amqpConfig = $host = $app['config']['amqp'];
 
@@ -73,10 +73,10 @@ $app['amqp_connection'] = $app->share(
     }
 );
 
-$app['amqp_publisher'] = $app->share(
+$app['amqp.udb2_publisher'] = $app->share(
     function (Application $app) {
         /** @var AMQPStreamConnection $connection */
-        $connection = $app['amqp_connection'];
+        $connection = $app['amqp.connection'];
         $exchange = $app['config']['amqp']['publishers']['udb2']['exchange'];
 
         $map = [
@@ -141,7 +141,7 @@ $app['event_bus_forwarding_consumer_factory'] = $app->share(
     function (Application $app) {
         return new EventBusForwardingConsumerFactory(
             Natural::fromNative($app['config']['consumerExecutionDelay']),
-            $app['config']['amqp'],
+            $app['amqp.connection'],
             $app['logger.amqp.event_bus_forwarder'],
             $app['deserializer_locator'],
             $app['event_bus.udb3-core']
@@ -159,9 +159,7 @@ foreach (['udb3-core'] as $consumerId) {
             /** @var EventBusForwardingConsumerFactory $consumerFactory */
             $consumerFactory = $app['event_bus_forwarding_consumer_factory'];
 
-            $eventBusForwardingConsumer = $consumerFactory->create($exchange, $queue);
-
-            return $eventBusForwardingConsumer->getConnection();
+            return $consumerFactory->create($exchange, $queue);
         }
     );
 }
