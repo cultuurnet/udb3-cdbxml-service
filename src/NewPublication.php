@@ -3,7 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService;
 
 use Broadway\Domain\DomainMessage;
-use CultuurNet\BroadwayAMQP\SpecificationInterface;
+use CultuurNet\BroadwayAMQP\DomainMessage\SpecificationInterface;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;

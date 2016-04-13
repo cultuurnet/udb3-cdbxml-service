@@ -1,12 +1,14 @@
 <?php
 
 use Broadway\EventHandling\SimpleEventBus;
+use CultuurNet\BroadwayAMQP\AMQPPublisher;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use DerAlex\Silex\YamlConfigServiceProvider;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Silex\Application;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
@@ -51,6 +53,54 @@ $app['cdbxml_publisher'] = $app->share(
         return new EventBusCdbXmlPublisher(
             $app['document_iri_generator'],
             $app['event.bus.udb3-core']
+        );
+    }
+);
+
+$app['amqp_connection'] = $app->share(
+    function (Application $app) {
+        $amqpConfig = $host = $app['config']['amqp'];
+
+        $connection = new AMQPStreamConnection(
+            $amqpConfig['host'],
+            $amqpConfig['port'],
+            $amqpConfig['user'],
+            $amqpConfig['password'],
+            $amqpConfig['vhost']
+        );
+
+        return $connection;
+    }
+);
+
+$app['amqp_publisher'] = $app->share(
+    function (Application $app) {
+        /** @var AMQPStreamConnection $connection */
+        $connection = $app['amqp_connection'];
+        $exchange = $app['config']['amqp']['publish']['udb2']['exchange'];
+
+        $map = [
+            \CultuurNet\UDB2DomainEvents\EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
+            \CultuurNet\UDB2DomainEvents\EventUpdated::class => 'application/vnd.cultuurnet.udb2-events.event-updated+json',
+        ];
+
+        $classes = (new \CultuurNet\BroadwayAMQP\DomainMessage\SpecificationCollection());
+        foreach (array_keys($map) as $className) {
+            $classes = $classes->with(
+                new \CultuurNet\BroadwayAMQP\DomainMessage\PayloadIsInstanceOf($className)
+            );
+        }
+
+        $specification = new \CultuurNet\BroadwayAMQP\DomainMessage\AnyOf($classes);
+
+        $contentTypeLookup = new \CultuurNet\BroadwayAMQP\ContentTypeLookup($map);
+
+        return new AMQPPublisher(
+            $connection->channel(),
+            $exchange,
+            $specification,
+            $contentTypeLookup,
+            new \CultuurNet\BroadwayAMQP\Message\EntireDomainMessageBodyFactory()
         );
     }
 );

@@ -2,13 +2,16 @@ debug: false
 bootstrap: []
 consumerExecutionDelay: 4
 amqp:
-  host: orange-gnu.rmq.cloudamqp.com
+  host: example.com
   port: 5672
-  vhost: udb3-udb2acc
-  user: udb3.bramcordie
-  password: x0YL3kGJK6
-  consumer_tag: udb3.bramcordie
+  vhost: example
+  user: foo
+  password: bar
+  consumer_tag: udb3
   consumers:
     udb3-core:
-      exchange: udb3.bramcordie.e.udb3
-      queue: udb3.bramcordie.q.udb3-cdbxml
+      exchange: udb3.e.udb3
+      queue: udb3.q.udb3-cdbxml
+  publishers:
+    udb2:
+      exchange: udb2.e.prod
