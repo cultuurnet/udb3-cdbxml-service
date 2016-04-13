@@ -25,4 +25,3 @@ interface DocumentRepositoryInterface
      */
     public function remove($id);
 }
-

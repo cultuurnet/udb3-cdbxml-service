@@ -71,7 +71,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
         $payloadClassName = get_class($payload);
 
         $handlers = [
-              OrganizerCreated::class => 'applyOrganizerCreated',
+            OrganizerCreated::class => 'applyOrganizerCreated',
         ];
 
         if (isset($handlers[$payloadClassName])) {
