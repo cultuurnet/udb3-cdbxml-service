@@ -144,7 +144,8 @@ $app['event_bus_forwarding_consumer_factory'] = $app->share(
             $app['amqp.connection'],
             $app['logger.amqp.event_bus_forwarder'],
             $app['deserializer_locator'],
-            $app['event_bus.udb3-core']
+            $app['event_bus.udb3-core'],
+            new StringLiteral($app['config']['amqp']['consumer_tag'])
         );
     }
 );
@@ -159,7 +160,9 @@ foreach (['udb3-core'] as $consumerId) {
             /** @var EventBusForwardingConsumerFactory $consumerFactory */
             $consumerFactory = $app['event_bus_forwarding_consumer_factory'];
 
-            return $consumerFactory->create($exchange, $queue);
+            $consumer = $consumerFactory->create($exchange, $queue);
+
+            return $consumer->getConnection();
         }
     );
 }
