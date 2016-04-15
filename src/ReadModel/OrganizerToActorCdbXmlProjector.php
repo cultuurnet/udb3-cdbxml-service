@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DomainMessage;
+use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
@@ -39,18 +40,26 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
     private $addressFactory;
 
     /**
+     * @var MetadataCdbItemEnricherInterface
+     */
+    private $metadataCdbItemEnricher;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param AddressFactoryInterface $addressFactory
+     * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        AddressFactoryInterface $addressFactory
+        AddressFactoryInterface $addressFactory,
+        MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
         $this->addressFactory = $addressFactory;
+        $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
 
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
     }
@@ -77,6 +86,8 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
         $payload = $domainMessage->getPayload();
         $payloadClassName = get_class($payload);
 
+        $metadata = $domainMessage->getMetadata();
+
         $handlers = [
             OrganizerCreated::class => 'applyOrganizerCreated',
             OrganizerImportedFromUDB2::class => 'applyActorImportedFromUdb2',
@@ -85,7 +96,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
 
         if (isset($handlers[$payloadClassName])) {
             $handler = $handlers[$payloadClassName];
-            $cdbXmlDocument = $this->{$handler}($payload);
+            $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
             $this->documentRepository->save($cdbXmlDocument);
 
@@ -95,10 +106,13 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
 
     /**
      * @param OrganizerCreated $organizerCreated
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyOrganizerCreated(OrganizerCreated $organizerCreated)
-    {
+    private function applyOrganizerCreated(
+        OrganizerCreated $organizerCreated,
+        Metadata $metadata
+    ) {
         // Actor.
         $actor = new \CultureFeed_Cdb_Item_Actor();
         $actor->setCdbId($organizerCreated->getOrganizerId());
@@ -145,6 +159,10 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
         );
         $actor->setCategories($categoryList);
 
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
@@ -152,10 +170,13 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface
 
     /**
      * @param ActorImportedFromUDB2 $actorImportedFromUdb2
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyActorImportedFromUdb2(ActorImportedFromUDB2 $actorImportedFromUdb2)
-    {
+    private function applyActorImportedFromUdb2(
+        ActorImportedFromUDB2 $actorImportedFromUdb2,
+        Metadata $metadata
+    ) {
         // Convert the imported CdbXml to a CultureFeed Actor so we can convert
         // it to a different CdbXml format in the CdbXmlDocumentFactory if
         // necessary. (Eg. namespaced to non-namespaced, or 3.2 to 3.3, ...)

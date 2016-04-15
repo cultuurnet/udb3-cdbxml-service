@@ -5,6 +5,8 @@ use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
@@ -36,7 +38,8 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
         return new OrganizerToActorCdbXmlProjector(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_document_factory'],
-            $app['address_factory']
+            $app['address_factory'],
+            $app['metadata_cdb_item_enricher']
         );
     }
 );
@@ -81,6 +84,14 @@ $app['cdbxml_document_factory'] = $app->share(
 $app['address_factory'] = $app->share(
     function () {
         return new AddressFactory();
+    }
+);
+
+$app['metadata_cdb_item_enricher'] = $app->share(
+    function () {
+        return new MetadataCdbItemEnricher(
+            new CdbXmlDateFormatter()
+        );
     }
 );
 

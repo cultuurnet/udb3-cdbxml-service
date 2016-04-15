@@ -60,6 +60,11 @@ class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
         );
         $actor->setCategories($categoryList);
 
+        $actor->setCreatedBy('foobar');
+        $actor->setLastUpdatedBy('foo@bar.com');
+        $actor->setCreationDate('2016-04-15T11:01:47');
+        $actor->setLastUpdated('2016-04-15T11:01:47');
+
         $data[] = [
             $actor,
             new CdbXmlDocument(

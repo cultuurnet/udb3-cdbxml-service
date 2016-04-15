@@ -40,6 +40,11 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
      */
     private $projector;
 
+    /**
+     * @var Metadata
+     */
+    private $metadata;
+
     public function setUp()
     {
         $this->cache = new ArrayCache();
@@ -51,11 +56,20 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                 $this->repository,
                 new CdbXmlDocumentFactory('3.3'),
                 new AddressFactory(),
-                new ActorItemFactory(
-                    \CultureFeed_Cdb_Xml::namespaceUriForVersion('3.3')
+                new MetadataCdbItemEnricher(
+                    new CdbXmlDateFormatter()
                 )
             )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
+
+        $this->metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710907',
+            ]
+        );
     }
 
     /**
@@ -81,7 +95,7 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             ['http://www.destudio.com']
         );
 
-        $domainMessage = $this->createDomainMessage($id, $event);
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
