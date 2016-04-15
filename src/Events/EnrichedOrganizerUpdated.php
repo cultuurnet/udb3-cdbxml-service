@@ -1,6 +1,7 @@
 <?php
 
 namespace CultuurNet\UDB3\CdbXmlService\Events;
+
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 
 /**

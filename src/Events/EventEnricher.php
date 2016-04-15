@@ -34,7 +34,7 @@ class EventEnricher implements EventListenerInterface
 
     private static $eventHandlers = [
         EventOrganizerUpdated::class => 'enrichOrganizerUpdated',
-        PlaceOrganizerUpdated::class => 'enrichOrganizerUpdated'
+        PlaceOrganizerUpdated::class => 'enrichOrganizerUpdated',
     ];
 
     /**

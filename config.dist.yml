@@ -15,3 +15,7 @@ amqp:
   publishers:
     udb2:
       exchange: udb2.e.prod
+cache:
+  redis:
+    host: 127.0.0.1
+    database: 1
