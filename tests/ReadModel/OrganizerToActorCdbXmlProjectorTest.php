@@ -18,23 +18,8 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 
-class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
+class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
-    /**
-     * @var ArrayCache
-     */
-    private $cache;
-
-    /**
-     * @var CacheDocumentRepository
-     */
-    private $repository;
-
-    /**
-     * @var CdbXmlPublisherInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $cdbXmlPublisher;
-
     /**
      * @var OrganizerToActorCdbXmlProjector
      */
@@ -47,9 +32,8 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->cache = new ArrayCache();
-        $this->repository = new CacheDocumentRepository($this->cache);
-        $this->cdbXmlPublisher = $this->getMock(CdbXmlPublisherInterface::class);
+        parent::setUp();
+        $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');
 
         $this->projector = (
             new OrganizerToActorCdbXmlProjector(
@@ -155,72 +139,5 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @param string $entityId
-     * @param object $event
-     * @param Metadata|null $metadata
-     * @param DateTime $dateTime
-     * @return DomainMessage
-     */
-    private function createDomainMessage(
-        $entityId,
-        $event,
-        Metadata $metadata = null,
-        DateTime $dateTime = null
-    ) {
-        if (is_null($metadata)) {
-            $metadata = new Metadata();
-        }
-
-        if (is_null($dateTime)) {
-            $dateTime = DateTime::now();
-        }
-
-        return new DomainMessage(
-            $entityId,
-            1,
-            $metadata,
-            $event,
-            $dateTime
-        );
-    }
-
-    /**
-     * @param string $fileName
-     * @return string
-     */
-    private function loadCdbXmlFromFile($fileName)
-    {
-        return file_get_contents(__DIR__ . '/Repository/samples/' . $fileName);
-    }
-
-    /**
-     * @param CdbXmlDocument $expectedCdbXmlDocument
-     * @param DomainMessage $domainMessage
-     */
-    private function expectCdbXmlDocumentToBePublished(
-        CdbXmlDocument $expectedCdbXmlDocument,
-        DomainMessage $domainMessage
-    ) {
-        $this->cdbXmlPublisher->expects($this->once())
-            ->method('publish')
-            ->with($expectedCdbXmlDocument, $domainMessage);
-    }
-
-    /**
-     * @param CdbXmlDocument $expectedCdbXmlDocument
-     */
-    private function assertCdbXmlDocumentInRepository(CdbXmlDocument $expectedCdbXmlDocument)
-    {
-        $cdbId = $expectedCdbXmlDocument->getId();
-        $actualCdbXmlDocument = $this->repository->get($cdbId);
-
-        if (is_null($actualCdbXmlDocument)) {
-            $this->fail("CdbXmlDocument for CdbId {$cdbId} not found.");
-        }
-
-        $this->assertEquals($expectedCdbXmlDocument->getCdbXml(), $actualCdbXmlDocument->getCdbXml());
     }
 }
