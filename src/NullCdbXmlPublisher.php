@@ -6,6 +6,9 @@ use Broadway\Domain\DomainMessage;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 
+/**
+ * @codeCoverageIgnore
+ */
 class NullCdbXmlPublisher implements CdbXmlPublisherInterface
 {
     /**
