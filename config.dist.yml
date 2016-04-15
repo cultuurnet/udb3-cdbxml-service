@@ -4,10 +4,10 @@ consumerExecutionDelay: 4
 amqp:
   host: example.com
   port: 5672
-  vhost: example
-  user: foo
-  password: bar
-  consumer_tag: udb3
+  vhost: udb3-udb2acc
+  user: username
+  password: pwd
+  consumer_tag: consumer-tag
   consumers:
     udb3-core:
       exchange: udb3.e.udb3

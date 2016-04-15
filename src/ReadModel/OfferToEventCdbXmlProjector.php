@@ -29,6 +29,4 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
     {
         // TODO: Implement handle() method.
     }
-
-
 }

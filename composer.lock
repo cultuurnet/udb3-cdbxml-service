@@ -446,12 +446,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "c8a654d953a0b7bed677a0b4d2476b5ff0683cf4"
+                "reference": "5fcd9bd1be7325d1cde495cdc01461046eb3bb33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/c8a654d953a0b7bed677a0b4d2476b5ff0683cf4",
-                "reference": "c8a654d953a0b7bed677a0b4d2476b5ff0683cf4",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/5fcd9bd1be7325d1cde495cdc01461046eb3bb33",
+                "reference": "5fcd9bd1be7325d1cde495cdc01461046eb3bb33",
                 "shasum": ""
             },
             "require-dev": {
@@ -473,7 +473,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-03-08 08:20:51"
+            "time": "2016-04-15 12:23:47"
         },
         {
             "name": "cultuurnet/clock",
@@ -822,12 +822,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "0633fe5f26694a49464e8c2df0124a74c6c06662"
+                "reference": "faf5a108859bfbf136b73fc49a7be40ddae0202c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/0633fe5f26694a49464e8c2df0124a74c6c06662",
-                "reference": "0633fe5f26694a49464e8c2df0124a74c6c06662",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/faf5a108859bfbf136b73fc49a7be40ddae0202c",
+                "reference": "faf5a108859bfbf136b73fc49a7be40ddae0202c",
                 "shasum": ""
             },
             "require": {
@@ -896,7 +896,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-04-13 12:03:32"
+            "time": "2016-04-13 15:37:41"
         },
         {
             "name": "danielstjules/stringy",

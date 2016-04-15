@@ -2,12 +2,11 @@
 
 namespace CultuurNet\UDB3\CdbXmlService;
 
-use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
-use CultuurNet\BroadwayAMQP\SpecificationInterface;
+use CultuurNet\BroadwayAMQP\DomainMessage\SpecificationInterface;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
@@ -76,9 +75,9 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         $message = new DomainMessage(
             UUID::generateAsString(),
             0,
-            new Metadata([]),
+            new Metadata($domainMessage->getMetadata()->serialize()),
             $event,
-            DateTime::now()
+            $domainMessage->getRecordedOn()
         );
 
         $this->eventBus->publish(new DomainEventStream([$message]));

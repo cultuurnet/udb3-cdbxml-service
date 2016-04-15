@@ -5,12 +5,12 @@ use CultuurNet\BroadwayAMQP\AMQPPublisher;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
-use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
-use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
+use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Silex\Application;
@@ -25,6 +25,7 @@ if (!isset($appConfigLocation)) {
 }
 $app->register(new YamlConfigServiceProvider($appConfigLocation . '/config.yml'));
 
+// Incoming event-stream from UDB3.
 $app['event_bus.udb3-core'] = $app->share(
     function (Application $app) {
         $bus =  new SimpleEventBus();
@@ -32,6 +33,70 @@ $app['event_bus.udb3-core'] = $app->share(
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
 
         return $bus;
+    }
+);
+
+// Outgoing event-stream going to UDB2.
+$app['event_bus.udb2'] = $app->share(
+    function (Application $app) {
+        $bus =  new SimpleEventBus();
+
+        $bus->subscribe($app['amqp.udb2_publisher']);
+
+        return $bus;
+    }
+);
+
+$app['organizer_to_actor_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        return (new OrganizerToActorCdbXmlProjector(
+            $app['cdbxml_actor_repository'],
+            $app['cdbxml_document_factory'],
+            $app['address_factory']
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
+    }
+);
+
+$app['cache'] = $app->share(
+    function (Application $app) {
+        $parameters = $app['config']['cache']['redis'];
+
+        return function ($cachePrefix) use ($parameters) {
+            return new Doctrine\Common\Cache\PredisCache(
+                new Predis\Client(
+                    $parameters,
+                    [
+                        'prefix' => $cachePrefix . '_',
+                    ]
+                )
+            );
+        };
+    }
+);
+
+$app['cdbxml_actor_repository'] = $app->share(
+    function (Application $app) {
+        return new CacheDocumentRepository(
+            $app['cdbxml_actor_cache']
+        );
+    }
+);
+
+$app['cdbxml_actor_cache'] = $app->share(
+    function (Application $app) {
+        return $app['cache']('cdbxml_actor');
+    }
+);
+
+$app['cdbxml_document_factory'] = $app->share(
+    function () {
+        return new CdbXmlDocumentFactory('3.3');
+    }
+);
+
+$app['address_factory'] = $app->share(
+    function () {
+        return new AddressFactory();
     }
 );
 
@@ -109,7 +174,7 @@ $app['cdbxml_publisher'] = $app->share(
     function (Application $app) {
         return new EventBusCdbXmlPublisher(
             $app['document_iri_generator'],
-            $app['event.bus.udb3-core']
+            $app['event_bus.udb2']
         );
     }
 );
@@ -139,6 +204,7 @@ $app['amqp.udb2_publisher'] = $app->share(
         $map = [
             \CultuurNet\UDB2DomainEvents\EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
             \CultuurNet\UDB2DomainEvents\EventUpdated::class => 'application/vnd.cultuurnet.udb2-events.event-updated+json',
+            \CultuurNet\UDB2DomainEvents\ActorCreated::class => 'application/vnd.cultuurnet.udb2-events.actor-created+json',
         ];
 
         $classes = (new \CultuurNet\BroadwayAMQP\DomainMessage\SpecificationCollection());
@@ -152,13 +218,32 @@ $app['amqp.udb2_publisher'] = $app->share(
 
         $contentTypeLookup = new \CultuurNet\BroadwayAMQP\ContentTypeLookup($map);
 
-        return new AMQPPublisher(
+        $publisher = new AMQPPublisher(
             $connection->channel(),
             $exchange,
             $specification,
             $contentTypeLookup,
             new \CultuurNet\BroadwayAMQP\Message\EntireDomainMessageBodyFactory()
         );
+
+        $publisher->setLogger($app['logger.amqp.udb2_publisher']);
+
+        return $publisher;
+    }
+);
+
+$app['logger.amqp.udb2_publisher'] = $app->share(
+    function (Application $app) {
+        $logger = new Monolog\Logger('amqp.udb2_publisher');
+        $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
+
+        $logFileHandler = new \Monolog\Handler\StreamHandler(
+            __DIR__ . '/log/amqp.log',
+            \Monolog\Logger::DEBUG
+        );
+        $logger->pushHandler($logFileHandler);
+
+        return $logger;
     }
 );
 
