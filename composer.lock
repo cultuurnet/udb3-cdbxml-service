@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3ec933b212aa98ff6aec7eb28a9d2378",
-    "content-hash": "7a258aff536f4680c6c3d3ccffbe2ed0",
+    "hash": "6b61492ca87dfcffe28feb64fc0d21d0",
+    "content-hash": "3846ebee09ea91a4a98cf22cc2cce75f",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -353,12 +353,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "1c1e95d0aa29fd53e2fdb03be6002e871fb9d134"
+                "reference": "8815cee2ee894f3344dc93507cdce4d1a7ab277c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/1c1e95d0aa29fd53e2fdb03be6002e871fb9d134",
-                "reference": "1c1e95d0aa29fd53e2fdb03be6002e871fb9d134",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/8815cee2ee894f3344dc93507cdce4d1a7ab277c",
+                "reference": "8815cee2ee894f3344dc93507cdce4d1a7ab277c",
                 "shasum": ""
             },
             "require": {
@@ -392,7 +392,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-04-13 15:00:35"
+            "time": "2016-04-18 07:24:59"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -770,19 +770,20 @@
         },
         {
             "name": "cultuurnet/udb2-domain-events",
-            "version": "dev-master",
+            "version": "dev-feature/III-836",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb2-domain-events.git",
-                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453"
+                "reference": "b4949aef4067a24f3275aba9a1c5cb0223417be6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/1f2857b4cd957c17e051536a8402d8e595d08453",
-                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453",
+                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/b4949aef4067a24f3275aba9a1c5cb0223417be6",
+                "reference": "b4949aef4067a24f3275aba9a1c5cb0223417be6",
                 "shasum": ""
             },
             "require": {
+                "broadway/broadway": "~0.5.2",
                 "cultuurnet/deserializer": "~0.1",
                 "nicolopignatelli/valueobjects": "~2.0"
             },
@@ -814,7 +815,7 @@
                 }
             ],
             "description": "PHP models for domain events in UiTdatabank version 2",
-            "time": "2016-03-22 08:50:32"
+            "time": "2016-04-15 14:29:11"
         },
         {
             "name": "cultuurnet/udb3",
@@ -822,12 +823,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "faf5a108859bfbf136b73fc49a7be40ddae0202c"
+                "reference": "32853b424e43397e4f1a2db2a7d210a7a7c25048"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/faf5a108859bfbf136b73fc49a7be40ddae0202c",
-                "reference": "faf5a108859bfbf136b73fc49a7be40ddae0202c",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/32853b424e43397e4f1a2db2a7d210a7a7c25048",
+                "reference": "32853b424e43397e4f1a2db2a7d210a7a7c25048",
                 "shasum": ""
             },
             "require": {
@@ -896,7 +897,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-04-13 15:37:41"
+            "time": "2016-04-15 15:47:07"
         },
         {
             "name": "danielstjules/stringy",
@@ -4880,12 +4881,19 @@
             "alias_normalized": "0.1.0.0",
             "version": "dev-feature/III-845",
             "package": "cultuurnet/udb3"
+        },
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-836",
+            "package": "cultuurnet/udb2-domain-events"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
         "cultuurnet/broadway-amqp": 20,
-        "cultuurnet/udb3": 20
+        "cultuurnet/udb3": 20,
+        "cultuurnet/udb2-domain-events": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
