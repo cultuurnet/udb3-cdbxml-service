@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "09a21e79a76ef735077d7f6221d3c1dd",
-    "content-hash": "9904f7bbbe8cb70940ced59feae1c249",
+    "hash": "df0931512a23a1b3d8d23b57a88f4ec5",
+    "content-hash": "3c548b535c925421970c1551a38d5e14",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -299,6 +299,54 @@
             ],
             "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
             "time": "2014-12-30 15:22:37"
+        },
+        {
+            "name": "crell/api-problem",
+            "version": "1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Crell/ApiProblem.git",
+                "reference": "5e871a0f6804417c2cc516d67a73607bc3f12d5f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Crell/ApiProblem/zipball/5e871a0f6804417c2cc516d67a73607bc3f12d5f",
+                "reference": "5e871a0f6804417c2cc516d67a73607bc3f12d5f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Crell\\ApiProblem\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Larry Garfield",
+                    "email": "larry@garfieldtech.com",
+                    "homepage": "http://www.garfieldtech.com/"
+                }
+            ],
+            "description": "PHP wrapper for the api-problem IETF specification",
+            "homepage": "https://github.com/Crell/ApiProblem",
+            "keywords": [
+                "api-problem",
+                "http",
+                "json",
+                "rest",
+                "xml"
+            ],
+            "time": "2014-10-07 17:43:34"
         },
         {
             "name": "cultuurnet/auth",
