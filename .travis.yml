@@ -2,10 +2,14 @@ language: php
 php:
 - 5.5
 - 5.6
-install: composer install
-script: ./vendor/bin/phing test
-after_success: ./vendor/bin/phing report-to-coveralls
+install:
+- composer install
+script:
+- ./vendor/bin/phing test
+after_script:
+- if [[ "$TRAVIS_PHP_VERSION" = "5.6" ]]; then ./vendor/bin/coveralls -vvv; fi;
 notifications:
   email:
     recipients:
-      - johndoe@example.com
+    - nicolas@2dotstwice.be
+    - bert@2dotstwice
