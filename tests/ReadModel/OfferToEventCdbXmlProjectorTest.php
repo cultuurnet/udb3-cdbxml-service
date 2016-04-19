@@ -10,9 +10,11 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\PlaceService;
+use CultuurNet\UDB3\ReadModel\JsonDocument;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use stdClass;
 
 class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -68,12 +70,12 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $timestamps = [
             new Timestamp(
-                '2014-01-31T12:00:00+01:00',
-                '2014-01-31T15:00:00+01:00'
+                '2014-01-31T13:00:00+01:00',
+                '2014-01-31T16:00:00+01:00'
             ),
             new Timestamp(
-                '2014-02-20T12:00:00+01:00',
-                '2014-02-20T15:00:00+01:00'
+                '2014-02-20T13:00:00+01:00',
+                '2014-02-20T16:00:00+01:00'
             ),
         ];
 
@@ -82,19 +84,43 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
             new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
-            new Calendar('multiple', '2014-01-31T12:00:00+01:00', '2014-02-20T15:00:00+01:00', $timestamps),
+            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             new Theme('1.7.6.0.0', 'Griezelfilm of horror')
         );
+
+        $placeId = 'LOCATION-ABC-123';
+        $placeCreated = '2015-01-20T13:25:21+01:00';
+        $placeJsonLD = new stdClass();
+        $placeJsonLD->{'@id'} = 'http://example.com/entity/' . $placeId;
+        $placeJsonLD->{'@context'} = '/api/1.0/place.jsonld';
+        $placeJsonLD->name = (object)[ 'nl' => '$name' ];
+        $placeJsonLD->address = (object)[
+            'addressCountry' => '$country',
+            'addressLocality' => '$locality',
+            'postalCode' => '$postalCode',
+            'streetAddress' => '$street',
+        ];
+        $placeJsonLD->calendarType = 'permanent';
+        $placeJsonLD->terms = [
+            (object)[
+                'id' => '0.50.4.0.0',
+                'label' => 'concert',
+                'domain' => 'eventtype',
+            ]
+        ];
+        $placeJsonLD->created = $placeCreated;
+        $placeJsonLD->modified = $placeCreated;
         
         $this->placeService->expects($this->once())
             ->method('getEntity')
             ->with('LOCATION-ABC-123')
+            ->willReturn(json_encode($placeJsonLD));
 
         $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+            $this->loadCdbXmlFromFile('event.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
