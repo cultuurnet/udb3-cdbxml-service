@@ -18,44 +18,42 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 
-class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
+class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
-    /**
-     * @var ArrayCache
-     */
-    private $cache;
-
-    /**
-     * @var CacheDocumentRepository
-     */
-    private $repository;
-
-    /**
-     * @var CdbXmlPublisherInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $cdbXmlPublisher;
-
     /**
      * @var OrganizerToActorCdbXmlProjector
      */
     private $projector;
 
+    /**
+     * @var Metadata
+     */
+    private $metadata;
+
     public function setUp()
     {
-        $this->cache = new ArrayCache();
-        $this->repository = new CacheDocumentRepository($this->cache);
-        $this->cdbXmlPublisher = $this->getMock(CdbXmlPublisherInterface::class);
+        parent::setUp();
+        $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');
 
         $this->projector = (
             new OrganizerToActorCdbXmlProjector(
                 $this->repository,
                 new CdbXmlDocumentFactory('3.3'),
                 new AddressFactory(),
-                new ActorItemFactory(
-                    \CultureFeed_Cdb_Xml::namespaceUriForVersion('3.3')
+                new MetadataCdbItemEnricher(
+                    new CdbXmlDateFormatter()
                 )
             )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
+
+        $this->metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710907',
+            ]
+        );
     }
 
     /**
@@ -81,7 +79,7 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             ['http://www.destudio.com']
         );
 
-        $domainMessage = $this->createDomainMessage($id, $event);
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -141,72 +139,5 @@ class OrganizerToActorCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @param string $entityId
-     * @param object $event
-     * @param Metadata|null $metadata
-     * @param DateTime $dateTime
-     * @return DomainMessage
-     */
-    private function createDomainMessage(
-        $entityId,
-        $event,
-        Metadata $metadata = null,
-        DateTime $dateTime = null
-    ) {
-        if (is_null($metadata)) {
-            $metadata = new Metadata();
-        }
-
-        if (is_null($dateTime)) {
-            $dateTime = DateTime::now();
-        }
-
-        return new DomainMessage(
-            $entityId,
-            1,
-            $metadata,
-            $event,
-            $dateTime
-        );
-    }
-
-    /**
-     * @param string $fileName
-     * @return string
-     */
-    private function loadCdbXmlFromFile($fileName)
-    {
-        return file_get_contents(__DIR__ . '/Repository/samples/' . $fileName);
-    }
-
-    /**
-     * @param CdbXmlDocument $expectedCdbXmlDocument
-     * @param DomainMessage $domainMessage
-     */
-    private function expectCdbXmlDocumentToBePublished(
-        CdbXmlDocument $expectedCdbXmlDocument,
-        DomainMessage $domainMessage
-    ) {
-        $this->cdbXmlPublisher->expects($this->once())
-            ->method('publish')
-            ->with($expectedCdbXmlDocument, $domainMessage);
-    }
-
-    /**
-     * @param CdbXmlDocument $expectedCdbXmlDocument
-     */
-    private function assertCdbXmlDocumentInRepository(CdbXmlDocument $expectedCdbXmlDocument)
-    {
-        $cdbId = $expectedCdbXmlDocument->getId();
-        $actualCdbXmlDocument = $this->repository->get($cdbId);
-
-        if (is_null($actualCdbXmlDocument)) {
-            $this->fail("CdbXmlDocument for CdbId {$cdbId} not found.");
-        }
-
-        $this->assertEquals($expectedCdbXmlDocument->getCdbXml(), $actualCdbXmlDocument->getCdbXml());
     }
 }

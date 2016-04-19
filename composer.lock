@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6b61492ca87dfcffe28feb64fc0d21d0",
-    "content-hash": "3846ebee09ea91a4a98cf22cc2cce75f",
+    "hash": "43ca8c1b9f5b686fe94090c61cbae939",
+    "content-hash": "0a7ba0cb0ec0126566cfc295ab9e8c13",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -774,12 +774,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb2-domain-events.git",
-                "reference": "b4949aef4067a24f3275aba9a1c5cb0223417be6"
+                "reference": "a638c350c939ec241ff6fb64ec6be5bcb4594626"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/b4949aef4067a24f3275aba9a1c5cb0223417be6",
-                "reference": "b4949aef4067a24f3275aba9a1c5cb0223417be6",
+                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/a638c350c939ec241ff6fb64ec6be5bcb4594626",
+                "reference": "a638c350c939ec241ff6fb64ec6be5bcb4594626",
                 "shasum": ""
             },
             "require": {
@@ -815,20 +815,20 @@
                 }
             ],
             "description": "PHP models for domain events in UiTdatabank version 2",
-            "time": "2016-04-15 14:29:11"
+            "time": "2016-04-19 14:16:56"
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-845",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "32853b424e43397e4f1a2db2a7d210a7a7c25048"
+                "reference": "f56cefaca2f4de0e2af3a5a33dd6c65d2fea3979"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/32853b424e43397e4f1a2db2a7d210a7a7c25048",
-                "reference": "32853b424e43397e4f1a2db2a7d210a7a7c25048",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/f56cefaca2f4de0e2af3a5a33dd6c65d2fea3979",
+                "reference": "f56cefaca2f4de0e2af3a5a33dd6c65d2fea3979",
                 "shasum": ""
             },
             "require": {
@@ -897,7 +897,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-04-15 15:47:07"
+            "time": "2016-04-19 09:49:30"
         },
         {
             "name": "danielstjules/stringy",
@@ -3470,16 +3470,16 @@
         },
         {
             "name": "zendframework/zend-validator",
-            "version": "2.7.1",
+            "version": "2.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-validator.git",
-                "reference": "dbacb36514ebc0ec96b9263730eaaa6f0c502197"
+                "reference": "063694d3c781f284ab8f846b8af64c45d94aaf51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-validator/zipball/dbacb36514ebc0ec96b9263730eaaa6f0c502197",
-                "reference": "dbacb36514ebc0ec96b9263730eaaa6f0c502197",
+                "url": "https://api.github.com/repos/zendframework/zend-validator/zipball/063694d3c781f284ab8f846b8af64c45d94aaf51",
+                "reference": "063694d3c781f284ab8f846b8af64c45d94aaf51",
                 "shasum": ""
             },
             "require": {
@@ -3537,7 +3537,7 @@
                 "validator",
                 "zf2"
             ],
-            "time": "2016-04-06 15:44:10"
+            "time": "2016-04-18 17:28:37"
         }
     ],
     "packages-dev": [
@@ -4879,12 +4879,6 @@
         {
             "alias": "0.1",
             "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-845",
-            "package": "cultuurnet/udb3"
-        },
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
             "version": "dev-feature/III-836",
             "package": "cultuurnet/udb2-domain-events"
         }
@@ -4892,7 +4886,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "cultuurnet/broadway-amqp": 20,
-        "cultuurnet/udb3": 20,
         "cultuurnet/udb2-domain-events": 20
     },
     "prefer-stable": true,
