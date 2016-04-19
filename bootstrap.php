@@ -2,9 +2,17 @@
 
 use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\AMQPPublisher;
+use CultuurNet\BroadwayAMQP\ContentTypeLookup;
+use CultuurNet\BroadwayAMQP\DomainMessage\AnyOf;
+use CultuurNet\BroadwayAMQP\DomainMessage\PayloadIsInstanceOf;
+use CultuurNet\BroadwayAMQP\DomainMessage\SpecificationCollection;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
+use CultuurNet\BroadwayAMQP\Message\EntireDomainMessageBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
+use CultuurNet\UDB2DomainEvents\ActorCreated;
+use CultuurNet\UDB2DomainEvents\EventCreated;
+use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
@@ -14,6 +22,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use DerAlex\Silex\YamlConfigServiceProvider;
+use Monolog\Handler\StreamHandler;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Silex\Application;
 use ValueObjects\Number\Natural;
@@ -162,28 +171,28 @@ $app['amqp.udb2_publisher'] = $app->share(
         $exchange = $app['config']['amqp']['publishers']['udb2']['exchange'];
 
         $map = [
-            \CultuurNet\UDB2DomainEvents\EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
-            \CultuurNet\UDB2DomainEvents\EventUpdated::class => 'application/vnd.cultuurnet.udb2-events.event-updated+json',
-            \CultuurNet\UDB2DomainEvents\ActorCreated::class => 'application/vnd.cultuurnet.udb2-events.actor-created+json',
+            EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
+            EventUpdated::class => 'application/vnd.cultuurnet.udb2-events.event-updated+json',
+            ActorCreated::class => 'application/vnd.cultuurnet.udb2-events.actor-created+json',
         ];
 
-        $classes = (new \CultuurNet\BroadwayAMQP\DomainMessage\SpecificationCollection());
+        $classes = new SpecificationCollection();
         foreach (array_keys($map) as $className) {
             $classes = $classes->with(
-                new \CultuurNet\BroadwayAMQP\DomainMessage\PayloadIsInstanceOf($className)
+                new PayloadIsInstanceOf($className)
             );
         }
 
-        $specification = new \CultuurNet\BroadwayAMQP\DomainMessage\AnyOf($classes);
+        $specification = new AnyOf($classes);
 
-        $contentTypeLookup = new \CultuurNet\BroadwayAMQP\ContentTypeLookup($map);
+        $contentTypeLookup = new ContentTypeLookup($map);
 
         $publisher = new AMQPPublisher(
             $connection->channel(),
             $exchange,
             $specification,
             $contentTypeLookup,
-            new \CultuurNet\BroadwayAMQP\Message\EntireDomainMessageBodyFactory()
+            new EntireDomainMessageBodyFactory()
         );
 
         $publisher->setLogger($app['logger.amqp.udb2_publisher']);
@@ -195,9 +204,9 @@ $app['amqp.udb2_publisher'] = $app->share(
 $app['logger.amqp.udb2_publisher'] = $app->share(
     function (Application $app) {
         $logger = new Monolog\Logger('amqp.udb2_publisher');
-        $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
+        $logger->pushHandler(new StreamHandler('php://stdout'));
 
-        $logFileHandler = new \Monolog\Handler\StreamHandler(
+        $logFileHandler = new StreamHandler(
             __DIR__ . '/log/amqp.log',
             \Monolog\Logger::DEBUG
         );
@@ -210,9 +219,9 @@ $app['logger.amqp.udb2_publisher'] = $app->share(
 $app['logger.amqp.event_bus_forwarder'] = $app->share(
     function (Application $app) {
         $logger = new Monolog\Logger('amqp.event_bus_forwarder');
-        $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
+        $logger->pushHandler(new StreamHandler('php://stdout'));
 
-        $logFileHandler = new \Monolog\Handler\StreamHandler(
+        $logFileHandler = new StreamHandler(
             __DIR__ . '/log/amqp.log',
             \Monolog\Logger::DEBUG
         );
