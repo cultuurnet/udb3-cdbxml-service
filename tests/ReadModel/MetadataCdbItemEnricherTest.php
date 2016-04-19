@@ -23,6 +23,8 @@ class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        date_default_timezone_set('Europe/Brussels');
+
         $this->dateFormatter = new CdbXmlDateFormatter();
 
         $this->cdbItemBase = $this->getMockForAbstractClass(\CultureFeed_Cdb_Item_Base::class);
