@@ -54,62 +54,9 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
         return (new OrganizerToActorCdbXmlProjector(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_document_factory'],
-            $app['address_factory']
-        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
-    }
-);
-
-$app['cache'] = $app->share(
-    function (Application $app) {
-        $parameters = $app['config']['cache']['redis'];
-
-        return function ($cachePrefix) use ($parameters) {
-            return new Doctrine\Common\Cache\PredisCache(
-                new Predis\Client(
-                    $parameters,
-                    [
-                        'prefix' => $cachePrefix . '_',
-                    ]
-                )
-            );
-        };
-    }
-);
-
-$app['cdbxml_actor_repository'] = $app->share(
-    function (Application $app) {
-        return new CacheDocumentRepository(
-            $app['cdbxml_actor_cache']
-        );
-    }
-);
-
-$app['cdbxml_actor_cache'] = $app->share(
-    function (Application $app) {
-        return $app['cache']('cdbxml_actor');
-    }
-);
-
-$app['cdbxml_document_factory'] = $app->share(
-    function () {
-        return new CdbXmlDocumentFactory('3.3');
-    }
-);
-
-$app['address_factory'] = $app->share(
-    function () {
-        return new AddressFactory();
-    }
-);
-
-$app['organizer_to_actor_cdbxml_projector'] = $app->share(
-    function (Application $app) {
-        return new OrganizerToActorCdbXmlProjector(
-            $app['cdbxml_actor_repository'],
-            $app['cdbxml_document_factory'],
             $app['address_factory'],
             $app['metadata_cdb_item_enricher']
-        );
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
     }
 );
 
