@@ -74,12 +74,12 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $timestamps = [
             new Timestamp(
-                '2014-01-31T13:00:00+01:00',
-                '2014-01-31T16:00:00+01:00'
+                '2014-01-31T12:00:00',
+                '2014-01-31T15:00:00'
             ),
             new Timestamp(
-                '2014-02-20T13:00:00+01:00',
-                '2014-02-20T16:00:00+01:00'
+                '2014-02-20T12:00:00',
+                '2014-02-20T15:00:00'
             ),
         ];
 
@@ -93,7 +93,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
 
         $placeId = 'LOCATION-ABC-123';
-        $placeCreated = '2015-01-20T13:25:21+01:00';
+        $placeCreated = '2015-01-20T13:25:21';
         $placeJsonLD = new stdClass();
         $placeJsonLD->{'@id'} = 'http://example.com/entity/' . $placeId;
         $placeJsonLD->{'@context'} = '/api/1.0/place.jsonld';
