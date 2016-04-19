@@ -97,8 +97,8 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $placeJsonLD = new stdClass();
         $placeJsonLD->{'@id'} = 'http://example.com/entity/' . $placeId;
         $placeJsonLD->{'@context'} = '/api/1.0/place.jsonld';
-        $placeJsonLD->name = (object)[ 'nl' => '$name' ];
-        $placeJsonLD->address = (object)[
+        $placeJsonLD->name = (object) [ 'nl' => '$name' ];
+        $placeJsonLD->address = (object) [
             'addressCountry' => '$country',
             'addressLocality' => '$locality',
             'postalCode' => '$postalCode',
@@ -106,11 +106,11 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         ];
         $placeJsonLD->calendarType = 'permanent';
         $placeJsonLD->terms = [
-            (object)[
+            (object) [
                 'id' => '0.50.4.0.0',
                 'label' => 'concert',
                 'domain' => 'eventtype',
-            ]
+            ],
         ];
         $placeJsonLD->created = $placeCreated;
         $placeJsonLD->modified = $placeCreated;
