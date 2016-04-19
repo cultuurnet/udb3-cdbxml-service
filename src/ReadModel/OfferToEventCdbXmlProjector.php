@@ -22,6 +22,7 @@ use CultureFeed_Cdb_Data_EventDetail;
 use CultureFeed_Cdb_Data_EventDetailList;
 use CultureFeed_Cdb_Data_Location;
 use CultureFeed_Cdb_Item_Event;
+use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
@@ -31,7 +32,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterfa
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Location;
-use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
+use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\PlaceService;
 
@@ -108,6 +109,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
             EventCreated::class => 'applyEventCreated',
+            PlaceCreated::class => 'applyPlaceCreated',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -120,6 +122,11 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         }
     }
 
+    /**
+     * @param EventCreated $eventCreated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
     public function applyEventCreated(
         EventCreated $eventCreated,
         Metadata $metadata
@@ -153,6 +160,62 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
                 'theme',
                 $eventCreated->getTheme()->getId(),
                 $eventCreated->getTheme()->getLabel()
+            );
+            $event->getCategories()->add($theme);
+        }
+
+        // Empty contact info.
+        $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+        $event->setContactInfo($contactInfo);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param PlaceCreated $placeCreated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyPlaceCreated(
+        PlaceCreated $placeCreated,
+        Metadata $metadata
+    ) {
+        $event = new CultureFeed_Cdb_Item_Event();
+        $event->setCdbId($placeCreated->getPlaceId());
+        $event->addKeyword('UDB3 place');
+
+        $nlDetail = new CultureFeed_Cdb_Data_EventDetail();
+        $nlDetail->setLanguage('nl');
+        $nlDetail->setTitle($placeCreated->getTitle());
+
+        $details = new CultureFeed_Cdb_Data_EventDetailList();
+        $details->add($nlDetail);
+        $event->setDetails($details);
+
+        // Set location and calendar info.
+        $this->setLocationForPlaceCreated($placeCreated, $event);
+        $this->setCalendar($placeCreated->getCalendar(), $event);
+
+        // Set event type and theme.
+        $event->setCategories(new CultureFeed_Cdb_Data_CategoryList());
+        $eventType = new CultureFeed_Cdb_Data_Category(
+            'eventtype',
+            $placeCreated->getEventType()->getId(),
+            $placeCreated->getEventType()->getLabel()
+        );
+        $event->getCategories()->add($eventType);
+
+        if ($placeCreated->getTheme() !== null) {
+            $theme = new CultureFeed_Cdb_Data_Category(
+                'theme',
+                $placeCreated->getTheme()->getId(),
+                $placeCreated->getTheme()->getLabel()
             );
             $event->getCategories()->add($theme);
         }
@@ -350,6 +413,49 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         }
 
         $cdbEvent->setCalendar($calendar);
+    }
 
+    /**
+     * Set the location on the cdbEvent based on a PlaceCreated event.
+     * @param PlaceCreated $placeCreated
+     * @param CultureFeed_Cdb_Item_Event $cdbEvent
+     */
+    private function setLocationForPlaceCreated(PlaceCreated $placeCreated, CultureFeed_Cdb_Item_Event $cdbEvent)
+    {
+        $address = $placeCreated->getAddress();
+        $cdbAddress = new CultureFeed_Cdb_Data_Address(
+            $this->getPhysicalAddressForUdb3Address($address)
+        );
+
+        $location = new CultureFeed_Cdb_Data_Location($cdbAddress);
+        $location->setLabel($placeCreated->getTitle());
+        $cdbEvent->setLocation($location);
+    }
+
+    /**
+     * Create a physical addres based on a given udb3 address.
+     * @param Address $address
+     */
+    protected function getPhysicalAddressForUdb3Address(Address $address)
+    {
+        $physicalAddress = new CultureFeed_Cdb_Data_Address_PhysicalAddress();
+        $physicalAddress->setCountry($address->getCountry());
+        $physicalAddress->setCity($address->getLocality());
+        $physicalAddress->setZip($address->getPostalCode());
+
+        // @todo This is not an exact mapping, because we do not have a separate
+        // house number in JSONLD, this should be fixed somehow. Probably it's
+        // better to use another read model than JSON-LD for this purpose.
+        $streetParts = explode(' ', $address->getStreetAddress());
+
+        if (count($streetParts) > 1) {
+            $number = array_pop($streetParts);
+            $physicalAddress->setStreet(implode(' ', $streetParts));
+            $physicalAddress->setHouseNumber($number);
+        } else {
+            $physicalAddress->setStreet($address->getStreetAddress());
+        }
+
+        return $physicalAddress;
     }
 }

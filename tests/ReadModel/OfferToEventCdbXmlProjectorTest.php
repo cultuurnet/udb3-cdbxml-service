@@ -3,12 +3,14 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
+use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\PlaceService;
 use CultuurNet\UDB3\ReadModel\JsonDocument;
 use CultuurNet\UDB3\Theme;
@@ -121,6 +123,33 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_place_created()
+    {
+        $id = 'MY-PLACE-123';
+
+        $place = new PlaceCreated(
+            $id,
+            new Title('My Place'),
+            new EventType('0.50.4.0.0', 'concert'),
+            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Calendar('permanent')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
