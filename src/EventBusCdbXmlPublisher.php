@@ -35,9 +35,11 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
      * @var SpecificationInterface
      */
     private $newPublication;
-    
+
     /**
      * CDBXMLPublisher constructor.
+     * @param IriGeneratorInterface $iriGenerator
+     * @param EventBusInterface $eventBus
      */
     public function __construct(
         IriGeneratorInterface $iriGenerator,
@@ -112,7 +114,7 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
                 'An offer type could not be determined for the domain-event with class: ' . $eventClass
             );
         }
-        
+
         return $type;
     }
 }
