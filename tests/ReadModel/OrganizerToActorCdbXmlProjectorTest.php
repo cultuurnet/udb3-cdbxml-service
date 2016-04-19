@@ -35,6 +35,8 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         parent::setUp();
         $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');
 
+        date_default_timezone_set('Europe/Brussels');
+
         $this->projector = (
             new OrganizerToActorCdbXmlProjector(
                 $this->repository,

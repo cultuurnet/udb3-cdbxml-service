@@ -20,6 +20,8 @@ use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
 
+date_default_timezone_set('Europe/Brussels');
+
 $app = new Application();
 
 if (!isset($appConfigLocation)) {
