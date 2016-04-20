@@ -178,7 +178,16 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $title
         );
 
-        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $this->metadata);
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -206,7 +215,16 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $description
         );
 
-        $domainMessage = $this->createDomainMessage($id, $descriptionTranslated, $this->metadata);
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461155055',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $descriptionTranslated, $metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,

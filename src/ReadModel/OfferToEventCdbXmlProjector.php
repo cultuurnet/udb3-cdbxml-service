@@ -35,6 +35,8 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
+use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
+use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -266,6 +268,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $details->add($detail);
         $event->setDetails($details);
 
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
@@ -293,9 +299,27 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $details->add($detail);
         $event->setDetails($details);
 
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    public function applyLabelAdded(
+        AbstractLabelAdded $labelAdded,
+        Metadata $metadata
+    ){
+
+    }
+
+    public function applyLabelDeleted(
+        AbstractLabelDeleted $labelDeleted,
+        Metadata $metadata
+    ){
+
     }
 
     /**
