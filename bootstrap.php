@@ -150,7 +150,7 @@ $app['cdbxml_publisher'] = $app->share(
 
 $app['amqp.connection'] = $app->share(
     function (Application $app) {
-        $amqpConfig = $host = $app['config']['amqp'];
+        $amqpConfig = $app['config']['amqp'];
 
         $connection = new AMQPStreamConnection(
             $amqpConfig['host'],
