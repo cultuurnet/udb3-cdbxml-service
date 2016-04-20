@@ -77,7 +77,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
             ->willThrowException(new DocumentGoneException());
 
         $actualResponse = $this->controller->get($cdbid);
-        $expectedResponse = new Response($problemXml, 404, ['Content-Type' => 'xml']);
+        $expectedResponse = new Response($problemXml, 410, ['Content-Type' => 'xml']);
 
         $this->assertEquals($expectedResponse, $actualResponse);
     }

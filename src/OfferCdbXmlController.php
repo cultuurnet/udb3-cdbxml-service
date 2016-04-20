@@ -5,7 +5,6 @@ namespace CultuurNet\UDB3\CdbXmlService;
 use Crell\ApiProblem\ApiProblem;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class OfferCdbXmlController
@@ -38,9 +37,11 @@ class OfferCdbXmlController
 
             if (is_null($offer)) {
                 $problem = new ApiProblem('The document could not be found.');
+                $problem->setStatus(Response::HTTP_NOT_FOUND);
             }
         } catch (DocumentGoneException $e) {
             $problem = new ApiProblem('The document is gone.');
+            $problem->setStatus(Response::HTTP_GONE);
         }
 
         if (isset($offer)) {
@@ -50,12 +51,11 @@ class OfferCdbXmlController
         if (isset($problem)) {
             $problem
                 ->setDetail('A problem occurred when trying to show the document with id: ' .$cdbid)
-                ->setType('about:blank')
-                ->setStatus(404);
+                ->setType('about:blank');
 
             $response
                 ->setContent($problem->asXml())
-                ->setStatusCode(404);
+                ->setStatusCode($problem->getStatus());
         }
 
         return $response;
