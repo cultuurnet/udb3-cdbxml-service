@@ -25,13 +25,18 @@ use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
+use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
+use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
+use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\PlaceService;
@@ -110,6 +115,8 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceTitleTranslated::class => 'applyTitleTranslated',
             EventCreated::class => 'applyEventCreated',
             PlaceCreated::class => 'applyPlaceCreated',
+            EventDescriptionTranslated::class => 'applyDescriptionTranslated',
+            PlaceDescriptionTranslated::class => 'applyDescriptionTranslated',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -233,12 +240,63 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             ->fromCulturefeedCdbItem($event);
     }
 
-//    public function applyTitleTranslated(
-//        AbstractTitleTranslated $titleTranslated,
-//        Metadata $metadata
-//    ) {
-//
-//    }
+    /**
+     * @param AbstractTitleTranslated $titleTranslated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     * @throws \CultureFeed_Cdb_ParseException
+     */
+    public function applyTitleTranslated(
+        AbstractTitleTranslated $titleTranslated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($titleTranslated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $details = $event->getDetails();
+
+        $detail = new CultureFeed_Cdb_Data_EventDetail();
+        $detail->setLanguage($titleTranslated->getLanguage()->getCode());
+        $detail->setTitle($titleTranslated->getTitle());
+
+        $details->add($detail);
+        $event->setDetails($details);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    public function applyDescriptionTranslated(
+        AbstractDescriptionTranslated $descriptionTranslated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($descriptionTranslated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $details = $event->getDetails();
+
+        $detail = new CultureFeed_Cdb_Data_EventDetail();
+        $detail->setLanguage($descriptionTranslated->getLanguage()->getCode());
+        $description = $descriptionTranslated->getDescription()->toNative();
+        $detail->setLongDescription($description);
+        $detail->setShortDescription(iconv_substr($description, 0, 400));
+
+        $details->add($detail);
+        $event->setDetails($details);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
 
     /**
      * Set the location on the cdb event based on an eventCreated event.
