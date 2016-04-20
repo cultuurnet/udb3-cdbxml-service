@@ -13,4 +13,7 @@ $app = require __DIR__ . '/../bootstrap.php';
  */
 $app->register(new ServiceControllerServiceProvider());
 
+$app->get('/event/{cdbid}', 'cdbxml_offer.controller:get');
+$app->get('/place/{cdbid}', 'cdbxml_offer.controller:get');
+
 $app->run();

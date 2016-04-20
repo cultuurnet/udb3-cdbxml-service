@@ -5,6 +5,7 @@ use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
+use CultuurNet\UDB3\CdbXmlService\OfferCdbXmlController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
@@ -74,6 +75,20 @@ $app['cdbxml_actor_repository'] = $app->share(
 $app['cdbxml_actor_cache'] = $app->share(
     function (Application $app) {
         return $app['cache']('cdbxml_actor');
+    }
+);
+
+$app['cdbxml_offer_repository'] = $app->share(
+    function (Application $app) {
+        return new CacheDocumentRepository(
+            $app['cdbxml_offer_cache']
+        );
+    }
+);
+
+$app['cdbxml_offer_cache'] = $app->share(
+    function (Application $app) {
+        return $app['cache']('cdbxml_offer');
     }
 );
 
@@ -164,6 +179,14 @@ foreach (['udb3-core'] as $consumerId) {
         }
     );
 }
+
+$app['cdbxml_offer.controller'] = $app->share(
+    function (Application $app) {
+        return new OfferCdbXmlController(
+            $app['cdbxml_offer_repository']
+        );
+    }
+);
 
 /**
  * Load additional bootstrap files.
