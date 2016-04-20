@@ -32,6 +32,8 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInte
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
+use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
@@ -39,6 +41,8 @@ use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
+use CultuurNet\UDB3\Place\Events\LabelAdded as PlaceLabelAdded;
+use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\PlaceService;
@@ -119,6 +123,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceCreated::class => 'applyPlaceCreated',
             EventDescriptionTranslated::class => 'applyDescriptionTranslated',
             PlaceDescriptionTranslated::class => 'applyDescriptionTranslated',
+            EventLabelAdded::class => 'applyLabelAdded',
+            PlaceLabelAdded::class => 'applyLabelAdded',
+            EventLabelDeleted::class => 'applyLabelDeleted',
+            PlaceLabelDeleted::class => 'applyLabelDeleted',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -268,7 +276,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $details->add($detail);
         $event->setDetails($details);
 
-        // Add metadata like createdby, creationdate, etc to the actor.
+        // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
 
@@ -277,6 +285,11 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             ->fromCulturefeedCdbItem($event);
     }
 
+    /**
+     * @param AbstractDescriptionTranslated $descriptionTranslated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
     public function applyDescriptionTranslated(
         AbstractDescriptionTranslated $descriptionTranslated,
         Metadata $metadata
@@ -299,7 +312,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $details->add($detail);
         $event->setDetails($details);
 
-        // Add metadata like createdby, creationdate, etc to the actor.
+        // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
 
@@ -308,18 +321,69 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             ->fromCulturefeedCdbItem($event);
     }
 
+    /**
+     * @param AbstractLabelAdded $labelAdded
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
     public function applyLabelAdded(
         AbstractLabelAdded $labelAdded,
         Metadata $metadata
-    ){
+    ) {
+        $eventCdbXml = $this->documentRepository->get($labelAdded->getItemId());
 
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $keywords = $event->getKeywords();
+        $keyword = $labelAdded->getLabel()->__toString();
+
+        if (!in_array($keyword, $keywords)) {
+            $event->addKeyword($keyword);
+
+            // Change the lastupdated attribute.
+            $event = $this->metadataCdbItemEnricher
+                ->enrich($event, $metadata);
+        }
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
+    /**
+     * @param AbstractLabelDeleted $labelDeleted
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     * @throws \Exception
+     */
     public function applyLabelDeleted(
         AbstractLabelDeleted $labelDeleted,
         Metadata $metadata
-    ){
+    ) {
+        $eventCdbXml = $this->documentRepository->get($labelDeleted->getItemId());
 
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $keywords = $event->getKeywords();
+        $keyword = $labelDeleted->getLabel()->__toString();
+
+        if (in_array($keyword, $keywords)) {
+            $event->deleteKeyword($keyword);
+
+            // Change the lastupdated attribute.
+            $event = $this->metadataCdbItemEnricher
+                ->enrich($event, $metadata);
+        }
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**

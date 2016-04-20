@@ -9,8 +9,11 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\LabelAdded;
+use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -229,6 +232,130 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-description-translated-to-en.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_a_label_added()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $labelAdded = new LabelAdded($id, new Label('foobar'));
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461164633',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $labelAdded, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-keyword.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_add_an_existing_label_when_projecting_label_added()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // Add the label once.
+        $labelAdded = new LabelAdded($id, new Label('foobar'));
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461164633',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $labelAdded, $metadata);
+        $this->projector->handle($domainMessage);
+
+        // Add the label again.
+        $labelAdded = new LabelAdded($id, new Label('foobar'));
+        $domainMessage = $this->createDomainMessage($id, $labelAdded, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-keyword.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_a_label_deleted()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // First add a label.
+        $labelAdded = new LabelAdded($id, new Label('foobar'));
+        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // Now delete the label.
+        $labelDeleted = new LabelDeleted($id, new Label('foobar'));
+        $domainMessage = $this->createDomainMessage($id, $labelDeleted, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+    
+    public function it_does_not_do_a_thing_when_deleting_a_label_twice()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // First add a label.
+        $labelAdded = new LabelAdded($id, new Label('foobar'));
+        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // Now delete the label.
+        $labelDeleted = new LabelDeleted($id, new Label('foobar'));
+        $domainMessage = $this->createDomainMessage($id, $labelDeleted, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // Now delete the label again.
+        $labelDeleted = new LabelDeleted($id, new Label('foobar'));
+        $domainMessage = $this->createDomainMessage($id, $labelDeleted, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
