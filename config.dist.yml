@@ -1,8 +1,9 @@
 debug: false
 bootstrap: []
 consumerExecutionDelay: 4
+url: http://culudb-cdbxml.dev:8080
 amqp:
-  host: orange-gnu.rmq.cloudamqp.com
+  host: example.com
   port: 5672
   vhost: udb3-udb2acc
   user: username
@@ -10,8 +11,11 @@ amqp:
   consumer_tag: consumer-tag
   consumers:
     udb3-core:
-      exchange: exchange-name
-      queue: queue-name
+      exchange: udb3.e.udb3
+      queue: udb3.q.udb3-cdbxml
+  publishers:
+    udb2:
+      exchange: udb2.e.prod
 cache:
   redis:
     host: 127.0.0.1

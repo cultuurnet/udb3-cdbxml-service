@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7f04368224a7469870b1b54fe4faa7c5",
-    "content-hash": "3a1507cb2b3302d87492e34d120cafef",
+    "hash": "ff2cc76fc94c2ce17914220818ca75ef",
+    "content-hash": "371c0789879c0b25652eb7e8013a97c3",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -301,6 +301,54 @@
             "time": "2014-12-30 15:22:37"
         },
         {
+            "name": "crell/api-problem",
+            "version": "1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Crell/ApiProblem.git",
+                "reference": "5e871a0f6804417c2cc516d67a73607bc3f12d5f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Crell/ApiProblem/zipball/5e871a0f6804417c2cc516d67a73607bc3f12d5f",
+                "reference": "5e871a0f6804417c2cc516d67a73607bc3f12d5f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Crell\\ApiProblem\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Larry Garfield",
+                    "email": "larry@garfieldtech.com",
+                    "homepage": "http://www.garfieldtech.com/"
+                }
+            ],
+            "description": "PHP wrapper for the api-problem IETF specification",
+            "homepage": "https://github.com/Crell/ApiProblem",
+            "keywords": [
+                "api-problem",
+                "http",
+                "json",
+                "rest",
+                "xml"
+            ],
+            "time": "2014-10-07 17:43:34"
+        },
+        {
             "name": "cultuurnet/auth",
             "version": "1.2.x-dev",
             "source": {
@@ -353,12 +401,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "8952b7f545ff5324233301a05eadb3f13094b4d2"
+                "reference": "cc1beccf57669c808f8f6f0af7f2f121e50f19f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/8952b7f545ff5324233301a05eadb3f13094b4d2",
-                "reference": "8952b7f545ff5324233301a05eadb3f13094b4d2",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/cc1beccf57669c808f8f6f0af7f2f121e50f19f2",
+                "reference": "cc1beccf57669c808f8f6f0af7f2f121e50f19f2",
                 "shasum": ""
             },
             "require": {
@@ -392,7 +440,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-31 11:54:04"
+            "time": "2016-04-21 13:04:43"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -732,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/silex-amqp.git",
-                "reference": "c5966e2213631d26243b60998d35694ab96dc594"
+                "reference": "96feea621b267c82de07a613ef8998dc2800ac38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/c5966e2213631d26243b60998d35694ab96dc594",
-                "reference": "c5966e2213631d26243b60998d35694ab96dc594",
+                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/96feea621b267c82de07a613ef8998dc2800ac38",
+                "reference": "96feea621b267c82de07a613ef8998dc2800ac38",
                 "shasum": ""
             },
             "require": {
@@ -766,7 +814,56 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2016-03-23 15:49:39"
+            "time": "2016-04-21 13:04:37"
+        },
+        {
+            "name": "cultuurnet/udb2-domain-events",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cultuurnet/udb2-domain-events.git",
+                "reference": "5254e81f506a535c362e49a9ce4eb242c1e38967"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/5254e81f506a535c362e49a9ce4eb242c1e38967",
+                "reference": "5254e81f506a535c362e49a9ce4eb242c1e38967",
+                "shasum": ""
+            },
+            "require": {
+                "broadway/broadway": "~0.5.2",
+                "cultuurnet/deserializer": "~0.1",
+                "nicolopignatelli/valueobjects": "~2.0"
+            },
+            "require-dev": {
+                "phing/phing": "~2.10",
+                "phpunit/phpunit": "~4.3",
+                "satooshi/php-coveralls": "~0.7",
+                "squizlabs/php_codesniffer": "~2.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CultuurNet\\UDB2DomainEvents\\": "src\\"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Kristof Coomans",
+                    "email": "kristof@2dotstwice.be"
+                }
+            ],
+            "description": "PHP models for domain events in UiTdatabank version 2",
+            "time": "2016-04-21 13:04:31"
         },
         {
             "name": "cultuurnet/udb3",

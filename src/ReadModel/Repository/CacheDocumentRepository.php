@@ -22,6 +22,8 @@ class CacheDocumentRepository implements DocumentRepositoryInterface
     /**
      * @param string $id
      * @return CdbXmlDocument|null
+     *
+     * @throws DocumentGoneException
      */
     public function get($id)
     {
