@@ -89,6 +89,18 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
         ];
 
+        $placeId = 'LOCATION-ABC-123';
+
+        $placeCreated = new PlaceCreated(
+            $placeId,
+            new Title('$name'),
+            new EventType('0.50.4.0.0', 'concert'),
+            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Calendar('permanent')
+        );
+        $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
         $event = new EventCreated(
             $id,
             new Title('Griezelfilm of horror'),
@@ -97,34 +109,6 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             new Theme('1.7.6.0.0', 'Griezelfilm of horror')
         );
-
-        $placeId = 'LOCATION-ABC-123';
-        $placeCreated = '2015-01-20T13:25:21';
-        $placeJsonLD = new stdClass();
-        $placeJsonLD->{'@id'} = 'http://example.com/entity/' . $placeId;
-        $placeJsonLD->{'@context'} = '/api/1.0/place.jsonld';
-        $placeJsonLD->name = (object) [ 'nl' => '$name' ];
-        $placeJsonLD->address = (object) [
-            'addressCountry' => '$country',
-            'addressLocality' => '$locality',
-            'postalCode' => '$postalCode',
-            'streetAddress' => '$street',
-        ];
-        $placeJsonLD->calendarType = 'permanent';
-        $placeJsonLD->terms = [
-            (object) [
-                'id' => '0.50.4.0.0',
-                'label' => 'concert',
-                'domain' => 'eventtype',
-            ],
-        ];
-        $placeJsonLD->created = $placeCreated;
-        $placeJsonLD->modified = $placeCreated;
-        
-        $this->placeService->expects($this->once())
-            ->method('getEntity')
-            ->with('LOCATION-ABC-123')
-            ->willReturn(json_encode($placeJsonLD));
 
         $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
@@ -412,6 +396,18 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
         ];
 
+        $placeId = 'LOCATION-ABC-123';
+
+        $placeCreated = new PlaceCreated(
+            $placeId,
+            new Title('$name'),
+            new EventType('0.50.4.0.0', 'concert'),
+            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Calendar('permanent')
+        );
+        $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
         $event = new EventCreated(
             $id,
             new Title('Griezelfilm of horror'),
@@ -420,34 +416,6 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             new Theme('1.7.6.0.0', 'Griezelfilm of horror')
         );
-
-        $placeId = 'LOCATION-ABC-123';
-        $placeCreated = '2015-01-20T13:25:21';
-        $placeJsonLD = new stdClass();
-        $placeJsonLD->{'@id'} = 'http://example.com/entity/' . $placeId;
-        $placeJsonLD->{'@context'} = '/api/1.0/place.jsonld';
-        $placeJsonLD->name = (object) [ 'nl' => '$name' ];
-        $placeJsonLD->address = (object) [
-            'addressCountry' => '$country',
-            'addressLocality' => '$locality',
-            'postalCode' => '$postalCode',
-            'streetAddress' => '$street',
-        ];
-        $placeJsonLD->calendarType = 'permanent';
-        $placeJsonLD->terms = [
-            (object) [
-                'id' => '0.50.4.0.0',
-                'label' => 'concert',
-                'domain' => 'eventtype',
-            ],
-        ];
-        $placeJsonLD->created = $placeCreated;
-        $placeJsonLD->modified = $placeCreated;
-
-        $this->placeService->expects($this->once())
-            ->method('getEntity')
-            ->with('LOCATION-ABC-123')
-            ->willReturn(json_encode($placeJsonLD));
 
         $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 

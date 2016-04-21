@@ -400,31 +400,17 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
      */
     private function setLocation(Location $eventLocation, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
+        $placeCdbXml = $this->documentRepository->get($eventLocation->getCdbid());
+
         $placeEntity = $this->placeService->getEntity($eventLocation->getCdbid());
-        $place = json_decode($placeEntity);
 
-        $physicalAddress = new CultureFeed_Cdb_Data_Address_PhysicalAddress();
-        $physicalAddress->setCountry($place->address->addressCountry);
-        $physicalAddress->setCity($place->address->addressLocality);
-        $physicalAddress->setZip($place->address->postalCode);
+        $place = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $placeCdbXml->getCdbXml()
+        );
 
-
-        // @todo This is not an exact mapping, because we do not have a separate
-        // house number in JSONLD, this should be fixed somehow. Probably it's
-        // better to use another read model than JSON-LD for this purpose.
-        $streetParts = explode(' ', $place->address->streetAddress);
-
-        if (count($streetParts) > 1) {
-            $number = array_pop($streetParts);
-            $physicalAddress->setStreet(implode(' ', $streetParts));
-            $physicalAddress->setHouseNumber($number);
-        } else {
-            $physicalAddress->setStreet($eventLocation->getStreet());
-        }
-
-        $address = new CultureFeed_Cdb_Data_Address($physicalAddress);
-
-        $location = new CultureFeed_Cdb_Data_Location($address);
+        $location = $place->getLocation();
+        
         $location->setLabel($eventLocation->getName());
         $cdbEvent->setLocation($location);
     }
