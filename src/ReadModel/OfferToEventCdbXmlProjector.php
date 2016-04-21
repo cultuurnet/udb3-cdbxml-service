@@ -20,6 +20,7 @@ use CultureFeed_Cdb_Data_CategoryList;
 use CultureFeed_Cdb_Data_ContactInfo;
 use CultureFeed_Cdb_Data_EventDetail;
 use CultureFeed_Cdb_Data_EventDetailList;
+use CultureFeed_Cdb_Data_Keyword;
 use CultureFeed_Cdb_Data_Location;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Address;
@@ -338,9 +339,13 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         );
 
         $keywords = $event->getKeywords();
-        $keyword = $labelAdded->getLabel()->__toString();
+        $label = $labelAdded->getLabel()->__toString();
+        $keyword = new CultureFeed_Cdb_Data_Keyword(
+            $label,
+            $labelAdded->getLabel()->isVisible()
+        );
 
-        if (!in_array($keyword, $keywords)) {
+        if (!in_array($label, $keywords)) {
             $event->addKeyword($keyword);
 
             // Change the lastupdated attribute.
