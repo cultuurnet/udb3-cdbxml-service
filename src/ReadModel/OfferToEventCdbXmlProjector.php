@@ -66,11 +66,6 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
     private $cdbXmlDocumentFactory;
 
     /**
-     * @var PlaceService
-     */
-    protected $placeService;
-
-    /**
      * @var MetadataCdbItemEnricherInterface
      */
     private $metadataCdbItemEnricher;
@@ -86,12 +81,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        PlaceService $placeService,
         MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
-        $this->placeService = $placeService;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
     }
@@ -401,8 +394,6 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
     private function setLocation(Location $eventLocation, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
         $placeCdbXml = $this->documentRepository->get($eventLocation->getCdbid());
-
-        $placeEntity = $this->placeService->getEntity($eventLocation->getCdbid());
 
         $place = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',

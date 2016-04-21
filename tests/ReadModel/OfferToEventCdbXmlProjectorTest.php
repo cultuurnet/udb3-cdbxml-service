@@ -36,11 +36,6 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $metadata;
 
-    /**
-     * @var PlaceService | \PHPUnit_Framework_MockObject_MockObject
-     */
-    private $placeService;
-
     public function setUp()
     {
         parent::setUp();
@@ -48,13 +43,10 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         date_default_timezone_set('Europe/Brussels');
 
-        $this->placeService = $this->getMock(PlaceService::class, array(), array(), 'placeServiceMock', false);
-
         $this->projector = (
         new OfferToEventCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
-            $this->placeService,
             new MetadataCdbItemEnricher(
                 new CdbXmlDateFormatter()
             )
