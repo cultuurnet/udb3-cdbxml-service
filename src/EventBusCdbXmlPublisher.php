@@ -103,22 +103,14 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         $domainEvent = $domainMessage->getPayload();
         $eventClass = get_class($domainEvent);
 
-        $findType = function ($eventType, $typeName) use ($typeMap, $eventClass) {
-            if ($eventType) {
-                return $eventType;
-            } else {
-                return array_key_exists($eventClass, $typeMap[$typeName]) ? $typeName : null;
+        foreach ($typeMap as $type => $classNameToContentTypeMap) {
+            if (array_key_exists($eventClass, $classNameToContentTypeMap)) {
+                return $type;
             }
-        };
-
-        $type = array_reduce(array_keys($typeMap), $findType);
-
-        if (!$type) {
-            throw new InvalidArgumentException(
-                'An offer type could not be determined for the domain-event with class: ' . $eventClass
-            );
         }
 
-        return $type;
+        throw new InvalidArgumentException(
+            'An offer type could not be determined for the domain-event with class: ' . $eventClass
+        );
     }
 }
