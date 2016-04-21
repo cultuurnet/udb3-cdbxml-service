@@ -175,7 +175,6 @@ $app['amqp.udb2_publisher'] = $app->share(
         $map = [
             EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
             EventUpdated::class => 'application/vnd.cultuurnet.udb2-events.event-updated+json',
-            ActorCreated::class => 'application/vnd.cultuurnet.udb2-events.actor-created+json',
         ];
 
         $classes = new SpecificationCollection();
