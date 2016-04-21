@@ -22,7 +22,6 @@ use CultuurNet\UDB3\Title;
 use InvalidArgumentException;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
-use ValueObjects\Web\Url;
 
 class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
 {
@@ -61,12 +60,16 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         $documentId = 'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
         $publicationUrl = 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
         $publicationDate = '2016-04-12T10:58:55+00:00';
+
+        /* @var CalendarInterface $calendar */
+        $calendar = $this->getMock(CalendarInterface::class);
+
         $originalDomainEvent = new EventCreated(
             $documentId,
             new Title('Some Event'),
             new EventType('some', 'type'),
             new Location('q', 'w', 'e', 'r', 't', 'y'),
-            $this->getMock(CalendarInterface::class)
+            $calendar
         );
         $originalDomainMessage = new DomainMessage(
             UUID::generateAsString(),
@@ -88,11 +91,63 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $this->callback(
                     function ($eventStream) use ($publicationUrl, $authorId) {
-                        /** @var DomainMessage $domainMessage */
+                        /* @var DomainEventStream $eventStream */
+                        /* @var DomainMessage $domainMessage */
                         $domainMessage = $eventStream->getIterator()->current();
 
                         return $publicationUrl === (string) $domainMessage->getPayload()->getUrl() &&
                                $authorId === (string) $domainMessage->getPayload()->getAuthor();
+                    }
+                )
+            );
+
+        $this->publisher->publish($document, $originalDomainMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_add_the_author_if_there_is_none()
+    {
+        $documentId = 'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
+        $publicationUrl = 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
+        $publicationDate = '2016-04-12T10:58:55+00:00';
+
+        /* @var CalendarInterface $calendar */
+        $calendar = $this->getMock(CalendarInterface::class);
+
+        $originalDomainEvent = new EventCreated(
+            $documentId,
+            new Title('Some Event'),
+            new EventType('some', 'type'),
+            new Location('q', 'w', 'e', 'r', 't', 'y'),
+            $calendar
+        );
+        $originalDomainMessage = new DomainMessage(
+            UUID::generateAsString(),
+            0,
+            new Metadata(),
+            $originalDomainEvent,
+            DateTime::fromString($publicationDate)
+        );
+        $document = $this->getEmptyDocument($documentId);
+
+        $this->iriGenerator
+            ->expects($this->once())
+            ->method('iri')
+            ->willReturn($publicationUrl);
+
+        $this->eventBus
+            ->expects($this->once())
+            ->method('publish')
+            ->with(
+                $this->callback(
+                    function ($eventStream) {
+                        /* @var DomainEventStream $eventStream */
+                        /* @var DomainMessage $domainMessage */
+                        $domainMessage = $eventStream->getIterator()->current();
+
+                        return '' === (string) $domainMessage->getPayload()->getAuthor();
                     }
                 )
             );
@@ -128,7 +183,8 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $this->callback(
                     function ($eventStream) use ($publicationUrl) {
-                        /** @var DomainMessage $domainMessage */
+                        /* @var DomainEventStream $eventStream */
+                        /* @var DomainMessage $domainMessage */
                         $domainMessage = $eventStream->getIterator()->current();
 
                         return is_a($domainMessage->getPayload(), EventUpdated::class);
@@ -144,6 +200,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider eventAndUrlProvider
      *
+     * @param string $itemId
      * @param DomainMessage $domainMessage
      * @param $urlSuffix
      */
