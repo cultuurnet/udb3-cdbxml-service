@@ -133,7 +133,9 @@ $app['document_iri_generator'] = $app->share(
             // documents are typed and this should be clear in the iri
             // type and id are expected here, /-separated, eg: "event/B1BBDD85-4643-405E-852D-7D2D4D0E56BA"
             function ($typeAndCdbid) use ($app) {
-                return $app['config']['url'] . $typeAndCdbid;
+                $baseUrl = rtrim($app['config']['url'], '/');
+                $typeAndCdbid = trim($typeAndCdbid, '/');
+                return $baseUrl . '/' . $typeAndCdbid;
             }
         );
     }
