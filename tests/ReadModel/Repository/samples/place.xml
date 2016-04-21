@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
   <event cdbid="MY-PLACE-123" createdby="foobar" creationdate="2016-04-15T11:01:47" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
+    <keywords>
+      <keyword>UDB3 place</keyword>
+    </keywords>
+    <categories>
+      <category catid="0.50.4.0.0" type="eventtype">concert</category>
+    </categories>
     <calendar>
       <permanentopeningtimes>
         <permanent/>
       </permanentopeningtimes>
     </calendar>
-    <categories>
-      <category catid="0.50.4.0.0" type="eventtype">concert</category>
-    </categories>
     <contactinfo/>
     <eventdetails>
       <eventdetail lang="nl">
         <title>My Place</title>
       </eventdetail>
     </eventdetails>
-    <keywords>
-      <keyword>UDB3 place</keyword>
-    </keywords>
     <location>
       <address>
         <physical>
