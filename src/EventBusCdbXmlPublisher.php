@@ -56,7 +56,11 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
     ) {
         $id = $this->identifyEventType($domainMessage) . '/' . $cdbXmlDocument->getId();
         $location = $this->iriGenerator->iri($id);
-        $authorId = $domainMessage->getMetadata()->serialize()['user_id'];
+
+        // Author id can be empty in metadata if event is
+        // Event/PlaceImportedFromUDB2 or Event/PlaceUpdatedFromUDB2.
+        $metadata = $domainMessage->getMetadata()->serialize();
+        $authorId = isset($metadata['user_id']) ? $metadata['user_id'] : '';
 
         if ($this->newPublication->isSatisfiedBy($domainMessage)) {
             $event = new EventCreated(
@@ -77,7 +81,7 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         $message = new DomainMessage(
             UUID::generateAsString(),
             0,
-            new Metadata($domainMessage->getMetadata()->serialize()),
+            $domainMessage->getMetadata(),
             $event,
             $domainMessage->getRecordedOn()
         );
