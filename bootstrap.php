@@ -272,9 +272,7 @@ foreach (['udb3-core'] as $consumerId) {
             /** @var EventBusForwardingConsumerFactory $consumerFactory */
             $consumerFactory = $app['event_bus_forwarding_consumer_factory'];
 
-            $consumer = $consumerFactory->create($exchange, $queue);
-
-            return $consumer->getConnection();
+            return $consumerFactory->create($exchange, $queue);
         }
     );
 }

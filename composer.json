@@ -36,6 +36,7 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "preferred-install": "source",
     "extra": {
         "branch-alias": {
             "dev-master": "0.x-dev"
