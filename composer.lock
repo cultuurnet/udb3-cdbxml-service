@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6992f9842dc086e48597687117f1a4ff",
-    "content-hash": "0a7ba0cb0ec0126566cfc295ab9e8c13",
+    "hash": "8a89e085d85d86f6c6ebe0ec2d1cb805",
+    "content-hash": "ca6b4f17573ec03f22a55c4a8b094427",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -728,16 +728,16 @@
         },
         {
             "name": "cultuurnet/silex-amqp",
-            "version": "dev-master",
+            "version": "dev-feature/III-836",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/silex-amqp.git",
-                "reference": "c5966e2213631d26243b60998d35694ab96dc594"
+                "reference": "66b922578e924e0f7591072da2e52cb02f9aa893"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/c5966e2213631d26243b60998d35694ab96dc594",
-                "reference": "c5966e2213631d26243b60998d35694ab96dc594",
+                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/66b922578e924e0f7591072da2e52cb02f9aa893",
+                "reference": "66b922578e924e0f7591072da2e52cb02f9aa893",
                 "shasum": ""
             },
             "require": {
@@ -766,7 +766,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2016-03-23 15:49:39"
+            "time": "2016-04-20 11:50:18"
         },
         {
             "name": "cultuurnet/udb2-domain-events",
@@ -4880,12 +4880,19 @@
             "alias": "0.1",
             "alias_normalized": "0.1.0.0",
             "version": "dev-feature/III-836",
+            "package": "cultuurnet/silex-amqp"
+        },
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-836",
             "package": "cultuurnet/udb2-domain-events"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
         "cultuurnet/broadway-amqp": 20,
+        "cultuurnet/silex-amqp": 20,
         "cultuurnet/udb2-domain-events": 20
     },
     "prefer-stable": true,
