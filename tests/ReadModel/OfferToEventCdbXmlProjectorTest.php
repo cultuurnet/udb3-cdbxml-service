@@ -340,7 +340,10 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
-    
+
+    /**
+     * @test
+     */
     public function it_does_not_do_a_thing_when_deleting_a_label_twice()
     {
         $this->createEvent();
