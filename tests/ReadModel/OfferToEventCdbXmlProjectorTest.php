@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CdbXmlService\Media\EditImageTestTrait;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
@@ -17,15 +18,15 @@ use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
-use CultuurNet\UDB3\PlaceService;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
-use stdClass;
 use ValueObjects\String\String as StringLiteral;
 
 class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
+    use EditImageTestTrait;
+
     /**
      * @var OfferToEventCdbXmlProjector
      */

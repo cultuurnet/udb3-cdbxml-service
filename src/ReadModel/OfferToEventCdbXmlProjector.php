@@ -28,13 +28,18 @@ use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
+use CultuurNet\UDB3\CdbXmlService\Media\EditImageTrait;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
+use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
+use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
+use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
@@ -42,11 +47,14 @@ use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
+use CultuurNet\UDB3\Place\Events\ImageAdded as PlaceImageAdded;
+use CultuurNet\UDB3\Place\Events\ImageRemoved as PlaceImageRemoved;
+use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
 use CultuurNet\UDB3\Place\Events\LabelAdded as PlaceLabelAdded;
 use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
+use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
-use CultuurNet\UDB3\PlaceService;
 
 /**
  * Class OfferToEventCdbXmlProjector
@@ -55,6 +63,8 @@ use CultuurNet\UDB3\PlaceService;
  */
 class OfferToEventCdbXmlProjector implements EventListenerInterface
 {
+    use EditImageTrait;
+    
     /**
      * @var DocumentRepositoryInterface
      */
@@ -121,6 +131,14 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceLabelAdded::class => 'applyLabelAdded',
             EventLabelDeleted::class => 'applyLabelDeleted',
             PlaceLabelDeleted::class => 'applyLabelDeleted',
+            EventImageAdded::class => 'applyImageAdded',
+            PlaceImageAdded::class => 'applyImageAdded',
+            EventImageUpdated::class => 'applyImageUpdated',
+            PlaceImageUpdated::class => 'applyImageUpdated',
+            EventImageRemoved::class => 'applyImageRemoved',
+            PlaceImageRemoved::class => 'applyImageRemoved',
+            EventMainImageSelected::class => 'applyMainImageSelected',
+            PlaceMainImageSelected::class => 'applyMainImageSelected',
         ];
 
         if (isset($handlers[$payloadClassName])) {
