@@ -49,6 +49,10 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
             $cdbItem->setLastUpdatedBy($metadata['user_email']);
         }
 
+        if (isset($metadata['id'])) {
+            $cdbItem->setExternalUrl($metadata['id']);
+        }
+
         return $cdbItem;
     }
 }

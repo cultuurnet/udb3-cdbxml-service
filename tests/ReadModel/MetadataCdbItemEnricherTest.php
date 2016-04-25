@@ -89,4 +89,18 @@ class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
         $actualCdbItem = $this->enricher->enrich($actualCdbItem, $metadata);
         $this->assertEquals($expectedCdbItem, $actualCdbItem);
     }
+
+    /**
+     * @test
+     */
+    public function it_should_add_the_external_url()
+    {
+        $metadata = Metadata::kv('id', 'http://du.de/item/1');
+
+        $expectedCdbItem = clone $this->cdbItemBase;
+        $expectedCdbItem->setExternalUrl('http://du.de/item/1');
+
+        $enrichedCdbItem = $this->enricher->enrich($this->cdbItemBase, $metadata);
+        $this->assertEquals($expectedCdbItem, $enrichedCdbItem);
+    }
 }
