@@ -34,6 +34,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInte
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
@@ -54,6 +55,7 @@ use CultuurNet\UDB3\Place\Events\LabelAdded as PlaceLabelAdded;
 use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
 use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
+use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 
 /**
@@ -124,7 +126,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
             EventCreated::class => 'applyEventCreated',
+            EventDeleted::class => 'applyEventDeleted',
             PlaceCreated::class => 'applyPlaceCreated',
+            PlaceDeleted::class => 'applyPlaceDeleted',
             EventDescriptionTranslated::class => 'applyDescriptionTranslated',
             PlaceDescriptionTranslated::class => 'applyDescriptionTranslated',
             EventLabelAdded::class => 'applyLabelAdded',
@@ -205,6 +209,33 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
     }
+    
+    /**
+     * @param EventDeleted $eventDeleted
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyEventDeleted(
+        EventDeleted $eventDeleted,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($eventDeleted->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $event->setWfStatus('deleted');
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
 
     /**
      * @param PlaceCreated $placeCreated
@@ -252,6 +283,33 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         // Empty contact info.
         $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
         $event->setContactInfo($contactInfo);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param PlaceDeleted $placeDeleted
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyPlaceDeleted(
+        PlaceDeleted $placeDeleted,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($placeDeleted->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $event->setWfStatus('deleted');
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher

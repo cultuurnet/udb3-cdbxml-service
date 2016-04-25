@@ -10,6 +10,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
@@ -18,6 +19,7 @@ use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
+use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
@@ -375,7 +377,55 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
-     * @return array
+     * @test
+     */
+    public function it_projects_the_deletion_of_an_event()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $eventDeleted = new EventDeleted(
+            $id
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $eventDeleted, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-deleted.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_deletion_of_a_place()
+    {
+        $this->createPlace();
+        $id = 'MY-PLACE-123';
+
+        $placeDeleted = new PlaceDeleted(
+            $id
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $placeDeleted, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-deleted.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * Helper function to create an event.
      */
     public function createEvent()
     {
@@ -414,6 +464,26 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
 
         $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * Helper function to create a place.
+     */
+    public function createPlace()
+    {
+        $id = 'MY-PLACE-123';
+
+        $place = new PlaceCreated(
+            $id,
+            new Title('My Place'),
+            new EventType('0.50.4.0.0', 'concert'),
+            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Calendar('permanent')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
 
         $this->projector->handle($domainMessage);
     }
