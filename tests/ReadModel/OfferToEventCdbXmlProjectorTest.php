@@ -9,7 +9,9 @@ use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTestTrait;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
@@ -463,6 +465,47 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-booking-info-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_update_of_a_contact_point()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461164633',
+            ]
+        );
+
+        $contactPoint = new ContactPoint(
+            array('+32 666 666'),
+            array('tickets@example.com'),
+            array('http://tickets.example.com'),
+            'type'
+        );
+
+        $contactPointUpdated = new ContactPointUpdated(
+            $id,
+            $contactPoint
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $contactPointUpdated, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-contact-point-updated.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);

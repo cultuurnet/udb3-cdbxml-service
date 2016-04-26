@@ -26,6 +26,7 @@ use CultureFeed_Cdb_Data_Location;
 use CultureFeed_Cdb_Data_Mail;
 use CultureFeed_Cdb_Data_Phone;
 use CultureFeed_Cdb_Data_Url;
+use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
@@ -37,7 +38,9 @@ use CultuurNet\UDB3\CdbXmlService\Media\EditImageTrait;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
@@ -50,11 +53,13 @@ use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
+use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\ImageAdded as PlaceImageAdded;
 use CultuurNet\UDB3\Place\Events\ImageRemoved as PlaceImageRemoved;
@@ -154,6 +159,8 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceMainImageSelected::class => 'applyMainImageSelected',
             EventBookingInfoUpdated::class => 'applyBookingInfoUpdated',
             PlaceBookingInfoUpdated::class => 'applyBookingInfoUpdated',
+            EventContactPointUpdated::class => 'applyContactPointUpdated',
+            PlaceContactPointUpdated::class => 'applyContactPointUpdated',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -421,6 +428,34 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $bookingInfo = $bookingInfoUpdated->getBookingInfo();
 
         $this->updateCdbItemByBookingInfo($event, $bookingInfo);
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractContactPointUpdated $contactPointUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyContactPointUpdated(
+        AbstractContactPointUpdated $contactPointUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($contactPointUpdated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $contactPoint = $contactPointUpdated->getContactPoint();
+        $this->updateCdbItemByContactPoint($event, $contactPoint);
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
@@ -811,5 +846,53 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         }
 
         return $newContactInfo;
+    }
+
+    /**
+     * Update a cdb item based on a contact point.
+     * @param CultureFeed_Cdb_Item_Base $cdbItem
+     * @param \CultuurNet\UDB3\UDB2\ContactPoint $contactPoint
+     */
+    protected function updateCdbItemByContactPoint(
+        CultureFeed_Cdb_Item_Base $cdbItem,
+        ContactPoint $contactPoint
+    ) {
+
+        $contactInfo = $cdbItem->getContactInfo();
+
+        // Remove non-reservation phones and add new ones.
+        foreach ($contactInfo->getPhones() as $phoneIndex => $phone) {
+            if (!$phone->isForReservations()) {
+                $contactInfo->removePhone($phoneIndex);
+            }
+        }
+        $phones = $contactPoint->getPhones();
+        foreach ($phones as $phone) {
+            $contactInfo->addPhone(new CultureFeed_Cdb_Data_Phone($phone));
+        }
+
+        // Remove non-reservation urls and add new ones.
+        foreach ($contactInfo->getUrls() as $urlIndex => $url) {
+            if (!$url->isForReservations()) {
+                $contactInfo->removeUrl($urlIndex);
+            }
+        }
+        $urls = $contactPoint->getUrls();
+        foreach ($urls as $url) {
+            $contactInfo->addUrl(new CultureFeed_Cdb_Data_Url($url));
+        }
+
+        // Remove non-reservation emails and add new ones.
+        foreach ($contactInfo->getMails() as $mailIndex => $mail) {
+            if (!$mail->isForReservations()) {
+                $contactInfo->removeMail($mailIndex);
+            }
+        }
+        $emails = $contactPoint->getEmails();
+        foreach ($emails as $email) {
+            $contactInfo->addMail(new CultureFeed_Cdb_Data_Mail($email));
+        }
+        $cdbItem->setContactInfo($contactInfo);
+
     }
 }
