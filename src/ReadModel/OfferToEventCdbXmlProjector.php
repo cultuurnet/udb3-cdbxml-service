@@ -7,6 +7,7 @@ use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultureFeed_Cdb_Data_Address;
 use CultureFeed_Cdb_Data_Address_PhysicalAddress;
+use CultureFeed_Cdb_Data_Calendar_BookingPeriod;
 use CultureFeed_Cdb_Data_Calendar_OpeningTime;
 use CultureFeed_Cdb_Data_Calendar_Period;
 use CultureFeed_Cdb_Data_Calendar_PeriodList;
@@ -22,8 +23,12 @@ use CultureFeed_Cdb_Data_EventDetail;
 use CultureFeed_Cdb_Data_EventDetailList;
 use CultureFeed_Cdb_Data_Keyword;
 use CultureFeed_Cdb_Data_Location;
+use CultureFeed_Cdb_Data_Mail;
+use CultureFeed_Cdb_Data_Phone;
+use CultureFeed_Cdb_Data_Url;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
@@ -32,6 +37,7 @@ use CultuurNet\UDB3\CdbXmlService\Media\EditImageTrait;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
@@ -43,10 +49,12 @@ use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
+use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\ImageAdded as PlaceImageAdded;
 use CultuurNet\UDB3\Place\Events\ImageRemoved as PlaceImageRemoved;
@@ -57,6 +65,7 @@ use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
+use DateTime;
 
 /**
  * Class OfferToEventCdbXmlProjector
@@ -143,6 +152,8 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceImageRemoved::class => 'applyImageRemoved',
             EventMainImageSelected::class => 'applyMainImageSelected',
             PlaceMainImageSelected::class => 'applyMainImageSelected',
+            EventBookingInfoUpdated::class => 'applyBookingInfoUpdated',
+            PlaceBookingInfoUpdated::class => 'applyBookingInfoUpdated',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -381,6 +392,35 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
         $details->add($detail);
         $event->setDetails($details);
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractBookingInfoUpdated $bookingInfoUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyBookingInfoUpdated(
+        AbstractBookingInfoUpdated $bookingInfoUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($bookingInfoUpdated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $bookingInfo = $bookingInfoUpdated->getBookingInfo();
+
+        $this->updateCdbItemByBookingInfo($event, $bookingInfo);
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
@@ -661,5 +701,115 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         }
 
         return $physicalAddress;
+    }
+
+    /**
+     * Update the cdb item based on a bookingInfo object.
+     *
+     * @param CultureFeed_Cdb_Item_Event $cdbItem
+     * @param BookingInfo $bookingInfo
+     */
+    protected function updateCdbItemByBookingInfo(
+        CultureFeed_Cdb_Item_Event $cdbItem,
+        BookingInfo $bookingInfo
+    ) {
+
+        // Add the booking Period.
+        $bookingPeriod = $cdbItem->getBookingPeriod();
+        if (empty($bookingPeriod)) {
+            $bookingPeriod = new CultureFeed_Cdb_Data_Calendar_BookingPeriod(
+                null,
+                null
+            );
+        }
+
+        if ($bookingInfo->getAvailabilityStarts()) {
+            $startDate = new DateTime($bookingInfo->getAvailabilityStarts());
+            $bookingPeriod->setDateFrom($startDate->getTimestamp());
+        }
+        if ($bookingInfo->getAvailabilityEnds()) {
+            $endDate = new DateTime($bookingInfo->getAvailabilityEnds());
+            $bookingPeriod->setDateTill($endDate->getTimestamp());
+        }
+        $cdbItem->setBookingPeriod($bookingPeriod);
+
+        // Add the contact info.
+        $contactInfo = $cdbItem->getContactInfo();
+        if (!$contactInfo instanceof CultureFeed_Cdb_Data_ContactInfo) {
+            $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+        }
+
+        $newContactInfo = $this->copyContactInfoWithoutReservationChannels(
+            $contactInfo
+        );
+
+        if (!empty($bookingInfo->getPhone())) {
+            $newContactInfo->addPhone(
+                new CultureFeed_Cdb_Data_Phone(
+                    $bookingInfo->getPhone(),
+                    null,
+                    null,
+                    true
+                )
+            );
+        }
+
+        if (!empty($bookingInfo->getUrl())) {
+            $newContactInfo->addUrl(
+                new CultureFeed_Cdb_Data_Url(
+                    $bookingInfo->getUrl(),
+                    false,
+                    true
+                )
+            );
+        }
+
+        if (!empty($bookingInfo->getEmail())) {
+            $newContactInfo->addMail(
+                new CultureFeed_Cdb_Data_Mail(
+                    $bookingInfo->getEmail(),
+                    false,
+                    true
+                )
+            );
+        }
+
+        $cdbItem->setContactInfo($newContactInfo);
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Data_ContactInfo $contactInfo
+     * @return CultureFeed_Cdb_Data_ContactInfo
+     */
+    private function copyContactInfoWithoutReservationChannels(
+        CultureFeed_Cdb_Data_ContactInfo $contactInfo
+    ) {
+        $newContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+
+        foreach ($contactInfo->getAddresses() as $address) {
+            $newContactInfo->addAddress($address);
+        }
+
+        /** @var CultureFeed_Cdb_Data_Phone $phone */
+        foreach ($contactInfo->getPhones() as $phone) {
+            if (!$phone->isForReservations()) {
+                $newContactInfo->addPhone($phone);
+            }
+        }
+
+        /** @var CultureFeed_Cdb_Data_Url $url */
+        foreach ($contactInfo->getUrls() as $url) {
+            if (!$url->isForReservations()) {
+                $newContactInfo->addUrl($url);
+            }
+        }
+
+        foreach ($contactInfo->getMails() as $mail) {
+            if (!$mail->isForReservations()) {
+                $newContactInfo->addMail($mail);
+            }
+        }
+
+        return $newContactInfo;
     }
 }

@@ -4,10 +4,12 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTestTrait;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\Event\Events\BookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
@@ -417,6 +419,50 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('place-deleted.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_update_of_booking_info()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461164633',
+            ]
+        );
+
+        $bookingInfo = new BookingInfo(
+            'http://tickets.example.com',
+            'Tickets on Example.com',
+            '+32 666 666',
+            'tickets@example.com',
+            '2014-01-31T12:00:00',
+            '2014-02-20T15:00:00',
+            'booking name'
+        );
+
+        $bookingInfoUpdated = new BookingInfoUpdated(
+            $id,
+            $bookingInfo
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $bookingInfoUpdated, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-booking-info-updated.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
