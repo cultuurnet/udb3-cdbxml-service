@@ -401,12 +401,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "8952b7f545ff5324233301a05eadb3f13094b4d2"
+                "reference": "cc1beccf57669c808f8f6f0af7f2f121e50f19f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/8952b7f545ff5324233301a05eadb3f13094b4d2",
-                "reference": "8952b7f545ff5324233301a05eadb3f13094b4d2",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/cc1beccf57669c808f8f6f0af7f2f121e50f19f2",
+                "reference": "cc1beccf57669c808f8f6f0af7f2f121e50f19f2",
                 "shasum": ""
             },
             "require": {
@@ -440,7 +440,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-03-31 11:54:04"
+            "time": "2016-04-21 13:04:43"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -494,12 +494,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "5fcd9bd1be7325d1cde495cdc01461046eb3bb33"
+                "reference": "3adc295929c781202d2686818fc8823a7c792d61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/5fcd9bd1be7325d1cde495cdc01461046eb3bb33",
-                "reference": "5fcd9bd1be7325d1cde495cdc01461046eb3bb33",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/3adc295929c781202d2686818fc8823a7c792d61",
+                "reference": "3adc295929c781202d2686818fc8823a7c792d61",
                 "shasum": ""
             },
             "require-dev": {
@@ -521,7 +521,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-04-15 12:23:47"
+            "time": "2016-04-25 09:06:59"
         },
         {
             "name": "cultuurnet/clock",
@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/silex-amqp.git",
-                "reference": "c5966e2213631d26243b60998d35694ab96dc594"
+                "reference": "96feea621b267c82de07a613ef8998dc2800ac38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/c5966e2213631d26243b60998d35694ab96dc594",
-                "reference": "c5966e2213631d26243b60998d35694ab96dc594",
+                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/96feea621b267c82de07a613ef8998dc2800ac38",
+                "reference": "96feea621b267c82de07a613ef8998dc2800ac38",
                 "shasum": ""
             },
             "require": {
@@ -814,7 +814,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2016-03-23 15:49:39"
+            "time": "2016-04-21 13:04:37"
         },
         {
             "name": "cultuurnet/udb2-domain-events",
@@ -822,15 +822,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb2-domain-events.git",
-                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453"
+                "reference": "5254e81f506a535c362e49a9ce4eb242c1e38967"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/1f2857b4cd957c17e051536a8402d8e595d08453",
-                "reference": "1f2857b4cd957c17e051536a8402d8e595d08453",
+                "url": "https://api.github.com/repos/cultuurnet/udb2-domain-events/zipball/5254e81f506a535c362e49a9ce4eb242c1e38967",
+                "reference": "5254e81f506a535c362e49a9ce4eb242c1e38967",
                 "shasum": ""
             },
             "require": {
+                "broadway/broadway": "~0.5.2",
                 "cultuurnet/deserializer": "~0.1",
                 "nicolopignatelli/valueobjects": "~2.0"
             },
@@ -862,7 +863,7 @@
                 }
             ],
             "description": "PHP models for domain events in UiTdatabank version 2",
-            "time": "2016-03-22 08:50:32"
+            "time": "2016-04-21 13:04:31"
         },
         {
             "name": "cultuurnet/udb3",
@@ -870,12 +871,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "f56cefaca2f4de0e2af3a5a33dd6c65d2fea3979"
+                "reference": "95e1d076a20295c252b0e1fe9a625e28dd6dc278"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/f56cefaca2f4de0e2af3a5a33dd6c65d2fea3979",
-                "reference": "f56cefaca2f4de0e2af3a5a33dd6c65d2fea3979",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/95e1d076a20295c252b0e1fe9a625e28dd6dc278",
+                "reference": "95e1d076a20295c252b0e1fe9a625e28dd6dc278",
                 "shasum": ""
             },
             "require": {
@@ -944,7 +945,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-04-19 09:49:30"
+            "time": "2016-04-26 14:04:42"
         },
         {
             "name": "danielstjules/stringy",
@@ -1814,16 +1815,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.20",
+            "version": "1.0.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "e87a786e3ae12a25cf78a71bb07b4b384bfaa83a"
+                "reference": "35a83cf67d80d7040f306c77b0a84b9fbcc4fbfb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/e87a786e3ae12a25cf78a71bb07b4b384bfaa83a",
-                "reference": "e87a786e3ae12a25cf78a71bb07b4b384bfaa83a",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/35a83cf67d80d7040f306c77b0a84b9fbcc4fbfb",
+                "reference": "35a83cf67d80d7040f306c77b0a84b9fbcc4fbfb",
                 "shasum": ""
             },
             "require": {
@@ -1893,7 +1894,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-03-14 21:54:11"
+            "time": "2016-04-22 10:56:25"
         },
         {
             "name": "league/flysystem-ziparchive",
