@@ -32,6 +32,7 @@ use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
+use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTrait;
@@ -51,12 +52,16 @@ use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
+use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
+use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
+use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
+use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
@@ -70,6 +75,8 @@ use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
+use CultuurNet\UDB3\Place\Events\OrganizerDeleted as PlaceOrganizerDeleted;
+use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 use DateTime;
 
 /**
@@ -102,17 +109,24 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
     private $cdbXmlPublisher;
 
     /**
+     * @var DocumentRepositoryInterface
+     */
+    private $actorDocumentRepository;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
+        MetadataCdbItemEnricherInterface $metadataCdbItemEnricher,
+        DocumentRepositoryInterface $actorDocumentRepository
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
+        $this->actorDocumentRepository = $actorDocumentRepository;
     }
 
     /**
@@ -161,6 +175,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceBookingInfoUpdated::class => 'applyBookingInfoUpdated',
             EventContactPointUpdated::class => 'applyContactPointUpdated',
             PlaceContactPointUpdated::class => 'applyContactPointUpdated',
+            EventOrganizerUpdated::class => 'applyOrganizerUpdated',
+            EventOrganizerDeleted::class => 'applyOrganizerDeleted',
+            PlaceOrganizerUpdated::class => 'applyOrganizerUpdated',
+            PlaceOrganizerDeleted::class => 'applyOrganizerDeleted',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -529,6 +547,73 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             $event = $this->metadataCdbItemEnricher
                 ->enrich($event, $metadata);
         }
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractOrganizerUpdated $organizerUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyOrganizerUpdated(
+        AbstractOrganizerUpdated $organizerUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($organizerUpdated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        // load organizer from documentRepo & add to document
+        $organizerCdbXml = $this->actorDocumentRepository->get($organizerUpdated->getOrganizerId());
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $organizerCdbXml->getCdbXml()
+        );
+
+        $organizer = new \CultureFeed_Cdb_Data_Organiser();
+        $organizer->setCdbid($organizerUpdated->getOrganizerId());
+        $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
+        $organizer->setActor($actor);
+
+        $event->setOrganiser($organizer);
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractOrganizerDeleted $organizerDeleted
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyOrganizerDeleted(
+        AbstractOrganizerDeleted $organizerDeleted,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($organizerDeleted->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $event->deleteOrganiser();
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory

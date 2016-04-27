@@ -7,6 +7,7 @@ use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTestTrait;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
@@ -17,6 +18,8 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
+use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
+use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Label;
@@ -43,6 +46,11 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $metadata;
 
+    /**
+     * @var CacheDocumentRepository
+     */
+    private $actorRepository;
+
     public function setUp()
     {
         parent::setUp();
@@ -50,13 +58,16 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         date_default_timezone_set('Europe/Brussels');
 
+        $this->actorRepository = new CacheDocumentRepository($this->cache);
+
         $this->projector = (
         new OfferToEventCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(
                 new CdbXmlDateFormatter()
-            )
+            ),
+            $this->actorRepository
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
 
@@ -506,6 +517,71 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-contact-point-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_an_organizer_updated()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // create an organizer.
+        $organizerId = 'ORG-123';
+        $organizerCdbxml = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor.xml')
+        );
+        $this->actorRepository->save($organizerCdbxml);
+
+        // add the organizer to the event.
+        $organizerUpdated = new OrganizerUpdated($id, $organizerId);
+        $domainMessage = $this->createDomainMessage($id, $organizerUpdated, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-organizer.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_an_organizer_deleted()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // create an organizer.
+        $organizerId = 'ORG-123';
+        $organizerCdbxml = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor.xml')
+        );
+        $this->actorRepository->save($organizerCdbxml);
+
+        // add the organizer to the event.
+        $organizerUpdated = new OrganizerUpdated($id, $organizerId);
+        $domainMessage = $this->createDomainMessage($id, $organizerUpdated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // remove the organizer from the event.
+        $organizerDeleted = new OrganizerDeleted($id, $organizerId);
+        $domainMessage = $this->createDomainMessage($id, $organizerDeleted, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
