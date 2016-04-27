@@ -63,7 +63,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_organizer_created()
     {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $id = 'ORG-123';
 
         $event = new OrganizerCreated(
             $id,
@@ -98,7 +98,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_organizer_imported_from_udb2()
     {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $id = 'ORG-123';
 
         $event = new OrganizerImportedFromUDB2(
             $id,
@@ -123,7 +123,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_organizer_updated_from_udb2()
     {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $id = 'ORG-123';
 
         $event = new OrganizerUpdatedFromUDB2(
             $id,
