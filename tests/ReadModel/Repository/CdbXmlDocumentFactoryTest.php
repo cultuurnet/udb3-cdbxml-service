@@ -40,7 +40,7 @@ class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
 
         // Actor.
         $actor = new \CultureFeed_Cdb_Item_Actor();
-        $actor->setCdbId('404EE8DE-E828-9C07-FE7D12DC4EB24480');
+        $actor->setCdbId('ORG-123');
 
         $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
         $nlDetail->setLanguage('nl');
@@ -68,7 +68,7 @@ class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
         $data[] = [
             $actor,
             new CdbXmlDocument(
-                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                'ORG-123',
                 file_get_contents(__DIR__ . '/samples/actor.xml')
             ),
         ];
