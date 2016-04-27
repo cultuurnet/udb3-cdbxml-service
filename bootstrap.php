@@ -79,7 +79,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
         $projector = new OfferToEventCdbXmlProjector(
             $app['cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
-            $app['metadata_cdb_item_enricher']
+            $app['metadata_cdb_item_enricher'],
+            $app['cdbxml_actor_repository']
         );
         
         return $projector;
