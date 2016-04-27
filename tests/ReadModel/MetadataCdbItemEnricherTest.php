@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
+use InvalidArgumentException;
 
 class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
 {
@@ -102,5 +103,18 @@ class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
 
         $enrichedCdbItem = $this->enricher->enrich($this->cdbItemBase, $metadata);
         $this->assertEquals($expectedCdbItem, $enrichedCdbItem);
+    }
+
+
+    /**
+     * @test
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The metadata does not contain the "id" property required to locate the item.
+     */
+    public function it_should_not_allow_a_missing_metadata_id_property()
+    {
+        $metadata = new Metadata();
+
+        $this->enricher->enrich($this->cdbItemBase, $metadata);
     }
 }
