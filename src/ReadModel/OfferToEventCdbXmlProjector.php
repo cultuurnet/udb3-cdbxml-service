@@ -646,7 +646,8 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             $eventCdbXml->getCdbXml()
         );
 
-        $ageFrom = array_shift(explode('-', $ageRangeUpdated->getTypicalAgeRange()));
+        $ageArray = explode('-', $ageRangeUpdated->getTypicalAgeRange());
+        $ageFrom = array_shift($ageArray);
         $event->setAgeFrom((int) $ageFrom);
 
         // Change the lastupdated attribute.
