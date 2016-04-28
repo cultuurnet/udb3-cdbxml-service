@@ -24,6 +24,7 @@ use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
+use CultuurNet\UDB3\Event\Events\TranslationApplied;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
@@ -171,7 +172,107 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_a_title_translation()
+    public function it_projects_the_addition_of_a_translation_applied()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventId = new StringLiteral($id);
+        $language = new Language('en');
+        $title = new StringLiteral('Horror movie');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
+        $shortDescription = new StringLiteral('This is a short description.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-translation-applied-en-added.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_update_of_a_translation_applied()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventId = new StringLiteral($id);
+        $language = new Language('en');
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $title = new StringLiteral('Horror movie');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
+        $shortDescription = new StringLiteral('This is a short description.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $title = new StringLiteral('Horror movie updated');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description updated.');
+        $shortDescription = new StringLiteral('This is a short description updated.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-translation-applied-en-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_a_title_translation_addition()
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
@@ -198,6 +299,55 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-title-translated-to-en.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_a_title_translation_update()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $language = new Language('en');
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $title = new StringLiteral('Horror movie');
+
+        $titleTranslated = new TitleTranslated(
+            $id,
+            $language,
+            $title
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $title = new StringLiteral('Horror movie updated');
+
+        $titleTranslated = new TitleTranslated(
+            $id,
+            $language,
+            $title
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-title-translated-to-en-updated.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);

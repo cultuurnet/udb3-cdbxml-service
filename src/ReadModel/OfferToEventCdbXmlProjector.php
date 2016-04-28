@@ -56,6 +56,7 @@ use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\TranslationApplied;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
@@ -203,7 +204,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
-            //TranslationApplied::class => 'applyTranslationApplied',
+            TranslationApplied::class => 'applyTranslationApplied',
             //TranslationDeleted::class => 'applyTranslationDeleted',
             //CollaborationDataAdded::class => 'applyCollaborationDataAdded',
             //EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
@@ -486,6 +487,56 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
     }
 
     /**
+     * @param TranslationApplied $translationApplied
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyTranslationApplied(
+        TranslationApplied $translationApplied,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($translationApplied->getEventId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $languageCode = $translationApplied->getLanguage()->getCode();
+        $title = $translationApplied->getTitle()->toNative();
+        $longDescription = $translationApplied->getLongDescription()->toNative();
+        $shortDescription = $translationApplied->getShortDescription()->toNative();
+
+        $details = $event->getDetails();
+        $detail = $details->getDetailByLanguage($languageCode);
+
+        if (!empty($detail)) {
+            $detail->setTitle($title);
+            $detail->setLongDescription($longDescription);
+            $detail->setShortDescription($shortDescription);
+        } else {
+            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail->setLanguage($languageCode);
+
+            $detail->setTitle($title);
+            $detail->setLongDescription($longDescription);
+            $detail->setShortDescription($shortDescription);
+
+            $details->add($detail);
+        }
+
+        $event->setDetails($details);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
      * @param AbstractTitleTranslated $titleTranslated
      * @param Metadata $metadata
      * @return Repository\CdbXmlDocument
@@ -502,13 +553,23 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             $eventCdbXml->getCdbXml()
         );
 
+        $languageCode = $titleTranslated->getLanguage()->getCode();
+        $title = $titleTranslated->getTitle();
+
         $details = $event->getDetails();
+        $detail = $details->getDetailByLanguage($languageCode);
 
-        $detail = new CultureFeed_Cdb_Data_EventDetail();
-        $detail->setLanguage($titleTranslated->getLanguage()->getCode());
-        $detail->setTitle($titleTranslated->getTitle());
+        if (!empty($detail)) {
+            $detail->setTitle($title);
+        } else {
+            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail->setLanguage($languageCode);
 
-        $details->add($detail);
+            $detail->setTitle($title);
+
+            $details->add($detail);
+        }
+        
         $event->setDetails($details);
 
         // Change the lastupdated attribute.
