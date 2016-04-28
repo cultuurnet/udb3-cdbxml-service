@@ -737,6 +737,46 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_projects_event_major_info_updated_with_removed_theme()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $placeId = 'LOCATION-ABC-123';
+
+        // add the major info to the event.
+        $majorInfoUpdated = new MajorInfoUpdated(
+            $id,
+            new Title("Nieuwe titel"),
+            new EventType("id", "label"),
+            new Location(
+                $placeId,
+                '$name2',
+                '$country',
+                '$locality',
+                '$postalcode',
+                '$street'
+            ),
+            new Calendar('permanent')
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $majorInfoUpdated,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-major-info-updated-without-theme.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_a_typical_age_range_deleted()
     {
         $this->createEvent();

@@ -240,15 +240,22 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
         // Set event type and theme.
         $updatedTheme = false;
-        foreach ($event->getCategories() as $category) {
+        foreach ($event->getCategories() as $key => $category) {
             if ($category->getType() == 'eventtype') {
                 $category->setId($eventMajorInfoUpdated->getEventType()->getId());
                 $category->setName($eventMajorInfoUpdated->getEventType()->getLabel());
             }
 
+            // update the theme
             if ($eventMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
                 $category->setId($eventMajorInfoUpdated->getTheme()->getId());
                 $category->setName($eventMajorInfoUpdated->getTheme()->getLabel());
+                $updatedTheme = true;
+            }
+
+            // remove the theme if exists
+            if (!$eventMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
+                $event->getCategories()->delete($key);
                 $updatedTheme = true;
             }
         }
