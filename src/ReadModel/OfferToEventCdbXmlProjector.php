@@ -43,6 +43,7 @@ use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
+use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
@@ -61,6 +62,7 @@ use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
+use CultuurNet\UDB3\Offer\Events\AbstractDescriptionUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
@@ -71,6 +73,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
+use CultuurNet\UDB3\Place\Events\DescriptionUpdated as PlaceDescriptionUpdated;
 use CultuurNet\UDB3\Place\Events\ImageAdded as PlaceImageAdded;
 use CultuurNet\UDB3\Place\Events\ImageRemoved as PlaceImageRemoved;
 use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
@@ -190,6 +193,8 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             EventTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
             PlaceTypicalAgeRangeUpdated::class => 'applyTypicalAgeRangeUpdated',
             PlaceTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
+            EventDescriptionUpdated::class => 'applyDescriptionUpdated',
+            PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
         ];
 
@@ -482,6 +487,48 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
         $details->add($detail);
         $event->setDetails($details);
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractDescriptionUpdated $descriptionUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyDescriptionUpdated(
+        AbstractDescriptionUpdated $descriptionUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($descriptionUpdated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $description = $descriptionUpdated->getDescription();
+
+        $details = $event->getDetails();
+        $detailNl = $details->getDetailByLanguage('nl');
+        
+        if (!empty($detailNl)) {
+            $detailNl->setLongDescription($description);
+            $detailNl->setShortDescription(iconv_substr($description, 0, 400));
+        } else {
+            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail->setLanguage('nl');
+            $detail->setLongDescription($description);
+            $detail->setShortDescription(iconv_substr($description, 0, 400));
+            $details->add($detail);
+            $event->setDetails($details);
+        }
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
