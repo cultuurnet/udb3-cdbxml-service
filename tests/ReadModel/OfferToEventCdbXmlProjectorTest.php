@@ -18,6 +18,7 @@ use CultuurNet\UDB3\Event\Events\DescriptionUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
+use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
@@ -1173,6 +1174,41 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage(
             $id,
             $eventCreatedFromCdbxml,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_updated_from_cdbxml()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // add some random changes
+        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
+        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // update from udb2 event
+        $eventUpdatedFromCdbxml = new EventUpdatedFromCdbXml(
+            String::fromNative($id),
+            new EventXmlString($this->loadCdbXmlFromFile('event-namespaced.xml')),
+            String::fromNative('http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL')
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventUpdatedFromCdbxml,
             $this->metadata
         );
 

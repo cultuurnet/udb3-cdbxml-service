@@ -47,6 +47,7 @@ use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
+use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
@@ -209,7 +210,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             //TranslationDeleted::class => 'applyTranslationDeleted',
             //CollaborationDataAdded::class => 'applyCollaborationDataAdded',
             EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
-            //EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
+            EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
             LabelsMerged::class => 'applyLabelsMerged',
         ];
 
@@ -232,18 +233,25 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         EventCreatedFromCdbXml $eventCreatedFromCdbXml,
         Metadata $metadata
     ) {
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCreatedFromCdbXml->getEventXmlString()->toEventXmlString()
+        return $this->updateEventFromCdbXml(
+            $eventCreatedFromCdbXml->getEventXmlString()->toEventXmlString(),
+            $metadata
         );
+    }
 
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
-
-        // Return a new CdbXmlDocument.
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+    /**
+     * @param \CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml $eventUpdatedFromCdbXml
+     * @param \Broadway\Domain\Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyEventUpdatedFromCdbXml(
+        EventUpdatedFromCdbXml $eventUpdatedFromCdbXml,
+        Metadata $metadata
+    ) {
+        return $this->updateEventFromCdbXml(
+            $eventUpdatedFromCdbXml->getEventXmlString()->toEventXmlString(),
+            $metadata
+        );
     }
 
     /**
@@ -1419,5 +1427,26 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
                 )
             );
         }
+    }
+
+    /**
+     * @param $xmlString
+     * @param \Broadway\Domain\Metadata $metadata
+     * @return \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument
+     */
+    private function updateEventFromCdbXml($xmlString, Metadata $metadata)
+    {
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $xmlString
+        );
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 }
