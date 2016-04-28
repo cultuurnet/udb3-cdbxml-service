@@ -58,6 +58,7 @@ use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
+use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
@@ -89,6 +90,7 @@ use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\TypicalAgeRangeUpdated as PlaceTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Place\Events\TypicalAgeRangeDeleted as PlaceTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
+use CultuurNet\UDB3\Theme;
 use DateTime;
 
 /**
@@ -250,38 +252,12 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
         $this->setCalendar($placeMajorInfoUpdated->getCalendar(), $event);
 
-        // Set event type and theme.
-        $updatedTheme = false;
-        foreach ($event->getCategories() as $key => $category) {
-            if ($category->getType() == 'eventtype') {
-                $category->setId($placeMajorInfoUpdated->getEventType()->getId());
-                $category->setName($placeMajorInfoUpdated->getEventType()->getLabel());
-            }
-
-            // update the theme
-            if ($placeMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
-                $category->setId($placeMajorInfoUpdated->getTheme()->getId());
-                $category->setName($placeMajorInfoUpdated->getTheme()->getLabel());
-                $updatedTheme = true;
-            }
-
-            // remove the theme if exists
-            if (!$placeMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
-                $event->getCategories()->delete($key);
-                $updatedTheme = true;
-            }
-        }
-
-        // add new theme if it didn't exist
-        if (!$updatedTheme && $placeMajorInfoUpdated->getTheme()) {
-            $event->getCategories()->add(
-                new CultureFeed_Cdb_Data_Category(
-                    'theme',
-                    $placeMajorInfoUpdated->getTheme()->getId(),
-                    $placeMajorInfoUpdated->getTheme()->getLabel()
-                )
-            );
-        }
+        // set eventtype and theme
+        $this->updateCategories(
+            $event,
+            $placeMajorInfoUpdated->getEventType(),
+            $placeMajorInfoUpdated->getTheme()
+        );
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -322,38 +298,11 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $this->setLocation($eventMajorInfoUpdated->getLocation(), $event);
         $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
 
-        // Set event type and theme.
-        $updatedTheme = false;
-        foreach ($event->getCategories() as $key => $category) {
-            if ($category->getType() == 'eventtype') {
-                $category->setId($eventMajorInfoUpdated->getEventType()->getId());
-                $category->setName($eventMajorInfoUpdated->getEventType()->getLabel());
-            }
-
-            // update the theme
-            if ($eventMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
-                $category->setId($eventMajorInfoUpdated->getTheme()->getId());
-                $category->setName($eventMajorInfoUpdated->getTheme()->getLabel());
-                $updatedTheme = true;
-            }
-
-            // remove the theme if exists
-            if (!$eventMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
-                $event->getCategories()->delete($key);
-                $updatedTheme = true;
-            }
-        }
-
-        // add new theme if it didn't exist
-        if (!$updatedTheme && $eventMajorInfoUpdated->getTheme()) {
-            $event->getCategories()->add(
-                new CultureFeed_Cdb_Data_Category(
-                    'theme',
-                    $eventMajorInfoUpdated->getTheme()->getId(),
-                    $eventMajorInfoUpdated->getTheme()->getLabel()
-                )
-            );
-        }
+        $this->updateCategories(
+            $event,
+            $eventMajorInfoUpdated->getEventType(),
+            $eventMajorInfoUpdated->getTheme()
+        );
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -1295,5 +1244,50 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         }
         $cdbItem->setContactInfo($contactInfo);
 
+    }
+
+    /**
+     * Set the eventtype and theme on the event object.
+     * @param \CultureFeed_Cdb_Item_Event $event
+     * @param \CultuurNet\UDB3\Event\EventType $eventType
+     * @param \CultuurNet\UDB3\Theme|NULL $theme
+     */
+    private function updateCategories(
+        CultureFeed_Cdb_Item_Event $event,
+        EventType $eventType,
+        Theme $theme = null
+    ) {
+        // Set event type and theme.
+        $updatedTheme = false;
+        foreach ($event->getCategories() as $key => $category) {
+            if ($category->getType() == 'eventtype') {
+                $category->setId($eventType->getId());
+                $category->setName($eventType->getLabel());
+            }
+
+            // update the theme
+            if ($theme && $category->getType() == 'theme') {
+                $category->setId($theme->getId());
+                $category->setName($theme->getLabel());
+                $updatedTheme = true;
+            }
+
+            // remove the theme if exists
+            if (!$theme && $category->getType() == 'theme') {
+                $event->getCategories()->delete($key);
+                $updatedTheme = true;
+            }
+        }
+
+        // add new theme if it didn't exist
+        if (!$updatedTheme && $theme) {
+            $event->getCategories()->add(
+                new CultureFeed_Cdb_Data_Category(
+                    'theme',
+                    $theme->getId(),
+                    $theme->getLabel()
+                )
+            );
+        }
     }
 }
