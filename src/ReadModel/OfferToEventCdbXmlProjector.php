@@ -74,6 +74,7 @@ use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\DescriptionUpdated as PlaceDescriptionUpdated;
+use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\ImageAdded as PlaceImageAdded;
 use CultuurNet\UDB3\Place\Events\ImageRemoved as PlaceImageRemoved;
 use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
@@ -162,6 +163,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $metadata = $domainMessage->getMetadata();
 
         $handlers = [
+            FacilitiesUpdated::class => 'applyFacilitiesUpdated',
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
             EventCreated::class => 'applyEventCreated',
@@ -887,6 +889,51 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param FacilitiesUpdated $facilitiesUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    private function applyFacilitiesUpdated(
+        FacilitiesUpdated $facilitiesUpdated,
+        Metadata $metadata
+    ) {
+        $placeCdbXml = $this->documentRepository->get($facilitiesUpdated->getPlaceId());
+
+        $place = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $placeCdbXml->getCdbXml()
+        );
+        
+        $existingCategories = $place->getCategories();
+        $newCategoryList = new CultureFeed_Cdb_Data_CategoryList();
+
+        // Add all the non-facility categories that should stay untouched to the new list.
+        foreach ($existingCategories as $category) {
+            if ($category->getType() !== CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FACILITY) {
+                $newCategoryList->add($category);
+            }
+        };
+        
+        // Add new categories for the facilities, passed by the event, to the new list.
+        foreach ($facilitiesUpdated->getFacilities() as $facility) {
+            $facilityCategory = new CultureFeed_Cdb_Data_Category(
+                $facility->getDomain(),
+                $facility->getId(),
+                $facility->getLabel()
+            );
+            $newCategoryList->add($facilityCategory);
+        }
+
+        $place->setCategories($newCategoryList);
+
+        $place = $this->metadataCdbItemEnricher
+            ->enrich($place, $metadata);
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($place);
     }
 
     /**

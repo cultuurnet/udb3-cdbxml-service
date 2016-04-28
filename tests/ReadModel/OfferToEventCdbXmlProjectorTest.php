@@ -26,9 +26,11 @@ use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
@@ -622,6 +624,39 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_an_updated_list_of_categories_when_place_facilities_have_changed()
+    {
+        $this->createPlace();
+        $placeId = 'MY-PLACE-123';
+
+        $originalPlaceCdbXml = new CdbXmlDocument(
+            $placeId,
+            $this->loadCdbXmlFromFile('place-with-facilities.xml')
+        );
+        $this->actorRepository->save($originalPlaceCdbXml);
+
+        $facilities = [
+            new Facility('3.13.2.0.0', 'Audiodescriptie'),
+            new Facility('3.17.3.0.0', 'Ondertiteling'),
+            new Facility('3.17.1.0.0', 'Ringleiding'),
+        ];
+        $facilitiesUpdates = new FacilitiesUpdated($placeId, $facilities);
+        $domainMessage = $this->createDomainMessage($placeId, $facilitiesUpdates, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $placeId,
+            $this->loadCdbXmlFromFile('place-with-updated-facilities.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
