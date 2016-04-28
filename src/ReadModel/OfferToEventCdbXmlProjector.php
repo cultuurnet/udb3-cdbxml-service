@@ -51,6 +51,7 @@ use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
+use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
@@ -207,7 +208,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             //CollaborationDataAdded::class => 'applyCollaborationDataAdded',
             //EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
             //EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
-            //LabelsMerged::class => 'applyLabelsMerged',
+            LabelsMerged::class => 'applyLabelsMerged',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -900,6 +901,33 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($place);
+    }
+    
+    public function applyLabelsMerged(
+        LabelsMerged $labelsMerged,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get((string) $labelsMerged->getEventId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        foreach ($labelsMerged->getLabels()->asArray() as $mergedLabel) {
+            $keyword = new CultureFeed_Cdb_Data_Keyword(
+                (string) $mergedLabel,
+                $mergedLabel->isVisible()
+            );
+            $event->addKeyword($keyword);
+        }
+
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**

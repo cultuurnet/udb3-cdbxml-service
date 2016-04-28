@@ -19,6 +19,7 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
+use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
@@ -28,6 +29,7 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
@@ -752,6 +754,40 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $placeId,
             $this->loadCdbXmlFromFile('place-with-updated-facilities.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_add_keywords_to_the_projection_when_labels_are_merged()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $originalPlaceCdbXml = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-keyword.xml')
+        );
+        $this->actorRepository->save($originalPlaceCdbXml);
+
+        $mergedLabels = new LabelCollection([
+            new Label('foob'),
+            // foobar is already added to the document but we add it to make sure we don't end up with doubles.
+            new Label('foobar'),
+            new Label('barb', false)
+        ]);
+        $labelsMerged = new LabelsMerged(StringLiteral::fromNative($id), $mergedLabels);
+        $domainMessage = $this->createDomainMessage($id, $labelsMerged, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-merged-labels-as-keywords.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
