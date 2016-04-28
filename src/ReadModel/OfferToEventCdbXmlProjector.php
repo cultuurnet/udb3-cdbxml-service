@@ -56,6 +56,7 @@ use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
+use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
@@ -189,6 +190,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             EventTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
             PlaceTypicalAgeRangeUpdated::class => 'applyTypicalAgeRangeUpdated',
             PlaceTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
+            EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -199,6 +201,59 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
             $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
         }
+    }
+
+    /**
+     * @param EventMajorInfoUpdated $eventMajorInfoUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyEventMajorInfoUpdated(
+        EventMajorInfoUpdated $eventMajorInfoUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get(
+            $eventMajorInfoUpdated->getItemId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        // set title
+        foreach ($event->getDetails() as $detail) {
+            if ($detail->getLanguage() == 'nl') {
+                $detail->setTitle($eventMajorInfoUpdated->getTitle());
+                break;
+            }
+        }
+
+        // Set location and calendar info.
+        $this->setLocation($eventMajorInfoUpdated->getLocation(), $event);
+        $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
+
+        // Set event type and theme.
+        // @todo theme doesn't exist
+        foreach ($event->getCategories() as $category) {
+            if ($category->getType() == 'eventtype') {
+                $category->setId($eventMajorInfoUpdated->getEventType()->getId());
+                $category->setName($eventMajorInfoUpdated->getEventType()->getLabel());
+            }
+
+            if ($category->getType() == 'theme') {
+                $category->setId($eventMajorInfoUpdated->getTheme()->getId());
+                $category->setName($eventMajorInfoUpdated->getTheme()->getLabel());
+            }
+        }
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**
@@ -249,11 +304,11 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+          ->enrich($event, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+          ->fromCulturefeedCdbItem($event);
     }
     
     /**
