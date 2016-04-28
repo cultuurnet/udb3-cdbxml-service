@@ -20,16 +20,19 @@ use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
+use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
+use CultuurNet\UDB3\Event\Events\TranslationApplied;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\EventXmlString;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
@@ -172,7 +175,107 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_a_title_translation()
+    public function it_projects_the_addition_of_a_translation_applied()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventId = new StringLiteral($id);
+        $language = new Language('en');
+        $title = new StringLiteral('Horror movie');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
+        $shortDescription = new StringLiteral('This is a short description.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-translation-applied-en-added.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_update_of_a_translation_applied()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventId = new StringLiteral($id);
+        $language = new Language('en');
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $title = new StringLiteral('Horror movie');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
+        $shortDescription = new StringLiteral('This is a short description.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $title = new StringLiteral('Horror movie updated');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description updated.');
+        $shortDescription = new StringLiteral('This is a short description updated.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-translation-applied-en-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_a_title_translation_addition()
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
@@ -209,7 +312,56 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_a_description_translated()
+    public function it_projects_a_title_translation_update()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $language = new Language('en');
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $title = new StringLiteral('Horror movie');
+
+        $titleTranslated = new TitleTranslated(
+            $id,
+            $language,
+            $title
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $title = new StringLiteral('Horror movie updated');
+
+        $titleTranslated = new TitleTranslated(
+            $id,
+            $language,
+            $title
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-title-translated-to-en-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_addition_of_a_description_translated()
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
@@ -246,7 +398,56 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_the_update_of_a_description()
+    public function it_projects_the_update_of_a_description_translated()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $language = new Language('en');
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461155055',
+            ]
+        );
+
+        $description = new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+
+        $descriptionTranslated = new DescriptionTranslated(
+            $id,
+            $language,
+            $description
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $descriptionTranslated, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $description = new StringLiteral('Description updated.');
+
+        $descriptionTranslated = new DescriptionTranslated(
+            $id,
+            $language,
+            $description
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $descriptionTranslated, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-description-translated-to-en-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_addition_of_a_description()
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
@@ -270,7 +471,53 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event-with-updated-description.xml')
+            $this->loadCdbXmlFromFile('event-with-description.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     *
+     */
+    public function it_projects_the_update_of_a_description()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461155055',
+            ]
+        );
+
+        $description = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+
+        $descriptionUpdated = new DescriptionUpdated(
+            $id,
+            $description
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $descriptionUpdated, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $description = 'Description updated';
+
+        $descriptionUpdated = new DescriptionUpdated(
+            $id,
+            $description
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $descriptionUpdated, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-description-updated.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
@@ -660,6 +907,42 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $placeId,
             $this->loadCdbXmlFromFile('place-with-updated-facilities.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_add_keywords_to_the_projection_when_labels_are_merged()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $originalPlaceCdbXml = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-keyword.xml')
+        );
+        $this->actorRepository->save($originalPlaceCdbXml);
+
+        $mergedLabels = new LabelCollection(
+            [
+                new Label('foob'),
+                // foobar is already added to the document but we add it to make sure we don't end up with doubles.
+                new Label('foobar'),
+                new Label('barb', false),
+            ]
+        );
+        $labelsMerged = new LabelsMerged(StringLiteral::fromNative($id), $mergedLabels);
+        $domainMessage = $this->createDomainMessage($id, $labelsMerged, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-merged-labels-as-keywords.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
