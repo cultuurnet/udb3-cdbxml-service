@@ -529,15 +529,25 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             $eventCdbXml->getCdbXml()
         );
 
-        $details = $event->getDetails();
-
-        $detail = new CultureFeed_Cdb_Data_EventDetail();
-        $detail->setLanguage($descriptionTranslated->getLanguage()->getCode());
+        $languageCode = $descriptionTranslated->getLanguage()->getCode();
         $description = $descriptionTranslated->getDescription()->toNative();
-        $detail->setLongDescription($description);
-        $detail->setShortDescription(iconv_substr($description, 0, 400));
 
-        $details->add($detail);
+        $details = $event->getDetails();
+        $detail = $details->getDetailByLanguage($languageCode);
+
+        if (!empty($detail)) {
+            $detail->setLongDescription($description);
+            $detail->setShortDescription(iconv_substr($description, 0, 400));
+        } else {
+            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail->setLanguage($descriptionTranslated->getLanguage()->getCode());
+
+            $detail->setLongDescription($description);
+            $detail->setShortDescription(iconv_substr($description, 0, 400));
+
+            $details->add($detail);
+        }
+
         $event->setDetails($details);
 
         // Change the lastupdated attribute.
@@ -579,8 +589,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             $detail->setLongDescription($description);
             $detail->setShortDescription(iconv_substr($description, 0, 400));
             $details->add($detail);
-            $event->setDetails($details);
         }
+
+        $event->setDetails($details);
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
