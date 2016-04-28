@@ -925,12 +925,14 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
         $this->actorRepository->save($originalPlaceCdbXml);
 
-        $mergedLabels = new LabelCollection([
-            new Label('foob'),
-            // foobar is already added to the document but we add it to make sure we don't end up with doubles.
-            new Label('foobar'),
-            new Label('barb', false)
-        ]);
+        $mergedLabels = new LabelCollection(
+            [
+                new Label('foob'),
+                // foobar is already added to the document but we add it to make sure we don't end up with doubles.
+                new Label('foobar'),
+                new Label('barb', false),
+            ]
+        );
         $labelsMerged = new LabelsMerged(StringLiteral::fromNative($id), $mergedLabels);
         $domainMessage = $this->createDomainMessage($id, $labelsMerged, $this->metadata);
         $this->projector->handle($domainMessage);
