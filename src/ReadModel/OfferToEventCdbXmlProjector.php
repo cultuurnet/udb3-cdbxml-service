@@ -202,6 +202,12 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
+            //TranslationApplied::class => 'applyTranslationApplied',
+            //TranslationDeleted::class => 'applyTranslationDeleted',
+            //CollaborationDataAdded::class => 'applyCollaborationDataAdded',
+            //EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
+            //EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
+            //LabelsMerged::class => 'applyLabelsMerged',
         ];
 
         if (isset($handlers[$payloadClassName])) {
