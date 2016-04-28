@@ -698,8 +698,6 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $this->createEvent(false);
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $this->createPlace();
         $placeId = 'LOCATION-ABC-123';
 
         // add the major info to the event.
