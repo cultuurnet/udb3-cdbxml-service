@@ -21,6 +21,8 @@ use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
+use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
+use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
@@ -578,6 +580,55 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         // remove the organizer from the event.
         $organizerDeleted = new OrganizerDeleted($id, $organizerId);
         $domainMessage = $this->createDomainMessage($id, $organizerDeleted, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_a_typical_age_range_updated()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // add the typical age range to the event.
+        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
+        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-age-from.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_a_typical_age_range_deleted()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // add the typical age range to the event.
+        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
+        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // remove the typical age range from the event.
+        $typicalAgeRangeDeleted = new TypicalAgeRangeDeleted($id);
+        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeDeleted, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,

@@ -54,6 +54,8 @@ use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
+use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
@@ -63,6 +65,8 @@ use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
+use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeDeleted;
+use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
@@ -77,6 +81,8 @@ use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\Place\Events\OrganizerDeleted as PlaceOrganizerDeleted;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
+use CultuurNet\UDB3\Place\Events\TypicalAgeRangeUpdated as PlaceTypicalAgeRangeUpdated;
+use CultuurNet\UDB3\Place\Events\TypicalAgeRangeDeleted as PlaceTypicalAgeRangeDeleted;
 use DateTime;
 
 /**
@@ -179,6 +185,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             EventOrganizerDeleted::class => 'applyOrganizerDeleted',
             PlaceOrganizerUpdated::class => 'applyOrganizerUpdated',
             PlaceOrganizerDeleted::class => 'applyOrganizerDeleted',
+            EventTypicalAgeRangeUpdated::class => 'applyTypicalAgeRangeUpdated',
+            EventTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
+            PlaceTypicalAgeRangeUpdated::class => 'applyTypicalAgeRangeUpdated',
+            PlaceTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -610,6 +620,61 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         );
 
         $event->deleteOrganiser();
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractTypicalAgeRangeUpdated $ageRangeUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyTypicalAgeRangeUpdated(
+        AbstractTypicalAgeRangeUpdated $ageRangeUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($ageRangeUpdated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $ageFrom = array_shift(explode('-', $ageRangeUpdated->getTypicalAgeRange()));
+        $event->setAgeFrom((int) $ageFrom);
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractTypicalAgeRangeDeleted $ageRangeDeleted
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyTypicalAgeRangeDeleted(
+        AbstractTypicalAgeRangeDeleted $ageRangeDeleted,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($ageRangeDeleted->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $event->setAgeFrom(0);
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
