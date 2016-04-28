@@ -239,17 +239,29 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
 
         // Set event type and theme.
-        // @todo theme doesn't exist
+        $updatedTheme = false;
         foreach ($event->getCategories() as $category) {
             if ($category->getType() == 'eventtype') {
                 $category->setId($eventMajorInfoUpdated->getEventType()->getId());
                 $category->setName($eventMajorInfoUpdated->getEventType()->getLabel());
             }
 
-            if ($category->getType() == 'theme') {
+            if ($eventMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
                 $category->setId($eventMajorInfoUpdated->getTheme()->getId());
                 $category->setName($eventMajorInfoUpdated->getTheme()->getLabel());
+                $updatedTheme = true;
             }
+        }
+
+        // add new theme if it didn't exist
+        if (!$updatedTheme && $eventMajorInfoUpdated->getTheme()) {
+            $event->getCategories()->add(
+                new CultureFeed_Cdb_Data_Category(
+                    'theme',
+                    $eventMajorInfoUpdated->getTheme()->getId(),
+                    $eventMajorInfoUpdated->getTheme()->getLabel()
+                )
+            );
         }
 
         // Add metadata like createdby, creationdate, etc to the actor.

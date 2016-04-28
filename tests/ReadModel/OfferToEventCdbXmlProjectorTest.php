@@ -694,6 +694,49 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_projects_event_without_theme_major_info_updated()
+    {
+        $this->createEvent(false);
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $this->createPlace();
+        $placeId = 'LOCATION-ABC-123';
+
+        // add the major info to the event.
+        $majorInfoUpdated = new MajorInfoUpdated(
+            $id,
+            new Title("Nieuwe titel"),
+            new EventType("id", "label"),
+            new Location(
+                $placeId,
+                '$name2',
+                '$country',
+                '$locality',
+                '$postalcode',
+                '$street'
+            ),
+            new Calendar('permanent'),
+            new Theme('tid', 'tlabel')
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $majorInfoUpdated,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-major-info-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_a_typical_age_range_deleted()
     {
         $this->createEvent();
@@ -720,8 +763,9 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * Helper function to create an event.
+     * @param bool $theme   Whether or not to add a theme to the event
      */
-    public function createEvent()
+    public function createEvent($theme = true)
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
 
@@ -748,13 +792,14 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
 
+        $theme = $theme?new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null;
         $event = new EventCreated(
             $id,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
             new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
-            new Theme('1.7.6.0.0', 'Griezelfilm of horror')
+            $theme
         );
 
         $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
