@@ -87,6 +87,7 @@ use CultuurNet\UDB3\Place\Events\OrganizerDeleted as PlaceOrganizerDeleted;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\TypicalAgeRangeUpdated as PlaceTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Place\Events\TypicalAgeRangeDeleted as PlaceTypicalAgeRangeDeleted;
+use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use DateTime;
 
 /**
@@ -196,6 +197,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             EventDescriptionUpdated::class => 'applyDescriptionUpdated',
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
+            PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -206,6 +208,86 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
             $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
         }
+    }
+
+    /**
+     * @param PlaceMajorInfoUpdated $placeMajorInfoUpdated
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyPlaceMajorInfoUpdated(
+        PlaceMajorInfoUpdated $placeMajorInfoUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get(
+            $placeMajorInfoUpdated->getPlaceId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        // set title
+        foreach ($event->getDetails() as $detail) {
+            if ($detail->getLanguage() == 'nl') {
+                $detail->setTitle($placeMajorInfoUpdated->getTitle());
+                break;
+            }
+        }
+
+        // Set location and calendar info.
+        $address = $placeMajorInfoUpdated->getAddress();
+        $cdbAddress = new CultureFeed_Cdb_Data_Address(
+            $this->getPhysicalAddressForUdb3Address($address)
+        );
+
+        $location = new CultureFeed_Cdb_Data_Location($cdbAddress);
+        $location->setLabel($placeMajorInfoUpdated->getTitle());
+        $event->setLocation($location);
+
+        $this->setCalendar($placeMajorInfoUpdated->getCalendar(), $event);
+
+        // Set event type and theme.
+        $updatedTheme = false;
+        foreach ($event->getCategories() as $key => $category) {
+            if ($category->getType() == 'eventtype') {
+                $category->setId($placeMajorInfoUpdated->getEventType()->getId());
+                $category->setName($placeMajorInfoUpdated->getEventType()->getLabel());
+            }
+
+            // update the theme
+            if ($placeMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
+                $category->setId($placeMajorInfoUpdated->getTheme()->getId());
+                $category->setName($placeMajorInfoUpdated->getTheme()->getLabel());
+                $updatedTheme = true;
+            }
+
+            // remove the theme if exists
+            if (!$placeMajorInfoUpdated->getTheme() && $category->getType() == 'theme') {
+                $event->getCategories()->delete($key);
+                $updatedTheme = true;
+            }
+        }
+
+        // add new theme if it didn't exist
+        if (!$updatedTheme && $placeMajorInfoUpdated->getTheme()) {
+            $event->getCategories()->add(
+                new CultureFeed_Cdb_Data_Category(
+                    'theme',
+                    $placeMajorInfoUpdated->getTheme()->getId(),
+                    $placeMajorInfoUpdated->getTheme()->getLabel()
+                )
+            );
+        }
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**
