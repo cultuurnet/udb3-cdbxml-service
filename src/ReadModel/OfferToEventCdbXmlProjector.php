@@ -45,6 +45,7 @@ use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
@@ -205,7 +206,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             //TranslationApplied::class => 'applyTranslationApplied',
             //TranslationDeleted::class => 'applyTranslationDeleted',
             //CollaborationDataAdded::class => 'applyCollaborationDataAdded',
-            //EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
+            EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
             //EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
             //LabelsMerged::class => 'applyLabelsMerged',
         ];
@@ -218,6 +219,29 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
             $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
         }
+    }
+
+    /**
+     * @param \CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml $eventCreatedFromCdbXml
+     * @param \Broadway\Domain\Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
+    public function applyEventCreatedFromCdbXml(
+        EventCreatedFromCdbXml $eventCreatedFromCdbXml,
+        Metadata $metadata
+    ) {
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCreatedFromCdbXml->getEventXmlString()->toEventXmlString()
+        );
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**
