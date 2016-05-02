@@ -60,6 +60,7 @@ use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TranslationApplied;
+use CultuurNet\UDB3\Event\Events\TranslationDeleted;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
@@ -208,7 +209,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
             TranslationApplied::class => 'applyTranslationApplied',
-            //TranslationDeleted::class => 'applyTranslationDeleted',
+            TranslationDeleted::class => 'applyTranslationDeleted',
             CollaborationDataAdded::class => 'applyCollaborationDataAdded',
             EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
             EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
@@ -609,6 +610,43 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    public function applyTranslationDeleted(
+        TranslationDeleted $translationDeleted,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($translationDeleted->getEventId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $languageCode = $translationDeleted->getLanguage()->getCode();
+
+        $details = $event->getDetails();
+        $detail = $details->getDetailByLanguage($languageCode);
+
+        if (!empty($detail)) {
+            $newDetails = new CultureFeed_Cdb_Data_EventDetailList();
+
+            foreach ($details as $detail) {
+                if ($detail->getLanguage() != $languageCode) {
+                    $newDetails->add($detail);
+                }
+            }
+
+            $event->setDetails($newDetails);
+
+            // Add metadata like createdby, creationdate, etc to the actor.
+            $event = $this->metadataCdbItemEnricher
+                ->enrich($event, $metadata);
+        }
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory

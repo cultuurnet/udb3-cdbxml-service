@@ -29,6 +29,7 @@ use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\Events\TranslationApplied;
+use CultuurNet\UDB3\Event\Events\TranslationDeleted;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
@@ -268,6 +269,73 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-translation-applied-en-updated.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_the_deletion_of_a_translation()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventId = new StringLiteral($id);
+        $language = new Language('en');
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+            ]
+        );
+
+        $title = new StringLiteral('Horror movie');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
+        $shortDescription = new StringLiteral('This is a short description.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $languageFR = new Language('fr');
+        $title = new StringLiteral('Filme d\'horreur');
+        $longDescription = new StringLiteral('Une description qui est assez longue......');
+        $shortDescription = new StringLiteral('Description courte');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $languageFR,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $translationDeleted = new TranslationDeleted(
+            $eventId,
+            $language
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationDeleted, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-en-translation-removed.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
