@@ -41,6 +41,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInte
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\CollaborationDataAdded;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
@@ -208,7 +209,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
             TranslationApplied::class => 'applyTranslationApplied',
             //TranslationDeleted::class => 'applyTranslationDeleted',
-            //CollaborationDataAdded::class => 'applyCollaborationDataAdded',
+            CollaborationDataAdded::class => 'applyCollaborationDataAdded',
             EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
             EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
             LabelsMerged::class => 'applyLabelsMerged',
@@ -222,6 +223,52 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
 
             $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
         }
+    }
+
+    public function applyCollaborationDataAdded(
+        CollaborationDataAdded $collaborationDataAdded,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get(
+            $collaborationDataAdded->getEventId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        // add collaboration data to event details under the right language
+        $detail = $event->getDetails()->getDetailByLanguage(
+            $collaborationDataAdded->getLanguage()
+        );
+        // if no media attached, add everything
+        $media = $detail->getMedia();
+        $collaborationData = $collaborationDataAdded->getCollaborationData();
+
+        $file = new \CultureFeed_Cdb_Data_File();
+        $file->setCopyright($collaborationData->getCopyright());
+
+        $description = new \stdClass();
+        $description->text = (string) $collaborationData->getText();
+        $description->keyword = (string) $collaborationData->getKeyword();
+        $description->article = (string) $collaborationData->getArticle();
+
+        $file->setDescription(json_encode($description));
+        $file->setPlainText($collaborationData->getPlainText());
+        $file->setTitle($collaborationData->getTitle());
+        $file->setSubBrand($collaborationData->getSubBrand());
+        $file->setMediaType(\CultureFeed_Cdb_Data_File::MEDIA_TYPE_COLLABORATION);
+
+        $media->add($file);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**

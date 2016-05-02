@@ -10,8 +10,10 @@ use CultuurNet\UDB3\CdbXmlService\Media\EditImageTestTrait;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CollaborationData;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\CollaborationDataAdded;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated;
@@ -1215,6 +1217,42 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_collaboration_data_added()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // add collaboration data
+        $dataArray = [
+            'copyright' => 'Kristof Coomans',
+            'text' => "this is the text 2",
+            'keyword' => "foo",
+            'article' => "bar",
+            'plainText' => 'whatever',
+            'title' =>  'title',
+            'subBrand' => 'e36c2db19aeb6d2760ce0500d393e83c',
+        ];
+        $collaborationData = CollaborationData::deserialize($dataArray);
+        $collaborationDataAdded = new CollaborationDataAdded(
+            String::fromNative($id),
+            new Language("nl"),
+            $collaborationData
+        );
+        $domainMessage = $this->createDomainMessage($id, $collaborationDataAdded, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-collaboration-data.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
