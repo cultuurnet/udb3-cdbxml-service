@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ff2cc76fc94c2ce17914220818ca75ef",
-    "content-hash": "371c0789879c0b25652eb7e8013a97c3",
+    "hash": "f407c3aa4479b6d7b50618bfb2ee33a5",
+    "content-hash": "14b99f02a08c43614433cf5038847ccd",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -490,16 +490,16 @@
         },
         {
             "name": "cultuurnet/cdb",
-            "version": "dev-feature/III-878",
+            "version": "2.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "e6919aacd908f8ecb79ffa938b726bc96e0d2d3e"
+                "reference": "3adc295929c781202d2686818fc8823a7c792d61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/e6919aacd908f8ecb79ffa938b726bc96e0d2d3e",
-                "reference": "e6919aacd908f8ecb79ffa938b726bc96e0d2d3e",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/3adc295929c781202d2686818fc8823a7c792d61",
+                "reference": "3adc295929c781202d2686818fc8823a7c792d61",
                 "shasum": ""
             },
             "require-dev": {
@@ -521,7 +521,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-04-20 15:27:59"
+            "time": "2016-04-25 09:06:59"
         },
         {
             "name": "cultuurnet/clock",
@@ -871,12 +871,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "1538c988c5b138ff847d16010adfcd2acef6989b"
+                "reference": "95e1d076a20295c252b0e1fe9a625e28dd6dc278"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/1538c988c5b138ff847d16010adfcd2acef6989b",
-                "reference": "1538c988c5b138ff847d16010adfcd2acef6989b",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/95e1d076a20295c252b0e1fe9a625e28dd6dc278",
+                "reference": "95e1d076a20295c252b0e1fe9a625e28dd6dc278",
                 "shasum": ""
             },
             "require": {
@@ -945,7 +945,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-04-26 13:04:28"
+            "time": "2016-04-26 14:04:42"
         },
         {
             "name": "danielstjules/stringy",
@@ -1815,16 +1815,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.21",
+            "version": "1.0.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "35a83cf67d80d7040f306c77b0a84b9fbcc4fbfb"
+                "reference": "bd73a91703969a2d20ab4bfbf971d6c2cbe36612"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/35a83cf67d80d7040f306c77b0a84b9fbcc4fbfb",
-                "reference": "35a83cf67d80d7040f306c77b0a84b9fbcc4fbfb",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/bd73a91703969a2d20ab4bfbf971d6c2cbe36612",
+                "reference": "bd73a91703969a2d20ab4bfbf971d6c2cbe36612",
                 "shasum": ""
             },
             "require": {
@@ -1894,7 +1894,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-04-22 10:56:25"
+            "time": "2016-04-28 06:53:12"
         },
         {
             "name": "league/flysystem-ziparchive",
@@ -2907,16 +2907,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v2.7.11",
+            "version": "v2.7.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "b69b6e103712870a3137e9132115d800b2713aac"
+                "reference": "dea1508c965603051e359f2a5f8b7d923ba358fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/b69b6e103712870a3137e9132115d800b2713aac",
-                "reference": "b69b6e103712870a3137e9132115d800b2713aac",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/dea1508c965603051e359f2a5f8b7d923ba358fb",
+                "reference": "dea1508c965603051e359f2a5f8b7d923ba358fb",
                 "shasum": ""
             },
             "require": {
@@ -2959,7 +2959,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-03-25 17:55:03"
+            "time": "2016-04-05 16:36:43"
         },
         {
             "name": "symfony/http-kernel",
@@ -4917,18 +4917,9 @@
             "time": "2016-03-04 07:55:57"
         }
     ],
-    "aliases": [
-        {
-            "alias": "2.2",
-            "alias_normalized": "2.2.0.0",
-            "version": "dev-feature/III-878",
-            "package": "cultuurnet/cdb"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/cdb": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
