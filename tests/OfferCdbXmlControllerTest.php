@@ -39,7 +39,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
             ->willReturn(new CdbXmlDocument($cdbid, $offerXml));
 
         $actualResponse = $this->controller->get($cdbid);
-        $expectedResponse = new Response($offerXml, 200, ['Content-Type' => 'xml']);
+        $expectedResponse = new Response($offerXml, 200, ['Content-Type' => 'application/xml']);
 
         $this->assertEquals($expectedResponse, $actualResponse);
     }
@@ -58,7 +58,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
             ->willReturn(null);
 
         $actualResponse = $this->controller->get($cdbid);
-        $expectedResponse = new Response($problemXml, 404, ['Content-Type' => 'xml']);
+        $expectedResponse = new Response($problemXml, 404, ['Content-Type' => 'application/xml']);
 
         $this->assertEquals($expectedResponse, $actualResponse);
     }
@@ -77,7 +77,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
             ->willThrowException(new DocumentGoneException());
 
         $actualResponse = $this->controller->get($cdbid);
-        $expectedResponse = new Response($problemXml, 410, ['Content-Type' => 'xml']);
+        $expectedResponse = new Response($problemXml, 410, ['Content-Type' => 'application/xml']);
 
         $this->assertEquals($expectedResponse, $actualResponse);
     }
