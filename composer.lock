@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e2b36764a6313f88d85f0a495c8e8459",
-    "content-hash": "25c5da296dd87ab6345ef3d2222d99da",
+    "hash": "f407c3aa4479b6d7b50618bfb2ee33a5",
+    "content-hash": "14b99f02a08c43614433cf5038847ccd",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -494,12 +494,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "3adc295929c781202d2686818fc8823a7c792d61"
+                "reference": "4b9c76d98aaa2f09f6626020f26c6a612487ed2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/3adc295929c781202d2686818fc8823a7c792d61",
-                "reference": "3adc295929c781202d2686818fc8823a7c792d61",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/4b9c76d98aaa2f09f6626020f26c6a612487ed2d",
+                "reference": "4b9c76d98aaa2f09f6626020f26c6a612487ed2d",
                 "shasum": ""
             },
             "require-dev": {
@@ -521,7 +521,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-04-25 09:06:59"
+            "time": "2016-05-02 13:42:36"
         },
         {
             "name": "cultuurnet/clock",
