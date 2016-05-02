@@ -30,7 +30,7 @@ class OfferCdbXmlController
     public function get($cdbid)
     {
         $response = new Response();
-        $response->headers->set('Content-Type', 'xml');
+        $response->headers->set('Content-Type', 'application/xml');
 
         try {
             $offer = $this->offerRepository->get($cdbid);
