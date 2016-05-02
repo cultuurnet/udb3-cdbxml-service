@@ -65,12 +65,12 @@ $app['event_bus.udb2'] = $app->share(
 
 $app['organizer_to_actor_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        return (new OrganizerToActorCdbXmlProjector(
+        return new OrganizerToActorCdbXmlProjector(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_document_factory'],
             $app['address_factory'],
             $app['metadata_cdb_item_enricher']
-        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
+        );
     }
 );
 
