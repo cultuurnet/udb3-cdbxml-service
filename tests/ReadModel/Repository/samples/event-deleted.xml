@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <event cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="deleted">
+    <categories>
+      <category catid="0.50.6.0.0" type="eventtype">film</category>
+      <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
+    </categories>
+    <calendar>
+      <timestamps>
+        <timestamp>
+          <date>2014-01-31</date>
+          <timestart>12:00:00</timestart>
+          <timeend>15:00:00</timeend>
+        </timestamp>
+        <timestamp>
+          <date>2014-02-20</date>
+          <timestart>12:00:00</timestart>
+          <timeend>15:00:00</timeend>
+        </timestamp>
+      </timestamps>
+    </calendar>
+    <contactinfo/>
+    <eventdetails>
+      <eventdetail lang="nl">
+        <title>Griezelfilm of horror</title>
+      </eventdetail>
+    </eventdetails>
+    <location>
+      <address>
+        <physical>
+          <city>$locality</city>
+          <country>$country</country>
+          <street>$street</street>
+          <zipcode>$postalCode</zipcode>
+        </physical>
+      </address>
+      <label>$name</label>
+    </location>
+  </event>
+</cdbxml>

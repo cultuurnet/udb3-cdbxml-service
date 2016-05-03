@@ -17,6 +17,7 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\OfferCdbXmlController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToEventCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
@@ -45,12 +46,13 @@ $app['event_bus.udb3-core'] = $app->share(
         $bus =  new SimpleEventBus();
 
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
+        $bus->subscribe($app['offer_to_event_cdbxml_projector']);
 
         return $bus;
     }
 );
 
-// Outgoing event-stream going to UDB2.
+// Outgoing event-stream to UDB2.
 $app['event_bus.udb2'] = $app->share(
     function (Application $app) {
         $bus =  new SimpleEventBus();
@@ -72,6 +74,19 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
 
         $projector->setLogger($app['logger.projector']);
 
+        return $projector;
+    }
+);
+
+$app['offer_to_event_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = new OfferToEventCdbXmlProjector(
+            $app['cdbxml_offer_repository'],
+            $app['cdbxml_document_factory'],
+            $app['metadata_cdb_item_enricher'],
+            $app['cdbxml_actor_repository']
+        );
+        
         return $projector;
     }
 );

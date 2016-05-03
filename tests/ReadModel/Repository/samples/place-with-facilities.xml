@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <event cdbid="MY-PLACE-123" createdby="foobar" creationdate="2016-04-15T11:01:47" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
+    <keywords>
+      <keyword>UDB3 place</keyword>
+    </keywords>
+    <categories>
+      <category catid="0.50.4.0.0" type="eventtype">concert</category>
+      <category type="facility" catid="3.13.3.0.0">Brochure beschikbaar in braille</category>
+      <category type="facility" catid="3.17.1.0.0">Ringleiding</category>
+      <category type="facility" catid="3.17.2.0.0">Voelstoelen</category>
+      <category type="facility" catid="3.17.3.0.0">Ondertiteling</category>
+    </categories>
+    <calendar>
+      <permanentopeningtimes>
+        <permanent/>
+      </permanentopeningtimes>
+    </calendar>
+    <contactinfo/>
+    <eventdetails>
+      <eventdetail lang="nl">
+        <title>My Place</title>
+      </eventdetail>
+    </eventdetails>
+    <location>
+      <address>
+        <physical>
+          <city>$locality</city>
+          <country>$country</country>
+          <street>$street</street>
+          <zipcode>$postalCode</zipcode>
+        </physical>
+      </address>
+      <label>My Place</label>
+    </location>
+  </event>
+</cdbxml>
