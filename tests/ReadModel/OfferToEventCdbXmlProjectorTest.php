@@ -94,6 +94,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1460710907',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
     }
@@ -203,6 +204,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -234,6 +236,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -292,6 +295,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -365,6 +369,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -395,6 +400,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -451,6 +457,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461155055',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -481,6 +488,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461155055',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -535,6 +543,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461155055',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -612,6 +621,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461164633',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -643,6 +653,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461164633',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -675,6 +686,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461164633',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -816,6 +828,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461164633',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
@@ -860,6 +873,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461164633',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
             ]
         );
 
