@@ -117,7 +117,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
                 $this->documentRepository->save($cdbXmlDocument);
 
                 $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
-            } catch (Exception $exception){
+            } catch (Exception $exception) {
                 // Log any exceptions that occur while projecting events.
                 // The exception is passed to context as specified in: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#13-context
                 $this->logger->error($exception->getMessage(), ['exception' => $exception]);

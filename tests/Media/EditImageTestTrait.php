@@ -43,7 +43,7 @@ trait EditImageTestTrait
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
             ]
         );
 
@@ -73,7 +73,7 @@ trait EditImageTestTrait
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
             ]
         );
 
@@ -126,7 +126,7 @@ trait EditImageTestTrait
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
             ]
         );
 
@@ -177,7 +177,7 @@ trait EditImageTestTrait
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
             ]
         );
 
@@ -244,7 +244,7 @@ trait EditImageTestTrait
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480'
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
             ]
         );
 
