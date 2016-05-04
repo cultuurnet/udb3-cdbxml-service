@@ -316,6 +316,50 @@ $app['cdbxml_offer.controller'] = $app->share(
     }
 );
 
+$app['dbal_connection'] = $app->share(
+    function ($app) {
+        $eventManager = new \Doctrine\Common\EventManager();
+        $sqlMode = 'NO_ENGINE_SUBSTITUTION,STRICT_ALL_TABLES';
+        $query = "SET SESSION sql_mode = '{$sqlMode}'";
+        $eventManager->addEventSubscriber(
+            new \Doctrine\DBAL\Event\Listeners\SQLSessionInit($query)
+        );
+
+        $connection = \Doctrine\DBAL\DriverManager::getConnection(
+            $app['config']['database'],
+            null,
+            $eventManager
+        );
+
+        return $connection;
+    }
+);
+
+$app['dbal_connection:keepalive'] = $app->protect(
+    function (Application $app) {
+        /** @var \Doctrine\DBAL\Connection $db */
+        $db = $app['dbal_connection'];
+
+        $db->query('SELECT 1')->execute();
+    }
+);
+
+$app['event_relations_repository'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Event\ReadModel\Relations\Doctrine\DBALRepository(
+            $app['dbal_connection']
+        );
+    }
+);
+
+$app['relations_projector'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Event\ReadModel\Relations\Projector(
+            $app['event_relations_repository']
+        );
+    }
+);
+
 /**
  * Load additional bootstrap files.
  */
