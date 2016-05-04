@@ -1080,7 +1080,12 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($place);
     }
-    
+
+    /**
+     * @param LabelsMerged $labelsMerged
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
     public function applyLabelsMerged(
         LabelsMerged $labelsMerged,
         Metadata $metadata
