@@ -65,12 +65,16 @@ $app['event_bus.udb2'] = $app->share(
 
 $app['organizer_to_actor_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        return new OrganizerToActorCdbXmlProjector(
+        $projector = new OrganizerToActorCdbXmlProjector(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_document_factory'],
             $app['address_factory'],
             $app['metadata_cdb_item_enricher']
         );
+
+        $projector->setLogger($app['logger.projector']);
+
+        return $projector;
     }
 );
 
@@ -247,13 +251,28 @@ $app['logger.amqp.udb2_publisher'] = $app->share(
     }
 );
 
-$app['logger.amqp.event_bus_forwarder'] = $app->share(
+$app['logger.amqp.udb2_publisher'] = $app->share(
     function (Application $app) {
-        $logger = new Monolog\Logger('amqp.event_bus_forwarder');
+        $logger = new Monolog\Logger('amqp.udb2_publisher');
         $logger->pushHandler(new StreamHandler('php://stdout'));
 
         $logFileHandler = new StreamHandler(
             __DIR__ . '/log/amqp.log',
+            \Monolog\Logger::DEBUG
+        );
+        $logger->pushHandler($logFileHandler);
+
+        return $logger;
+    }
+);
+
+$app['logger.projector'] = $app->share(
+    function (Application $app) {
+        $logger = new Monolog\Logger('projector');
+        $logger->pushHandler(new StreamHandler('php://stdout'));
+
+        $logFileHandler = new StreamHandler(
+            __DIR__ . '/log/projector.log',
             \Monolog\Logger::DEBUG
         );
         $logger->pushHandler($logFileHandler);
@@ -285,7 +304,7 @@ $app['event_bus_forwarding_consumer_factory'] = $app->share(
         return new EventBusForwardingConsumerFactory(
             Natural::fromNative($app['config']['consumerExecutionDelay']),
             $app['amqp.connection'],
-            $app['logger.amqp.event_bus_forwarder'],
+            $app['logger.amqp.udb2_publisher'],
             $app['deserializer_locator'],
             $app['event_bus.udb3-core'],
             new StringLiteral($app['config']['amqp']['consumer_tag'])
