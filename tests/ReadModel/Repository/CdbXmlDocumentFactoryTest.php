@@ -64,6 +64,7 @@ class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
         $actor->setLastUpdatedBy('foo@bar.com');
         $actor->setCreationDate('2016-04-15T11:01:47');
         $actor->setLastUpdated('2016-04-15T11:01:47');
+        $actor->setExternalUrl('http://foo.be/item/ORG-123');
 
         $data[] = [
             $actor,
