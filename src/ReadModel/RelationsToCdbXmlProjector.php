@@ -229,8 +229,12 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             if ($newEvent != $event) {
                 // Change the lastupdated attribute.
-                $newEvent = $this->metadataCdbItemEnricher
-                    ->enrich($newEvent, $metadata);
+                $metadataArray = $metadata->serialize();
+
+                if (isset($metadataArray['request_time'])) {
+                    $newEvent = $this->metadataCdbItemEnricher
+                        ->enrichTime($newEvent, new Natural((int) $metadataArray['request_time']));
+                }
 
                 $newCdbXmlDocument = $this->cdbXmlDocumentFactory
                     ->fromCulturefeedCdbItem($newEvent);
