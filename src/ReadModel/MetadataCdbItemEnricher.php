@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
 use InvalidArgumentException;
+use ValueObjects\Number\Natural;
 
 class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
 {
@@ -55,6 +56,29 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
             $cdbItem->setExternalUrl($metadata['id']);
         } else {
             throw new InvalidArgumentException('The metadata does not contain the "id" property required to locate the item.');
+        }
+
+        return $cdbItem;
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Base $cdbItem
+     * @param Natural $requestTime
+     * @return \CultureFeed_Cdb_Item_Base
+     */
+    public function enrichTime(
+        \CultureFeed_Cdb_Item_Base $cdbItem,
+        Natural $requestTime
+    ) {
+        if (!empty($requestTime)) {
+            if (empty($cdbItem->getCreationDate())) {
+                $cdbItem->setCreationDate(
+                    $this->dateFormatter->format($requestTime->toNative())
+                );
+            }
+            $cdbItem->setLastUpdated(
+                $this->dateFormatter->format($requestTime->toNative())
+            );
         }
 
         return $cdbItem;
