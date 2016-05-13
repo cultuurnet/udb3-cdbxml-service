@@ -2,10 +2,10 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
-class BroadcastingCdbXmlFilterTest extends \PHPUnit_Framework_TestCase
+class BroadcastingOfferCdbXmlFilterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var BroadcastingCdbXmlFilter
+     * @var BroadcastingOfferCdbXmlFilter
      */
     private $broadcastingCdbXmlFilter;
 
@@ -16,7 +16,7 @@ class BroadcastingCdbXmlFilterTest extends \PHPUnit_Framework_TestCase
 
     public function setup()
     {
-        $this->broadcastingCdbXmlFilter = new BroadcastingCdbXmlFilter();
+        $this->broadcastingCdbXmlFilter = new BroadcastingOfferCdbXmlFilter();
         $this->cdbXmlFilesPath = __DIR__;
     }
 

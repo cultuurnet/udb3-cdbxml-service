@@ -4,7 +4,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 
-class BroadcastingCdbXmlFilter implements BroadcastingCdbXmlFilterInterface
+class BroadcastingOfferCdbXmlFilter implements BroadcastingCdbXmlFilterInterface
 {
 
     /**
