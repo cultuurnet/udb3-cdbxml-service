@@ -16,7 +16,7 @@ use Broadway\UuidGenerator\Rfc4122\Version4Generator;
 class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorator
 {
     /**
-     * @var DocumentEventFactory
+     * @var DocumentEventFactoryInterface
      */
     protected $eventFactory;
 
