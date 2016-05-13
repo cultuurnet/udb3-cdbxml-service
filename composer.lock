@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9179734caa502d914ca8e1158fd6ca0f",
-    "content-hash": "696bfb3184d7b6167893f4229bce99be",
+    "hash": "4432ae9c7b55c3b048f0ab554a841cce",
+    "content-hash": "d39fef5ac62068e5a709146b778f6127",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -401,12 +401,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "cc1beccf57669c808f8f6f0af7f2f121e50f19f2"
+                "reference": "b2900a041848783defd3419a3e4772c68d289699"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/cc1beccf57669c808f8f6f0af7f2f121e50f19f2",
-                "reference": "cc1beccf57669c808f8f6f0af7f2f121e50f19f2",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/b2900a041848783defd3419a3e4772c68d289699",
+                "reference": "b2900a041848783defd3419a3e4772c68d289699",
                 "shasum": ""
             },
             "require": {
@@ -440,7 +440,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2016-04-21 13:04:43"
+            "time": "2016-05-12 13:12:36"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -1022,16 +1022,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-943",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "4107f00d9e3cf76a90e756dc6d45d912731e6514"
+                "reference": "259aca92a38b8674b9aeb03467663e48c357d10b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/4107f00d9e3cf76a90e756dc6d45d912731e6514",
-                "reference": "4107f00d9e3cf76a90e756dc6d45d912731e6514",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/259aca92a38b8674b9aeb03467663e48c357d10b",
+                "reference": "259aca92a38b8674b9aeb03467663e48c357d10b",
                 "shasum": ""
             },
             "require": {
@@ -1102,7 +1102,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-05-10 06:26:55"
+            "time": "2016-05-11 12:57:58"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -4734,20 +4734,23 @@
         },
         {
             "name": "phpunit/php-timer",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-timer.git",
-                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b"
+                "reference": "38e9124049cf1a164f1e4537caf19c99bf1eb260"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
-                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/38e9124049cf1a164f1e4537caf19c99bf1eb260",
+                "reference": "38e9124049cf1a164f1e4537caf19c99bf1eb260",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4|~5"
             },
             "type": "library",
             "autoload": {
@@ -4771,7 +4774,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2015-06-21 08:01:12"
+            "time": "2016-05-12 18:03:57"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -5608,17 +5611,9 @@
             "time": "2016-03-04 07:55:57"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-943",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "cultuurnet/udb3": 20,
         "doctrine/migrations": 20
     },
     "prefer-stable": true,
