@@ -19,6 +19,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToEventCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
@@ -47,6 +48,8 @@ $app['event_bus.udb3-core'] = $app->share(
 
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
         $bus->subscribe($app['offer_to_event_cdbxml_projector']);
+        $bus->subscribe($app['event_relations_projector']);
+        $bus->subscribe($app['place_relations_projector']);
 
         return $bus;
     }
@@ -110,9 +113,18 @@ $app['cache'] = $app->share(
 
 $app['cdbxml_actor_repository'] = $app->share(
     function (Application $app) {
-        return new CacheDocumentRepository(
+        $cachedRepository = new CacheDocumentRepository(
             $app['cdbxml_actor_cache']
         );
+
+        $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
+            $cachedRepository,
+            $app['event_bus.udb3-core'],
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerEventFactory(),
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOrganizerCdbXmlFilter()
+        );
+
+        return $broadcastingRepository;
     }
 );
 
@@ -124,9 +136,20 @@ $app['cdbxml_actor_cache'] = $app->share(
 
 $app['cdbxml_offer_repository'] = $app->share(
     function (Application $app) {
-        return new CacheDocumentRepository(
+        $cachedRepository = new CacheDocumentRepository(
             $app['cdbxml_offer_cache']
         );
+
+        $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
+            $cachedRepository,
+            $app['event_bus.udb3-core'],
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OfferEventFactory(
+                $app['document_iri_generator']
+            ),
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOfferCdbXmlFilter()
+        );
+
+        return $broadcastingRepository;
     }
 );
 
@@ -371,10 +394,26 @@ $app['event_relations_repository'] = $app->share(
     }
 );
 
-$app['relations_projector'] = $app->share(
+$app['place_relations_repository'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Place\ReadModel\Relations\Doctrine\DBALRepository(
+            $app['dbal_connection']
+        );
+    }
+);
+
+$app['event_relations_projector'] = $app->share(
     function ($app) {
         return new \CultuurNet\UDB3\Event\ReadModel\Relations\Projector(
             $app['event_relations_repository']
+        );
+    }
+);
+
+$app['place_relations_projector'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Place\ReadModel\Relations\Projector(
+            $app['place_relations_repository']
         );
     }
 );
