@@ -7,7 +7,6 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
-use CultuurNet\UDB3\ReadModel\DocumentEventFactory;
 
 /**
  * Class BroadcastingDocumentRepositoryDecorator
@@ -34,7 +33,7 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
     public function __construct(
         DocumentRepositoryInterface $repository,
         EventBusInterface $eventBus,
-        DocumentEventFactory $eventFactory,
+        DocumentEventFactoryInterface $eventFactory,
         BroadcastingCdbXmlFilterInterface $broadcastingCdbXmlFilter
     ) {
         parent::__construct($repository);
