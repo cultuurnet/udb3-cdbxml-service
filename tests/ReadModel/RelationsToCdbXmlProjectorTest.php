@@ -6,6 +6,7 @@ use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
+use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
@@ -14,8 +15,10 @@ use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\EventServiceInterface;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
+use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\LocalPlaceService;
 use CultuurNet\UDB3\Place\Place;
@@ -23,6 +26,7 @@ use CultuurNet\UDB3\PlaceService;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use ValueObjects\Web\Url;
 
 class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -112,22 +116,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
     }
 
-    public function it_projects_events_when_the_associated_place_gets_updated()
-    {
-
-    }
-
-    public function it_projects_offers_when_the_organizer_gets_updated()
-    {
-
-    }
-
     /**
      * @test
      */
-    public function it_embeds_the_projection_of_an_organizer_in_all_related_events()
+    public function it_embeds_the_projection_of_an_organizer_in_all_related_offers()
     {
-        // Add a first event with the organizer.
+        // Add a first event.
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
         $this->createEvent($id);
 
@@ -187,6 +181,77 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedSecondCdbXmlDocument = new CdbXmlDocument(
             $secondId,
             $this->loadCdbXmlFromFile('event-with-organizer-2.xml')
+        );
+
+        //$this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedSecondCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_embeds_the_projection_of_a_place_in_all_events_located_at_that_place()
+    {
+        // Add a first event.
+        $eventId = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $this->createEvent($eventId);
+
+        // Add a second event.
+        $secondEventId = 'EVENT-ABC-123';
+        $this->createEvent($secondEventId);
+
+        // Create a place.
+        $this->createPlace();
+        $placeId = 'MY-PLACE-123';
+        $placeIri = Url::fromNative('http://foo.bar/place/' . $placeId);
+
+        $placeIdentifier = new IriOfferIdentifier($placeIri, $placeId, OfferType::PLACE());
+
+        $this->iriOfferIdentifierFactory->expects($this->once())
+            ->method('fromIri')
+            ->with($placeIri)
+            ->willReturn($placeIdentifier);
+
+        $this->eventService
+            ->expects($this->once())
+            ->method('eventsLocatedAtPlace')
+            ->with($placeId)
+            ->willReturn(
+                [
+                    $eventId,
+                    $secondEventId,
+                ]
+            );
+
+
+        $placeProjectedToCdbXml = new PlaceProjectedToCdbXml(
+            $placeIri
+        );
+
+        $placeMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710907',
+                'id' => 'http://foo.be/item/' . $placeId,
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($placeId, $placeProjectedToCdbXml, $placeMetadata);
+        $this->relationsProjector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $eventId,
+            $this->loadCdbXmlFromFile('event-with-place.xml')
+        );
+
+        $expectedSecondCdbXmlDocument = new CdbXmlDocument(
+            $secondEventId,
+            $this->loadCdbXmlFromFile('event-with-place-2.xml')
         );
 
         //$this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
@@ -272,7 +337,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('My Place'),
             new EventType('0.50.4.0.0', 'concert'),
-            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Address('Teststraat', '3000', 'Leuven', 'België'),
             new Calendar('permanent')
         );
 
