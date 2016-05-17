@@ -18,9 +18,9 @@ use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
-use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
+use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
+use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
@@ -33,7 +33,6 @@ use CultuurNet\UDB3\Event\Events\TranslationDeleted;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\EventXmlString;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\LabelCollection;
@@ -509,7 +508,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
         $language = new Language('en');
         $description = new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-        
+
         $descriptionTranslated = new DescriptionTranslated(
             $id,
             $language,
@@ -1388,17 +1387,17 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_event_created_from_cdbxml()
+    public function it_projects_event_imported_from_udb2()
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventCreatedFromCdbxml = new EventCreatedFromCdbXml(
-            String::fromNative($id),
-            new EventXmlString($this->loadCdbXmlFromFile('event-namespaced.xml')),
-            String::fromNative('http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL')
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
         );
         $domainMessage = $this->createDomainMessage(
             $id,
-            $eventCreatedFromCdbxml,
+            $eventImportedFromUdb2,
             $this->metadata
         );
 
@@ -1415,7 +1414,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_event_updated_from_cdbxml()
+    public function it_projects_event_updated_from_udb2()
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
@@ -1426,14 +1425,14 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         // update from udb2 event
-        $eventUpdatedFromCdbxml = new EventUpdatedFromCdbXml(
-            String::fromNative($id),
-            new EventXmlString($this->loadCdbXmlFromFile('event-namespaced.xml')),
-            String::fromNative('http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL')
+        $eventUpdatedFromUdb2 = new EventUpdatedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
         );
         $domainMessage = $this->createDomainMessage(
             $id,
-            $eventUpdatedFromCdbxml,
+            $eventUpdatedFromUdb2,
             $this->metadata
         );
 

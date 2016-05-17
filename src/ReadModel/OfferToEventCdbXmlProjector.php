@@ -46,9 +46,9 @@ use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
-use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
+use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
+use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
@@ -111,7 +111,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 {
     use EditImageTrait;
     use LoggerAwareTrait;
-    
+
     /**
      * @var DocumentRepositoryInterface
      */
@@ -216,8 +216,8 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             TranslationApplied::class => 'applyTranslationApplied',
             TranslationDeleted::class => 'applyTranslationDeleted',
             CollaborationDataAdded::class => 'applyCollaborationDataAdded',
-            EventCreatedFromCdbXml::class => 'applyEventCreatedFromCdbXml',
-            EventUpdatedFromCdbXml::class => 'applyEventUpdatedFromCdbXml',
+            EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
+            EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
             LabelsMerged::class => 'applyLabelsMerged',
         ];
 
@@ -278,31 +278,31 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     }
 
     /**
-     * @param \CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml $eventCreatedFromCdbXml
+     * @param EventImportedFromUDB2 $eventImportedFromCdbXml
      * @param \Broadway\Domain\Metadata $metadata
      * @return Repository\CdbXmlDocument
      */
-    public function applyEventCreatedFromCdbXml(
-        EventCreatedFromCdbXml $eventCreatedFromCdbXml,
+    public function applyEventImportedFromUdb2(
+        EventImportedFromUDB2 $eventImportedFromCdbXml,
         Metadata $metadata
     ) {
         return $this->updateEventFromCdbXml(
-            $eventCreatedFromCdbXml->getEventXmlString()->toEventXmlString(),
+            $eventImportedFromCdbXml->getCdbXml(),
             $metadata
         );
     }
 
     /**
-     * @param \CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml $eventUpdatedFromCdbXml
+     * @param EventUpdatedFromUDB2 $eventUpdatedFromUdb2
      * @param \Broadway\Domain\Metadata $metadata
      * @return Repository\CdbXmlDocument
      */
-    public function applyEventUpdatedFromCdbXml(
-        EventUpdatedFromCdbXml $eventUpdatedFromCdbXml,
+    public function applyEventUpdatedFromUdb2(
+        EventUpdatedFromUDB2 $eventUpdatedFromUdb2,
         Metadata $metadata
     ) {
         return $this->updateEventFromCdbXml(
-            $eventUpdatedFromCdbXml->getEventXmlString()->toEventXmlString(),
+            $eventUpdatedFromUdb2->getCdbXml(),
             $metadata
         );
     }
@@ -460,7 +460,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         return $this->cdbXmlDocumentFactory
           ->fromCulturefeedCdbItem($event);
     }
-    
+
     /**
      * @param EventDeleted $eventDeleted
      * @param Metadata $metadata
@@ -691,7 +691,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
             $details->add($detail);
         }
-        
+
         $event->setDetails($details);
 
         // Change the lastupdated attribute.
@@ -769,7 +769,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
         $details = $event->getDetails();
         $detailNl = $details->getDetailByLanguage('nl');
-        
+
         if (!empty($detailNl)) {
             $detailNl->setLongDescription($description);
             $detailNl->setShortDescription(iconv_substr($description, 0, 400));
@@ -1063,7 +1063,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $placeCdbXml->getCdbXml()
         );
-        
+
         $existingCategories = $place->getCategories();
         $newCategoryList = new CultureFeed_Cdb_Data_CategoryList();
 
@@ -1073,7 +1073,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                 $newCategoryList->add($category);
             }
         };
-        
+
         // Add new categories for the facilities, passed by the event, to the new list.
         foreach ($facilitiesUpdated->getFacilities() as $facility) {
             $facilityCategory = new CultureFeed_Cdb_Data_Category(
@@ -1092,7 +1092,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($place);
     }
-    
+
     public function applyLabelsMerged(
         LabelsMerged $labelsMerged,
         Metadata $metadata
