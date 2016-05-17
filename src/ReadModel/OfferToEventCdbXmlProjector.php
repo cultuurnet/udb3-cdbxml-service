@@ -98,15 +98,19 @@ use CultuurNet\UDB3\Place\Events\TypicalAgeRangeDeleted as PlaceTypicalAgeRangeD
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Theme;
 use DateTime;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 /**
  * Class OfferToEventCdbXmlProjector
  * This projector takes UDB3 domain messages, projects them to CdbXml and then
  * publishes the changes to a public URL.
  */
-class OfferToEventCdbXmlProjector implements EventListenerInterface
+class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use EditImageTrait;
+    use LoggerAwareTrait;
     
     /**
      * @var DocumentRepositoryInterface
@@ -147,6 +151,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
+        $this->logger = new NullLogger();
     }
 
     /**
