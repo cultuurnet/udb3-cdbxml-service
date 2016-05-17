@@ -966,7 +966,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->with('Could not find organizer with id ORG-123 when applying organizer updated on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
         $this->projector->handle($domainMessage);
-        
+
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1134,6 +1134,52 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_logs_a_warning_when_major_info_updated_without_location()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $placeId = 'LOCATION-MISSING';
+
+        // add the major info to the event.
+        $majorInfoUpdated = new MajorInfoUpdated(
+            $id,
+            new Title("Nieuwe titel"),
+            new EventType("id", "label"),
+            new Location(
+                $placeId,
+                '$name2',
+                '$country',
+                '$locality',
+                '$postalcode',
+                '$street'
+            ),
+            new Calendar('permanent'),
+            new Theme('tid', 'tlabel')
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $majorInfoUpdated,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-major-info-updated-without-location.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Could not find location with id LOCATION-MISSING when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->projector->handle($domainMessage);
+
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
