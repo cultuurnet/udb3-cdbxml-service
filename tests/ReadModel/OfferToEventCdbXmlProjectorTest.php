@@ -46,6 +46,7 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use Psr\Log\LoggerInterface;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
 
@@ -68,6 +69,11 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $actorRepository;
 
+    /**
+     * @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $logger;
+
     public function setUp()
     {
         parent::setUp();
@@ -87,6 +93,9 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
+
+        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->projector->setLogger($this->logger);
 
         $this->metadata = new Metadata(
             [
@@ -928,6 +937,36 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_logs_a_warning_when_organizer_updated_but_organizer_not_found()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // create an organizer.
+        $organizerId = 'ORG-123';
+
+        // add the organizer to the event.
+        $organizerUpdated = new OrganizerUpdated($id, $organizerId);
+        $domainMessage = $this->createDomainMessage($id, $organizerUpdated, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-without-organizer.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Could not find organizer with id ORG-123 when applying organizer updated on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->projector->handle($domainMessage);
+        
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 

@@ -937,17 +937,24 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         // load organizer from documentRepo & add to document
         $organizerCdbXml = $this->actorDocumentRepository->get($organizerUpdated->getOrganizerId());
 
-        $actor = ActorItemFactory::createActorFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $organizerCdbXml->getCdbXml()
-        );
+        // It can happen that the organizer is not found
+        if ($organizerCdbXml) {
+            $actor = ActorItemFactory::createActorFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $organizerCdbXml->getCdbXml()
+            );
 
-        $organizer = new \CultureFeed_Cdb_Data_Organiser();
-        $organizer->setCdbid($organizerUpdated->getOrganizerId());
-        $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
-        $organizer->setActor($actor);
+            $organizer = new \CultureFeed_Cdb_Data_Organiser();
+            $organizer->setCdbid($organizerUpdated->getOrganizerId());
+            $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
+            $organizer->setActor($actor);
 
-        $event->setOrganiser($organizer);
+            $event->setOrganiser($organizer);
+        } else {
+            $warning = 'Could not find organizer with id ' . $organizerUpdated->getOrganizerId();
+            $warning .= ' when applying organizer updated on event ' . $organizerUpdated->getItemId() . '.';
+            $this->logger->warning($warning);
+        }
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
