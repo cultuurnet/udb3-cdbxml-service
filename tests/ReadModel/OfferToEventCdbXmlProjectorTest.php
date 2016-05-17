@@ -162,6 +162,62 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_logs_warning_when_event_created_with_missing_location()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $timestamps = [
+            new Timestamp(
+                '2014-01-31T12:00:00',
+                '2014-01-31T15:00:00'
+            ),
+            new Timestamp(
+                '2014-02-20T12:00:00',
+                '2014-02-20T15:00:00'
+            ),
+        ];
+
+        $placeId = 'LOCATION-MISSING';
+
+        $placeCreated = new PlaceCreated(
+            $placeId,
+            new Title('$name'),
+            new EventType('0.50.4.0.0', 'concert'),
+            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Calendar('permanent')
+        );
+        $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $event = new EventCreated(
+            $id,
+            new Title('Griezelfilm of horror'),
+            new EventType('0.50.6.0.0', 'film'),
+            new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+            new Theme('1.7.6.0.0', 'Griezelfilm of horror')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-without-location.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Could not find location with id LOCATION-ABC-123 when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_place_created()
     {
         $id = 'MY-PLACE-123';
