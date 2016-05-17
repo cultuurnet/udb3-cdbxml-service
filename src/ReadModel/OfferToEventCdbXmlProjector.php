@@ -98,15 +98,19 @@ use CultuurNet\UDB3\Place\Events\TypicalAgeRangeDeleted as PlaceTypicalAgeRangeD
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Theme;
 use DateTime;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 /**
  * Class OfferToEventCdbXmlProjector
  * This projector takes UDB3 domain messages, projects them to CdbXml and then
  * publishes the changes to a public URL.
  */
-class OfferToEventCdbXmlProjector implements EventListenerInterface
+class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use EditImageTrait;
+    use LoggerAwareTrait;
 
     /**
      * @var DocumentRepositoryInterface
@@ -147,6 +151,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -932,17 +937,24 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
         // load organizer from documentRepo & add to document
         $organizerCdbXml = $this->actorDocumentRepository->get($organizerUpdated->getOrganizerId());
 
-        $actor = ActorItemFactory::createActorFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $organizerCdbXml->getCdbXml()
-        );
+        // It can happen that the organizer is not found
+        if ($organizerCdbXml) {
+            $actor = ActorItemFactory::createActorFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $organizerCdbXml->getCdbXml()
+            );
 
-        $organizer = new \CultureFeed_Cdb_Data_Organiser();
-        $organizer->setCdbid($organizerUpdated->getOrganizerId());
-        $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
-        $organizer->setActor($actor);
+            $organizer = new \CultureFeed_Cdb_Data_Organiser();
+            $organizer->setCdbid($organizerUpdated->getOrganizerId());
+            $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
+            $organizer->setActor($actor);
 
-        $event->setOrganiser($organizer);
+            $event->setOrganiser($organizer);
+        } else {
+            $warning = 'Could not find organizer with id ' . $organizerUpdated->getOrganizerId();
+            $warning .= ' when applying organizer updated on event ' . $organizerUpdated->getItemId() . '.';
+            $this->logger->warning($warning);
+        }
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
@@ -1119,15 +1131,20 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface
     {
         $placeCdbXml = $this->documentRepository->get($eventLocation->getCdbid());
 
-        $place = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $placeCdbXml->getCdbXml()
-        );
+        if ($placeCdbXml) {
+            $place = EventItemFactory::createEventFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $placeCdbXml->getCdbXml()
+            );
+            $location = $place->getLocation();
 
-        $location = $place->getLocation();
-
-        $location->setLabel($eventLocation->getName());
-        $cdbEvent->setLocation($location);
+            $location->setLabel($eventLocation->getName());
+            $cdbEvent->setLocation($location);
+        } else {
+            $warning = 'Could not find location with id ' . $eventLocation->getCdbid();
+            $warning .= ' when setting location on event ' . $cdbEvent->getCdbId() . '.';
+            $this->logger->warning($warning);
+        }
     }
 
     /**
