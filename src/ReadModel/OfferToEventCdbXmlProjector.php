@@ -1235,6 +1235,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
             foreach ($openingHours as $openingHour) {
                 // In CDB2 every day needs to be a seperate entry.
+                if (is_array($openingHour)) {
+                    $openingHour = (object) $openingHour;
+                }
                 foreach ($openingHour->dayOfWeek as $day) {
                     $openingTimesPerDay[$day][] = new CultureFeed_Cdb_Data_Calendar_OpeningTime(
                         $openingHour->opens . ':00',
