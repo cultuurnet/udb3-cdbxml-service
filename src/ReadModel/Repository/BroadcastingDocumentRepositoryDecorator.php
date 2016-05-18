@@ -47,7 +47,7 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
         parent::save($readModel);
 
         if ($this->broadcastingCdbXmlFilter->matches($readModel)) {
-            $event = $this->eventFactory->createEvent($readModel->getId());
+            $event = $this->eventFactory->createEvent($readModel);
 
             $this->broadcastDocumentUpdated($event);
         }
