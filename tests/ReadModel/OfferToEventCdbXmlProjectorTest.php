@@ -1522,7 +1522,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
                 ),
-                'place-event.xml'
+                'place-event.xml',
             ],
             [
                 new PlaceUpdatedFromUDB2(
@@ -1530,7 +1530,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
                 ),
-                'place-event.xml'
+                'place-event.xml',
             ],
         ];
     }
