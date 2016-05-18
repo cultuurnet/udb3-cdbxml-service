@@ -48,6 +48,15 @@ $app['event_bus.udb3-core'] = $app->share(
 
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
         $bus->subscribe($app['offer_to_event_cdbxml_projector']);
+
+        return $bus;
+    }
+);
+
+$app['event_bus.udb3-core.relations'] = $app->share(
+    function (Application $app) {
+        $bus =  new SimpleEventBus();
+
         $bus->subscribe($app['event_relations_projector']);
         $bus->subscribe($app['place_relations_projector']);
 
@@ -119,7 +128,7 @@ $app['cdbxml_actor_repository'] = $app->share(
 
         $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
             $cachedRepository,
-            $app['event_bus.udb3-core'],
+            $app['event_bus.udb3-core.relations'],
             new \CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerEventFactory(),
             new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOrganizerCdbXmlFilter()
         );
@@ -142,7 +151,7 @@ $app['cdbxml_offer_repository'] = $app->share(
 
         $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
             $cachedRepository,
-            $app['event_bus.udb3-core'],
+            $app['event_bus.udb3-core.relations'],
             new \CultuurNet\UDB3\CdbXmlService\ReadModel\OfferEventFactory(
                 $app['document_iri_generator']
             ),
