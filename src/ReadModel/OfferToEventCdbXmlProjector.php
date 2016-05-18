@@ -28,6 +28,7 @@ use CultureFeed_Cdb_Data_Phone;
 use CultureFeed_Cdb_Data_Url;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
+use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
@@ -37,6 +38,7 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTrait;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
@@ -90,6 +92,9 @@ use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
 use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
+use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
+use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
+use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\Place\Events\OrganizerDeleted as PlaceOrganizerDeleted;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
@@ -219,6 +224,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
             LabelsMerged::class => 'applyLabelsMerged',
+            PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
+            PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
+            PlaceImportedFromUDB2Event::class => 'applyPlaceImportedFromUdb2Event',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -229,6 +237,48 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
             $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
         }
+    }
+
+    public function applyPlaceImportedFromUdb2(
+        ActorImportedFromUDB2 $actorImported,
+        Metadata $metadata
+    ) {
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            $actorImported->getCdbXmlNamespaceUri(),
+            $actorImported->getCdbXml()
+        );
+
+        $event = \CultureFeed_Cdb_Item_EventFactory::fromActor($actor);
+
+        // Add UDB3 place keyword.
+        $event->addKeyword('UDB3 place');
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        $cdbxmlDocument = $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+
+        // var_dump($cdbxmlDocument->getCdbXml());
+
+        return $cdbxmlDocument;
+    }
+
+    /**
+     * @param PlaceImportedFromUDB2Event $placeImportedFromUDB2Event
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPlaceImportedFromUdb2Event(
+        PlaceImportedFromUDB2Event $placeImportedFromUDB2Event,
+        Metadata $metadata
+    ) {
+        return $this->updateEventFromCdbXml(
+            $placeImportedFromUDB2Event->getCdbXml(),
+            $metadata
+        );
     }
 
     public function applyCollaborationDataAdded(
@@ -1185,6 +1235,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
             foreach ($openingHours as $openingHour) {
                 // In CDB2 every day needs to be a seperate entry.
+                if (is_array($openingHour)) {
+                    $openingHour = (object) $openingHour;
+                }
                 foreach ($openingHour->dayOfWeek as $day) {
                     $openingTimesPerDay[$day][] = new CultureFeed_Cdb_Data_Calendar_OpeningTime(
                         $openingHour->opens . ':00',

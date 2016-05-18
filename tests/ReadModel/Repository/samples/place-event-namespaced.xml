@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cdb:cdbxml xmlns:cdb="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL">
+  <cdb:event cdbid="MY-PLACE-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
+    <cdb:keywords>
+      <cdb:keyword>UDB3 place</cdb:keyword>
+    </cdb:keywords>
+    <cdb:categories>
+      <cdb:category catid="0.50.4.0.0" type="eventtype">concert</cdb:category>
+    </cdb:categories>
+    <cdb:calendar>
+      <cdb:permanentopeningtimes>
+        <cdb:permanent/>
+      </cdb:permanentopeningtimes>
+    </cdb:calendar>
+    <cdb:contactinfo/>
+    <cdb:eventdetails>
+      <cdb:eventdetail lang="nl">
+        <cdb:title>My Place</cdb:title>
+      </cdb:eventdetail>
+    </cdb:eventdetails>
+    <cdb:location>
+      <cdb:address>
+        <cdb:physical>
+          <cdb:city>$locality</cdb:city>
+          <cdb:country>$country</cdb:country>
+          <cdb:street>$street</cdb:street>
+          <cdb:zipcode>$postalCode</cdb:zipcode>
+        </cdb:physical>
+      </cdb:address>
+      <cdb:label>My Place</cdb:label>
+    </cdb:location>
+  </cdb:event>
+</cdb:cdbxml>

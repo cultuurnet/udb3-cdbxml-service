@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
+use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
@@ -42,6 +43,9 @@ use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
+use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
+use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
+use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
@@ -1475,6 +1479,84 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-collaboration-data.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     * @dataProvider placeImportedFromUdb2DataProvider
+     * @param ActorImportedFromUDB2 $actorImportedFromUDB2
+     * @param string $expectedCdbXmlFile
+     */
+    public function it_projects_imported_actor_places_from_udb2_as_events(
+        ActorImportedFromUDB2 $actorImportedFromUDB2,
+        $expectedCdbXmlFile
+    ) {
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+        $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @return array
+     */
+    public function placeImportedFromUdb2DataProvider()
+    {
+        return [
+            [
+                new PlaceImportedFromUDB2(
+                    '061C13AC-A15F-F419-D8993D68C9E94548',
+                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                ),
+                'place-event.xml',
+            ],
+            [
+                new PlaceUpdatedFromUDB2(
+                    '061C13AC-A15F-F419-D8993D68C9E94548',
+                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                ),
+                'place-event.xml',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_places_imported_from_udb2_events()
+    {
+        $id = 'MY-PLACE-123';
+
+        $placeImportedFromUdb2Event = new PlaceImportedFromUDB2Event(
+            $id,
+            $this->loadCdbXmlFromFile('place-event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $placeImportedFromUdb2Event,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
