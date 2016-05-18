@@ -18,9 +18,9 @@ use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
-use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
+use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
+use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
@@ -33,7 +33,6 @@ use CultuurNet\UDB3\Event\Events\TranslationDeleted;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\EventXmlString;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\LabelCollection;
@@ -46,6 +45,7 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use Psr\Log\LoggerInterface;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
 
@@ -68,6 +68,11 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $actorRepository;
 
+    /**
+     * @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $logger;
+
     public function setUp()
     {
         parent::setUp();
@@ -87,6 +92,9 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
+
+        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->projector->setLogger($this->logger);
 
         $this->metadata = new Metadata(
             [
@@ -147,6 +155,62 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_logs_warning_when_event_created_with_missing_location()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $timestamps = [
+            new Timestamp(
+                '2014-01-31T12:00:00',
+                '2014-01-31T15:00:00'
+            ),
+            new Timestamp(
+                '2014-02-20T12:00:00',
+                '2014-02-20T15:00:00'
+            ),
+        ];
+
+        $placeId = 'LOCATION-MISSING';
+
+        $placeCreated = new PlaceCreated(
+            $placeId,
+            new Title('$name'),
+            new EventType('0.50.4.0.0', 'concert'),
+            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Calendar('permanent')
+        );
+        $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $event = new EventCreated(
+            $id,
+            new Title('Griezelfilm of horror'),
+            new EventType('0.50.6.0.0', 'film'),
+            new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+            new Theme('1.7.6.0.0', 'Griezelfilm of horror')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-without-location.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Could not find location with id LOCATION-ABC-123 when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->projector->handle($domainMessage);
+
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -444,7 +508,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
         $language = new Language('en');
         $description = new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-        
+
         $descriptionTranslated = new DescriptionTranslated(
             $id,
             $language,
@@ -934,6 +998,36 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_logs_a_warning_when_organizer_updated_but_organizer_not_found()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // create an organizer.
+        $organizerId = 'ORG-123';
+
+        // add the organizer to the event.
+        $organizerUpdated = new OrganizerUpdated($id, $organizerId);
+        $domainMessage = $this->createDomainMessage($id, $organizerUpdated, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-without-organizer.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Could not find organizer with id ORG-123 when applying organizer updated on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_an_organizer_deleted()
     {
         $this->createEvent();
@@ -1101,6 +1195,52 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_logs_a_warning_when_major_info_updated_without_location()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $placeId = 'LOCATION-MISSING';
+
+        // add the major info to the event.
+        $majorInfoUpdated = new MajorInfoUpdated(
+            $id,
+            new Title("Nieuwe titel"),
+            new EventType("id", "label"),
+            new Location(
+                $placeId,
+                '$name2',
+                '$country',
+                '$locality',
+                '$postalcode',
+                '$street'
+            ),
+            new Calendar('permanent'),
+            new Theme('tid', 'tlabel')
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $majorInfoUpdated,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-major-info-updated-without-location.xml')
+        );
+
+        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
+
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Could not find location with id LOCATION-MISSING when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_event_without_theme_major_info_updated()
     {
         $this->createEvent(false);
@@ -1247,17 +1387,17 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_event_created_from_cdbxml()
+    public function it_projects_event_imported_from_udb2()
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventCreatedFromCdbxml = new EventCreatedFromCdbXml(
-            String::fromNative($id),
-            new EventXmlString($this->loadCdbXmlFromFile('event-namespaced.xml')),
-            String::fromNative('http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL')
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
         );
         $domainMessage = $this->createDomainMessage(
             $id,
-            $eventCreatedFromCdbxml,
+            $eventImportedFromUdb2,
             $this->metadata
         );
 
@@ -1274,7 +1414,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_event_updated_from_cdbxml()
+    public function it_projects_event_updated_from_udb2()
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
@@ -1285,14 +1425,14 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         // update from udb2 event
-        $eventUpdatedFromCdbxml = new EventUpdatedFromCdbXml(
-            String::fromNative($id),
-            new EventXmlString($this->loadCdbXmlFromFile('event-namespaced.xml')),
-            String::fromNative('http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL')
+        $eventUpdatedFromUdb2 = new EventUpdatedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
         );
         $domainMessage = $this->createDomainMessage(
             $id,
-            $eventUpdatedFromCdbxml,
+            $eventUpdatedFromUdb2,
             $this->metadata
         );
 
