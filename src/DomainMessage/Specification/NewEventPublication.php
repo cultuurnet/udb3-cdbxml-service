@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\CdbXmlService;
+namespace CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification;
 
 use Broadway\Domain\DomainMessage;
 use CultuurNet\BroadwayAMQP\DomainMessage\AnyOf;
@@ -11,17 +11,19 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
+use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 
-class NewPublication implements SpecificationInterface
+class NewEventPublication implements SpecificationInterface
 {
     /**
-     * A hardcoded list of namespaced event class-names that trigger a new publication.
+     * A hardcoded list of namespaced event class-names that trigger a new event publication.
      *
      * @var string[]
      */
     protected $classNames = [
         PlaceCreated::class,
         PlaceImportedFromUDB2::class,
+        PlaceImportedFromUDB2Event::class,
         EventImportedFromUDB2::class,
         EventCreated::class,
     ];

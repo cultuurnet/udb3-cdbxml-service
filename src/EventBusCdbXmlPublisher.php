@@ -4,11 +4,15 @@ namespace CultuurNet\UDB3\CdbXmlService;
 
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
-use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\BroadwayAMQP\DomainMessage\SpecificationInterface;
+use CultuurNet\UDB2DomainEvents\ActorCreated;
+use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
+use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\NewActorPublication;
+use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\NewEventPublication;
+use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\UpdatedActorPublication;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -26,7 +30,17 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
     /**
      * @var SpecificationInterface
      */
-    private $newPublication;
+    private $newEventPublication;
+
+    /**
+     * @var SpecificationInterface
+     */
+    private $updatedActorPublication;
+
+    /**
+     * @var SpecificationInterface
+     */
+    private $newActorPublication;
 
     /**
      * CDBXMLPublisher constructor.
@@ -36,7 +50,9 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         EventBusInterface $eventBus
     ) {
         $this->eventBus = $eventBus;
-        $this->newPublication = new NewPublication();
+        $this->newEventPublication = new NewEventPublication();
+        $this->newActorPublication = new NewActorPublication();
+        $this->updatedActorPublication = new UpdatedActorPublication();
     }
 
     public function publish(
@@ -56,7 +72,21 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
 
         $location = $metadata['id'];
 
-        if ($this->newPublication->isSatisfiedBy($domainMessage)) {
+        if ($this->newActorPublication->isSatisfiedBy($domainMessage)) {
+            $event = new ActorCreated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
+        } elseif ($this->updatedActorPublication->isSatisfiedBy($domainMessage)) {
+            $event = new ActorUpdated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
+        } elseif ($this->newEventPublication->isSatisfiedBy($domainMessage)) {
             $event = new EventCreated(
                 new StringLiteral($id),
                 new DateTimeImmutable(),
