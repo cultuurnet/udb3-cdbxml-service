@@ -236,9 +236,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
             } catch (\Exception $exception) {
                 $this->logger->error(
-                   'Handle error for uuid=' . $domainMessage->getId()
-                   . ' for type ' . $domainMessage->getType()
-                   . ' recorded on ' .$domainMessage->getRecordedOn()->toString()
+                    'Handle error for uuid=' . $domainMessage->getId()
+                    . ' for type ' . $domainMessage->getType()
+                    . ' recorded on ' .$domainMessage->getRecordedOn()->toString()
                 );
             }
 
