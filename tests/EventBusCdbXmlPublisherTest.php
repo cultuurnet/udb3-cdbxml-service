@@ -7,18 +7,20 @@ use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
+use CultuurNet\UDB2DomainEvents\ActorCreated;
+use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
-use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
-use CultuurNet\UDB3\Place\Events\DescriptionUpdated;
+use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
+use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
-use InvalidArgumentException;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 
@@ -140,12 +142,16 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @dataProvider domainEventDataProvider
+     * @param string $publicationUrl
+     * @param string $originalDomainEvent
+     * @param string $expectedPayloadType
      */
-    public function it_should_broadcast_an_update_event_when_an_item_was_already_published()
-    {
-        $publicationUrl = 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
-
-        $originalDomainEvent = new TitleTranslated($publicationUrl, new Language('nl'), new StringLiteral('c'));
+    public function it_should_broadcast_an_event_depending_on_the_original_domain_event(
+        $publicationUrl,
+        $originalDomainEvent,
+        $expectedPayloadType
+    ) {
         $originalDomainMessage = new DomainMessage(
             UUID::generateAsString(),
             0,
@@ -160,17 +166,58 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             ->method('publish')
             ->with(
                 $this->callback(
-                    function ($eventStream) use ($publicationUrl) {
+                    function ($eventStream) use ($publicationUrl, $expectedPayloadType) {
                         /* @var DomainEventStream $eventStream */
                         /* @var DomainMessage $domainMessage */
                         $domainMessage = $eventStream->getIterator()->current();
 
-                        return is_a($domainMessage->getPayload(), EventUpdated::class);
+                        return is_a($domainMessage->getPayload(), $expectedPayloadType);
                     }
                 )
             );
 
         $this->publisher->publish($document, $originalDomainMessage);
+    }
+
+    /**
+     * @return array
+     */
+    public function domainEventDataProvider()
+    {
+        return [
+            [
+                'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                new OrganizerImportedFromUDB2(
+                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                    '<cdbxml></cdbxml>',
+                    'local://3.3.xsd'
+                ),
+                ActorCreated::class,
+            ],
+            [
+                'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                new OrganizerUpdatedFromUDB2(
+                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                    '<cdbxml></cdbxml>',
+                    'local://3.3.xsd'
+                ),
+                ActorUpdated::class,
+            ],
+            [
+                'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                new EventImportedFromUDB2(
+                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                    '<cdbxml></cdbxml>',
+                    'local://3.3.xsd'
+                ),
+                \CultuurNet\UDB2DomainEvents\EventCreated::class,
+            ],
+            [
+                'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                new TitleTranslated('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', new Language('nl'), new StringLiteral('c')),
+                EventUpdated::class,
+            ],
+        ];
     }
 
     /**

@@ -11,6 +11,7 @@ use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\BroadwayAMQP\Message\EntireDomainMessageBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
+use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
@@ -80,12 +81,12 @@ $app['event_bus.udb2'] = $app->share(
 
 $app['organizer_to_actor_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = new OrganizerToActorCdbXmlProjector(
+        $projector = (new OrganizerToActorCdbXmlProjector(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_document_factory'],
             $app['address_factory'],
             $app['metadata_cdb_item_enricher']
-        );
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
         $projector->setLogger($app['logger.projector']);
 
@@ -95,13 +96,13 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
 
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = new OfferToEventCdbXmlProjector(
+        $projector = (new OfferToEventCdbXmlProjector(
             $app['cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
             $app['cdbxml_actor_repository']
-        );
-        
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
+
         return $projector;
     }
 );
@@ -245,7 +246,6 @@ $app['document_iri_generator'] = $app->share(
 $app['cdbxml_publisher'] = $app->share(
     function (Application $app) {
         return new EventBusCdbXmlPublisher(
-            $app['document_iri_generator'],
             $app['event_bus.udb2']
         );
     }
@@ -276,6 +276,8 @@ $app['amqp.udb2_publisher'] = $app->share(
         $map = [
             EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
             EventUpdated::class => 'application/vnd.cultuurnet.udb2-events.event-updated+json',
+            ActorCreated::class => 'application/vnd.cultuurnet.udb2-events.actor-created+json',
+            ActorUpdated::class => 'application/vnd.cultuurnet.udb2-events.actor-updated+json',
         ];
 
         $classes = new SpecificationCollection();
