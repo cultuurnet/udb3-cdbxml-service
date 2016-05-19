@@ -42,17 +42,23 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
         $this->broadcastingCdbXmlFilter = $broadcastingCdbXmlFilter;
     }
 
-    public function save(CdbXmlDocument $readModel)
+    /**
+     * @param CdbXmlDocument $document
+     */
+    public function save(CdbXmlDocument $document)
     {
-        parent::save($readModel);
+        parent::save($document);
 
-        if ($this->broadcastingCdbXmlFilter->matches($readModel)) {
-            $event = $this->eventFactory->createEvent($readModel);
+        if ($this->broadcastingCdbXmlFilter->matches($document)) {
+            $event = $this->eventFactory->createEvent($document);
 
             $this->broadcastDocumentUpdated($event);
         }
     }
 
+    /**
+     * @param $event
+     */
     protected function broadcastDocumentUpdated($event)
     {
         $generator = new Version4Generator();
