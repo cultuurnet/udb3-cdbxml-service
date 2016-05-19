@@ -116,6 +116,14 @@ $app['offer_relations_service'] = $app->share(
     }
 );
 
+$app['iri_offer_identifier_factory'] = $app->share(
+    function (Application $app) {
+        return new \CultuurNet\UDB3\Offer\IriOfferIdentifierFactory(
+            $app['config']['offer_url_regex']
+        );
+    }
+);
+
 $app['relations_to_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $projector = new RelationsToCdbXmlProjector(
@@ -123,7 +131,8 @@ $app['relations_to_cdbxml_projector'] = $app->share(
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
             $app['real_cdbxml_actor_repository'],
-            $app['offer_relations_service']
+            $app['offer_relations_service'],
+            $app['iri_offer_identifier_factory']
         );
 
         return $projector;

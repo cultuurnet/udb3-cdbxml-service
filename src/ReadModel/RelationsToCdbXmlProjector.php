@@ -80,7 +80,8 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
         MetadataCdbItemEnricherInterface $metadataCdbItemEnricher,
         DocumentRepositoryInterface $actorDocumentRepository,
-        OfferRelationsServiceInterface $offerRelationsService
+        OfferRelationsServiceInterface $offerRelationsService,
+        IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -88,6 +89,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
         $this->offerRelationsService = $offerRelationsService;
+        $this->iriOfferIdentifierFactory = $iriOfferIdentifierFactory;
     }
 
     /**
@@ -187,6 +189,8 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         DomainMessage $domainMessage
     ) {
         $metadata = $domainMessage->getMetadata();
+
+        $iri = $placeProjectedToCdbXml->getIri();
 
         $identifier = $this->iriOfferIdentifierFactory->fromIri(
             \ValueObjects\Web\Url::fromNative((string) $placeProjectedToCdbXml->getIri())
