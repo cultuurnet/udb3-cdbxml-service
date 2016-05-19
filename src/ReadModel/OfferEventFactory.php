@@ -30,7 +30,7 @@ class OfferEventFactory implements DocumentEventFactoryInterface
     public function createEvent(CdbXmlDocument $cdbXmlDocument)
     {
         return new PlaceProjectedToCdbXml(
-            $this->iriGenerator->iri($cdbXmlDocument->getId())
+            $this->iriGenerator->iri('place/' . $cdbXmlDocument->getId())
         );
     }
 }
