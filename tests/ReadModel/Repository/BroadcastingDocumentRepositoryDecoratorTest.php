@@ -76,4 +76,34 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
 
         $this->repository->save($document);
     }
+
+    /**
+     * @test
+     */
+    public function it_can_remove_a_document()
+    {
+        $id = 'MY-PLACE-123';
+
+        // when removing the document it should also remove the document in the decorated repository
+        $this->decoratedRepository->expects($this->once())
+            ->method('remove')
+            ->with($id);
+
+        $this->repository->remove($id);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_get_a_document()
+    {
+        $id = 'MY-PLACE-123';
+
+        // when getting the document it should also get the document in the decorated repository
+        $this->decoratedRepository->expects($this->once())
+            ->method('get')
+            ->with($id);
+
+        $this->repository->get($id);
+    }
 }
