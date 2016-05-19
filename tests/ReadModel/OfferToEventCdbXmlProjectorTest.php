@@ -123,8 +123,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $id,
         EventCreated $eventCreated,
         $cdbXmlFileName
-    )
-    {
+    ) {
         $placeId = 'LOCATION-ABC-123';
 
         $placeCreated = new PlaceCreated(
