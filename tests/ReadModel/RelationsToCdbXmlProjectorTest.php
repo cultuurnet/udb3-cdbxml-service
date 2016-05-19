@@ -10,6 +10,8 @@ use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsService;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\EventType;
@@ -51,14 +53,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private $actorRepository;
 
     /**
-     * @var EventServiceInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var OfferRelationsServiceInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $eventService;
-
-    /**
-     * @var LocalPlaceService|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $placeService;
+    private $offerRelationsService;
 
     /**
      * @var IriOfferIdentifierFactoryInterface
@@ -85,9 +82,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
 
-        $this->eventService = $this->getMock(EventServiceInterface::class);
-
-        $this->placeService = $this->getMock(LocalPlaceService::class, array(), array(), 'placeServiceMock', false);
+        $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
 
         $this->iriOfferIdentifierFactory = $this->getMock(IriOfferIdentifierFactoryInterface::class);
 
@@ -99,8 +94,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new CdbXmlDateFormatter()
             ),
             $this->actorRepository,
-            $this->eventService,
-            $this->placeService,
+            $this->offerRelationsService,
             $this->iriOfferIdentifierFactory
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
@@ -137,23 +131,15 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
         $this->actorRepository->save($organizerCdbxml);
 
-        $this->eventService
+        $this->offerRelationsService
             ->expects($this->once())
-            ->method('eventsOrganizedByOrganizer')
+            ->method('getByOrganizer')
             ->with($organizerId)
             ->willReturn(
                 [
                     $id,
                     $secondId,
                 ]
-            );
-
-        $this->placeService
-            ->expects($this->once())
-            ->method('placesOrganizedByOrganizer')
-            ->with($organizerId)
-            ->willReturn(
-                []
             );
 
         $organizerProjectedToCdbXml = new OrganizerProjectedToCdbXml(
@@ -215,9 +201,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->with($placeIri)
             ->willReturn($placeIdentifier);
 
-        $this->eventService
+        $this->offerRelationsService
             ->expects($this->once())
-            ->method('eventsLocatedAtPlace')
+            ->method('getByPlace')
             ->with($placeId)
             ->willReturn(
                 [
