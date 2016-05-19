@@ -14,6 +14,7 @@ use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\EventServiceInterface;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
@@ -56,14 +57,10 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
     private $actorDocumentRepository;
 
     /**
-     * @var EventServiceInterface
+     * @var OfferRelationsServiceInterface
      */
-    private $eventService;
+    private $offerRelationsService;
 
-    /**
-     * @var PlaceService
-     */
-    private $placeService;
 
     /**
      * @var IriOfferIdentifierFactory
@@ -76,27 +73,21 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
      * @param DocumentRepositoryInterface $actorDocumentRepository
-     * @param EventServiceInterface $eventService
-     * @param LocalPlaceService $placeService
-     * @param IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
+     * @param OfferRelationsServiceInterface $offerRelationsService
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
         MetadataCdbItemEnricherInterface $metadataCdbItemEnricher,
         DocumentRepositoryInterface $actorDocumentRepository,
-        EventServiceInterface $eventService,
-        LocalPlaceService $placeService,
-        IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
+        OfferRelationsServiceInterface $offerRelationsService
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
-        $this->eventService = $eventService;
-        $this->placeService = $placeService;
-        $this->iriOfferIdentifierFactory = $iriOfferIdentifierFactory;
+        $this->offerRelationsService = $offerRelationsService;
     }
 
     /**
@@ -141,15 +132,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
         $organizerId = $organizerProjectedToCdbXml->getOrganizerId();
 
-        $eventIds = $this->eventsOrganizedByOrganizer(
-            $organizerId
-        );
-
-        $placeIds = $this->placesOrganizedByOrganizer(
-            $organizerId
-        );
-
-        $eventIds = array_merge($eventIds, $placeIds);
+        $eventIds = $this->offerRelationsService->getByOrganizer($organizerId);
 
         foreach ($eventIds as $eventId) {
             $eventCdbXml = $this->documentRepository->get($eventId);
@@ -211,7 +194,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
         $placeId = $identifier->getId();
 
-        $eventIds = $this->eventsLocatedAtPlace(
+        $eventIds = $this->offerRelationsService->getByPlace(
             $placeId
         );
 
@@ -244,39 +227,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
                 $this->cdbXmlPublisher->publish($newCdbXmlDocument, $domainMessage);
             }
         }
-    }
-
-    /**
-     * @param string $organizerId
-     * @return string[]
-     */
-    protected function eventsOrganizedByOrganizer($organizerId)
-    {
-        return $this->eventService->eventsOrganizedByOrganizer(
-            $organizerId
-        );
-    }
-
-    /**
-     * @param $organizerId
-     * @return mixed
-     */
-    protected function placesOrganizedByOrganizer($organizerId)
-    {
-        return $this->placeService->placesOrganizedByOrganizer(
-            $organizerId
-        );
-    }
-
-    /**
-     * @param string $placeId
-     * @return string[]
-     */
-    protected function eventsLocatedAtPlace($placeId)
-    {
-        return $this->eventService->eventsLocatedAtPlace(
-            $placeId
-        );
     }
 
     /**
