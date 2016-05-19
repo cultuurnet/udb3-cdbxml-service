@@ -228,8 +228,7 @@ $app['amqp.udb2_publisher'] = $app->share(
             $connection->channel(),
             $exchange,
             $specification,
-            $contentTypeLookup,
-            new EntireDomainMessageBodyFactory()
+            $contentTypeLookup
         );
 
         $publisher->setLogger($app['logger.amqp.udb2_publisher']);
