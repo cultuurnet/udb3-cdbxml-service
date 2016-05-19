@@ -15,7 +15,7 @@ class UpdatedActorPublicationTest extends AbstractSpecificationTest
 
     public function setUp()
     {
-        $this->specification = new NewActorPublication();
+        $this->specification = new UpdatedActorPublication();
     }
 
     /**
