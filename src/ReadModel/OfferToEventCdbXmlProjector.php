@@ -912,7 +912,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         Metadata $metadata
     ) {
         $eventCdbXml = $this->documentRepository->get($labelAdded->getItemId());
-        
+
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $eventCdbXml->getCdbXml()
