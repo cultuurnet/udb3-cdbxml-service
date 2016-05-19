@@ -293,7 +293,6 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_logs_an_error_when_translation_applied_on_missing_document()
     {
-        $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING';
         $eventId = new StringLiteral($id);
         $language = new Language('en');
