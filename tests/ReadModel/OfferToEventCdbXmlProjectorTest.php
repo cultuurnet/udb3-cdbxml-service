@@ -93,7 +93,8 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MetadataCdbItemEnricher(
                 new CdbXmlDateFormatter()
             ),
-            $this->actorRepository
+            $this->actorRepository,
+            new CdbXmlDateFormatter()
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
 
@@ -113,22 +114,17 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider eventCreatedDataProvider
+     * @param string $id
+     * @param EventCreated $eventCreated
+     * @param string $cdbXmlFileName
      */
-    public function it_projects_event_created()
+    public function it_projects_event_created(
+        $id,
+        EventCreated $eventCreated,
+        $cdbXmlFileName
+    )
     {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $timestamps = [
-            new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
-            ),
-            new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
-            ),
-        ];
-
         $placeId = 'LOCATION-ABC-123';
 
         $placeCreated = new PlaceCreated(
@@ -141,25 +137,61 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
 
-        $event = new EventCreated(
-            $id,
-            new Title('Griezelfilm of horror'),
-            new EventType('0.50.6.0.0', 'film'),
-            new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
-            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
-            new Theme('1.7.6.0.0', 'Griezelfilm of horror')
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
+        $domainMessage = $this->createDomainMessage($id, $eventCreated, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event.xml')
+            $this->loadCdbXmlFromFile($cdbXmlFileName)
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @return array
+     */
+    public function eventCreatedDataProvider()
+    {
+        $timestamps = [
+            new Timestamp(
+                '2014-01-31T12:00:00',
+                '2014-01-31T15:00:00'
+            ),
+            new Timestamp(
+                '2014-02-20T12:00:00',
+                '2014-02-20T15:00:00'
+            ),
+        ];
+
+        return [
+            [
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new EventCreated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Title('Griezelfilm of horror'),
+                    new EventType('0.50.6.0.0', 'film'),
+                    new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    new Theme('1.7.6.0.0', 'Griezelfilm of horror')
+                ),
+                'event.xml',
+            ],
+            [
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new EventCreated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Title('Griezelfilm of horror'),
+                    new EventType('0.50.6.0.0', 'film'),
+                    new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    new Theme('1.7.6.0.0', 'Griezelfilm of horror'),
+                    \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
+                ),
+                'event-with-publication-date.xml',
+            ],
+        ];
     }
 
     /**
@@ -220,29 +252,59 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider placeCreatedDataProvider
+     * @param string $id
+     * @param PlaceCreated $placeCreated
+     * @param string $cdbXmlFileName
      */
-    public function it_projects_place_created()
-    {
-        $id = 'MY-PLACE-123';
-
-        $place = new PlaceCreated(
-            $id,
-            new Title('My Place'),
-            new EventType('0.50.4.0.0', 'concert'),
-            new Address('$street', '$postalCode', '$locality', '$country'),
-            new Calendar('permanent')
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
+    public function it_projects_place_created(
+        $id,
+        PlaceCreated $placeCreated,
+        $cdbXmlFileName
+    ) {
+        $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('place.xml')
+            $this->loadCdbXmlFromFile($cdbXmlFileName)
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @return array
+     */
+    public function placeCreatedDataProvider()
+    {
+        return [
+            [
+                'MY-PLACE-123',
+                new PlaceCreated(
+                    'MY-PLACE-123',
+                    new Title('My Place'),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    new Address('$street', '$postalCode', '$locality', '$country'),
+                    new Calendar('permanent')
+                ),
+                'place.xml',
+            ],
+            [
+                'MY-PLACE-123',
+                new PlaceCreated(
+                    'MY-PLACE-123',
+                    new Title('My Place'),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    new Address('$street', '$postalCode', '$locality', '$country'),
+                    new Calendar('permanent'),
+                    null,
+                    \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
+                ),
+                'place-with-publication-date.xml',
+            ],
+        ];
     }
 
     /**
