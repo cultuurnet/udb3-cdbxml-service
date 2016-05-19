@@ -277,6 +277,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     ) {
         return $this->updateEventFromCdbXml(
             $placeImportedFromUDB2Event->getCdbXml(),
+            $placeImportedFromUDB2Event->getCdbXmlNamespaceUri(),
             $metadata
         );
     }
@@ -338,6 +339,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     ) {
         return $this->updateEventFromCdbXml(
             $eventImportedFromCdbXml->getCdbXml(),
+            $eventImportedFromCdbXml->getCdbXmlNamespaceUri(),
             $metadata
         );
     }
@@ -353,6 +355,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     ) {
         return $this->updateEventFromCdbXml(
             $eventUpdatedFromUdb2->getCdbXml(),
+            $eventUpdatedFromUdb2->getCdbXmlNamespaceUri(),
             $metadata
         );
     }
@@ -1586,13 +1589,17 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
     /**
      * @param $xmlString
-     * @param \Broadway\Domain\Metadata $metadata
-     * @return \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument
+     * @param $namespace
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
      */
-    private function updateEventFromCdbXml($xmlString, Metadata $metadata)
-    {
+    private function updateEventFromCdbXml(
+        $xmlString,
+        $namespace,
+        Metadata $metadata
+    ) {
         $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $namespace,
             $xmlString
         );
 
