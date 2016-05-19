@@ -234,6 +234,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
             try {
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
+
+                $this->documentRepository->save($cdbXmlDocument);
+
+                $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
             } catch (\Exception $exception) {
                 $this->logger->error(
                     'Handle error for uuid=' . $domainMessage->getId()
@@ -241,10 +245,6 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                     . ' recorded on ' .$domainMessage->getRecordedOn()->toString()
                 );
             }
-
-            $this->documentRepository->save($cdbXmlDocument);
-
-            $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
         }
     }
 
@@ -295,7 +295,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         CollaborationDataAdded $collaborationDataAdded,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get(
+        $eventCdbXml = $this->getCdbXmlDocument(
             $collaborationDataAdded->getEventId()
         );
 
@@ -378,7 +378,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         PlaceMajorInfoUpdated $placeMajorInfoUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get(
+        $eventCdbXml = $this->getCdbXmlDocument(
             $placeMajorInfoUpdated->getPlaceId()
         );
 
@@ -432,7 +432,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         EventMajorInfoUpdated $eventMajorInfoUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get(
+        $eventCdbXml = $this->getCdbXmlDocument(
             $eventMajorInfoUpdated->getItemId()
         );
 
@@ -532,7 +532,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         EventDeleted $eventDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($eventDeleted->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($eventDeleted->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -615,7 +615,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         PlaceDeleted $placeDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($placeDeleted->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($placeDeleted->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -642,7 +642,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         TranslationApplied $translationApplied,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($translationApplied->getEventId());
+        $eventCdbXml = $this->getCdbXmlDocument($translationApplied->getEventId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -687,7 +687,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         TranslationDeleted $translationDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($translationDeleted->getEventId());
+        $eventCdbXml = $this->getCdbXmlDocument($translationDeleted->getEventId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -730,7 +730,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractTitleTranslated $titleTranslated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($titleTranslated->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($titleTranslated->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -774,7 +774,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractDescriptionTranslated $descriptionTranslated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($descriptionTranslated->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($descriptionTranslated->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -820,7 +820,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractDescriptionUpdated $descriptionUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($descriptionUpdated->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($descriptionUpdated->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -863,7 +863,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractBookingInfoUpdated $bookingInfoUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($bookingInfoUpdated->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($bookingInfoUpdated->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -892,7 +892,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractContactPointUpdated $contactPointUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($contactPointUpdated->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($contactPointUpdated->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -920,37 +920,31 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractLabelAdded $labelAdded,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($labelAdded->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($labelAdded->getItemId());
 
-        if ($eventCdbXml) {
-            $event = EventItemFactory::createEventFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $eventCdbXml->getCdbXml()
-            );
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
 
-            $keywords = $event->getKeywords();
-            $label = $labelAdded->getLabel()->__toString();
-            $keyword = new CultureFeed_Cdb_Data_Keyword(
-                $label,
-                $labelAdded->getLabel()->isVisible()
-            );
+        $keywords = $event->getKeywords();
+        $label = $labelAdded->getLabel()->__toString();
+        $keyword = new CultureFeed_Cdb_Data_Keyword(
+            $label,
+            $labelAdded->getLabel()->isVisible()
+        );
 
-            if (!in_array($label, $keywords)) {
-                $event->addKeyword($keyword);
+        if (!in_array($label, $keywords)) {
+            $event->addKeyword($keyword);
 
-                // Change the lastupdated attribute.
-                $event = $this->metadataCdbItemEnricher
-                    ->enrich($event, $metadata);
-            }
-
-            // Return a new CdbXmlDocument.
-            return $this->cdbXmlDocumentFactory
-                ->fromCulturefeedCdbItem($event);
-        } else {
-            $this->logger->error(
-                'Error for apply label for uuid=' . $labelAdded->getItemId()
-            );
+            // Change the lastupdated attribute.
+            $event = $this->metadataCdbItemEnricher
+                ->enrich($event, $metadata);
         }
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**
@@ -963,7 +957,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractLabelDeleted $labelDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($labelDeleted->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($labelDeleted->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -995,7 +989,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractOrganizerUpdated $organizerUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($organizerUpdated->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($organizerUpdated->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -1042,7 +1036,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractOrganizerDeleted $organizerDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($organizerDeleted->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($organizerDeleted->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -1069,7 +1063,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractTypicalAgeRangeUpdated $ageRangeUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($ageRangeUpdated->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($ageRangeUpdated->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -1098,7 +1092,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractTypicalAgeRangeDeleted $ageRangeDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($ageRangeDeleted->getItemId());
+        $eventCdbXml = $this->getCdbXmlDocument($ageRangeDeleted->getItemId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -1125,7 +1119,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         FacilitiesUpdated $facilitiesUpdated,
         Metadata $metadata
     ) {
-        $placeCdbXml = $this->documentRepository->get($facilitiesUpdated->getPlaceId());
+        $placeCdbXml = $this->getCdbXmlDocument($facilitiesUpdated->getPlaceId());
 
         $place = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -1165,7 +1159,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         LabelsMerged $labelsMerged,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get((string) $labelsMerged->getEventId());
+        $eventCdbXml = $this->getCdbXmlDocument((string) $labelsMerged->getEventId());
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
@@ -1625,5 +1619,23 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param $id
+     * @return CdbXmlDocument
+     * @throws \RuntimeException
+     */
+    private function getCdbXmlDocument($id)
+    {
+        $cdbXmlDocument = $this->documentRepository->get($id);
+
+        if ($cdbXmlDocument == null) {
+            throw new \RuntimeException(
+                'No document found for id ' . $id
+            );
+        }
+
+        return $cdbXmlDocument;
     }
 }

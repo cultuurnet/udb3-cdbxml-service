@@ -291,6 +291,48 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_logs_an_error_when_translation_applied_on_missing_document()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING';
+        $eventId = new StringLiteral($id);
+        $language = new Language('en');
+        $title = new StringLiteral('Horror movie');
+        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
+        $shortDescription = new StringLiteral('This is a short description.');
+
+        $translationApplied = new TranslationApplied(
+            $eventId,
+            $language,
+            $title,
+            $shortDescription,
+            $longDescription
+        );
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+
+        $message = 'Handle error for uuid=404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING for type CultuurNet.UDB3.Event.Events.TranslationApplied recorded on ';
+        $message .= $domainMessage->getRecordedOn()->toString();
+
+        $this->logger->expects($this->once())->method('error')
+            ->with($message);
+
+        $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_the_update_of_a_translation_applied()
     {
         $this->createEvent();
