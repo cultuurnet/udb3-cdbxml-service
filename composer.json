@@ -30,7 +30,10 @@
     },
     "autoload": {
         "psr-4": {
-            "CultuurNet\\UDB3\\CdbXmlService\\": "src/"
+            "CultuurNet\\UDB3\\CdbXmlService\\": [
+                "src/",
+                "app/"
+            ]
         }
     },
     "autoload-dev": {
