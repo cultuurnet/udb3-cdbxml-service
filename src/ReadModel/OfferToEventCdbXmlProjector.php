@@ -231,7 +231,16 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
         if (isset($handlers[$payloadClassName])) {
             $handler = $handlers[$payloadClassName];
-            $cdbXmlDocument = $this->{$handler}($payload, $metadata);
+
+            try {
+                $cdbXmlDocument = $this->{$handler}($payload, $metadata);
+            } catch (\Exception $exception) {
+               $this->logger->error(
+                   'Handle error for uuid=' . $domainMessage->getId()
+                   . ' for type ' . $domainMessage->getType()
+                   . ' recorded on ' .$domainMessage->getRecordedOn()->toString()
+               );
+            }
 
             $this->documentRepository->save($cdbXmlDocument);
 
@@ -910,32 +919,39 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     public function applyLabelAdded(
         AbstractLabelAdded $labelAdded,
         Metadata $metadata
-    ) {
+    )
+    {
         $eventCdbXml = $this->documentRepository->get($labelAdded->getItemId());
-        
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
 
-        $keywords = $event->getKeywords();
-        $label = $labelAdded->getLabel()->__toString();
-        $keyword = new CultureFeed_Cdb_Data_Keyword(
-            $label,
-            $labelAdded->getLabel()->isVisible()
-        );
+        if ($eventCdbXml) {
+            $event = EventItemFactory::createEventFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $eventCdbXml->getCdbXml()
+            );
 
-        if (!in_array($label, $keywords)) {
-            $event->addKeyword($keyword);
+            $keywords = $event->getKeywords();
+            $label = $labelAdded->getLabel()->__toString();
+            $keyword = new CultureFeed_Cdb_Data_Keyword(
+                $label,
+                $labelAdded->getLabel()->isVisible()
+            );
 
-            // Change the lastupdated attribute.
-            $event = $this->metadataCdbItemEnricher
-                ->enrich($event, $metadata);
+            if (!in_array($label, $keywords)) {
+                $event->addKeyword($keyword);
+
+                // Change the lastupdated attribute.
+                $event = $this->metadataCdbItemEnricher
+                    ->enrich($event, $metadata);
+            }
+
+            // Return a new CdbXmlDocument.
+            return $this->cdbXmlDocumentFactory
+                ->fromCulturefeedCdbItem($event);
+        } else {
+            $this->logger->error(
+                'Error for apply label for uuid=' . $labelAdded->getItemId()
+            );
         }
-
-        // Return a new CdbXmlDocument.
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
     }
 
     /**
