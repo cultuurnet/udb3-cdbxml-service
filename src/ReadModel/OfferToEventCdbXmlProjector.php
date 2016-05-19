@@ -143,19 +143,30 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     private $actorDocumentRepository;
 
     /**
+     * @var DateFormatterInterface
+     */
+    private $dateFormatter;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
+     * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+     * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
+     * @param DocumentRepositoryInterface $actorDocumentRepository
+     * @param DateFormatterInterface $dateFormatter
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
         MetadataCdbItemEnricherInterface $metadataCdbItemEnricher,
-        DocumentRepositoryInterface $actorDocumentRepository
+        DocumentRepositoryInterface $actorDocumentRepository,
+        DateFormatterInterface $dateFormatter
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
+        $this->dateFormatter = $dateFormatter;
         $this->logger = new NullLogger();
     }
 
@@ -505,6 +516,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
         $event->setContactInfo($contactInfo);
 
+        // Set availablefrom if publication date is set.
+        $this->setEventAvailableFrom($eventCreated, $event);
+
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
           ->enrich($event, $metadata);
@@ -587,6 +601,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         // Empty contact info.
         $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
         $event->setContactInfo($contactInfo);
+
+        // Set availablefrom if publication date is set.
+        $this->setEventAvailableFrom($placeCreated, $event);
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -1610,5 +1627,27 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param EventCreated|PlaceCreated $offerCreated
+     * @param \CultureFeed_Cdb_Item_Event $event
+     */
+    private function setEventAvailableFrom($offerCreated, \CultureFeed_Cdb_Item_Event $event)
+    {
+        if (!($offerCreated instanceof PlaceCreated) &&
+            !($offerCreated instanceof EventCreated)) {
+            throw new \InvalidArgumentException(
+                'Event with publication date should be of type EventCreated or PlaceCreated.'
+            );
+        }
+
+        if (!is_null($offerCreated->getPublicationDate())) {
+            $formatted = $this->dateFormatter->format(
+                $offerCreated->getPublicationDate()->getTimestamp()
+            );
+
+            $event->setAvailableFrom($formatted);
+        }
     }
 }
