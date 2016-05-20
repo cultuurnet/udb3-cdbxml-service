@@ -100,7 +100,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $app['cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
-            $app['cdbxml_actor_repository']
+            $app['cdbxml_actor_repository'],
+            $app['cdbxml_date_formatter']
         ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
         return $projector;
@@ -224,10 +225,16 @@ $app['address_factory'] = $app->share(
     }
 );
 
-$app['metadata_cdb_item_enricher'] = $app->share(
+$app['cdbxml_date_formatter'] = $app->share(
     function () {
+        return new CdbXmlDateFormatter();
+    }
+);
+
+$app['metadata_cdb_item_enricher'] = $app->share(
+    function (Application $app) {
         return new MetadataCdbItemEnricher(
-            new CdbXmlDateFormatter()
+            $app['cdbxml_date_formatter']
         );
     }
 );
@@ -304,8 +311,7 @@ $app['amqp.udb2_publisher'] = $app->share(
             $connection->channel(),
             $exchange,
             $specification,
-            $contentTypeLookup,
-            new EntireDomainMessageBodyFactory()
+            $contentTypeLookup
         );
 
         $publisher->setLogger($app['logger.amqp.udb2_publisher']);
