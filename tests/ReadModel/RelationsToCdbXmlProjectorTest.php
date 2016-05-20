@@ -10,21 +10,14 @@ use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsService;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\EventServiceInterface;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifier;
-use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
-use CultuurNet\UDB3\Place\LocalPlaceService;
-use CultuurNet\UDB3\Place\Place;
-use CultuurNet\UDB3\PlaceService;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
@@ -58,7 +51,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private $offerRelationsService;
 
     /**
-     * @var IriOfferIdentifierFactoryInterface
+     * @var IriOfferIdentifierFactoryInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $iriOfferIdentifierFactory;
 
