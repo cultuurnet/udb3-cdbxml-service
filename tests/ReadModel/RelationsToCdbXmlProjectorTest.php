@@ -77,7 +77,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MetadataCdbItemEnricher(
                 new CdbXmlDateFormatter()
             ),
-            $this->actorRepository
+            $this->actorRepository,
+            new CdbXmlDateFormatter()
         );
 
         $this->projector = $projector->withCdbXmlPublisher($this->cdbXmlPublisher);
