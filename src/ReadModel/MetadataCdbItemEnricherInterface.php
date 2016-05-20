@@ -3,7 +3,6 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
-use ValueObjects\Number\Natural;
 
 interface MetadataCdbItemEnricherInterface
 {
@@ -16,11 +15,11 @@ interface MetadataCdbItemEnricherInterface
 
     /**
      * @param \CultureFeed_Cdb_Item_Base $cdbItem
-     * @param Natural $requestTime
+     * @param Metadata $metadata
      * @return mixed
      */
     public function enrichTime(
         \CultureFeed_Cdb_Item_Base $cdbItem,
-        Natural $requestTime
+        Metadata $metadata
     );
 }

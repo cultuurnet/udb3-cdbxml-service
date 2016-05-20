@@ -158,13 +158,11 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
             $newEvent->setOrganiser($organizer);
 
             if ($newEvent != $event) {
-                // Change the lastupdated attribute.
-                $metadataArray = $metadata->serialize();
 
-                if (isset($metadataArray['request_time'])) {
-                    $newEvent = $this->metadataCdbItemEnricher
-                        ->enrichTime($newEvent, new Natural((int) $metadataArray['request_time']));
-                }
+                $this->metadataCdbItemEnricher->enrichTime(
+                    $newEvent,
+                    $metadata
+                );
 
                 $newCdbXmlDocument = $this->cdbXmlDocumentFactory
                     ->fromCulturefeedCdbItem($newEvent);
@@ -209,13 +207,10 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
             $this->setLocation($placeId, $newEvent);
 
             if ($newEvent != $event) {
-                // Change the lastupdated attribute.
-                $metadataArray = $metadata->serialize();
-
-                if (isset($metadataArray['request_time'])) {
-                    $newEvent = $this->metadataCdbItemEnricher
-                        ->enrichTime($newEvent, new Natural((int) $metadataArray['request_time']));
-                }
+                $newEvent = $this->metadataCdbItemEnricher->enrichTime(
+                    $newEvent,
+                    $metadata
+                );
 
                 $newCdbXmlDocument = $this->cdbXmlDocumentFactory
                     ->fromCulturefeedCdbItem($newEvent);
