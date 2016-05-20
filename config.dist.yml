@@ -23,7 +23,7 @@ cache:
 database:
   driver: pdo_mysql
   dbname: culudb-cdbxml
-  user: vagrant
-  password: vagrant
+  user: usernname
+  password: pwd
   host: 127.0.0.1
 offer_url_regex: https?://culudb-cdbxml\.dev:8080/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)
