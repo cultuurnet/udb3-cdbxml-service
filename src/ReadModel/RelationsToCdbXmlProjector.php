@@ -3,7 +3,6 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DomainMessage;
-use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
@@ -15,12 +14,8 @@ use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
-use CultuurNet\UDB3\EventServiceInterface;
-use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
-use CultuurNet\UDB3\Place\LocalPlaceService;
-use CultuurNet\UDB3\PlaceService;
 use ValueObjects\Number\Natural;
 use ValueObjects\Web\Url;
 
@@ -74,6 +69,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
      * @param DocumentRepositoryInterface $actorDocumentRepository
      * @param OfferRelationsServiceInterface $offerRelationsService
+     * @param IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -190,10 +186,8 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
     ) {
         $metadata = $domainMessage->getMetadata();
 
-        $iri = $placeProjectedToCdbXml->getIri();
-
         $identifier = $this->iriOfferIdentifierFactory->fromIri(
-            \ValueObjects\Web\Url::fromNative((string) $placeProjectedToCdbXml->getIri())
+            Url::fromNative((string) $placeProjectedToCdbXml->getIri())
         );
 
         $placeId = $identifier->getId();
