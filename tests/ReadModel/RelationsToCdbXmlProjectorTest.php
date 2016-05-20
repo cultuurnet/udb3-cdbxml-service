@@ -71,23 +71,22 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
-        $this->projector = (
-        new OfferToEventCdbXmlProjector(
+        $projector = new OfferToEventCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(
                 new CdbXmlDateFormatter()
             ),
             $this->actorRepository
-        )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        );
+
+        $this->projector = $projector->withCdbXmlPublisher($this->cdbXmlPublisher);
 
         $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
 
         $this->iriOfferIdentifierFactory = $this->getMock(IriOfferIdentifierFactoryInterface::class);
 
-        $this->relationsProjector = (
-        new RelationsToCdbXmlProjector(
+        $relationsProjector = new RelationsToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(
@@ -96,8 +95,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             $this->offerRelationsService,
             $this->iriOfferIdentifierFactory
-        )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        );
+
+        $this->relationsProjector = $relationsProjector->withCdbXmlPublisher($this->cdbXmlPublisher);
 
         $this->metadata = new Metadata(
             [
