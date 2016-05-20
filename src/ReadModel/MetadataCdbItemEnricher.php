@@ -34,13 +34,9 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
         $metadata = $metadata->serialize();
 
         if (isset($metadata['request_time'])) {
-            if (empty($cdbItem->getCreationDate())) {
-                $cdbItem->setCreationDate(
-                    $this->dateFormatter->format((int) $metadata['request_time'])
-                );
-            }
-            $cdbItem->setLastUpdated(
-                $this->dateFormatter->format((int) $metadata['request_time'])
+            $cdbItem = $this->enrichTime(
+                $cdbItem,
+                new Natural($metadata['request_time'])
             );
         }
 
