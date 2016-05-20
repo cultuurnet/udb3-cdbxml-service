@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DomainMessage;
+use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
@@ -16,7 +17,6 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterfa
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
-use ValueObjects\Number\Natural;
 use ValueObjects\Web\Url;
 
 /**
@@ -132,6 +132,8 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
         $eventIds = $this->offerRelationsService->getByOrganizer($organizerId);
 
+        $organizer = $this->createOrganizer($organizerId);
+
         foreach ($eventIds as $eventId) {
             $eventCdbXml = $this->documentRepository->get($eventId);
 
@@ -140,37 +142,11 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
                 $eventCdbXml->getCdbXml()
             );
 
-            // load organizer from documentRepo & add to document
-            $organizerCdbXml = $this->actorDocumentRepository->get($organizerProjectedToCdbXml->getOrganizerId());
-
-            $actor = ActorItemFactory::createActorFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $organizerCdbXml->getCdbXml()
-            );
-
             $newEvent = clone $event;
-
-            $organizer = new \CultureFeed_Cdb_Data_Organiser();
-            $organizer->setCdbid($organizerProjectedToCdbXml->getOrganizerId());
-            $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
-            $organizer->setActor($actor);
 
             $newEvent->setOrganiser($organizer);
 
-            if ($newEvent != $event) {
-
-                $this->metadataCdbItemEnricher->enrichTime(
-                    $newEvent,
-                    $metadata
-                );
-
-                $newCdbXmlDocument = $this->cdbXmlDocumentFactory
-                    ->fromCulturefeedCdbItem($newEvent);
-
-                $this->documentRepository->save($newCdbXmlDocument);
-
-                $this->cdbXmlPublisher->publish($newCdbXmlDocument, $domainMessage);
-            }
+            $this->saveAndPublishIfChanged($newEvent, $event, $metadata, $domainMessage);
         }
     }
 
@@ -194,6 +170,8 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
             $placeId
         );
 
+        $location = $this->createLocation($placeId);
+
         foreach ($eventIds as $eventId) {
             $eventCdbXml = $this->documentRepository->get($eventId);
 
@@ -204,32 +182,17 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $newEvent = clone $event;
 
-            $this->setLocation($placeId, $newEvent);
+            $newEvent->setLocation($location);
 
-            if ($newEvent != $event) {
-                $newEvent = $this->metadataCdbItemEnricher->enrichTime(
-                    $newEvent,
-                    $metadata
-                );
-
-                $newCdbXmlDocument = $this->cdbXmlDocumentFactory
-                    ->fromCulturefeedCdbItem($newEvent);
-
-                $this->documentRepository->save($newCdbXmlDocument);
-
-                $this->cdbXmlPublisher->publish($newCdbXmlDocument, $domainMessage);
-            }
+            $this->saveAndPublishIfChanged($newEvent, $event, $metadata, $domainMessage);
         }
     }
 
     /**
-     * Set the location on the cdb event based on an eventCreated event.
-     *
-     * @param string $placeId
-     * @param CultureFeed_Cdb_Item_Event $cdbEvent
-     * @throws \CultuurNet\UDB3\EntityNotFoundException
+     * @param $placeId
+     * @return \CultureFeed_Cdb_Data_Location
      */
-    private function setLocation($placeId, CultureFeed_Cdb_Item_Event $cdbEvent)
+    private function createLocation($placeId)
     {
         $placeCdbXml = $this->documentRepository->get($placeId);
 
@@ -240,6 +203,56 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
         $location = $place->getLocation();
 
-        $cdbEvent->setLocation($location);
+        return $location;
+    }
+
+    /**
+     * @param $organizerId
+     * @return \CultureFeed_Cdb_Data_Organiser
+     */
+    private function createOrganizer($organizerId)
+    {
+        // load organizer from documentRepo & add to document
+        $organizerCdbXml = $this->actorDocumentRepository->get($organizerId);
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $organizerCdbXml->getCdbXml()
+        );
+
+        $organizer = new \CultureFeed_Cdb_Data_Organiser();
+        $organizer->setCdbid($organizerId);
+        $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
+        $organizer->setActor($actor);
+
+        return $organizer;
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Item_Event $newEvent
+     * @param CultureFeed_Cdb_Item_Event $event
+     * @param Metadata $metadata
+     * @param DomainMessage $domainMessage
+     */
+    private function saveAndPublishIfChanged(
+        CultureFeed_Cdb_Item_Event $newEvent,
+        CultureFeed_Cdb_Item_Event $event,
+        Metadata $metadata,
+        DomainMessage $domainMessage
+    ) {
+        if ($newEvent != $event) {
+
+            $this->metadataCdbItemEnricher->enrichTime(
+                $newEvent,
+                $metadata
+            );
+
+            $newCdbXmlDocument = $this->cdbXmlDocumentFactory
+                ->fromCulturefeedCdbItem($newEvent);
+
+            $this->documentRepository->save($newCdbXmlDocument);
+
+            $this->cdbXmlPublisher->publish($newCdbXmlDocument, $domainMessage);
+        }
     }
 }
