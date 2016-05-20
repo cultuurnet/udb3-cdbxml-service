@@ -16,7 +16,7 @@ interface MetadataCdbItemEnricherInterface
     /**
      * @param \CultureFeed_Cdb_Item_Base $cdbItem
      * @param Metadata $metadata
-     * @return mixed
+     * @return \CultureFeed_Cdb_Item_Base
      */
     public function enrichTime(
         \CultureFeed_Cdb_Item_Base $cdbItem,
