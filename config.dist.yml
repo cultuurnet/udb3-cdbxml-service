@@ -26,4 +26,4 @@ database:
   user: usernname
   password: pwd
   host: 127.0.0.1
-offer_url_regex: https?://culudb-cdbxml\.dev:8080/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)
+offer_url_regex: https?://culudb-cdbxml\.dev/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)
