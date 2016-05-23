@@ -20,3 +20,10 @@ cache:
   redis:
     host: 127.0.0.1
     database: 1
+database:
+  driver: pdo_mysql
+  dbname: culudb-cdbxml
+  user: usernname
+  password: pwd
+  host: 127.0.0.1
+offer_url_regex: https?://culudb-cdbxml\.dev/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)

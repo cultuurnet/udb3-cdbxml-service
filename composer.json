@@ -17,7 +17,9 @@
         "cultuurnet/udb3": "~0.1",
         "cultuurnet/cdb": "~2.2",
         "cultuurnet/udb2-domain-events": "~0.1",
-        "crell/api-problem": "^1.7"
+        "crell/api-problem": "^1.7",
+        "doctrine/dbal": "^2.4",
+        "doctrine/migrations": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",
@@ -28,7 +30,10 @@
     },
     "autoload": {
         "psr-4": {
-            "CultuurNet\\UDB3\\CdbXmlService\\": "src/"
+            "CultuurNet\\UDB3\\CdbXmlService\\": [
+                "src/",
+                "app/"
+            ]
         }
     },
     "autoload-dev": {
@@ -42,6 +47,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "0.x-dev"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "5.5.9"
         }
     }
 }

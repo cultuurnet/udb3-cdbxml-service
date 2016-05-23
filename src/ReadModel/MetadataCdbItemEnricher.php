@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
 use InvalidArgumentException;
+use ValueObjects\Number\Natural;
 
 class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
 {
@@ -30,31 +31,51 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
         \CultureFeed_Cdb_Item_Base $cdbItem,
         Metadata $metadata
     ) {
-        $metadata = $metadata->serialize();
+        $metadataArray = $metadata->serialize();
 
-        if (isset($metadata['request_time'])) {
-            if (empty($cdbItem->getCreationDate())) {
-                $cdbItem->setCreationDate(
-                    $this->dateFormatter->format((int) $metadata['request_time'])
-                );
-            }
-            $cdbItem->setLastUpdated(
-                $this->dateFormatter->format((int) $metadata['request_time'])
-            );
+        $cdbItem = $this->enrichTime($cdbItem, $metadata);
+
+        if (isset($metadataArray['user_nick']) && empty($cdbItem->getCreatedBy())) {
+            $cdbItem->setCreatedBy($metadataArray['user_nick']);
         }
 
-        if (isset($metadata['user_nick']) && empty($cdbItem->getCreatedBy())) {
-            $cdbItem->setCreatedBy($metadata['user_nick']);
+        if (isset($metadataArray['user_email'])) {
+            $cdbItem->setLastUpdatedBy($metadataArray['user_email']);
         }
 
-        if (isset($metadata['user_email'])) {
-            $cdbItem->setLastUpdatedBy($metadata['user_email']);
-        }
-
-        if (isset($metadata['id'])) {
-            $cdbItem->setExternalUrl($metadata['id']);
+        if (isset($metadataArray['id'])) {
+            $cdbItem->setExternalUrl($metadataArray['id']);
         } else {
             throw new InvalidArgumentException('The metadata does not contain the "id" property required to locate the item.');
+        }
+
+        return $cdbItem;
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Base $cdbItem
+     * @param Metadata $metadata
+     * @return \CultureFeed_Cdb_Item_Base
+     */
+    public function enrichTime(
+        \CultureFeed_Cdb_Item_Base $cdbItem,
+        Metadata $metadata
+    ) {
+        $metadataArray = $metadata->serialize();
+
+        if (isset($metadataArray['request_time'])) {
+
+            $requestTime = new Natural($metadataArray['request_time']);
+
+            if (empty($cdbItem->getCreationDate())) {
+                $cdbItem->setCreationDate(
+                    $this->dateFormatter->format($requestTime->toNative())
+                );
+            }
+
+            $cdbItem->setLastUpdated(
+                $this->dateFormatter->format($requestTime->toNative())
+            );
         }
 
         return $cdbItem;

@@ -20,6 +20,8 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToEventCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
@@ -48,6 +50,19 @@ $app['event_bus.udb3-core'] = $app->share(
 
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
         $bus->subscribe($app['offer_to_event_cdbxml_projector']);
+        $bus->subscribe($app['event_relations_projector']);
+        $bus->subscribe($app['place_relations_projector']);
+
+        return $bus;
+    }
+);
+
+// Broadcasting event stream to trigger updating of related projections.
+$app['event_bus.udb3-core.relations'] = $app->share(
+    function (Application $app) {
+        $bus =  new SimpleEventBus();
+
+        $bus->subscribe($app['relations_to_cdbxml_projector']);
 
         return $bus;
     }
@@ -93,6 +108,38 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
     }
 );
 
+$app['offer_relations_service'] = $app->share(
+    function (Application $app) {
+        return new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsService(
+            $app['event_relations_repository'],
+            $app['place_relations_repository']
+        );
+    }
+);
+
+$app['iri_offer_identifier_factory'] = $app->share(
+    function (Application $app) {
+        return new \CultuurNet\UDB3\Offer\IriOfferIdentifierFactory(
+            $app['config']['offer_url_regex']
+        );
+    }
+);
+
+$app['relations_to_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = new RelationsToCdbXmlProjector(
+            $app['real_cdbxml_offer_repository'],
+            $app['cdbxml_document_factory'],
+            $app['metadata_cdb_item_enricher'],
+            $app['real_cdbxml_actor_repository'],
+            $app['offer_relations_service'],
+            $app['iri_offer_identifier_factory']
+        );
+
+        return $projector;
+    }
+);
+
 $app['cache'] = $app->share(
     function (Application $app) {
         $parameters = $app['config']['cache']['redis'];
@@ -110,11 +157,24 @@ $app['cache'] = $app->share(
     }
 );
 
-$app['cdbxml_actor_repository'] = $app->share(
+$app['real_cdbxml_actor_repository'] = $app->share(
     function (Application $app) {
         return new CacheDocumentRepository(
-            $app['cdbxml_actor_cache']
+            $app['cdbxml_offer_cache']
         );
+    }
+);
+
+$app['cdbxml_actor_repository'] = $app->share(
+    function (Application $app) {
+        $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
+            $app['real_cdbxml_actor_repository'],
+            $app['event_bus.udb3-core.relations'],
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerEventFactory(),
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOrganizerCdbXmlFilter()
+        );
+
+        return $broadcastingRepository;
     }
 );
 
@@ -124,11 +184,26 @@ $app['cdbxml_actor_cache'] = $app->share(
     }
 );
 
-$app['cdbxml_offer_repository'] = $app->share(
+$app['real_cdbxml_offer_repository'] = $app->share(
     function (Application $app) {
         return new CacheDocumentRepository(
-            $app['cdbxml_offer_cache']
+            $app['cdbxml_actor_cache']
         );
+    }
+);
+
+$app['cdbxml_offer_repository'] = $app->share(
+    function (Application $app) {
+        $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
+            $app['real_cdbxml_offer_repository'],
+            $app['event_bus.udb3-core.relations'],
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OfferEventFactory(
+                $app['document_iri_generator']
+            ),
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOfferCdbXmlFilter()
+        );
+
+        return $broadcastingRepository;
     }
 );
 
@@ -163,6 +238,7 @@ $app['metadata_cdb_item_enricher'] = $app->share(
         );
     }
 );
+
 
 /**
  * Turn debug on or off.
@@ -339,6 +415,66 @@ $app['cdbxml_offer.controller'] = $app->share(
     function (Application $app) {
         return new OfferCdbXmlController(
             $app['cdbxml_offer_repository']
+        );
+    }
+);
+
+$app['dbal_connection'] = $app->share(
+    function ($app) {
+        $eventManager = new \Doctrine\Common\EventManager();
+        $sqlMode = 'NO_ENGINE_SUBSTITUTION,STRICT_ALL_TABLES';
+        $query = "SET SESSION sql_mode = '{$sqlMode}'";
+        $eventManager->addEventSubscriber(
+            new \Doctrine\DBAL\Event\Listeners\SQLSessionInit($query)
+        );
+
+        $connection = \Doctrine\DBAL\DriverManager::getConnection(
+            $app['config']['database'],
+            null,
+            $eventManager
+        );
+
+        return $connection;
+    }
+);
+
+$app['dbal_connection:keepalive'] = $app->protect(
+    function (Application $app) {
+        /** @var \Doctrine\DBAL\Connection $db */
+        $db = $app['dbal_connection'];
+
+        $db->query('SELECT 1')->execute();
+    }
+);
+
+$app['event_relations_repository'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Event\ReadModel\Relations\Doctrine\DBALRepository(
+            $app['dbal_connection']
+        );
+    }
+);
+
+$app['place_relations_repository'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Place\ReadModel\Relations\Doctrine\DBALRepository(
+            $app['dbal_connection']
+        );
+    }
+);
+
+$app['event_relations_projector'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Event\ReadModel\Relations\Projector(
+            $app['event_relations_repository']
+        );
+    }
+);
+
+$app['place_relations_projector'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Place\ReadModel\Relations\Projector(
+            $app['place_relations_repository']
         );
     }
 );

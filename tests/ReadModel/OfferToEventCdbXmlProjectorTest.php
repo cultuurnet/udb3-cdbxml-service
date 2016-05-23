@@ -1694,7 +1694,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Address('$street', '$postalCode', '$locality', '$country'),
             new Calendar('permanent')
         );
-        $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
+        $domainMessage = $this->createDomainMessage($placeId, $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
 
         $theme = $theme?new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null;

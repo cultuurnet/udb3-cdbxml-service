@@ -1172,6 +1172,12 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             ->fromCulturefeedCdbItem($place);
     }
 
+
+    /**
+     * @param LabelsMerged $labelsMerged
+     * @param Metadata $metadata
+     * @return Repository\CdbXmlDocument
+     */
     public function applyLabelsMerged(
         LabelsMerged $labelsMerged,
         Metadata $metadata
