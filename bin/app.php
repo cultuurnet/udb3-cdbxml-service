@@ -25,6 +25,6 @@ $consoleApp->add(
     (new ConsumeCommand('consume-udb3-core', 'amqp.udb3-core'))
         ->setDescription('Process messages from UDB3 core')
 );
-$consoleApp->add(new \CultuurNet\UDB3\Silex\Console\InstallCommand());
+$consoleApp->add(new \CultuurNet\UDB3\CdbXmlService\Console\InstallCommand());
 
 $consoleApp->run();
