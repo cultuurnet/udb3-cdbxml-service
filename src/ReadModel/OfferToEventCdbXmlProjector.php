@@ -413,7 +413,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         );
 
         $location = new CultureFeed_Cdb_Data_Location($cdbAddress);
+        $location->setCdbid($placeMajorInfoUpdated->getPlaceId());
         $location->setLabel($placeMajorInfoUpdated->getTitle());
+
         $event->setLocation($location);
 
         $this->setCalendar($placeMajorInfoUpdated->getCalendar(), $event);
@@ -1222,7 +1224,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                 $placeCdbXml->getCdbXml()
             );
             $location = $place->getLocation();
-
+            $location->setCdbid($eventLocation->getCdbid());
             $location->setLabel($eventLocation->getName());
             $cdbEvent->setLocation($location);
         } else {
@@ -1385,7 +1387,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         );
 
         $location = new CultureFeed_Cdb_Data_Location($cdbAddress);
+        $location->setCdbid($placeCreated->getPlaceId());
         $location->setLabel($placeCreated->getTitle());
+
         $cdbEvent->setLocation($location);
     }
 

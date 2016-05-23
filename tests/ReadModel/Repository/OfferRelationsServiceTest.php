@@ -84,7 +84,7 @@ class OfferRelationsServiceTest extends \PHPUnit_Framework_TestCase
      */
     public function it_returns_event_ids_when_getting_by_place()
     {
-        $placeId = 'MY-PlAcE-id-123';
+        $placeId = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         $eventIds = [
             'EvEnT-ID-1',

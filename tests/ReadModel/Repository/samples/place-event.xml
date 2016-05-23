@@ -61,7 +61,7 @@
           <zipcode>3000</zipcode>
         </physical>
       </address>
-      <label>Muziekcentrum Het Depot</label>
+      <label cdbid="061C13AC-A15F-F419-D8993D68C9E94548">Muziekcentrum Het Depot</label>
     </location>
   </event>
 </cdbxml>

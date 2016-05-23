@@ -124,7 +124,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         EventCreated $eventCreated,
         $cdbXmlFileName
     ) {
-        $placeId = 'LOCATION-ABC-123';
+        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         $placeCreated = new PlaceCreated(
             $placeId,
@@ -171,7 +171,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
-                    new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+                    new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
                     new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror')
                 ),
@@ -183,7 +183,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
-                    new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+                    new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
                     new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror'),
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
@@ -227,7 +227,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+            new Location('34973B89-BDA3-4A79-96C7-78ACC022907D', '$name', '$country', '$locality', '$postalcode', '$street'),
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             new Theme('1.7.6.0.0', 'Griezelfilm of horror')
         );
@@ -242,7 +242,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
 
         $this->logger->expects($this->once())->method('warning')
-            ->with('Could not find location with id LOCATION-ABC-123 when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+            ->with('Could not find location with id 34973B89-BDA3-4A79-96C7-78ACC022907D when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
         $this->projector->handle($domainMessage);
 
@@ -280,9 +280,9 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         return [
             [
-                'MY-PLACE-123',
+                '34973B89-BDA3-4A79-96C7-78ACC022907D',
                 new PlaceCreated(
-                    'MY-PLACE-123',
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
                     new Address('$street', '$postalCode', '$locality', '$country'),
@@ -291,9 +291,9 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'place.xml',
             ],
             [
-                'MY-PLACE-123',
+                '34973B89-BDA3-4A79-96C7-78ACC022907D',
                 new PlaceCreated(
-                    'MY-PLACE-123',
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
                     new Address('$street', '$postalCode', '$locality', '$country'),
@@ -966,7 +966,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_projects_the_deletion_of_a_place()
     {
         $this->createPlace();
-        $id = 'MY-PLACE-123';
+        $id = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         $placeDeleted = new PlaceDeleted(
             $id
@@ -1172,7 +1172,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_should_project_an_updated_list_of_categories_when_place_facilities_have_changed()
     {
         $this->createPlace();
-        $placeId = 'MY-PLACE-123';
+        $placeId = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         $originalPlaceCdbXml = new CdbXmlDocument(
             $placeId,
@@ -1264,7 +1264,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $placeId = 'LOCATION-ABC-123';
+        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         // add the major info to the event.
         $majorInfoUpdated = new MajorInfoUpdated(
@@ -1351,7 +1351,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $this->createEvent(false);
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $placeId = 'LOCATION-ABC-123';
+        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         // add the major info to the event.
         $majorInfoUpdated = new MajorInfoUpdated(
@@ -1392,7 +1392,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $placeId = 'LOCATION-ABC-123';
+        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         // add the major info to the event.
         $majorInfoUpdated = new MajorInfoUpdated(
@@ -1458,7 +1458,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_projects_place_major_info_updated()
     {
         $this->createPlace();
-        $id = 'MY-PLACE-123';
+        $id = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         // add the major info to the event.
         $majorInfoUpdated = new PlaceMajorInfoUpdated(
@@ -1642,7 +1642,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_places_imported_from_udb2_events()
     {
-        $id = 'MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         $placeImportedFromUdb2Event = new PlaceImportedFromUDB2Event(
             $id,
@@ -1685,7 +1685,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
         ];
 
-        $placeId = 'LOCATION-ABC-123';
+        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         $placeCreated = new PlaceCreated(
             $placeId,
@@ -1702,7 +1702,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+            new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             $theme
         );
@@ -1717,7 +1717,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function createPlace()
     {
-        $id = 'MY-PLACE-123';
+        $id = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         $place = new PlaceCreated(
             $id,

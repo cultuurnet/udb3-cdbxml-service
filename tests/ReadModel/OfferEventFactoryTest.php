@@ -32,8 +32,8 @@ class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function it_converts_the_id_to_an_iri_when_creating_the_event()
     {
-        $id = 'MY-PLACE-123';
-        $iri = 'place/MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
+        $iri = 'place/34973B89-BDA3-4A79-96C7-78ACC022907D';
         $expectedEvent = new PlaceProjectedToCdbXml($iri);
 
         $this->iriGenerator->expects($this->once())

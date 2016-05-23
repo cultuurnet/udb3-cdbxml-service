@@ -34,7 +34,7 @@
           <zipcode>$postalCode</zipcode>
         </physical>
       </address>
-      <label>$name</label>
+      <label cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D">$name</label>
     </location>
     <organiser>
       <label cdbid="ORG-123">DE Studio</label>
