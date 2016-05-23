@@ -177,6 +177,26 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
             ),
         ];
 
+        // Street name with ampserand in it.
+        $physicalAddress = new \CultureFeed_Cdb_Data_Address_PhysicalAddress();
+        $physicalAddress->setStreet('j & m Sabbestraat');
+        $physicalAddress->setHouseNumber('163a');
+        $physicalAddress->setZip('8930');
+        $physicalAddress->setCity('Menen');
+        $physicalAddress->setCountry('België');
+
+        $data[] = [
+            new Address(
+                'j & m Sabbestraat 163a',
+                '8930',
+                'Menen',
+                'België'
+            ),
+            new \CultureFeed_Cdb_Data_Address(
+                $physicalAddress
+            ),
+        ];
+
         return $data;
     }
 }
