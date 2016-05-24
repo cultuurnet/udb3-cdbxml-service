@@ -479,6 +479,12 @@ $app['place_relations_projector'] = $app->share(
     }
 );
 
+$app['database.installer'] = $app->share(
+    function (Application $app) {
+        return new \CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller($app);
+    }
+);
+
 /**
  * Load additional bootstrap files.
  */
