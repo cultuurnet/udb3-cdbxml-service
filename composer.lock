@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "95c9a99ca51b12fc2fa3a9aa1ea7002b",
-    "content-hash": "b2ee943f0db1ed3f07e6454ef3cbb9f5",
+    "hash": "486feea055b7159f7ad21fd403e71fa9",
+    "content-hash": "a94129f7e731365edcb190e5663ee222",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -490,16 +490,16 @@
         },
         {
             "name": "cultuurnet/cdb",
-            "version": "2.2.x-dev",
+            "version": "dev-feature/III-1012",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "25532fa193d608b81e919f5874676211eb94ded3"
+                "reference": "bd080e5547ba031f97abebc6a74ac51f34f18912"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/25532fa193d608b81e919f5874676211eb94ded3",
-                "reference": "25532fa193d608b81e919f5874676211eb94ded3",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/bd080e5547ba031f97abebc6a74ac51f34f18912",
+                "reference": "bd080e5547ba031f97abebc6a74ac51f34f18912",
                 "shasum": ""
             },
             "require-dev": {
@@ -521,7 +521,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-05-20 10:08:13"
+            "time": "2016-05-24 09:42:16"
         },
         {
             "name": "cultuurnet/clock",
@@ -1026,12 +1026,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "102766a3333b13699cf53b647e3e94a5e64e08c1"
+                "reference": "caeb73a84f227277cedacc9252938669cc8c0697"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/102766a3333b13699cf53b647e3e94a5e64e08c1",
-                "reference": "102766a3333b13699cf53b647e3e94a5e64e08c1",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/caeb73a84f227277cedacc9252938669cc8c0697",
+                "reference": "caeb73a84f227277cedacc9252938669cc8c0697",
                 "shasum": ""
             },
             "require": {
@@ -1104,7 +1104,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-05-18 16:30:17"
+            "time": "2016-05-23 15:30:53"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -5825,9 +5825,18 @@
             "time": "2016-03-04 07:55:57"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "2.2",
+            "alias_normalized": "2.2.0.0",
+            "version": "dev-feature/III-1012",
+            "package": "cultuurnet/cdb"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/cdb": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
