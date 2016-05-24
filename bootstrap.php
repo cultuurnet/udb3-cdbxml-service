@@ -160,7 +160,7 @@ $app['cache'] = $app->share(
 $app['real_cdbxml_actor_repository'] = $app->share(
     function (Application $app) {
         return new CacheDocumentRepository(
-            $app['cdbxml_offer_cache']
+            $app['cdbxml_actor_cache']
         );
     }
 );
@@ -187,7 +187,7 @@ $app['cdbxml_actor_cache'] = $app->share(
 $app['real_cdbxml_offer_repository'] = $app->share(
     function (Application $app) {
         return new CacheDocumentRepository(
-            $app['cdbxml_actor_cache']
+            $app['cdbxml_offer_cache']
         );
     }
 );
