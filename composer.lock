@@ -494,12 +494,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "25532fa193d608b81e919f5874676211eb94ded3"
+                "reference": "8d9f1cf073c2dc9dc1af2f1fea5ae044a8b4f5d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/25532fa193d608b81e919f5874676211eb94ded3",
-                "reference": "25532fa193d608b81e919f5874676211eb94ded3",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/8d9f1cf073c2dc9dc1af2f1fea5ae044a8b4f5d7",
+                "reference": "8d9f1cf073c2dc9dc1af2f1fea5ae044a8b4f5d7",
                 "shasum": ""
             },
             "require-dev": {
@@ -521,7 +521,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-05-20 10:08:13"
+            "time": "2016-05-23 12:46:54"
         },
         {
             "name": "cultuurnet/clock",
@@ -1026,12 +1026,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "102766a3333b13699cf53b647e3e94a5e64e08c1"
+                "reference": "caeb73a84f227277cedacc9252938669cc8c0697"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/102766a3333b13699cf53b647e3e94a5e64e08c1",
-                "reference": "102766a3333b13699cf53b647e3e94a5e64e08c1",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/caeb73a84f227277cedacc9252938669cc8c0697",
+                "reference": "caeb73a84f227277cedacc9252938669cc8c0697",
                 "shasum": ""
             },
             "require": {
@@ -1104,7 +1104,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-05-18 16:30:17"
+            "time": "2016-05-23 15:30:53"
         },
         {
             "name": "cultuurnet/udb3-jwt",
