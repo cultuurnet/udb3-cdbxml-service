@@ -270,6 +270,12 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
         $event = \CultureFeed_Cdb_Item_EventFactory::fromActor($actor);
 
+        // This is a work-around to make sure the cdbid is set on every location label.
+        // It could be added by the event factory but this might cause BC problems.
+        $location = $event->getLocation();
+        $location->setCdbid($actorImported->getActorId());
+        $event->setLocation($location);
+
         // Add UDB3 place keyword.
         $event->addKeyword('UDB3 place');
 
