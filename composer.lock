@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0b220d9c8bbf3018fcff2a3abb886ea3",
-    "content-hash": "c9bb9bb7fe0b0173c5f0971efc2afd36",
+    "hash": "95c9a99ca51b12fc2fa3a9aa1ea7002b",
+    "content-hash": "b2ee943f0db1ed3f07e6454ef3cbb9f5",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -490,16 +490,16 @@
         },
         {
             "name": "cultuurnet/cdb",
-            "version": "dev-feature/III-1024",
+            "version": "2.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "05307c2939e25d68636b4131a18ef9bc799c9900"
+                "reference": "1ae139a205540decc94db53ed3b1312a67c3d22a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/05307c2939e25d68636b4131a18ef9bc799c9900",
-                "reference": "05307c2939e25d68636b4131a18ef9bc799c9900",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/1ae139a205540decc94db53ed3b1312a67c3d22a",
+                "reference": "1ae139a205540decc94db53ed3b1312a67c3d22a",
                 "shasum": ""
             },
             "require-dev": {
@@ -521,7 +521,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-05-25 14:22:10"
+            "time": "2016-05-25 22:11:38"
         },
         {
             "name": "cultuurnet/clock",
@@ -5825,18 +5825,9 @@
             "time": "2016-03-04 07:55:57"
         }
     ],
-    "aliases": [
-        {
-            "alias": "2.2",
-            "alias_normalized": "2.2.0.0",
-            "version": "dev-feature/III-1024",
-            "package": "cultuurnet/cdb"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/cdb": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
