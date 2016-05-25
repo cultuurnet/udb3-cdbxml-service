@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var OfferCdbXmlController
+     * @var CdbXmlDocumentController
      */
     protected $controller;
 
@@ -22,7 +22,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->repository = $this->getMock(DocumentRepositoryInterface::class);
-        $this->controller = new OfferCdbXmlController($this->repository);
+        $this->controller = new CdbXmlDocumentController($this->repository);
     }
 
     /**

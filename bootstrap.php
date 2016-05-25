@@ -15,7 +15,7 @@ use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
-use CultuurNet\UDB3\CdbXmlService\OfferCdbXmlController;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToEventCdbXmlProjector;
@@ -413,8 +413,16 @@ foreach (['udb3-core'] as $consumerId) {
 
 $app['cdbxml_offer.controller'] = $app->share(
     function (Application $app) {
-        return new OfferCdbXmlController(
-            $app['cdbxml_offer_repository']
+        return new CdbXmlDocumentController(
+            $app['real_cdbxml_offer_repository']
+        );
+    }
+);
+
+$app['cdbxml_actor.controller'] = $app->share(
+    function (Application $app) {
+        return new CdbXmlDocumentController(
+            $app['real_cdbxml_actor_repository']
         );
     }
 );
