@@ -1,12 +1,12 @@
 <cdb:actor xmlns:cdb="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd"
            cdbid="ORG-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/ORG-123" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
-    <cdb:categories>
-        <cdb:category catid="8.11.0.0.0" type="actortype">Organisator(en)</cdb:category>
-    </cdb:categories>
     <cdb:actordetails>
         <cdb:actordetail lang="nl">
             <cdb:title>DE Studio</cdb:title>
         </cdb:actordetail>
     </cdb:actordetails>
+    <cdb:categories>
+        <cdb:category catid="8.11.0.0.0" type="actortype">Organisator(en)</cdb:category>
+    </cdb:categories>
 </cdb:actor>
