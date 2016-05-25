@@ -7,20 +7,19 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class OfferCdbXmlController
+class CdbXmlDocumentController
 {
     /**
      * @var DocumentRepositoryInterface
      */
-    protected $offerRepository;
+    protected $documentRepository;
 
     /**
-     * OfferCdbXmlController constructor.
-     * @param DocumentRepositoryInterface $offerRepository
+     * @param DocumentRepositoryInterface $documentRepository
      */
-    public function __construct(DocumentRepositoryInterface $offerRepository)
+    public function __construct(DocumentRepositoryInterface $documentRepository)
     {
-        $this->offerRepository = $offerRepository;
+        $this->documentRepository = $documentRepository;
     }
 
     /**
@@ -33,9 +32,9 @@ class OfferCdbXmlController
         $response->headers->set('Content-Type', 'application/xml');
 
         try {
-            $offer = $this->offerRepository->get($cdbid);
+            $document = $this->documentRepository->get($cdbid);
 
-            if (is_null($offer)) {
+            if (is_null($document)) {
                 $problem = new ApiProblem('The document could not be found.');
                 $problem->setStatus(Response::HTTP_NOT_FOUND);
             }
@@ -44,8 +43,8 @@ class OfferCdbXmlController
             $problem->setStatus(Response::HTTP_GONE);
         }
 
-        if (isset($offer)) {
-            $response->setContent($offer->getCdbXml());
+        if (isset($document)) {
+            $response->setContent($document->getCdbXml());
         }
 
         if (isset($problem)) {
