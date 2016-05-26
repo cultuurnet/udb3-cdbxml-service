@@ -52,7 +52,7 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
     public function it_broadcasts_when_a_document_is_saved()
     {
         $document = new CdbXmlDocument(
-            'MY-PLACE-123',
+            '34973B89-BDA3-4A79-96C7-78ACC022907D',
             file_get_contents(__DIR__ . '/samples/place.xml')
         );
 
@@ -82,7 +82,7 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
      */
     public function it_can_remove_a_document()
     {
-        $id = 'MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         // when removing the document it should also remove the document in the decorated repository
         $this->decoratedRepository->expects($this->once())
@@ -97,7 +97,7 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
      */
     public function it_can_get_a_document()
     {
-        $id = 'MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         // when getting the document it should also get the document in the decorated repository
         $this->decoratedRepository->expects($this->once())

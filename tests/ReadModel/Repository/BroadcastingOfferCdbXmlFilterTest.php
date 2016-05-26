@@ -25,7 +25,7 @@ class BroadcastingOfferCdbXmlFilterTest extends \PHPUnit_Framework_TestCase
      */
     public function it_matches_a_place_and_returns_true()
     {
-        $id = 'MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         $cdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -42,7 +42,7 @@ class BroadcastingOfferCdbXmlFilterTest extends \PHPUnit_Framework_TestCase
      */
     public function it_does_not_match_a_place_and_returns_false()
     {
-        $id = 'MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         $cdbXmlDocument = new CdbXmlDocument(
             $id,

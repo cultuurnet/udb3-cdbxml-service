@@ -44,7 +44,7 @@
           <zipcode>$postalCode</zipcode>
         </physical>
       </address>
-      <label>$name</label>
+      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">$name</label>
     </location>
   </event>
 </cdbxml>
