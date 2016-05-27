@@ -26,6 +26,7 @@ use CultureFeed_Cdb_Data_Location;
 use CultureFeed_Cdb_Data_Mail;
 use CultureFeed_Cdb_Data_Phone;
 use CultureFeed_Cdb_Data_Url;
+use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
@@ -36,6 +37,7 @@ use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTrait;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
@@ -148,6 +150,11 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     private $dateFormatter;
 
     /**
+     * @var AddressFactoryInterface
+     */
+    private $addressFactory;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -159,7 +166,8 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
         MetadataCdbItemEnricherInterface $metadataCdbItemEnricher,
         DocumentRepositoryInterface $actorDocumentRepository,
-        DateFormatterInterface $dateFormatter
+        DateFormatterInterface $dateFormatter,
+        AddressFactoryInterface $addressFactory
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -167,6 +175,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
         $this->dateFormatter = $dateFormatter;
+        $this->addressFactory = $addressFactory;
         $this->logger = new NullLogger();
     }
 
@@ -259,6 +268,11 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         }
     }
 
+    /**
+     * @param \CultuurNet\UDB3\Actor\ActorImportedFromUDB2 $actorImported
+     * @param \Broadway\Domain\Metadata $metadata
+     * @return \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument
+     */
     public function applyPlaceImportedFromUdb2(
         ActorImportedFromUDB2 $actorImported,
         Metadata $metadata
@@ -268,20 +282,13 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             $actorImported->getCdbXml()
         );
 
-        $event = \CultureFeed_Cdb_Item_EventFactory::fromActor($actor);
-
-        // Add UDB3 place keyword.
-        $event->addKeyword('UDB3 place');
-
         // Add metadata like createdby, creationdate, etc to the actor.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
 
         // Return a new CdbXmlDocument.
         $cdbxmlDocument = $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
-
-        // var_dump($cdbxmlDocument->getCdbXml());
+            ->fromCulturefeedCdbItem($actor);
 
         return $cdbxmlDocument;
     }
@@ -389,51 +396,51 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         PlaceMajorInfoUpdated $placeMajorInfoUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument(
+        $actorCdbXml = $this->getCdbXmlDocument(
             $placeMajorInfoUpdated->getPlaceId()
         );
 
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
+        $actor = ActorItemFactory::createActorFromCdbXml(
+          'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+          $actorCdbXml->getCdbXml()
         );
 
         // set title
-        foreach ($event->getDetails() as $detail) {
+        foreach ($actor->getDetails() as $detail) {
             if ($detail->getLanguage() == 'nl') {
                 $detail->setTitle($placeMajorInfoUpdated->getTitle());
                 break;
             }
         }
 
-        // Set location and calendar info.
-        $address = $placeMajorInfoUpdated->getAddress();
-        $cdbAddress = new CultureFeed_Cdb_Data_Address(
-            $this->getPhysicalAddressForUdb3Address($address)
-        );
+        // Contact info.
+        $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
 
-        $location = new CultureFeed_Cdb_Data_Location($cdbAddress);
-        $location->setCdbid($placeMajorInfoUpdated->getPlaceId());
-        $location->setLabel($placeMajorInfoUpdated->getTitle());
+        $udb3Address = $placeMajorInfoUpdated->getAddress();
+        $address = $this->addressFactory->fromUdb3Address($udb3Address);
+        $contactInfo->addAddress($address);
 
-        $event->setLocation($location);
+        $actor->setContactInfo($contactInfo);
 
-        $this->setCalendar($placeMajorInfoUpdated->getCalendar(), $event);
+        $weekscheme = $this->getWeekscheme($placeMajorInfoUpdated->getCalendar());
+        if (!empty($weekscheme)) {
+            $actor->setWeekScheme($weekscheme);
+        }
 
         // set eventtype and theme
         $this->updateCategories(
-            $event,
+            $actor,
             $placeMajorInfoUpdated->getEventType(),
             $placeMajorInfoUpdated->getTheme()
         );
 
         // Add metadata like createdby, creationdate, etc to the actor.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($actor);
     }
 
     /**
@@ -528,7 +535,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         $event->setContactInfo($contactInfo);
 
         // Set availablefrom if publication date is set.
-        $this->setEventAvailableFrom($eventCreated, $event);
+        $this->setItemAvailableFrom($eventCreated, $event);
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -575,54 +582,49 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         PlaceCreated $placeCreated,
         Metadata $metadata
     ) {
-        $event = new CultureFeed_Cdb_Item_Event();
-        $event->setCdbId($placeCreated->getPlaceId());
-        $event->addKeyword('UDB3 place');
+        // Actor.
+        $actor = new \CultureFeed_Cdb_Item_Actor();
+        $actor->setCdbId($placeCreated->getPlaceId());
 
-        $nlDetail = new CultureFeed_Cdb_Data_EventDetail();
+        // Details.
+        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
         $nlDetail->setLanguage('nl');
         $nlDetail->setTitle($placeCreated->getTitle());
 
-        $details = new CultureFeed_Cdb_Data_EventDetailList();
+        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
         $details->add($nlDetail);
-        $event->setDetails($details);
+        $actor->setDetails($details);
 
-        // Set location and calendar info.
-        $this->setLocationForPlaceCreated($placeCreated, $event);
-        $this->setCalendar($placeCreated->getCalendar(), $event);
+        // Contact info.
+        $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
 
-        // Set event type and theme.
-        $event->setCategories(new CultureFeed_Cdb_Data_CategoryList());
-        $eventType = new CultureFeed_Cdb_Data_Category(
-            'eventtype',
-            $placeCreated->getEventType()->getId(),
-            $placeCreated->getEventType()->getLabel()
+        $udb3Address = $placeCreated->getAddress();
+        $address = $this->addressFactory->fromUdb3Address($udb3Address);
+        $contactInfo->addAddress($address);
+
+        $actor->setContactInfo($contactInfo);
+
+        // Categories.
+        $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
+        $categoryList->add(
+          new \CultureFeed_Cdb_Data_Category(
+            'actortype',
+            '8.15.0.0.0',
+            'Locatie'
+          )
         );
-        $event->getCategories()->add($eventType);
-
-        if ($placeCreated->getTheme() !== null) {
-            $theme = new CultureFeed_Cdb_Data_Category(
-                'theme',
-                $placeCreated->getTheme()->getId(),
-                $placeCreated->getTheme()->getLabel()
-            );
-            $event->getCategories()->add($theme);
-        }
-
-        // Empty contact info.
-        $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
-        $event->setContactInfo($contactInfo);
+        $actor->setCategories($categoryList);
 
         // Set availablefrom if publication date is set.
-        $this->setEventAvailableFrom($placeCreated, $event);
+        $this->setItemAvailableFrom($placeCreated, $actor);
 
         // Add metadata like createdby, creationdate, etc to the actor.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $actor = $this->metadataCdbItemEnricher
+          ->enrich($actor, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+          ->fromCulturefeedCdbItem($actor);
     }
 
     /**
@@ -1235,39 +1237,38 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     }
 
     /**
-     * Set the Calendar on the cdb event.
-     *
-     * @param CalendarInterface $eventCalendar
-     * @param CultureFeed_Cdb_Item_Event $cdbEvent
+     * @param \CultuurNet\UDB3\CalendarInterface $itemCalendar
+     * @return \CultureFeed_Cdb_Data_Calendar_Weekscheme|null
+     * @throws \Exception
      */
-    public function setCalendar(CalendarInterface $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
+    public function getWeekscheme(CalendarInterface $itemCalendar)
     {
         // Store opening hours.
-        $openingHours = $eventCalendar->getOpeningHours();
-        $weekScheme = null;
+        $openingHours = $itemCalendar->getOpeningHours();
+        $weekscheme = null;
 
         if (!empty($openingHours)) {
             // CDB2 requires an entry for every day.
             $requiredDays = array(
-                'monday',
-                'tuesday',
-                'wednesday',
-                'thursday',
-                'friday',
-                'saturday',
-                'sunday',
+              'monday',
+              'tuesday',
+              'wednesday',
+              'thursday',
+              'friday',
+              'saturday',
+              'sunday',
             );
             $weekscheme = new CultureFeed_Cdb_Data_Calendar_Weekscheme();
 
             // Multiple opening times can happen on same day. Store them in array.
             $openingTimesPerDay = array(
-                'monday' => array(),
-                'tuesday' => array(),
-                'wednesday' => array(),
-                'thursday' => array(),
-                'friday' => array(),
-                'saturday' => array(),
-                'sunday' => array(),
+              'monday' => array(),
+              'tuesday' => array(),
+              'wednesday' => array(),
+              'thursday' => array(),
+              'friday' => array(),
+              'saturday' => array(),
+              'sunday' => array(),
             );
 
             foreach ($openingHours as $openingHour) {
@@ -1277,11 +1278,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                 }
                 foreach ($openingHour->dayOfWeek as $day) {
                     $openingTimesPerDay[$day][] = new CultureFeed_Cdb_Data_Calendar_OpeningTime(
-                        $openingHour->opens . ':00',
-                        $openingHour->closes . ':00'
+                      $openingHour->opens . ':00',
+                      $openingHour->closes . ':00'
                     );
                 }
-
             }
 
             // Create the opening times correctly
@@ -1289,24 +1289,35 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                 // Empty == closed.
                 if (empty($openingTimes)) {
                     $openingInfo = new CultureFeed_Cdb_Data_Calendar_SchemeDay(
-                        $day,
-                        CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_CLOSED
+                      $day,
+                      CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_CLOSED
                     );
                 } else {
                     // Add all opening times.
                     $openingInfo = new CultureFeed_Cdb_Data_Calendar_SchemeDay(
-                        $day,
-                        CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_OPEN
+                      $day,
+                      CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_OPEN
                     );
                     foreach ($openingTimes as $openingTime) {
                         $openingInfo->addOpeningTime($openingTime);
                     }
                 }
-
                 $weekscheme->setDay($day, $openingInfo);
             }
-
         }
+
+        return $weekscheme;
+    }
+
+    /**
+     * Set the Calendar on the cdb event.
+     *
+     * @param CalendarInterface $eventCalendar
+     * @param CultureFeed_Cdb_Item_Event $cdbEvent
+     */
+    public function setCalendar(CalendarInterface $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
+    {
+        $weekscheme = $this->getWeekscheme($eventCalendar);
 
         // Multiple days.
         if ($eventCalendar->getType() == Calendar::MULTIPLE) {
@@ -1580,18 +1591,18 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
     /**
      * Set the eventtype and theme on the event object.
-     * @param \CultureFeed_Cdb_Item_Event $event
+     * @param \CultureFeed_Cdb_Item_Base $item
      * @param \CultuurNet\UDB3\Event\EventType $eventType
      * @param \CultuurNet\UDB3\Theme|NULL $theme
      */
     private function updateCategories(
-        CultureFeed_Cdb_Item_Event $event,
+        CultureFeed_Cdb_Item_Base $item,
         EventType $eventType,
         Theme $theme = null
     ) {
         // Set event type and theme.
         $updatedTheme = false;
-        foreach ($event->getCategories() as $key => $category) {
+        foreach ($item->getCategories() as $key => $category) {
             if ($category->getType() == 'eventtype') {
                 $category->setId($eventType->getId());
                 $category->setName($eventType->getLabel());
@@ -1606,14 +1617,14 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
             // remove the theme if exists
             if (!$theme && $category->getType() == 'theme') {
-                $event->getCategories()->delete($key);
+                $item->getCategories()->delete($key);
                 $updatedTheme = true;
             }
         }
 
         // add new theme if it didn't exist
         if (!$updatedTheme && $theme) {
-            $event->getCategories()->add(
+            $item->getCategories()->add(
                 new CultureFeed_Cdb_Data_Category(
                     'theme',
                     $theme->getId(),
@@ -1650,9 +1661,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
     /**
      * @param EventCreated|PlaceCreated $offerCreated
-     * @param \CultureFeed_Cdb_Item_Event $event
+     * @param \CultureFeed_Cdb_Item_Base $item
      */
-    private function setEventAvailableFrom($offerCreated, \CultureFeed_Cdb_Item_Event $event)
+    private function setItemAvailableFrom($offerCreated, \CultureFeed_Cdb_Item_Base $item)
     {
         if (!($offerCreated instanceof PlaceCreated) &&
             !($offerCreated instanceof EventCreated)
@@ -1667,7 +1678,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                 $offerCreated->getPublicationDate()->getTimestamp()
             );
 
-            $event->setAvailableFrom($formatted);
+            $item->setAvailableFrom($formatted);
         }
     }
 

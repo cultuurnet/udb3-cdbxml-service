@@ -7,6 +7,7 @@ use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTestTrait;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
@@ -94,7 +95,8 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new CdbXmlDateFormatter()
             ),
             $this->actorRepository,
-            new CdbXmlDateFormatter()
+            new CdbXmlDateFormatter(),
+            new AddressFactory()
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
 
@@ -1594,7 +1596,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      * @param ActorImportedFromUDB2 $actorImportedFromUDB2
      * @param string $expectedCdbXmlFile
      */
-    public function it_projects_imported_actor_places_from_udb2_as_events(
+    public function it_projects_imported_actor_places_from_udb2_as_actors(
         ActorImportedFromUDB2 $actorImportedFromUDB2,
         $expectedCdbXmlFile
     ) {
@@ -1646,7 +1648,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
                 ),
-                'place-event.xml',
+                'place-actor-generated.xml',
             ],
             [
                 new PlaceUpdatedFromUDB2(
@@ -1654,7 +1656,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
                 ),
-                'place-event.xml',
+                'place-actor-generated.xml',
             ],
         ];
     }
