@@ -37,9 +37,7 @@
             </cdb:physical>
         </cdb:address>
         <cdb:mail>info@hetdepot.be</cdb:mail>
-        <cdb:phone type="phone">+32
-            16 220603
-        </cdb:phone>
+        <cdb:phone type="phone">+32 16 220603</cdb:phone>
     </cdb:contactinfo>
     <cdb:keywords>
         <cdb:keyword>foo</cdb:keyword>
