@@ -1221,11 +1221,13 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         $placeCdbXml = $this->documentRepository->get($eventLocation->getCdbid());
 
         if ($placeCdbXml) {
-            $place = EventItemFactory::createEventFromCdbXml(
+            $place = ActorItemFactory::createActorFromCdbXml(
                 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
                 $placeCdbXml->getCdbXml()
             );
-            $location = $place->getLocation();
+            $contactInfo = $place->getContactInfo();
+            
+            $location = new CultureFeed_Cdb_Data_Location($contactInfo->getAddresses()[0]);
             $location->setCdbid($eventLocation->getCdbid());
             $location->setLabel($eventLocation->getName());
             $cdbEvent->setLocation($location);
