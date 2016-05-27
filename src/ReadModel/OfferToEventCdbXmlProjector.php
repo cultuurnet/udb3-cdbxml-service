@@ -636,22 +636,24 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         PlaceDeleted $placeDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($placeDeleted->getItemId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
+        $actorCdbXml = $this->getCdbXmlDocument(
+          $placeDeleted->getItemId()
         );
 
-        $event->setWfStatus('deleted');
+        $actor = ActorItemFactory::createActorFromCdbXml(
+          'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+          $actorCdbXml->getCdbXml()
+        );
+
+        $actor->setWfStatus('deleted');
 
         // Add metadata like createdby, creationdate, etc to the actor.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($actor);
     }
 
     /**
