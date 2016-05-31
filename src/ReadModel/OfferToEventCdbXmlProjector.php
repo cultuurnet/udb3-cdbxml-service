@@ -69,6 +69,7 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeU
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
@@ -1144,7 +1145,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     ) {
         $placeCdbXml = $this->getCdbXmlDocument($facilitiesUpdated->getPlaceId());
 
-        $place = EventItemFactory::createEventFromCdbXml(
+        $place = ActorItemFactory::createActorFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $placeCdbXml->getCdbXml()
         );
@@ -1161,6 +1162,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
         // Add new categories for the facilities, passed by the event, to the new list.
         foreach ($facilitiesUpdated->getFacilities() as $facility) {
+            /* @var Facility $facility */
             $facilityCategory = new CultureFeed_Cdb_Data_Category(
                 $facility->getDomain(),
                 $facility->getId(),
@@ -1228,7 +1230,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
                 $placeCdbXml->getCdbXml()
             );
             $contactInfo = $place->getContactInfo();
-            
+
             $location = new CultureFeed_Cdb_Data_Location($contactInfo->getAddresses()[0]);
             $location->setCdbid($eventLocation->getCdbid());
             $location->setLabel($eventLocation->getName());

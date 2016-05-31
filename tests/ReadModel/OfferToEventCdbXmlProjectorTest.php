@@ -1174,7 +1174,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_should_project_an_updated_list_of_categories_when_place_facilities_have_changed()
     {
         $this->createPlace();
-        $placeId = '34973B89-BDA3-4A79-96C7-78ACC022907D';
+        $placeId = '061C13AC-A15F-F419-D8993D68C9E94548';
 
         $originalPlaceCdbXml = new CdbXmlDocument(
             $placeId,
