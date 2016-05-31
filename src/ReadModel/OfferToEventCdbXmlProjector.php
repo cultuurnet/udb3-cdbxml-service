@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
+use CultureFeed_Cdb_Data_ActorDetail;
 use CultureFeed_Cdb_Data_Address;
 use CultureFeed_Cdb_Data_Address_PhysicalAddress;
 use CultureFeed_Cdb_Data_Calendar_BookingPeriod;
@@ -29,6 +30,7 @@ use CultureFeed_Cdb_Data_Url;
 use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
+use CultureFeed_Cdb_ParseException;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
@@ -109,6 +111,7 @@ use DateTime;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
+use RuntimeException;
 
 /**
  * Class OfferToEventCdbXmlProjector
@@ -754,39 +757,33 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractTitleTranslated $titleTranslated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($titleTranslated->getItemId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
+        $cdbXmlDocument = $this->getCdbXmlDocument($titleTranslated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $languageCode = $titleTranslated->getLanguage()->getCode();
         $title = $titleTranslated->getTitle();
 
-        $details = $event->getDetails();
+        $details = $offer->getDetails();
         $detail = $details->getDetailByLanguage($languageCode);
 
         if (!empty($detail)) {
             $detail->setTitle($title);
         } else {
-            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage($languageCode);
-
             $detail->setTitle($title);
-
             $details->add($detail);
         }
 
-        $event->setDetails($details);
+        $offer->setDetails($details);
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
@@ -1691,18 +1688,59 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     /**
      * @param string $id
      * @return CdbXmlDocument
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     private function getCdbXmlDocument($id)
     {
         $cdbXmlDocument = $this->documentRepository->get($id);
 
         if ($cdbXmlDocument == null) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'No document found for id ' . $id
             );
         }
 
         return $cdbXmlDocument;
+    }
+
+    /**
+     * @param string $cdbXml
+     * @return CultureFeed_Cdb_Item_Base
+     *
+     * @throws RuntimeException
+     *   When the offer cdbxml can not be parsed.
+     */
+    private function parseOfferCultureFeedItem($cdbXml)
+    {
+        $namespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $simpleXml = new \SimpleXMLElement($cdbXml, 0, false, $namespaceUri);
+        $isActor = isset($simpleXml->actor);
+        $isEvent = isset($simpleXml->event);
+
+        if ($isActor) {
+            $item = ActorItemFactory::createActorFromCdbXml($namespaceUri, $cdbXml);
+        } else if ($isEvent) {
+            $item = EventItemFactory::createEventFromCdbXml($namespaceUri, $cdbXml);
+        } else {
+            throw new RuntimeException('Offer cdbxml is neither an actor nor an event.');
+        }
+
+        return $item;
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Item_Base $item
+     * @return \CultureFeed_Cdb_Data_Detail
+     */
+    private function createOfferItemCdbDetail(CultureFeed_Cdb_Item_Base $item)
+    {
+        if ($item instanceof CultureFeed_Cdb_Item_Event) {
+            return new CultureFeed_Cdb_Data_EventDetail();
+        } else if ($item instanceof CultureFeed_Cdb_Item_Actor) {
+            return new CultureFeed_Cdb_Data_ActorDetail();
+        } else {
+            throw new RuntimeException('Cdb item is of an unknown type.');
+        }
     }
 }
