@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 
 interface DocumentEventFactoryInterface

@@ -3,7 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 
 class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase

@@ -1,6 +1,9 @@
 <?php
 
-namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
+namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument;
+
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 
 class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -70,7 +73,7 @@ class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
             $actor,
             new CdbXmlDocument(
                 'ORG-123',
-                file_get_contents(__DIR__ . '/samples/actor.xml')
+                file_get_contents(__DIR__ . '/../ReadModel/Repository/samples/actor.xml')
             ),
         ];
 

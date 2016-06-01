@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use CultuurNet\UDB3\Cdb\EventItemFactory;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 
 class BroadcastingOfferCdbXmlFilter implements BroadcastingCdbXmlFilterInterface
 {

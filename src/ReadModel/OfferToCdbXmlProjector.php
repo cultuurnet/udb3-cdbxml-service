@@ -42,8 +42,8 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\Media\EditImageTrait;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
@@ -271,7 +271,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param \CultuurNet\UDB3\Actor\ActorImportedFromUDB2 $actorImported
      * @param \Broadway\Domain\Metadata $metadata
-     * @return \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyPlaceImportedFromUdb2(
         ActorImportedFromUDB2 $actorImported,
@@ -367,7 +367,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param EventImportedFromUDB2 $eventImportedFromCdbXml
      * @param \Broadway\Domain\Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyEventImportedFromUdb2(
         EventImportedFromUDB2 $eventImportedFromCdbXml,
@@ -383,7 +383,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param EventUpdatedFromUDB2 $eventUpdatedFromUdb2
      * @param \Broadway\Domain\Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyEventUpdatedFromUdb2(
         EventUpdatedFromUDB2 $eventUpdatedFromUdb2,
@@ -399,7 +399,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param PlaceMajorInfoUpdated $placeMajorInfoUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyPlaceMajorInfoUpdated(
         PlaceMajorInfoUpdated $placeMajorInfoUpdated,
@@ -455,7 +455,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param EventMajorInfoUpdated $eventMajorInfoUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyEventMajorInfoUpdated(
         EventMajorInfoUpdated $eventMajorInfoUpdated,
@@ -500,7 +500,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param EventCreated $eventCreated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyEventCreated(
         EventCreated $eventCreated,
@@ -558,7 +558,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param EventDeleted $eventDeleted
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyEventDeleted(
         EventDeleted $eventDeleted,
@@ -585,7 +585,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param PlaceCreated $placeCreated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyPlaceCreated(
         PlaceCreated $placeCreated,
@@ -640,7 +640,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param PlaceDeleted $placeDeleted
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyPlaceDeleted(
         PlaceDeleted $placeDeleted,
@@ -669,7 +669,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param TranslationApplied $translationApplied
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyTranslationApplied(
         TranslationApplied $translationApplied,
@@ -752,7 +752,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractTitleTranslated $titleTranslated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      * @throws \CultureFeed_Cdb_ParseException
      */
     public function applyTitleTranslated(
@@ -791,7 +791,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractDescriptionTranslated $descriptionTranslated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyDescriptionTranslated(
         AbstractDescriptionTranslated $descriptionTranslated,
@@ -833,7 +833,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractDescriptionUpdated $descriptionUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyDescriptionUpdated(
         AbstractDescriptionUpdated $descriptionUpdated,
@@ -872,7 +872,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractBookingInfoUpdated $bookingInfoUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyBookingInfoUpdated(
         AbstractBookingInfoUpdated $bookingInfoUpdated,
@@ -897,7 +897,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractContactPointUpdated $contactPointUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyContactPointUpdated(
         AbstractContactPointUpdated $contactPointUpdated,
@@ -921,7 +921,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractLabelAdded $labelAdded
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyLabelAdded(
         AbstractLabelAdded $labelAdded,
@@ -953,7 +953,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractLabelDeleted $labelDeleted
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      * @throws \Exception
      */
     public function applyLabelDeleted(
@@ -982,7 +982,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractOrganizerUpdated $organizerUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyOrganizerUpdated(
         AbstractOrganizerUpdated $organizerUpdated,
@@ -1029,7 +1029,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractOrganizerDeleted $organizerDeleted
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyOrganizerDeleted(
         AbstractOrganizerDeleted $organizerDeleted,
@@ -1056,7 +1056,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractTypicalAgeRangeUpdated $ageRangeUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyTypicalAgeRangeUpdated(
         AbstractTypicalAgeRangeUpdated $ageRangeUpdated,
@@ -1085,7 +1085,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param AbstractTypicalAgeRangeDeleted $ageRangeDeleted
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyTypicalAgeRangeDeleted(
         AbstractTypicalAgeRangeDeleted $ageRangeDeleted,
@@ -1112,7 +1112,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param FacilitiesUpdated $facilitiesUpdated
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyFacilitiesUpdated(
         FacilitiesUpdated $facilitiesUpdated,
@@ -1159,7 +1159,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * @param LabelsMerged $labelsMerged
      * @param Metadata $metadata
-     * @return Repository\CdbXmlDocument
+     * @return CdbXmlDocument
      */
     public function applyLabelsMerged(
         LabelsMerged $labelsMerged,

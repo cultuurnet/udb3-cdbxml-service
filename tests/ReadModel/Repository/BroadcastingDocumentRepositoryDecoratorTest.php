@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use Broadway\EventHandling\EventBusInterface;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 
 class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_TestCase
 {

@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use Doctrine\Common\Cache\ArrayCache;
 
 class CacheDocumentRepositoryTest extends \PHPUnit_Framework_TestCase

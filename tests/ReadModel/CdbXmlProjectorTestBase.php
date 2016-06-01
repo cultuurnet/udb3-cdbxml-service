@@ -7,7 +7,7 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use Doctrine\Common\Cache\ArrayCache;
 
 abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
@@ -90,7 +90,7 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param CdbXmlDocument $expectedCdbXmlDocument
+     * @param \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument $expectedCdbXmlDocument
      * @param DomainMessage $domainMessage
      */
     protected function expectCdbXmlDocumentToBePublished(
@@ -103,7 +103,7 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param CdbXmlDocument $expectedCdbXmlDocument
+     * @param \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument $expectedCdbXmlDocument
      */
     protected function assertCdbXmlDocumentInRepository(CdbXmlDocument $expectedCdbXmlDocument)
     {

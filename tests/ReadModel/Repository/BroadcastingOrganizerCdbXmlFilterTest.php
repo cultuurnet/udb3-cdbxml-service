@@ -2,6 +2,8 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+
 class BroadcastingOrganizerCdbXmlFilterTest extends \PHPUnit_Framework_TestCase
 {
     /**

@@ -2,7 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService;
 
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
