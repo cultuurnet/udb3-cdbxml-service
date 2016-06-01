@@ -795,24 +795,20 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractDescriptionTranslated $descriptionTranslated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($descriptionTranslated->getItemId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
+        $cdbXmlDocument = $this->getCdbXmlDocument($descriptionTranslated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $languageCode = $descriptionTranslated->getLanguage()->getCode();
         $description = $descriptionTranslated->getDescription()->toNative();
 
-        $details = $event->getDetails();
+        $details = $offer->getDetails();
         $detail = $details->getDetailByLanguage($languageCode);
 
         if (!empty($detail)) {
             $detail->setLongDescription($description);
             $detail->setShortDescription(iconv_substr($description, 0, 400));
         } else {
-            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage($descriptionTranslated->getLanguage()->getCode());
 
             $detail->setLongDescription($description);
@@ -821,15 +817,15 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             $details->add($detail);
         }
 
-        $event->setDetails($details);
+        $offer->setDetails($details);
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
