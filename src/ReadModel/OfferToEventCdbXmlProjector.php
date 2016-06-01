@@ -238,8 +238,6 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             EventOrganizerDeleted::class => 'applyOrganizerDeleted',
             EventTypicalAgeRangeUpdated::class => 'applyTypicalAgeRangeUpdated',
             EventTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
-            PlaceTypicalAgeRangeUpdated::class => 'applyTypicalAgeRangeUpdated',
-            PlaceTypicalAgeRangeDeleted::class => 'applyTypicalAgeRangeDeleted',
             EventDescriptionUpdated::class => 'applyDescriptionUpdated',
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
