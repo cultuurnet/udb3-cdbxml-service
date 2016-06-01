@@ -909,23 +909,19 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractContactPointUpdated $contactPointUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($contactPointUpdated->getItemId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
+        $cdbXmlDocument = $this->getCdbXmlDocument($contactPointUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $contactPoint = $contactPointUpdated->getContactPoint();
-        $this->updateCdbItemByContactPoint($event, $contactPoint);
+        $this->updateCdbItemByContactPoint($offer, $contactPoint);
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
@@ -1641,11 +1637,12 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         CultureFeed_Cdb_Item_Base $cdbItem,
         ContactPoint $contactPoint
     ) {
-
+        /* @var CultureFeed_Cdb_Item_Actor|CultureFeed_Cdb_Item_Event $cdbItem */
         $contactInfo = $cdbItem->getContactInfo();
 
         // Remove non-reservation phones and add new ones.
         foreach ($contactInfo->getPhones() as $phoneIndex => $phone) {
+            /* @var CultureFeed_Cdb_Data_Phone $phone */
             if (!$phone->isForReservations()) {
                 $contactInfo->removePhone($phoneIndex);
             }
@@ -1657,6 +1654,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
         // Remove non-reservation urls and add new ones.
         foreach ($contactInfo->getUrls() as $urlIndex => $url) {
+            /* @var CultureFeed_Cdb_Data_Url $url */
             if (!$url->isForReservations()) {
                 $contactInfo->removeUrl($urlIndex);
             }
