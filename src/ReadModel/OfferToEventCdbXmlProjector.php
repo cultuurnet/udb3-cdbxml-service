@@ -937,14 +937,10 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractLabelAdded $labelAdded,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($labelAdded->getItemId());
+        $cdbXmlDocument = $this->getCdbXmlDocument($labelAdded->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        $keywords = $event->getKeywords();
+        $keywords = $offer->getKeywords();
         $label = $labelAdded->getLabel()->__toString();
         $keyword = new CultureFeed_Cdb_Data_Keyword(
             $label,
@@ -952,16 +948,16 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         );
 
         if (!in_array($label, $keywords)) {
-            $event->addKeyword($keyword);
+            $offer->addKeyword($keyword);
 
             // Change the lastupdated attribute.
-            $event = $this->metadataCdbItemEnricher
-                ->enrich($event, $metadata);
+            $offer = $this->metadataCdbItemEnricher
+                ->enrich($offer, $metadata);
         }
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
