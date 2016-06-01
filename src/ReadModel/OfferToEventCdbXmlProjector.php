@@ -1128,7 +1128,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param Metadata $metadata
      * @return Repository\CdbXmlDocument
      */
-    private function applyFacilitiesUpdated(
+    public function applyFacilitiesUpdated(
         FacilitiesUpdated $facilitiesUpdated,
         Metadata $metadata
     ) {
@@ -1208,7 +1208,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param MetaData $metadata
      * @return CdbXmlDocument
      */
-    protected function applyImageAdded(
+    public function applyImageAdded(
         AbstractImageAdded $imageAdded,
         Metadata $metadata
     ) {
@@ -1236,7 +1236,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param MetaData $metadata
      * @return CdbXmlDocument
      */
-    protected function applyImageUpdated(
+    public function applyImageUpdated(
         AbstractImageUpdated $mageUpdated,
         Metadata $metadata
     ) {
@@ -1268,7 +1268,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    protected function applyImageRemoved(
+    public function applyImageRemoved(
         AbstractImageRemoved $imageRemoved,
         Metadata $metadata
     ) {
@@ -1295,7 +1295,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    protected function applyMainImageSelected(
+    public function applyMainImageSelected(
         AbstractMainImageSelected $mainImageSelected,
         Metadata $metadata
     ) {
@@ -1351,7 +1351,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @return \CultureFeed_Cdb_Data_Calendar_Weekscheme|null
      * @throws \Exception
      */
-    public function getWeekscheme(CalendarInterface $itemCalendar)
+    private function getWeekscheme(CalendarInterface $itemCalendar)
     {
         // Store opening hours.
         $openingHours = $itemCalendar->getOpeningHours();
@@ -1425,7 +1425,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param CalendarInterface $eventCalendar
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
      */
-    public function setCalendar(CalendarInterface $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
+    private function setCalendar(CalendarInterface $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
         $weekscheme = $this->getWeekscheme($eventCalendar);
 
@@ -1517,8 +1517,9 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
     /**
      * Create a physical addres based on a given udb3 address.
      * @param Address $address
+     * @return CultureFeed_Cdb_Data_Address_PhysicalAddress
      */
-    protected function getPhysicalAddressForUdb3Address(Address $address)
+    private function getPhysicalAddressForUdb3Address(Address $address)
     {
         $physicalAddress = new CultureFeed_Cdb_Data_Address_PhysicalAddress();
         $physicalAddress->setCountry($address->getCountry());
@@ -1547,7 +1548,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param CultureFeed_Cdb_Item_Event $cdbItem
      * @param BookingInfo $bookingInfo
      */
-    protected function updateCdbItemByBookingInfo(
+    private function updateCdbItemByBookingInfo(
         CultureFeed_Cdb_Item_Event $cdbItem,
         BookingInfo $bookingInfo
     ) {
@@ -1656,7 +1657,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
      * @param CultureFeed_Cdb_Item_Base $cdbItem
      * @param ContactPoint $contactPoint
      */
-    protected function updateCdbItemByContactPoint(
+    private function updateCdbItemByContactPoint(
         CultureFeed_Cdb_Item_Base $cdbItem,
         ContactPoint $contactPoint
     ) {
