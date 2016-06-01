@@ -12,6 +12,7 @@ use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
@@ -42,7 +43,8 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         $this->eventBus = $this->getMock(EventBusInterface::class);
 
         $this->publisher = new EventBusCdbXmlPublisher(
-            $this->eventBus
+            $this->eventBus,
+            new CdbXmlDocumentParser()
         );
     }
 
@@ -73,7 +75,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::fromString($publicationDate)
         );
-        $document = $this->getEmptyDocument($documentId);
+        $document = $this->getEmptyDocument($documentId, 'event');
 
         $this->eventBus
             ->expects($this->once())
@@ -120,7 +122,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::fromString($publicationDate)
         );
-        $document = $this->getEmptyDocument($documentId);
+        $document = $this->getEmptyDocument($documentId, 'event');
 
         $this->eventBus
             ->expects($this->once())
@@ -146,11 +148,13 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
      * @param string $publicationUrl
      * @param string $originalDomainEvent
      * @param string $expectedPayloadType
+     * @param CdbXmlDocument $cdbXmlDocument
      */
     public function it_should_broadcast_an_event_depending_on_the_original_domain_event(
         $publicationUrl,
         $originalDomainEvent,
-        $expectedPayloadType
+        $expectedPayloadType,
+        CdbXmlDocument $cdbXmlDocument
     ) {
         $originalDomainMessage = new DomainMessage(
             UUID::generateAsString(),
@@ -159,7 +163,6 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::now()
         );
-        $document = $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5');
 
         $this->eventBus
             ->expects($this->once())
@@ -176,7 +179,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $this->publisher->publish($document, $originalDomainMessage);
+        $this->publisher->publish($cdbXmlDocument, $originalDomainMessage);
     }
 
     /**
@@ -193,6 +196,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                     'local://3.3.xsd'
                 ),
                 ActorCreated::class,
+                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'actor'),
             ],
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
@@ -202,6 +206,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                     'local://3.3.xsd'
                 ),
                 ActorUpdated::class,
+                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'actor'),
             ],
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
@@ -211,11 +216,13 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                     'local://3.3.xsd'
                 ),
                 \CultuurNet\UDB2DomainEvents\EventCreated::class,
+                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'event'),
             ],
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                 new TitleTranslated('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', new Language('nl'), new StringLiteral('c')),
                 EventUpdated::class,
+                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'event'),
             ],
         ];
     }
@@ -235,7 +242,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::now()
         );
-        $document = $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5');
+        $document = $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'event');
 
         $this->eventBus
             ->expects($this->once())
@@ -257,14 +264,15 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param string $documentId
+     * @param string $elementName
      *
      * @return CdbXmlDocument
      */
-    private function getEmptyDocument($documentId)
+    private function getEmptyDocument($documentId, $elementName)
     {
         $document = new CdbXmlDocument(
             $documentId,
-            '<?xml version=\'1.0\'?><_/>'
+            '<cdbxml><' . $elementName . '></' . $elementName . '></cdbxml>'
         );
 
         return $document;

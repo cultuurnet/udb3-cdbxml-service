@@ -14,6 +14,7 @@ use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
@@ -262,7 +263,8 @@ $app['document_iri_generator'] = $app->share(
 $app['cdbxml_publisher'] = $app->share(
     function (Application $app) {
         return new EventBusCdbXmlPublisher(
-            $app['event_bus.udb2']
+            $app['event_bus.udb2'],
+            new CdbXmlDocumentParser()
         );
     }
 );

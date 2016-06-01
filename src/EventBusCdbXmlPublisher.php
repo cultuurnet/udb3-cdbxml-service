@@ -12,6 +12,10 @@ use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CdbXmlService\CdbXml\Specification\ActorCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXml\Specification\EventCdbXml;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParserInterface;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\ActorCdbXmlDocumentSpecification;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\EventCdbXmlDocumentSpecification;
 use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\NewActorPublication;
 use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\NewEventPublication;
 use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\UpdatedActorPublication;
@@ -30,6 +34,16 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
     private $eventBus;
 
     /**
+     * @var EventCdbXmlDocumentSpecification
+     */
+    private $eventCdbXmlDocumentSpecification;
+
+    /**
+     * @var ActorCdbXmlDocumentSpecification
+     */
+    private $actorCdbXmlDocumentSpecification;
+
+    /**
      * @var SpecificationInterface
      */
     private $newEventPublication;
@@ -37,24 +51,21 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
     /**
      * @var SpecificationInterface
      */
-    private $updatedActorPublication;
-
-    /**
-     * @var SpecificationInterface
-     */
     private $newActorPublication;
 
     /**
-     * CDBXMLPublisher constructor.
      * @param EventBusInterface $eventBus
+     * @param CdbXmlDocumentParserInterface $cdbXmlDocumentParser
      */
     public function __construct(
-        EventBusInterface $eventBus
+        EventBusInterface $eventBus,
+        CdbXmlDocumentParserInterface $cdbXmlDocumentParser
     ) {
         $this->eventBus = $eventBus;
+        $this->eventCdbXmlDocumentSpecification = new EventCdbXmlDocumentSpecification($cdbXmlDocumentParser);
+        $this->actorCdbXmlDocumentSpecification = new ActorCdbXmlDocumentSpecification($cdbXmlDocumentParser);
         $this->newEventPublication = new NewEventPublication();
         $this->newActorPublication = new NewActorPublication();
-        $this->updatedActorPublication = new UpdatedActorPublication();
     }
 
     public function publish(
@@ -74,44 +85,52 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
 
         $location = $metadata['id'];
 
-        if ($this->newActorPublication->isSatisfiedBy($domainMessage)) {
-            $event = new ActorCreated(
-                new StringLiteral($id),
-                new DateTimeImmutable(),
-                new StringLiteral($authorId),
-                Url::fromNative($location)
-            );
-        } elseif ($this->updatedActorPublication->isSatisfiedBy($domainMessage)) {
-            $event = new ActorUpdated(
-                new StringLiteral($id),
-                new DateTimeImmutable(),
-                new StringLiteral($authorId),
-                Url::fromNative($location)
-            );
-        } elseif ($this->newEventPublication->isSatisfiedBy($domainMessage)) {
-            $event = new EventCreated(
-                new StringLiteral($id),
-                new DateTimeImmutable(),
-                new StringLiteral($authorId),
-                Url::fromNative($location)
-            );
-        } else {
-            $event = new EventUpdated(
-                new StringLiteral($id),
-                new DateTimeImmutable(),
-                new StringLiteral($authorId),
-                Url::fromNative($location)
-            );
+        $event = false;
+
+        if ($this->actorCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
+            if ($this->newActorPublication->isSatisfiedBy($domainMessage)) {
+                $event = new ActorCreated(
+                    new StringLiteral($id),
+                    new DateTimeImmutable(),
+                    new StringLiteral($authorId),
+                    Url::fromNative($location)
+                );
+            } else {
+                $event = new ActorUpdated(
+                    new StringLiteral($id),
+                    new DateTimeImmutable(),
+                    new StringLiteral($authorId),
+                    Url::fromNative($location)
+                );
+            }
+        } else if ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
+            if ($this->newEventPublication->isSatisfiedBy($domainMessage)) {
+                $event = new EventCreated(
+                    new StringLiteral($id),
+                    new DateTimeImmutable(),
+                    new StringLiteral($authorId),
+                    Url::fromNative($location)
+                );
+            } else {
+                $event = new EventUpdated(
+                    new StringLiteral($id),
+                    new DateTimeImmutable(),
+                    new StringLiteral($authorId),
+                    Url::fromNative($location)
+                );
+            }
         }
 
-        $message = new DomainMessage(
-            UUID::generateAsString(),
-            0,
-            $domainMessage->getMetadata(),
-            $event,
-            $domainMessage->getRecordedOn()
-        );
+        if ($event) {
+            $message = new DomainMessage(
+                UUID::generateAsString(),
+                0,
+                $domainMessage->getMetadata(),
+                $event,
+                $domainMessage->getRecordedOn()
+            );
 
-        $this->eventBus->publish(new DomainEventStream([$message]));
+            $this->eventBus->publish(new DomainEventStream([$message]));
+        }
     }
 }
