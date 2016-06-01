@@ -26,7 +26,7 @@ use ValueObjects\Web\Url;
 class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
     /**
-     * @var OfferToEventCdbXmlProjector
+     * @var OfferToCdbXmlProjector
      */
     private $projector;
 
@@ -64,7 +64,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
-        $projector = new OfferToEventCdbXmlProjector(
+        $projector = new OfferToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(

@@ -114,11 +114,11 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 
 /**
- * Class OfferToEventCdbXmlProjector
+ * Class OfferToCdbXmlProjector
  * This projector takes UDB3 domain messages, projects them to CdbXml and then
  * publishes the changes to a public URL.
  */
-class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
+class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use EditImageTrait;
     use LoggerAwareTrait;
@@ -185,7 +185,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
 
     /**
      * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToEventCdbXmlProjector
+     * @return OfferToCdbXmlProjector
      */
     public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
     {

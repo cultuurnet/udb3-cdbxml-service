@@ -54,12 +54,12 @@ use Psr\Log\LoggerInterface;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
 
-class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
+class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
     use EditImageTestTrait;
 
     /**
-     * @var OfferToEventCdbXmlProjector
+     * @var OfferToCdbXmlProjector
      */
     private $projector;
 
@@ -88,7 +88,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
         $this->projector = (
-        new OfferToEventCdbXmlProjector(
+        new OfferToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(

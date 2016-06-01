@@ -18,7 +18,7 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToEventCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
@@ -96,7 +96,7 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
 
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = (new OfferToEventCdbXmlProjector(
+        $projector = (new OfferToCdbXmlProjector(
             $app['cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
