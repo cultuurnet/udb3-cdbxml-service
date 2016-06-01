@@ -7,6 +7,7 @@
       </actordetail>
     </actordetails>
     <categories>
+      <category catid="0.50.4.0.0" type="eventtype">concert</category>
       <category catid="8.15.0.0.0" type="actortype">Locatie</category>
     </categories>
     <contactinfo>
@@ -19,5 +20,8 @@
         </physical>
       </address>
     </contactinfo>
+    <keywords>
+      <keyword>UDB3 place</keyword>
+    </keywords>
   </actor>
 </cdbxml>
