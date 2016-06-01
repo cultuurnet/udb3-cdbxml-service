@@ -40,6 +40,7 @@ use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
@@ -521,19 +522,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider genericOfferEventDataProvider
+     *
+     * @param string $createMethod
+     * @param string $id
+     * @param AbstractTitleTranslated $titleTranslated
+     * @param string $expectedCdbXmlFile
      */
-    public function it_projects_a_title_translation_addition()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $language = new Language('en');
-        $title = new StringLiteral('Horror movie');
-
-        $titleTranslated = new TitleTranslated(
-            $id,
-            $language,
-            $title
-        );
+    public function it_projects_generic_offer_events(
+        $createMethod,
+        $id,
+        AbstractTitleTranslated $titleTranslated,
+        $expectedCdbXmlFile
+    ) {
+        $this->{$createMethod}();
 
         $metadata = new Metadata(
             [
@@ -549,12 +551,40 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event-with-title-translated-to-en.xml')
+            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    public function genericOfferEventDataProvider()
+    {
+        return [
+            // Event TitleTranslated
+            [
+                'createEvent',
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new TitleTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('en'),
+                    new StringLiteral('Horror movie')
+                ),
+                'event-with-title-translated-to-en.xml',
+            ],
+            // Place TitleTranslated
+            [
+                'createPlace',
+                'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
+                new TitleTranslated(
+                    'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
+                    new Language('en'),
+                    new StringLiteral('Horror movie')
+                ),
+                'actor-with-title-translated-to-en.xml',
+            ],
+        ];
     }
 
     /**
