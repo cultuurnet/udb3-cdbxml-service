@@ -102,7 +102,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
             $app['cdbxml_actor_repository'],
-            $app['cdbxml_date_formatter']
+            $app['cdbxml_date_formatter'],
+            $app['address_factory']
         ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
         return $projector;
@@ -166,13 +167,21 @@ $app['real_cdbxml_actor_repository'] = $app->share(
     }
 );
 
+$app['cdbxml_document_parser'] = $app->share(
+    function (Application $app) {
+        return new \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser();
+    }
+);
+
 $app['cdbxml_actor_repository'] = $app->share(
     function (Application $app) {
         $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
             $app['real_cdbxml_actor_repository'],
             $app['event_bus.udb3-core.relations'],
             new \CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerEventFactory(),
-            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOrganizerCdbXmlFilter()
+            new \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\ActorCdbXmlDocumentSpecification(
+                $app['cdbxml_document_parser']
+            )
         );
 
         return $broadcastingRepository;
@@ -201,7 +210,7 @@ $app['cdbxml_offer_repository'] = $app->share(
             new \CultuurNet\UDB3\CdbXmlService\ReadModel\OfferEventFactory(
                 $app['document_iri_generator']
             ),
-            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOfferCdbXmlFilter()
+            new \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\PlaceCdbXmlDocumentSpecification()
         );
 
         return $broadcastingRepository;
