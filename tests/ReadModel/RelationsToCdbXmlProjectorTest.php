@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
@@ -71,7 +72,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new CdbXmlDateFormatter()
             ),
             $this->actorRepository,
-            new CdbXmlDateFormatter()
+            new CdbXmlDateFormatter(),
+            new AddressFactory()
         );
 
         $this->projector = $projector->withCdbXmlPublisher($this->cdbXmlPublisher);
