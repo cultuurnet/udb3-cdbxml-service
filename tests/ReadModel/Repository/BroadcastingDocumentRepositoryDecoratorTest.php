@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\CdbXmlDocumentSpecificationInterface;
 
 class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -28,9 +29,9 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
     protected $eventFactory;
 
     /**
-     * @var BroadcastingCdbXmlFilterInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var CdbXmlDocumentSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $broadcastingCdbXmlFilter;
+    protected $cdbXmlDocumentSpecification;
 
     public function setUp()
     {
@@ -38,12 +39,13 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
         $this->eventBus = $this->getMock(EventBusInterface::class);
         $this->eventFactory = $this->getMock(DocumentEventFactoryInterface::class);
         $this->broadcastingCdbXmlFilter = $this->getMock(BroadcastingCdbXmlFilterInterface::class);
+        $this->cdbXmlDocumentSpecification = $this->getMock(CdbXmlDocumentSpecificationInterface::class);
 
         $this->repository = new BroadcastingDocumentRepositoryDecorator(
             $this->decoratedRepository,
             $this->eventBus,
             $this->eventFactory,
-            $this->broadcastingCdbXmlFilter
+            $this->cdbXmlDocumentSpecification
         );
     }
 
@@ -57,8 +59,8 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
             file_get_contents(__DIR__ . '/samples/place.xml')
         );
 
-        $this->broadcastingCdbXmlFilter->expects($this->once())
-            ->method('matches')
+        $this->cdbXmlDocumentSpecification->expects($this->once())
+            ->method('isSatisfiedBy')
             ->with($document)
             ->willReturn(true);
 
