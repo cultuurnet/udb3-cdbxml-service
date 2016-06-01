@@ -847,38 +847,34 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractDescriptionUpdated $descriptionUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($descriptionUpdated->getItemId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
+        $cdbXmlDocument = $this->getCdbXmlDocument($descriptionUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $description = $descriptionUpdated->getDescription();
 
-        $details = $event->getDetails();
+        $details = $offer->getDetails();
         $detailNl = $details->getDetailByLanguage('nl');
 
         if (!empty($detailNl)) {
             $detailNl->setLongDescription($description);
             $detailNl->setShortDescription(iconv_substr($description, 0, 400));
         } else {
-            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage('nl');
             $detail->setLongDescription($description);
             $detail->setShortDescription(iconv_substr($description, 0, 400));
             $details->add($detail);
         }
 
-        $event->setDetails($details);
+        $offer->setDetails($details);
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
