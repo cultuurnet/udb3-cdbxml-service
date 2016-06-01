@@ -1212,22 +1212,18 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractImageAdded $imageAdded,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($imageAdded->getItemId());
+        $cdbXmlDocument = $this->documentRepository->get($imageAdded->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        $this->addImageToCdbItem($event, $imageAdded->getImage());
+        $this->addImageToCdbItem($offer, $imageAdded->getImage());
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
@@ -1240,27 +1236,23 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractImageUpdated $mageUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($mageUpdated->getItemId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
+        $cdbXmlDocument = $this->documentRepository->get($mageUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $this->updateImageOnCdbItem(
-            $event,
+            $offer,
             $mageUpdated->getMediaObjectId(),
             $mageUpdated->getDescription(),
             $mageUpdated->getCopyrightHolder()
         );
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
@@ -1272,22 +1264,18 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractImageRemoved $imageRemoved,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($imageRemoved->getItemId());
+        $cdbXmlDocument = $this->documentRepository->get($imageRemoved->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        $this->removeImageFromCdbItem($event, $imageRemoved->getImage());
+        $this->removeImageFromCdbItem($offer, $imageRemoved->getImage());
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
@@ -1299,22 +1287,18 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractMainImageSelected $mainImageSelected,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->documentRepository->get($mainImageSelected->getItemId());
+        $cdbXmlDocument = $this->documentRepository->get($mainImageSelected->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        $this->selectCdbItemMainImage($event, $mainImageSelected->getImage());
+        $this->selectCdbItemMainImage($offer, $mainImageSelected->getImage());
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
