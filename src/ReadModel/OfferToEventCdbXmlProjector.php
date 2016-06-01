@@ -884,24 +884,20 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractBookingInfoUpdated $bookingInfoUpdated,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($bookingInfoUpdated->getItemId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
+        $cdbXmlDocument = $this->getCdbXmlDocument($bookingInfoUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $bookingInfo = $bookingInfoUpdated->getBookingInfo();
 
-        $this->updateCdbItemByBookingInfo($event, $bookingInfo);
+        $this->updateCdbItemByBookingInfo($offer, $bookingInfo);
 
         // Change the lastupdated attribute.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
