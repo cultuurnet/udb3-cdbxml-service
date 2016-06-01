@@ -308,11 +308,20 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         PlaceImportedFromUDB2Event $placeImportedFromUDB2Event,
         Metadata $metadata
     ) {
-        return $this->updateEventFromCdbXml(
-            $placeImportedFromUDB2Event->getCdbXml(),
-            $placeImportedFromUDB2Event->getCdbXmlNamespaceUri(),
-            $metadata
+        $event = EventItemFactory::createEventFromCdbXml(
+          $placeImportedFromUDB2Event->getCdbXmlNamespaceUri(),
+          $placeImportedFromUDB2Event->getCdbXml()
         );
+
+        $actor = \CultureFeed_Cdb_Item_ActorFactory::fromEvent($event);
+
+        // Add metadata to add external url.
+        $actor = $this->metadataCdbItemEnricher
+          ->enrich($actor, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+          ->fromCulturefeedCdbItem($actor);
     }
 
     public function applyCollaborationDataAdded(
@@ -591,6 +600,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         // Actor.
         $actor = new \CultureFeed_Cdb_Item_Actor();
         $actor->setCdbId($placeCreated->getPlaceId());
+        $actor->setAsset(true);
 
         // Details.
         $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
@@ -1737,7 +1747,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             $xmlString
         );
 
-        // Add metadata like createdby, creationdate, etc to the actor.
+        // Add metadata like createdby, creationdate, etc to the event.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
 

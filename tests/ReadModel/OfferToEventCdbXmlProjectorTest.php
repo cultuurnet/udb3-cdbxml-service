@@ -1682,7 +1682,7 @@ class OfferToEventCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('place.xml')
+            $this->loadCdbXmlFromFile('place-event-namespaced-to-actor.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
