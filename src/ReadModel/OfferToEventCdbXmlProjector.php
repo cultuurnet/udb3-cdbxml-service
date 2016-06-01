@@ -84,6 +84,10 @@ use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeUpdated;
+use CultuurNet\UDB3\Offer\Events\Image\AbstractImageAdded;
+use CultuurNet\UDB3\Offer\Events\Image\AbstractImageRemoved;
+use CultuurNet\UDB3\Offer\Events\Image\AbstractImageUpdated;
+use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
@@ -1190,6 +1194,121 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             $event->addKeyword($keyword);
         }
 
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * Apply the imageAdded event.
+     * @param AbstractImageAdded $imageAdded
+     * @param MetaData $metadata
+     * @return CdbXmlDocument
+     */
+    protected function applyImageAdded(
+        AbstractImageAdded $imageAdded,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($imageAdded->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $this->addImageToCdbItem($event, $imageAdded->getImage());
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * Apply the imageUpdated event to udb2.
+     * @param AbstractImageUpdated $mageUpdated
+     * @param MetaData $metadata
+     * @return CdbXmlDocument
+     */
+    protected function applyImageUpdated(
+        AbstractImageUpdated $mageUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($mageUpdated->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $this->updateImageOnCdbItem(
+            $event,
+            $mageUpdated->getMediaObjectId(),
+            $mageUpdated->getDescription(),
+            $mageUpdated->getCopyrightHolder()
+        );
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractImageRemoved $imageRemoved
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    protected function applyImageRemoved(
+        AbstractImageRemoved $imageRemoved,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($imageRemoved->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $this->removeImageFromCdbItem($event, $imageRemoved->getImage());
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AbstractMainImageSelected $mainImageSelected
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    protected function applyMainImageSelected(
+        AbstractMainImageSelected $mainImageSelected,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->documentRepository->get($mainImageSelected->getItemId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $this->selectCdbItemMainImage($event, $mainImageSelected->getImage());
+
+        // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
 
