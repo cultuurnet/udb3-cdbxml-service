@@ -196,12 +196,15 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
     {
         $placeCdbXml = $this->documentRepository->get($placeId);
 
-        $place = EventItemFactory::createEventFromCdbXml(
+        $place = ActorItemFactory::createActorFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $placeCdbXml->getCdbXml()
         );
 
-        $location = $place->getLocation();
+        $address = $place->getContactInfo()->getAddresses()[0];
+        $location = new \CultureFeed_Cdb_Data_Location($address);
+        $location->setCdbid($place->getCdbId());
+        $location->setLabel($place->getDetails()->getDetailByLanguage('nl')->getTitle());
 
         return $location;
     }
@@ -241,7 +244,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         DomainMessage $domainMessage
     ) {
         if ($newEvent != $event) {
-
             $this->metadataCdbItemEnricher->enrichTime(
                 $newEvent,
                 $metadata
