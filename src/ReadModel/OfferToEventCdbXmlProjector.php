@@ -679,19 +679,15 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         TranslationApplied $translationApplied,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($translationApplied->getEventId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
+        $cdbXmlDocument = $this->getCdbXmlDocument($translationApplied->getEventId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $languageCode = $translationApplied->getLanguage()->getCode();
         $title = $translationApplied->getTitle()->toNative();
         $longDescription = $translationApplied->getLongDescription()->toNative();
         $shortDescription = $translationApplied->getShortDescription()->toNative();
 
-        $details = $event->getDetails();
+        $details = $offer->getDetails();
         $detail = $details->getDetailByLanguage($languageCode);
 
         if (!empty($detail)) {
@@ -699,7 +695,7 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             $detail->setLongDescription($longDescription);
             $detail->setShortDescription($shortDescription);
         } else {
-            $detail = new CultureFeed_Cdb_Data_EventDetail();
+            $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage($languageCode);
 
             $detail->setTitle($title);
@@ -709,15 +705,15 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
             $details->add($detail);
         }
 
-        $event->setDetails($details);
+        $offer->setDetails($details);
 
         // Add metadata like createdby, creationdate, etc to the actor.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     public function applyTranslationDeleted(
