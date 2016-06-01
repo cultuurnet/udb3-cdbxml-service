@@ -970,27 +970,23 @@ class OfferToEventCdbXmlProjector implements EventListenerInterface, LoggerAware
         AbstractLabelDeleted $labelDeleted,
         Metadata $metadata
     ) {
-        $eventCdbXml = $this->getCdbXmlDocument($labelDeleted->getItemId());
+        $cdbXmlDocument = $this->getCdbXmlDocument($labelDeleted->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        $keywords = $event->getKeywords();
+        $keywords = $offer->getKeywords();
         $keyword = $labelDeleted->getLabel()->__toString();
 
         if (in_array($keyword, $keywords)) {
-            $event->deleteKeyword($keyword);
+            $offer->deleteKeyword($keyword);
 
             // Change the lastupdated attribute.
-            $event = $this->metadataCdbItemEnricher
-                ->enrich($event, $metadata);
+            $offer = $this->metadataCdbItemEnricher
+                ->enrich($offer, $metadata);
         }
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
