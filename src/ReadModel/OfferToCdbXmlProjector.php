@@ -318,6 +318,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
           ->fromCulturefeedCdbItem($actor);
     }
 
+    /**
+     * @param CollaborationDataAdded $collaborationDataAdded
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
     public function applyCollaborationDataAdded(
         CollaborationDataAdded $collaborationDataAdded,
         Metadata $metadata
@@ -712,6 +717,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             ->fromCulturefeedCdbItem($offer);
     }
 
+    /**
+     * @param TranslationDeleted $translationDeleted
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
     public function applyTranslationDeleted(
         TranslationDeleted $translationDeleted,
         Metadata $metadata
