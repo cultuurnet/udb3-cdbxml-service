@@ -6,6 +6,7 @@ use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
+use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -13,6 +14,11 @@ use Doctrine\Common\Cache\ArrayCache;
 
 abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventListenerInterface
+     */
+    protected $projector;
+
     /**
      * @var string
      */
@@ -113,6 +119,16 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param DomainEventStream $stream
+     */
+    protected function handleDomainEventStream(DomainEventStream $stream)
+    {
+        foreach ($stream as $message) {
+            $this->projector->handle($message);
+        }
+    }
+
+    /**
      * @param string $fileName
      * @return string
      */
@@ -132,9 +148,20 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     /**
      * @param CdbXmlDocument[] $cdbXmlDocuments
      */
-    protected function assertPublishedCdbXmlDocumentsEqual(array $cdbXmlDocuments)
+    protected function assertCdbXmlDocumentsArePublished(array $cdbXmlDocuments)
     {
-        $this->assertEquals($this->publishedCdbXmlDocuments, $cdbXmlDocuments);
+        // Filter out any published cdbxml documents that do not need to be
+        // asserted. (Eg. CdbXml documents published when setting up the test.)
+        $published = array_filter(
+            $this->publishedCdbXmlDocuments,
+            function (CdbXmlDocument $document) use ($cdbXmlDocuments) {
+                return in_array($document, $cdbXmlDocuments);
+            }
+        );
+
+        $published = array_values($published);
+
+        $this->assertEquals($published, $cdbXmlDocuments);
     }
 
     /**
@@ -150,5 +177,14 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertEquals($expectedCdbXmlDocument->getCdbXml(), $actualCdbXmlDocument->getCdbXml());
+    }
+
+    /**
+     * @param CdbXmlDocument[] $cdbXmlDocuments
+     */
+    protected function assertFinalCdbXmlDocumentInRepository(array $cdbXmlDocuments)
+    {
+        $final = $cdbXmlDocuments[count($cdbXmlDocuments) - 1];
+        $this->assertCdbXmlDocumentInRepository($final);
     }
 }

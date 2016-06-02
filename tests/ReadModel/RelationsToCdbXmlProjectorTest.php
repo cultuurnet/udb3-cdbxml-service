@@ -29,7 +29,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @var OfferToCdbXmlProjector
      */
-    private $projector;
+    protected $projector;
 
     /**
      * @var RelationsToCdbXmlProjector

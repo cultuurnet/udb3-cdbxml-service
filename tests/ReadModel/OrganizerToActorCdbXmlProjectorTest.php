@@ -23,7 +23,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @var OrganizerToActorCdbXmlProjector
      */
-    private $projector;
+    protected $projector;
 
     /**
      * @var Metadata

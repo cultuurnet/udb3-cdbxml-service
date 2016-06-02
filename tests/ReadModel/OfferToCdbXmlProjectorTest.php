@@ -68,7 +68,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @var OfferToCdbXmlProjector
      */
-    private $projector;
+    protected $projector;
 
     /**
      * @var Metadata
@@ -318,23 +318,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_the_addition_of_a_translation_applied()
+    public function it_projects_translation_applied_to_events()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventId = new StringLiteral($id);
-        $language = new Language('en');
-        $title = new StringLiteral('Horror movie');
-        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
-        $shortDescription = new StringLiteral('This is a short description.');
-
-        $translationApplied = new TranslationApplied(
-            $eventId,
-            $language,
-            $title,
-            $shortDescription,
-            $longDescription
-        );
+        $id = $this->createEvent();
 
         $metadata = new Metadata(
             [
@@ -346,17 +332,40 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ]
         );
 
-        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
+        $events = [
+            new TranslationApplied(
+                new StringLiteral($id),
+                new Language('en'),
+                new StringLiteral('Horror movie'),
+                new StringLiteral('This is a short description.'),
+                new StringLiteral('This is a long, long, long, very long description.')
+            ),
+            new TranslationApplied(
+                new StringLiteral($id),
+                new Language('en'),
+                new StringLiteral('Horror movie updated'),
+                new StringLiteral('This is a short description updated.'),
+                new StringLiteral('This is a long, long, long, very long description updated.')
+            ),
+        ];
 
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-translation-applied-en-added.xml')
-        );
+        $expectedCdbXmlDocuments = [
+            new CdbXmlDocument(
+                $id,
+                $this->loadCdbXmlFromFile('event-with-translation-applied-en-added.xml')
+            ),
+            new CdbXmlDocument(
+                $id,
+                $this->loadCdbXmlFromFile('event-with-translation-applied-en-updated.xml')
+            ),
+        ];
 
-        $this->projector->handle($domainMessage);
+        $stream = $this->createDomainEventStream($id, $events, $metadata);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->handleDomainEventStream($stream);
+
+        $this->assertCdbXmlDocumentsArePublished($expectedCdbXmlDocuments);
+        $this->assertFinalCdbXmlDocumentInRepository($expectedCdbXmlDocuments);
     }
 
     /**
@@ -398,66 +407,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->with($message);
 
         $this->projector->handle($domainMessage);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_the_update_of_a_translation_applied()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventId = new StringLiteral($id);
-        $language = new Language('en');
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $title = new StringLiteral('Horror movie');
-        $longDescription = new StringLiteral('This is a long, long, long, very long description.');
-        $shortDescription = new StringLiteral('This is a short description.');
-
-        $translationApplied = new TranslationApplied(
-            $eventId,
-            $language,
-            $title,
-            $shortDescription,
-            $longDescription
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
-        $this->projector->handle($domainMessage);
-
-        $title = new StringLiteral('Horror movie updated');
-        $longDescription = new StringLiteral('This is a long, long, long, very long description updated.');
-        $shortDescription = new StringLiteral('This is a short description updated.');
-
-        $translationApplied = new TranslationApplied(
-            $eventId,
-            $language,
-            $title,
-            $shortDescription,
-            $longDescription
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $translationApplied, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-translation-applied-en-updated.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**
@@ -2027,6 +1976,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @param OfferType $offerType
+     * @return string
      */
     private function createOffer(OfferType $offerType)
     {
@@ -2036,12 +1986,16 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             throw new \RuntimeException('Could not create offer of type ' . $offerType->toNative());
         }
 
-        $this->{$method}();
+        return $this->{$method}();
     }
 
     /**
      * Helper function to create an event.
-     * @param bool $theme   Whether or not to add a theme to the event
+     *
+     * @param bool $theme
+     *   Whether or not to add a theme to the event
+     *
+     * @return string
      */
     private function createEvent($theme = true)
     {
@@ -2083,10 +2037,14 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
         $this->projector->handle($domainMessage);
+
+        return $id;
     }
 
     /**
      * Helper function to create a place.
+     *
+     * @return string
      */
     private function createPlace()
     {
@@ -2103,5 +2061,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
 
         $this->projector->handle($domainMessage);
+
+        return $id;
     }
 }
