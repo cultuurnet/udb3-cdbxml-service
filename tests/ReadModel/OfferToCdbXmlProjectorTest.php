@@ -45,7 +45,6 @@ use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
-use CultuurNet\UDB3\Offer\Offer;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -448,32 +447,34 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      * @test
      * @dataProvider genericOfferEventDataProvider
      *
-     * @param string $createMethod
-     * @param string $id
-     * @param mixed $event
+     * @param OfferType $type
+     * @param array $events
      * @param Metadata $metadata
-     * @param string $expectedCdbXmlFile
+     * @param string[] $expectedCdbXmlFiles
      */
     public function it_projects_generic_offer_events(
-        $createMethod,
-        $id,
-        $event,
+        OfferType $type,
+        array $events,
         Metadata $metadata,
-        $expectedCdbXmlFile
+        array $expectedCdbXmlFiles
     ) {
-        $this->{$createMethod}();
+        $id = $this->createOffer($type);
 
-        $domainMessage = $this->createDomainMessage($id, $event, $metadata);
+        $stream = $this->createDomainEventStream($id, $events, $metadata);
 
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
-        );
+        $expectedCdbXmlDocuments = [];
 
-        $this->projector->handle($domainMessage);
+        foreach ($expectedCdbXmlFiles as $expectedCdbXmlFile) {
+            $expectedCdbXmlDocuments[] = new CdbXmlDocument(
+                $id,
+                $this->loadCdbXmlFromFile($expectedCdbXmlFile)
+            );
+        }
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->handleDomainEventStream($stream);
+
+        $this->assertCdbXmlDocumentsArePublished($expectedCdbXmlDocuments);
+        $this->assertFinalCdbXmlDocumentInRepository($expectedCdbXmlDocuments);
     }
 
     /**
@@ -484,13 +485,19 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         return [
             // Event TitleTranslated
             [
-                'createEvent',
-                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                new TitleTranslated(
-                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    new Language('en'),
-                    new StringLiteral('Horror movie')
-                ),
+                OfferType::EVENT(),
+                [
+                    new TitleTranslated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Language('en'),
+                        new StringLiteral('Horror movie')
+                    ),
+                    new TitleTranslated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Language('en'),
+                        new StringLiteral('Horror movie updated')
+                    ),
+                ],
                 new Metadata(
                     [
                         'user_nick' => 'foobar',
@@ -500,17 +507,26 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     ]
                 ),
-                'event-with-title-translated-to-en.xml',
+                [
+                    'event-with-title-translated-to-en.xml',
+                    'event-with-title-translated-to-en-updated.xml',
+                ],
             ],
             // Place TitleTranslated
             [
-                'createPlace',
-                'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
-                new TitleTranslated(
-                    'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
-                    new Language('en'),
-                    new StringLiteral('Horror movie')
-                ),
+                OfferType::PLACE(),
+                [
+                    new TitleTranslated(
+                        'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
+                        new Language('en'),
+                        new StringLiteral('Horror movie')
+                    ),
+                    new TitleTranslated(
+                        'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
+                        new Language('en'),
+                        new StringLiteral('Horror movie updated')
+                    ),
+                ],
                 new Metadata(
                     [
                         'user_nick' => 'foobar',
@@ -520,17 +536,26 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     ]
                 ),
-                'actor-with-title-translated-to-en.xml',
+                [
+                    'actor-with-title-translated-to-en.xml',
+                    'actor-with-title-translated-to-en-updated.xml',
+                ],
             ],
             // Event DescriptionTranslated
             [
-                'createEvent',
-                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                new DescriptionTranslated(
-                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    new Language('en'),
-                    new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
-                ),
+                OfferType::EVENT(),
+                [
+                    new DescriptionTranslated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Language('en'),
+                        new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+                    ),
+                    new DescriptionTranslated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Language('en'),
+                        new StringLiteral('Description updated.')
+                    ),
+                ],
                 new Metadata(
                     [
                         'user_nick' => 'foobar',
@@ -540,8 +565,11 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     ]
                 ),
-                'event-with-description-translated-to-en.xml',
-            ]
+                [
+                    'event-with-description-translated-to-en.xml',
+                    'event-with-description-translated-to-en-updated.xml',
+                ],
+            ],
         ];
     }
 
@@ -763,127 +791,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     * @dataProvider genericOfferEventUpdateDataProvider
-     *
-     * @param string $createMethod
-     * @param string $id
-     * @param mixed $event
-     * @param mixed $updateEvent
-     * @param Metadata $metadata
-     * @param string $expectedCdbXmlFile
-     */
-    public function it_projects_generic_offer_event_updates(
-        $createMethod,
-        $id,
-        $event,
-        $updateEvent,
-        Metadata $metadata,
-        $expectedCdbXmlFile
-    ) {
-        $this->{$createMethod}();
-
-        $domainMessage = $this->createDomainMessage($id, $event, $metadata);
-        $this->projector->handle($domainMessage);
-
-        $domainMessage = $this->createDomainMessage($id, $updateEvent, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @return array
-     */
-    public function genericOfferEventUpdateDataProvider()
-    {
-        return [
-            // Update Event TitleTranslated
-            [
-                'createEvent',
-                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                new TitleTranslated(
-                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    new Language('en'),
-                    new StringLiteral('Horror movie')
-                ),
-                new TitleTranslated(
-                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    new Language('en'),
-                    new StringLiteral('Horror movie updated')
-                ),
-                new Metadata(
-                    [
-                        'user_nick' => 'foobar',
-                        'user_email' => 'foo@bar.com',
-                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                        'request_time' => '1461162255',
-                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    ]
-                ),
-                'event-with-title-translated-to-en-updated.xml',
-            ],
-            // Update Place TitleTranslated
-            [
-                'createPlace',
-                'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
-                new TitleTranslated(
-                    'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
-                    new Language('en'),
-                    new StringLiteral('Horror movie')
-                ),
-                new TitleTranslated(
-                    'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
-                    new Language('en'),
-                    new StringLiteral('Horror movie updated')
-                ),
-                new Metadata(
-                    [
-                        'user_nick' => 'foobar',
-                        'user_email' => 'foo@bar.com',
-                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                        'request_time' => '1461162255',
-                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    ]
-                ),
-                'actor-with-title-translated-to-en-updated.xml',
-            ],
-            // Update Event DescriptionTranslated
-            [
-                'createEvent',
-                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                new DescriptionTranslated(
-                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    new Language('en'),
-                    new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
-                ),
-                new DescriptionTranslated(
-                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    new Language('en'),
-                    new StringLiteral('Description updated.')
-                ),
-                new Metadata(
-                    [
-                        'user_nick' => 'foobar',
-                        'user_email' => 'foo@bar.com',
-                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                        'request_time' => '1461155055',
-                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    ]
-                ),
-                'event-with-description-translated-to-en-updated.xml',
-            ],
-        ];
     }
 
     /**
