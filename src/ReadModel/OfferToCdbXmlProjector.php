@@ -303,8 +303,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         Metadata $metadata
     ) {
         $event = EventItemFactory::createEventFromCdbXml(
-          $placeImportedFromUDB2Event->getCdbXmlNamespaceUri(),
-          $placeImportedFromUDB2Event->getCdbXml()
+            $placeImportedFromUDB2Event->getCdbXmlNamespaceUri(),
+            $placeImportedFromUDB2Event->getCdbXml()
         );
 
         $actor = \CultureFeed_Cdb_Item_ActorFactory::fromEvent($event);
@@ -410,8 +410,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         );
 
         $actor = ActorItemFactory::createActorFromCdbXml(
-          'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-          $actorCdbXml->getCdbXml()
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $actorCdbXml->getCdbXml()
         );
 
         // set title
@@ -617,11 +617,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Categories.
         $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
         $categoryList->add(
-          new \CultureFeed_Cdb_Data_Category(
-            'actortype',
-            '8.15.0.0.0',
-            'Locatie'
-          )
+            new \CultureFeed_Cdb_Data_Category(
+                'actortype',
+                '8.15.0.0.0',
+                'Locatie'
+            )
         );
         $actor->setCategories($categoryList);
 
@@ -647,12 +647,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         Metadata $metadata
     ) {
         $actorCdbXml = $this->getCdbXmlDocument(
-          $placeDeleted->getItemId()
+            $placeDeleted->getItemId()
         );
 
         $actor = ActorItemFactory::createActorFromCdbXml(
-          'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-          $actorCdbXml->getCdbXml()
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $actorCdbXml->getCdbXml()
         );
 
         $actor->setWfStatus('deleted');
@@ -1358,8 +1358,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 }
                 foreach ($openingHour->dayOfWeek as $day) {
                     $openingTimesPerDay[$day][] = new CultureFeed_Cdb_Data_Calendar_OpeningTime(
-                      $openingHour->opens . ':00',
-                      $openingHour->closes . ':00'
+                        $openingHour->opens . ':00',
+                        $openingHour->closes . ':00'
                     );
                 }
             }
@@ -1369,14 +1369,14 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 // Empty == closed.
                 if (empty($openingTimes)) {
                     $openingInfo = new CultureFeed_Cdb_Data_Calendar_SchemeDay(
-                      $day,
-                      CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_CLOSED
+                        $day,
+                        CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_CLOSED
                     );
                 } else {
                     // Add all opening times.
                     $openingInfo = new CultureFeed_Cdb_Data_Calendar_SchemeDay(
-                      $day,
-                      CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_OPEN
+                        $day,
+                        CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_OPEN
                     );
                     foreach ($openingTimes as $openingTime) {
                         $openingInfo->addOpeningTime($openingTime);
@@ -1800,7 +1800,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         if ($isActor) {
             $item = ActorItemFactory::createActorFromCdbXml($namespaceUri, $cdbXml);
-        } else if ($isEvent) {
+        } elseif ($isEvent) {
             $item = EventItemFactory::createEventFromCdbXml($namespaceUri, $cdbXml);
         } else {
             throw new RuntimeException('Offer cdbxml is neither an actor nor an event.');
@@ -1817,7 +1817,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     {
         if ($item instanceof CultureFeed_Cdb_Item_Event) {
             return new CultureFeed_Cdb_Data_EventDetail();
-        } else if ($item instanceof CultureFeed_Cdb_Item_Actor) {
+        } elseif ($item instanceof CultureFeed_Cdb_Item_Actor) {
             return new CultureFeed_Cdb_Data_ActorDetail();
         } else {
             throw new RuntimeException('Cdb item is of an unknown type.');
