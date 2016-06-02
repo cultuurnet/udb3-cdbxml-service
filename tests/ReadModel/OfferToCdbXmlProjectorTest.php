@@ -45,6 +45,7 @@ use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
+use CultuurNet\UDB3\Offer\Offer;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -109,15 +110,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->logger = $this->getMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
 
-        $this->metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1460710907',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
+        $this->metadata = $this->getDefaultMetadata();
     }
 
     /**
@@ -321,16 +314,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $id = $this->createEvent();
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
         $events = [
             new TranslationApplied(
                 new StringLiteral($id),
@@ -359,7 +342,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
         ];
 
-        $stream = $this->createDomainEventStream($id, $events, $metadata);
+        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
 
         $this->handleDomainEventStream($stream);
 
@@ -400,16 +383,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $id = $this->createEvent();
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
         $events = [
             new TranslationApplied(
                 new StringLiteral($id),
@@ -436,7 +409,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-en-translation-removed.xml')
         );
 
-        $stream = $this->createDomainEventStream($id, $events, $metadata);
+        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
         $this->handleDomainEventStream($stream);
 
         $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
@@ -478,230 +451,117 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
+     * @param OfferType $offerType
+     * @return OfferToCdbXmlProjectorTestBuilder
+     */
+    protected function given(OfferType $offerType)
+    {
+        return (new OfferToCdbXmlProjectorTestBuilder($this->getDefaultMetadata()))
+            ->given($offerType);
+    }
+
+    /**
      * @return array
      */
     public function genericOfferEventDataProvider()
     {
         return [
             // Event TitleTranslated
-            [
-                OfferType::EVENT(),
-                [
+            $this->given(OfferType::EVENT())
+                ->apply(
                     new TitleTranslated(
                         '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                         new Language('en'),
                         new StringLiteral('Horror movie')
-                    ),
+                    )
+                )
+                ->expect('event-with-title-translated-to-en.xml')
+                ->apply(
                     new TitleTranslated(
                         '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                         new Language('en'),
                         new StringLiteral('Horror movie updated')
-                    ),
-                ],
-                new Metadata(
-                    [
-                        'user_nick' => 'foobar',
-                        'user_email' => 'foo@bar.com',
-                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                        'request_time' => '1461162255',
-                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    ]
-                ),
-                [
-                    'event-with-title-translated-to-en.xml',
-                    'event-with-title-translated-to-en-updated.xml',
-                ],
-            ],
+                    )
+                )
+                ->expect('event-with-title-translated-to-en-updated.xml')
+                ->finish(),
+
             // Place TitleTranslated
-            [
-                OfferType::PLACE(),
-                [
+            $this->given(OfferType::PLACE())
+                ->apply(
                     new TitleTranslated(
                         'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
                         new Language('en'),
                         new StringLiteral('Horror movie')
-                    ),
+                    )
+                )
+                ->expect('actor-with-title-translated-to-en.xml')
+                ->apply(
                     new TitleTranslated(
                         'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
                         new Language('en'),
                         new StringLiteral('Horror movie updated')
-                    ),
-                ],
-                new Metadata(
-                    [
-                        'user_nick' => 'foobar',
-                        'user_email' => 'foo@bar.com',
-                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                        'request_time' => '1461162255',
-                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    ]
-                ),
-                [
-                    'actor-with-title-translated-to-en.xml',
-                    'actor-with-title-translated-to-en-updated.xml',
-                ],
-            ],
+                    )
+                )
+                ->expect('actor-with-title-translated-to-en-updated.xml')
+                ->finish(),
+
             // Event DescriptionTranslated
-            [
-                OfferType::EVENT(),
-                [
+            $this->given(OfferType::EVENT())
+                ->apply(
                     new DescriptionTranslated(
                         '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                         new Language('en'),
                         new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
-                    ),
+                    )
+                )
+                ->expect('event-with-description-translated-to-en.xml')
+                ->apply(
                     new DescriptionTranslated(
                         '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                         new Language('en'),
                         new StringLiteral('Description updated.')
-                    ),
-                ],
-                new Metadata(
-                    [
-                        'user_nick' => 'foobar',
-                        'user_email' => 'foo@bar.com',
-                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                        'request_time' => '1461155055',
-                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                    ]
-                ),
-                [
-                    'event-with-description-translated-to-en.xml',
-                    'event-with-description-translated-to-en-updated.xml',
-                ],
-            ],
+                    )
+                )
+                ->expect('event-with-description-translated-to-en-updated.xml')
+                ->finish(),
+
+            // Event DescriptionUpdated
+            $this->given(OfferType::EVENT())
+                ->apply(
+                    new DescriptionUpdated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+                    )
+                )
+                ->expect('event-with-description.xml')
+                ->finish(),
+
+            // Event LabelAdded, LabelDeleted
+            $this->given(OfferType::EVENT())
+                ->apply(
+                    new LabelAdded(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Label('foobar')
+                    )
+                )
+                ->expect('event-with-keyword.xml')
+                ->apply(
+                    new LabelAdded(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Label('foobar', false)
+                    )
+                )
+                ->expect('event-with-keyword-visible-false.xml')
+                ->apply(
+                    new LabelDeleted(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Label('foobar')
+                    )
+                )
+                ->expect('event.xml')
+                ->finish(),
         ];
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_the_addition_of_a_description()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $description = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-
-        $descriptionUpdated = new DescriptionUpdated(
-            $id,
-            $description
-        );
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461155055',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $descriptionUpdated, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-description.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_a_label_added()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $labelAdded = new LabelAdded($id, new Label('foobar'));
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461164633',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_a_label_added_with_the_visible_attribute()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $labelAdded = new LabelAdded($id, new Label('foobar', false));
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461164633',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword-visible-false.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_a_label_deleted()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // First add a label.
-        $labelAdded = new LabelAdded($id, new Label('foobar'));
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // Now delete the label.
-        $labelDeleted = new LabelDeleted($id, new Label('foobar'));
-        $domainMessage = $this->createDomainMessage($id, $labelDeleted, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**
@@ -711,16 +571,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461164633',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
 
         $bookingInfo = new BookingInfo(
             'http://tickets.example.com',
@@ -737,7 +587,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $bookingInfo
         );
 
-        $domainMessage = $this->createDomainMessage($id, $bookingInfoUpdated, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $bookingInfoUpdated, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -758,16 +608,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461164633',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
         $contactPoint = new ContactPoint(
             array('+32 666 666'),
             array('tickets@example.com'),
@@ -780,7 +620,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $contactPoint
         );
 
-        $domainMessage = $this->createDomainMessage($id, $contactPointUpdated, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $contactPointUpdated, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -851,22 +691,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         // Add the label once.
         $labelAdded = new LabelAdded($id, new Label('foobar'));
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461164633',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
         $this->projector->handle($domainMessage);
 
         // Add the label again.
         $labelAdded = new LabelAdded($id, new Label('foobar'));
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -933,17 +763,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $image
         );
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -964,16 +784,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
         $image = new Image(
             new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
             new MIMEType('image/png'),
@@ -987,7 +797,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $image
         );
 
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
         $this->projector->handle($domainMessage);
 
         $imageUpdated = new ImageUpdated(
@@ -997,7 +807,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new StringLiteral('John Doe')
         );
 
-        $domainMessage = $this->createDomainMessage($id, $imageUpdated, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $imageUpdated, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -1060,16 +870,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
         $olderImage = new Image(
             new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
             new MIMEType('image/jpg'),
@@ -1107,7 +907,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $olderImage
         );
 
-        $domainMessage = $this->createDomainMessage($id, $imageRemoved, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $imageRemoved, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -1127,16 +927,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $this->createEvent();
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
 
         $newImage = new Image(
             new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
@@ -1176,7 +966,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $image
         );
 
-        $domainMessage = $this->createDomainMessage($id, $mainImageSelected, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $mainImageSelected, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -1936,5 +1726,21 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         return $id;
+    }
+
+    /**
+     * @return Metadata
+     */
+    private function getDefaultMetadata()
+    {
+        return new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710907',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+            ]
+        );
     }
 }
