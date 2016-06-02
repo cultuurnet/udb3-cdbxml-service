@@ -40,7 +40,8 @@ use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
-use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
+use CultuurNet\UDB3\Offer\Offer;
+use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
@@ -1714,10 +1715,24 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
+     * @param OfferType $offerType
+     */
+    private function createOffer(OfferType $offerType)
+    {
+        $method = 'create' . $offerType->toNative();
+
+        if (!method_exists($this, $method)) {
+            throw new \RuntimeException('Could not create offer of type ' . $offerType->toNative());
+        }
+
+        $this->{$method}();
+    }
+
+    /**
      * Helper function to create an event.
      * @param bool $theme   Whether or not to add a theme to the event
      */
-    public function createEvent($theme = true)
+    private function createEvent($theme = true)
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
 
@@ -1762,7 +1777,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * Helper function to create a place.
      */
-    public function createPlace()
+    private function createPlace()
     {
         $id = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 

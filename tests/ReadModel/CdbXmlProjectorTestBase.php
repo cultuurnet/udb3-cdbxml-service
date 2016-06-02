@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DateTime;
+use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
@@ -78,6 +79,24 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
             $event,
             $dateTime
         );
+    }
+
+    /**
+     * @param string $id
+     * @param array $events
+     * @param Metadata $metadata
+     * @return DomainEventStream
+     */
+    protected function createDomainEventStream(
+        $id,
+        array $events,
+        Metadata $metadata
+    ) {
+        $domainMessages = [];
+        foreach ($events as $event) {
+            $domainMessages[] = $this->createDomainMessage($id, $event, $metadata);
+        }
+        return new DomainEventStream($domainMessages);
     }
 
     /**
