@@ -103,7 +103,7 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
                     Url::fromNative($location)
                 );
             }
-        } else if ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
+        } elseif ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
             if ($this->newEventPublication->isSatisfiedBy($domainMessage)) {
                 $event = new EventCreated(
                     new StringLiteral($id),
