@@ -662,7 +662,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function genericOfferEventUpdateDataProvider()
     {
         return [
-            // Update TitleTranslated
+            // Update Event TitleTranslated
             [
                 'createEvent',
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
@@ -687,7 +687,32 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 ),
                 'event-with-title-translated-to-en-updated.xml',
             ],
-            // Update DescriptionTranslated
+            // Update Place TitleTranslated
+            [
+                'createPlace',
+                'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
+                new TitleTranslated(
+                    'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
+                    new Language('en'),
+                    new StringLiteral('Horror movie')
+                ),
+                new TitleTranslated(
+                    'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
+                    new Language('en'),
+                    new StringLiteral('Horror movie updated')
+                ),
+                new Metadata(
+                    [
+                        'user_nick' => 'foobar',
+                        'user_email' => 'foo@bar.com',
+                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                        'request_time' => '1461162255',
+                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    ]
+                ),
+                'actor-with-title-translated-to-en-updated.xml',
+            ],
+            // Update Event DescriptionTranslated
             [
                 'createEvent',
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
