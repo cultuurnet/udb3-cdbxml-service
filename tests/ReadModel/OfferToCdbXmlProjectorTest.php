@@ -526,28 +526,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      *
      * @param string $createMethod
      * @param string $id
-     * @param AbstractTitleTranslated $titleTranslated
+     * @param mixed $event
+     * @param Metadata $metadata
      * @param string $expectedCdbXmlFile
      */
     public function it_projects_generic_offer_events(
         $createMethod,
         $id,
-        AbstractTitleTranslated $titleTranslated,
+        $event,
+        Metadata $metadata,
         $expectedCdbXmlFile
     ) {
         $this->{$createMethod}();
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $event, $metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -571,6 +563,15 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new Language('en'),
                     new StringLiteral('Horror movie')
                 ),
+                new Metadata(
+                    [
+                        'user_nick' => 'foobar',
+                        'user_email' => 'foo@bar.com',
+                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                        'request_time' => '1461162255',
+                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    ]
+                ),
                 'event-with-title-translated-to-en.xml',
             ],
             // Place TitleTranslated
@@ -582,8 +583,37 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new Language('en'),
                     new StringLiteral('Horror movie')
                 ),
+                new Metadata(
+                    [
+                        'user_nick' => 'foobar',
+                        'user_email' => 'foo@bar.com',
+                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                        'request_time' => '1461162255',
+                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    ]
+                ),
                 'actor-with-title-translated-to-en.xml',
             ],
+            // Event DescriptionTranslated
+            [
+                'createEvent',
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new DescriptionTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('en'),
+                    new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+                ),
+                new Metadata(
+                    [
+                        'user_nick' => 'foobar',
+                        'user_email' => 'foo@bar.com',
+                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                        'request_time' => '1461155055',
+                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    ]
+                ),
+                'event-with-description-translated-to-en.xml',
+            ]
         ];
     }
 
@@ -630,44 +660,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-title-translated-to-en-updated.xml')
-        );
-
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
-        $this->projector->handle($domainMessage);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_the_addition_of_a_description_translated()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $language = new Language('en');
-        $description = new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-
-        $descriptionTranslated = new DescriptionTranslated(
-            $id,
-            $language,
-            $description
-        );
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461155055',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $descriptionTranslated, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-description-translated-to-en.xml')
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
