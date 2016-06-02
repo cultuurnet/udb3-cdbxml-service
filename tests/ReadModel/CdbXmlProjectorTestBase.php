@@ -33,6 +33,11 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
      */
     protected $cdbXmlPublisher;
 
+    /**
+     * @var CdbXmlDocument[]
+     */
+    private $publishedCdbXmlDocuments;
+
     public function setUp()
     {
         $this->cdbXmlFilesPath = __DIR__;
@@ -40,6 +45,14 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
         $this->cdbXmlPublisher = $this->getMock(CdbXmlPublisherInterface::class);
+
+        $this->cdbXmlPublisher->expects($this->any())
+            ->method('publish')
+            ->willReturnCallback(
+                function (CdbXmlDocument $document, DomainMessage $domainMessage) {
+                    $this->publishedCdbXmlDocuments[] = $document;
+                }
+            );
     }
 
     /**
@@ -109,20 +122,23 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument $expectedCdbXmlDocument
-     * @param DomainMessage $domainMessage
+     * @param CdbXmlDocument $cdbXmlDocument
      */
-    protected function expectCdbXmlDocumentToBePublished(
-        CdbXmlDocument $expectedCdbXmlDocument,
-        DomainMessage $domainMessage
-    ) {
-        $this->cdbXmlPublisher->expects($this->once())
-            ->method('publish')
-            ->with($expectedCdbXmlDocument, $domainMessage);
+    protected function assertCdbXmlDocumentIsPublished(CdbXmlDocument $cdbXmlDocument)
+    {
+        $this->assertTrue(in_array($cdbXmlDocument, $this->publishedCdbXmlDocuments));
     }
 
     /**
-     * @param \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument $expectedCdbXmlDocument
+     * @param CdbXmlDocument[] $cdbXmlDocuments
+     */
+    protected function assertPublishedCdbXmlDocumentsEqual(array $cdbXmlDocuments)
+    {
+        $this->assertEquals($this->publishedCdbXmlDocuments, $cdbXmlDocuments);
+    }
+
+    /**
+     * @param CdbXmlDocument $expectedCdbXmlDocument
      */
     protected function assertCdbXmlDocumentInRepository(CdbXmlDocument $expectedCdbXmlDocument)
     {

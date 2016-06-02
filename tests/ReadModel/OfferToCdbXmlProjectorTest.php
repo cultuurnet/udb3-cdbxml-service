@@ -8,7 +8,6 @@ use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
-use CultuurNet\UDB3\CdbXmlService\Media\EditImageTestTrait;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -23,9 +22,13 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
+use CultuurNet\UDB3\Event\Events\ImageAdded;
+use CultuurNet\UDB3\Event\Events\ImageRemoved;
+use CultuurNet\UDB3\Event\Events\ImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
+use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
@@ -40,6 +43,8 @@ use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Media\Image;
+use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\Offer;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
@@ -53,13 +58,13 @@ use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
 use Psr\Log\LoggerInterface;
+use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
+use ValueObjects\Web\Url;
 
 class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
-    use EditImageTestTrait;
-
     /**
      * @var OfferToCdbXmlProjector
      */
@@ -147,8 +152,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile($cdbXmlFileName)
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -243,13 +248,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-without-location.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
-
         $this->logger->expects($this->once())->method('warning')
             ->with('Could not find location with id 34973B89-BDA3-4A79-96C7-78ACC022907D when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
         $this->projector->handle($domainMessage);
 
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -272,8 +276,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile($cdbXmlFileName)
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -348,8 +353,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-translation-applied-en-added.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -448,8 +454,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-translation-applied-en-updated.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -516,8 +523,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-en-translation-removed.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -547,8 +555,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile($expectedCdbXmlFile)
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -652,8 +661,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-description.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -684,8 +694,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-keyword.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -716,8 +727,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-keyword-visible-false.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -743,8 +755,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -788,8 +801,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-booking-info-updated.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -830,8 +844,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-contact-point-updated.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -866,8 +881,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile($expectedCdbXmlFile)
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -996,8 +1012,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-description-updated.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1034,8 +1051,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-keyword.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1066,8 +1084,286 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_adds_a_media_file_when_adding_an_image()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $image = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('sexy ladies without clothes'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $imageAdded = new ImageAdded(
+            $id,
+            $image
+        );
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-image.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_the_event_media_object_property_when_updating_an_image()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+            ]
+        );
+
+        $image = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('sexy ladies without clothes'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $imageAdded = new ImageAdded(
+            $id,
+            $image
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $metadata);
+        $this->projector->handle($domainMessage);
+
+        $imageUpdated = new ImageUpdated(
+            $id,
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new StringLiteral('Sexy ladies without clothes - NSFW'),
+            new StringLiteral('John Doe')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageUpdated, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-image-updated.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_deletes_a_media_file_when_removing_an_image()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $image = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('sexy ladies without clothes'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $imageAdded = new ImageAdded(
+            $id,
+            $image
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $imageRemoved = new ImageRemoved(
+            $id,
+            $image
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageRemoved, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_make_the_oldest_image_main_when_deleting_the_current_main_image()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+            ]
+        );
+
+        $olderImage = new Image(
+            new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
+            new MIMEType('image/jpg'),
+            new StringLiteral('Beep Boop'),
+            new StringLiteral('Noo Idee'),
+            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+        );
+
+        $imageAdded = new ImageAdded(
+            $id,
+            $olderImage
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $newImage = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('sexy ladies without clothes'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $imageAdded = new ImageAdded(
+            $id,
+            $newImage
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $imageRemoved = new ImageRemoved(
+            $id,
+            $olderImage
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageRemoved, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-image.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_update_the_image_property_when_selecting_a_main_image()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1461162255',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+            ]
+        );
+
+        $newImage = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('sexy ladies without clothes'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $imageAdded = new ImageAdded(
+            $id,
+            $newImage
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        $image = new Image(
+            new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
+            new MIMEType('image/jpg'),
+            new StringLiteral('Beep Boop'),
+            new StringLiteral('Noo Idee'),
+            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+        );
+
+        $imageAdded = new ImageAdded(
+            $id,
+            $image
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // Now change the main image.
+        $mainImageSelected = new MainImageSelected(
+            $id,
+            $image
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $mainImageSelected, $metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-images.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1090,8 +1386,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-deleted.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1114,8 +1411,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('place-deleted.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1144,8 +1442,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-organizer.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1169,13 +1468,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-without-organizer.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
-
         $this->logger->expects($this->once())->method('warning')
             ->with('Could not find organizer with id ORG-123 when applying organizer updated on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
         $this->projector->handle($domainMessage);
 
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1209,8 +1507,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1242,8 +1541,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('place-with-updated-facilities.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1278,8 +1578,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-merged-labels-as-keywords.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1300,8 +1601,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-age-from.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1327,8 +1629,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1368,8 +1671,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-major-info-updated.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1409,13 +1713,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-major-info-updated-without-location.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
-
         $this->logger->expects($this->once())->method('warning')
             ->with('Could not find location with id LOCATION-MISSING when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
         $this->projector->handle($domainMessage);
 
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1455,8 +1758,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-major-info-updated.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1495,8 +1799,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-major-info-updated-without-theme.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1533,8 +1838,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('place-with-major-info-updated.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1560,8 +1866,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1595,8 +1902,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1631,8 +1939,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-collaboration-data.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1655,8 +1964,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1709,8 +2019,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('place-event-namespaced-to-actor.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
