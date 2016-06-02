@@ -551,6 +551,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
+    /**
+     * @return array
+     */
     public function genericOfferEventDataProvider()
     {
         return [
@@ -619,47 +622,33 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider genericOfferEventUpdateDataProvider
+     *
+     * @param string $createMethod
+     * @param string $id
+     * @param mixed $event
+     * @param mixed $updateEvent
+     * @param Metadata $metadata
+     * @param string $expectedCdbXmlFile
      */
-    public function it_projects_a_title_translation_update()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $language = new Language('en');
+    public function it_projects_generic_offer_event_updates(
+        $createMethod,
+        $id,
+        $event,
+        $updateEvent,
+        Metadata $metadata,
+        $expectedCdbXmlFile
+    ) {
+        $this->{$createMethod}();
 
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461162255',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $title = new StringLiteral('Horror movie');
-
-        $titleTranslated = new TitleTranslated(
-            $id,
-            $language,
-            $title
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $event, $metadata);
         $this->projector->handle($domainMessage);
 
-        $title = new StringLiteral('Horror movie updated');
-
-        $titleTranslated = new TitleTranslated(
-            $id,
-            $language,
-            $title
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $titleTranslated, $metadata);
+        $domainMessage = $this->createDomainMessage($id, $updateEvent, $metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event-with-title-translated-to-en-updated.xml')
+            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
         );
 
         $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
@@ -668,53 +657,62 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
-     * @test
+     * @return array
      */
-    public function it_projects_the_update_of_a_description_translated()
+    public function genericOfferEventUpdateDataProvider()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $language = new Language('en');
-
-        $metadata = new Metadata(
+        return [
+            // Update TitleTranslated
             [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461155055',
-                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            ]
-        );
-
-        $description = new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-
-        $descriptionTranslated = new DescriptionTranslated(
-            $id,
-            $language,
-            $description
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $descriptionTranslated, $metadata);
-        $this->projector->handle($domainMessage);
-
-        $description = new StringLiteral('Description updated.');
-
-        $descriptionTranslated = new DescriptionTranslated(
-            $id,
-            $language,
-            $description
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $descriptionTranslated, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-description-translated-to-en-updated.xml')
-        );
-
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
-        $this->projector->handle($domainMessage);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+                'createEvent',
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new TitleTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('en'),
+                    new StringLiteral('Horror movie')
+                ),
+                new TitleTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('en'),
+                    new StringLiteral('Horror movie updated')
+                ),
+                new Metadata(
+                    [
+                        'user_nick' => 'foobar',
+                        'user_email' => 'foo@bar.com',
+                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                        'request_time' => '1461162255',
+                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    ]
+                ),
+                'event-with-title-translated-to-en-updated.xml',
+            ],
+            // Update DescriptionTranslated
+            [
+                'createEvent',
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new DescriptionTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('en'),
+                    new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+                ),
+                new DescriptionTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('en'),
+                    new StringLiteral('Description updated.')
+                ),
+                new Metadata(
+                    [
+                        'user_nick' => 'foobar',
+                        'user_email' => 'foo@bar.com',
+                        'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                        'request_time' => '1461155055',
+                        'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    ]
+                ),
+                'event-with-description-translated-to-en-updated.xml',
+            ],
+        ];
     }
 
     /**
