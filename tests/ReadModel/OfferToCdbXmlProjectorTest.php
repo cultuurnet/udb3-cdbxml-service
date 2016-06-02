@@ -1687,31 +1687,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_should_set_a_cdbid_on_every_location_label_when_importing_udb2_actor_places_as_events()
-    {
-        $placeImportedFromUDB2 = new PlaceImportedFromUDB2(
-            '061C13AC-A15F-F419-D8993D68C9E94548',
-            file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-        );
-
-        $id = '061C13AC-A15F-F419-D8993D68C9E94548';
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('place-event-with-location-label-cdbid.xml')
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $placeImportedFromUDB2, $this->metadata);
-
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
-        $this->projector->handle($domainMessage);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
     public function it_projects_places_imported_from_udb2_events()
     {
         $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
