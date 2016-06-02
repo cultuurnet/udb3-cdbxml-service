@@ -1312,12 +1312,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             [
                 OfferType::EVENT(),
                 $this->getEventId(),
-                'event'
+                'event',
             ],
             [
                 OfferType::PLACE(),
                 $this->getPlaceId(),
-                'actor'
+                'actor',
             ],
         ];
     }
