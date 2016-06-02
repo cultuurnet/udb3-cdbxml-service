@@ -561,43 +561,26 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
                 ->expect('event.xml')
                 ->finish(),
+
+            // Event BookingInfoUpdated
+            $this->given(OfferType::EVENT())
+                ->apply(
+                    new BookingInfoUpdated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new BookingInfo(
+                            'http://tickets.example.com',
+                            'Tickets on Example.com',
+                            '+32 666 666',
+                            'tickets@example.com',
+                            '2014-01-31T12:00:00',
+                            '2014-02-20T15:00:00',
+                            'booking name'
+                        )
+                    )
+                )
+                ->expect('event-booking-info-updated.xml')
+                ->finish(),
         ];
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_the_update_of_booking_info()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $bookingInfo = new BookingInfo(
-            'http://tickets.example.com',
-            'Tickets on Example.com',
-            '+32 666 666',
-            'tickets@example.com',
-            '2014-01-31T12:00:00',
-            '2014-02-20T15:00:00',
-            'booking name'
-        );
-
-        $bookingInfoUpdated = new BookingInfoUpdated(
-            $id,
-            $bookingInfo
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $bookingInfoUpdated, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-booking-info-updated.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**
