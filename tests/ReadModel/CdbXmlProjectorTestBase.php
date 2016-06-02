@@ -10,6 +10,7 @@ use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\Offer\OfferType;
 use Doctrine\Common\Cache\ArrayCache;
 
 abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
@@ -150,18 +151,11 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
      */
     protected function assertCdbXmlDocumentsArePublished(array $cdbXmlDocuments)
     {
-        // Filter out any published cdbxml documents that do not need to be
-        // asserted. (Eg. CdbXml documents published when setting up the test.)
-        $published = array_filter(
-            $this->publishedCdbXmlDocuments,
-            function (CdbXmlDocument $document) use ($cdbXmlDocuments) {
-                return in_array($document, $cdbXmlDocuments);
-            }
-        );
-
+        $offSet = count($this->publishedCdbXmlDocuments) - count($cdbXmlDocuments);
+        $published = array_slice($this->publishedCdbXmlDocuments, $offSet);
         $published = array_values($published);
 
-        $this->assertEquals($published, $cdbXmlDocuments);
+        $this->assertEquals($cdbXmlDocuments, $published);
     }
 
     /**
