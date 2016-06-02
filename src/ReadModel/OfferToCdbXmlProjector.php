@@ -930,20 +930,19 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $cdbXmlDocument = $this->getCdbXmlDocument($labelAdded->getItemId());
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $keywords = $offer->getKeywords();
         $label = $labelAdded->getLabel()->__toString();
         $keyword = new CultureFeed_Cdb_Data_Keyword(
             $label,
             $labelAdded->getLabel()->isVisible()
         );
 
-        if (!in_array($label, $keywords)) {
-            $offer->addKeyword($keyword);
+        // Always add the new keyword, even if it exists, so it can overwrite
+        // the visibility if necessary.
+        $offer->addKeyword($keyword);
 
-            // Change the lastupdated attribute.
-            $offer = $this->metadataCdbItemEnricher
-                ->enrich($offer, $metadata);
-        }
+        // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
