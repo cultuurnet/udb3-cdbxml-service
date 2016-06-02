@@ -535,6 +535,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     )
                 )
                 ->expect('event-with-description.xml')
+                ->apply(
+                    new DescriptionUpdated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        'Description updated'
+                    )
+                )
+                ->expect('event-with-description-updated.xml')
                 ->finish(),
 
             // Event LabelAdded, LabelDeleted
@@ -549,10 +556,24 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 ->apply(
                     new LabelAdded(
                         '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Label('foobar')
+                    )
+                )
+                ->expect('event-with-keyword.xml')
+                ->apply(
+                    new LabelAdded(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                         new Label('foobar', false)
                     )
                 )
                 ->expect('event-with-keyword-visible-false.xml')
+                ->apply(
+                    new LabelDeleted(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Label('foobar')
+                    )
+                )
+                ->expect('event.xml')
                 ->apply(
                     new LabelDeleted(
                         '404EE8DE-E828-9C07-FE7D12DC4EB24480',
@@ -580,269 +601,62 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
                 ->expect('event-booking-info-updated.xml')
                 ->finish(),
+
+            // Event ContactPointUpdated
+            $this->given(OfferType::EVENT())
+                ->apply(
+                    new ContactPointUpdated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new ContactPoint(
+                            array('+32 666 666'),
+                            array('tickets@example.com'),
+                            array('http://tickets.example.com'),
+                            'type'
+                        )
+                    )
+                )
+                ->expect('event-contact-point-updated.xml')
+                ->finish(),
+
+            // Event ImageAdded, ImageUpdated, ImageDeleted
+            $this->given(OfferType::EVENT())
+                ->apply(
+                    new ImageAdded(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Image(
+                            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+                            new MIMEType('image/png'),
+                            new StringLiteral('title'),
+                            new StringLiteral('John Doe'),
+                            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+                        )
+                    )
+                )
+                ->expect('event-with-image.xml')
+                ->apply(
+                    new ImageUpdated(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+                        new StringLiteral('title updated'),
+                        new StringLiteral('John Doe')
+                    )
+                )
+                ->expect('event-with-image-updated.xml')
+                ->apply(
+                    new ImageRemoved(
+                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                        new Image(
+                            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+                            new MIMEType('image/png'),
+                            new StringLiteral('title'),
+                            new StringLiteral('John Doe'),
+                            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+                        )
+                    )
+                )
+                ->expect('event.xml')
+                ->finish(),
         ];
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_the_update_of_a_contact_point()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $contactPoint = new ContactPoint(
-            array('+32 666 666'),
-            array('tickets@example.com'),
-            array('http://tickets.example.com'),
-            'type'
-        );
-
-        $contactPointUpdated = new ContactPointUpdated(
-            $id,
-            $contactPoint
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $contactPointUpdated, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-contact-point-updated.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     *
-     */
-    public function it_projects_the_update_of_a_description()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => 'foobar',
-                'user_email' => 'foo@bar.com',
-                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1461155055',
-            ]
-        );
-
-        $description = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-
-        $descriptionUpdated = new DescriptionUpdated(
-            $id,
-            $description
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $descriptionUpdated, $metadata);
-        $this->projector->handle($domainMessage);
-
-        $description = 'Description updated';
-
-        $descriptionUpdated = new DescriptionUpdated(
-            $id,
-            $description
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $descriptionUpdated, $metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-description-updated.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_add_an_existing_label_when_projecting_label_added()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // Add the label once.
-        $labelAdded = new LabelAdded($id, new Label('foobar'));
-
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // Add the label again.
-        $labelAdded = new LabelAdded($id, new Label('foobar'));
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_do_a_thing_when_deleting_a_label_twice()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // First add a label.
-        $labelAdded = new LabelAdded($id, new Label('foobar'));
-        $domainMessage = $this->createDomainMessage($id, $labelAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // Now delete the label.
-        $labelDeleted = new LabelDeleted($id, new Label('foobar'));
-        $domainMessage = $this->createDomainMessage($id, $labelDeleted, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // Now delete the label again.
-        $labelDeleted = new LabelDeleted($id, new Label('foobar'));
-        $domainMessage = $this->createDomainMessage($id, $labelDeleted, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_adds_a_media_file_when_adding_an_image()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $image = new Image(
-            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-            new MIMEType('image/png'),
-            new StringLiteral('sexy ladies without clothes'),
-            new StringLiteral('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-        );
-
-        $imageAdded = new ImageAdded(
-            $id,
-            $image
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-image.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_updates_the_event_media_object_property_when_updating_an_image()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $image = new Image(
-            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-            new MIMEType('image/png'),
-            new StringLiteral('sexy ladies without clothes'),
-            new StringLiteral('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-        );
-
-        $imageAdded = new ImageAdded(
-            $id,
-            $image
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        $imageUpdated = new ImageUpdated(
-            $id,
-            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-            new StringLiteral('Sexy ladies without clothes - NSFW'),
-            new StringLiteral('John Doe')
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageUpdated, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-image-updated.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_deletes_a_media_file_when_removing_an_image()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $image = new Image(
-            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-            new MIMEType('image/png'),
-            new StringLiteral('sexy ladies without clothes'),
-            new StringLiteral('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-        );
-
-        $imageAdded = new ImageAdded(
-            $id,
-            $image
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        $imageRemoved = new ImageRemoved(
-            $id,
-            $image
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageRemoved, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**
@@ -850,10 +664,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_should_make_the_oldest_image_main_when_deleting_the_current_main_image()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $id = $this->createEvent();
 
-        $olderImage = new Image(
+        $firstImage = new Image(
             new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
             new MIMEType('image/jpg'),
             new StringLiteral('Beep Boop'),
@@ -861,43 +674,35 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
         );
 
-        $imageAdded = new ImageAdded(
-            $id,
-            $olderImage
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        $newImage = new Image(
-            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-            new MIMEType('image/png'),
-            new StringLiteral('sexy ladies without clothes'),
-            new StringLiteral('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-        );
-
-        $imageAdded = new ImageAdded(
-            $id,
-            $newImage
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        $imageRemoved = new ImageRemoved(
-            $id,
-            $olderImage
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageRemoved, $this->metadata);
+        $events = [
+            new ImageAdded(
+                $id,
+                $firstImage
+            ),
+            new ImageAdded(
+                $id,
+                new Image(
+                    new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+                    new MIMEType('image/png'),
+                    new StringLiteral('title'),
+                    new StringLiteral('John Doe'),
+                    Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+                )
+            ),
+            new ImageRemoved(
+                $id,
+                $firstImage
+            )
+        ];
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-image.xml')
         );
 
-        $this->projector->handle($domainMessage);
+        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
+
+        $this->handleDomainEventStream($stream);
 
         $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
@@ -908,55 +713,49 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_should_update_the_image_property_when_selecting_a_main_image()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $id = $this->createEvent();
 
-        $newImage = new Image(
-            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-            new MIMEType('image/png'),
-            new StringLiteral('sexy ladies without clothes'),
-            new StringLiteral('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-        );
-
-        $imageAdded = new ImageAdded(
-            $id,
-            $newImage
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        $image = new Image(
-            new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
-            new MIMEType('image/jpg'),
-            new StringLiteral('Beep Boop'),
-            new StringLiteral('Noo Idee'),
-            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
-        );
-
-        $imageAdded = new ImageAdded(
-            $id,
-            $image
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $imageAdded, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // Now change the main image.
-        $mainImageSelected = new MainImageSelected(
-            $id,
-            $image
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $mainImageSelected, $this->metadata);
+        $events = [
+            new ImageAdded(
+                $id,
+                new Image(
+                    new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+                    new MIMEType('image/png'),
+                    new StringLiteral('sexy ladies without clothes'),
+                    new StringLiteral('John Doe'),
+                    Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+                )
+            ),
+            new ImageAdded(
+                $id,
+                new Image(
+                    new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
+                    new MIMEType('image/jpg'),
+                    new StringLiteral('Beep Boop'),
+                    new StringLiteral('Noo Idee'),
+                    Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+                )
+            ),
+            new MainImageSelected(
+                $id,
+                new Image(
+                    new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
+                    new MIMEType('image/jpg'),
+                    new StringLiteral('Beep Boop'),
+                    new StringLiteral('Noo Idee'),
+                    Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+                )
+            ),
+        ];
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-images.xml')
         );
 
-        $this->projector->handle($domainMessage);
+        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
+
+        $this->handleDomainEventStream($stream);
 
         $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
