@@ -250,6 +250,96 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     */
+    public function it_projects_event_imported_from_udb2()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_updated_from_udb2()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        // add some random changes
+        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
+        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
+        $this->projector->handle($domainMessage);
+
+        // update from udb2 event
+        $eventUpdatedFromUdb2 = new EventUpdatedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventUpdatedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+
+    /**
+     * @test
+     */
+    public function it_projects_the_deletion_of_an_event()
+    {
+        $this->createEvent();
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $eventDeleted = new EventDeleted(
+            $id
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $eventDeleted, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-deleted.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
      * @dataProvider placeCreatedDataProvider
      * @param string $id
      * @param PlaceCreated $placeCreated
@@ -308,475 +398,76 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider placeImportedFromUdb2DataProvider
+     * @param ActorImportedFromUDB2 $actorImportedFromUDB2
+     * @param string $expectedCdbXmlFile
      */
-    public function it_projects_translation_applied_to_events()
-    {
-        $id = $this->createEvent();
-
-        $events = [
-            new TranslationApplied(
-                new StringLiteral($id),
-                new Language('en'),
-                new StringLiteral('Horror movie'),
-                new StringLiteral('This is a short description.'),
-                new StringLiteral('This is a long, long, long, very long description.')
-            ),
-            new TranslationApplied(
-                new StringLiteral($id),
-                new Language('en'),
-                new StringLiteral('Horror movie updated'),
-                new StringLiteral('This is a short description updated.'),
-                new StringLiteral('This is a long, long, long, very long description updated.')
-            ),
-        ];
-
-        $expectedCdbXmlDocuments = [
-            new CdbXmlDocument(
-                $id,
-                $this->loadCdbXmlFromFile('event-with-translation-applied-en-added.xml')
-            ),
-            new CdbXmlDocument(
-                $id,
-                $this->loadCdbXmlFromFile('event-with-translation-applied-en-updated.xml')
-            ),
-        ];
-
-        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
-
-        $this->handleDomainEventStream($stream);
-
-        $this->assertCdbXmlDocumentsArePublished($expectedCdbXmlDocuments);
-        $this->assertFinalCdbXmlDocumentInRepository($expectedCdbXmlDocuments);
-    }
-
-    /**
-     * @test
-     */
-    public function it_logs_an_error_when_translation_applied_on_missing_document()
-    {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING';
-
-        $translationApplied = new TranslationApplied(
-            new StringLiteral($id),
-            new Language('en'),
-            new StringLiteral('Horror movie'),
-            new StringLiteral('This is a short description.'),
-            new StringLiteral('This is a long, long, long, very long description.')
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $translationApplied, $this->metadata);
-
-        $message = 'Handle error for uuid=404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING for type CultuurNet.UDB3.Event.Events.TranslationApplied recorded on ';
-        $message .= $domainMessage->getRecordedOn()->toString();
-
-        $this->logger->expects($this->once())->method('error')
-            ->with($message);
-
-        $this->projector->handle($domainMessage);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_the_deletion_of_a_translation()
-    {
-        $id = $this->createEvent();
-
-        $events = [
-            new TranslationApplied(
-                new StringLiteral($id),
-                new Language('en'),
-                new StringLiteral('Horror movie'),
-                new StringLiteral('This is a short description.'),
-                new StringLiteral('This is a long, long, long, very long description.')
-            ),
-            new TranslationApplied(
-                new StringLiteral($id),
-                new Language('fr'),
-                new StringLiteral('Filme d\'horreur'),
-                new StringLiteral('Description courte'),
-                new StringLiteral('Une description qui est assez longue......')
-            ),
-            new TranslationDeleted(
-                new StringLiteral($id),
-                new Language('en')
-            ),
-        ];
+    public function it_projects_imported_actor_places_from_udb2_as_actors(
+        ActorImportedFromUDB2 $actorImportedFromUDB2,
+        $expectedCdbXmlFile
+    ) {
+        $id = $actorImportedFromUDB2->getActorId();
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event-with-en-translation-removed.xml')
+            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
         );
 
-        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
-        $this->handleDomainEventStream($stream);
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     * @dataProvider genericOfferEventDataProvider
-     *
-     * @param OfferType $type
-     * @param array $events
-     * @param Metadata $metadata
-     * @param string[] $expectedCdbXmlFiles
-     */
-    public function it_projects_generic_offer_events(
-        OfferType $type,
-        array $events,
-        Metadata $metadata,
-        array $expectedCdbXmlFiles
-    ) {
-        $id = $this->createOffer($type);
-
-        $stream = $this->createDomainEventStream($id, $events, $metadata);
-
-        $expectedCdbXmlDocuments = [];
-
-        foreach ($expectedCdbXmlFiles as $expectedCdbXmlFile) {
-            $expectedCdbXmlDocuments[] = new CdbXmlDocument(
-                $id,
-                $this->loadCdbXmlFromFile($expectedCdbXmlFile)
-            );
-        }
-
-        $this->handleDomainEventStream($stream);
-
-        $this->assertCdbXmlDocumentsArePublished($expectedCdbXmlDocuments);
-        $this->assertFinalCdbXmlDocumentInRepository($expectedCdbXmlDocuments);
-    }
-
-    /**
-     * @param OfferType $offerType
-     * @return OfferToCdbXmlProjectorTestBuilder
-     */
-    protected function given(OfferType $offerType)
-    {
-        return (new OfferToCdbXmlProjectorTestBuilder($this->getDefaultMetadata()))
-            ->given($offerType);
     }
 
     /**
      * @return array
      */
-    public function genericOfferEventDataProvider()
+    public function placeImportedFromUdb2DataProvider()
     {
         return [
-            // Event TitleTranslated
-            $this->given(OfferType::EVENT())
-                ->apply(
-                    new TitleTranslated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Language('en'),
-                        new StringLiteral('Horror movie')
-                    )
-                )
-                ->expect('event-with-title-translated-to-en.xml')
-                ->apply(
-                    new TitleTranslated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Language('en'),
-                        new StringLiteral('Horror movie updated')
-                    )
-                )
-                ->expect('event-with-title-translated-to-en-updated.xml')
-                ->finish(),
-
-            // Place TitleTranslated
-            $this->given(OfferType::PLACE())
-                ->apply(
-                    new TitleTranslated(
-                        'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
-                        new Language('en'),
-                        new StringLiteral('Horror movie')
-                    )
-                )
-                ->expect('actor-with-title-translated-to-en.xml')
-                ->apply(
-                    new TitleTranslated(
-                        'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6',
-                        new Language('en'),
-                        new StringLiteral('Horror movie updated')
-                    )
-                )
-                ->expect('actor-with-title-translated-to-en-updated.xml')
-                ->finish(),
-
-            // Event DescriptionTranslated
-            $this->given(OfferType::EVENT())
-                ->apply(
-                    new DescriptionTranslated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Language('en'),
-                        new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
-                    )
-                )
-                ->expect('event-with-description-translated-to-en.xml')
-                ->apply(
-                    new DescriptionTranslated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Language('en'),
-                        new StringLiteral('Description updated.')
-                    )
-                )
-                ->expect('event-with-description-translated-to-en-updated.xml')
-                ->finish(),
-
-            // Event DescriptionUpdated
-            $this->given(OfferType::EVENT())
-                ->apply(
-                    new DescriptionUpdated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-                    )
-                )
-                ->expect('event-with-description.xml')
-                ->apply(
-                    new DescriptionUpdated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        'Description updated'
-                    )
-                )
-                ->expect('event-with-description-updated.xml')
-                ->finish(),
-
-            // Event LabelAdded, LabelDeleted
-            $this->given(OfferType::EVENT())
-                ->apply(
-                    new LabelAdded(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Label('foobar')
-                    )
-                )
-                ->expect('event-with-keyword.xml')
-                ->apply(
-                    new LabelAdded(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Label('foobar')
-                    )
-                )
-                ->expect('event-with-keyword.xml')
-                ->apply(
-                    new LabelAdded(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Label('foobar', false)
-                    )
-                )
-                ->expect('event-with-keyword-visible-false.xml')
-                ->apply(
-                    new LabelDeleted(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Label('foobar')
-                    )
-                )
-                ->expect('event.xml')
-                ->apply(
-                    new LabelDeleted(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Label('foobar')
-                    )
-                )
-                ->expect('event.xml')
-                ->finish(),
-
-            // Event BookingInfoUpdated
-            $this->given(OfferType::EVENT())
-                ->apply(
-                    new BookingInfoUpdated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new BookingInfo(
-                            'http://tickets.example.com',
-                            'Tickets on Example.com',
-                            '+32 666 666',
-                            'tickets@example.com',
-                            '2014-01-31T12:00:00',
-                            '2014-02-20T15:00:00',
-                            'booking name'
-                        )
-                    )
-                )
-                ->expect('event-booking-info-updated.xml')
-                ->finish(),
-
-            // Event ContactPointUpdated
-            $this->given(OfferType::EVENT())
-                ->apply(
-                    new ContactPointUpdated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new ContactPoint(
-                            array('+32 666 666'),
-                            array('tickets@example.com'),
-                            array('http://tickets.example.com'),
-                            'type'
-                        )
-                    )
-                )
-                ->expect('event-contact-point-updated.xml')
-                ->finish(),
-
-            // Event ImageAdded, ImageUpdated, ImageDeleted
-            $this->given(OfferType::EVENT())
-                ->apply(
-                    new ImageAdded(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Image(
-                            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-                            new MIMEType('image/png'),
-                            new StringLiteral('title'),
-                            new StringLiteral('John Doe'),
-                            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-                        )
-                    )
-                )
-                ->expect('event-with-image.xml')
-                ->apply(
-                    new ImageUpdated(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-                        new StringLiteral('title updated'),
-                        new StringLiteral('John Doe')
-                    )
-                )
-                ->expect('event-with-image-updated.xml')
-                ->apply(
-                    new ImageRemoved(
-                        '404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                        new Image(
-                            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-                            new MIMEType('image/png'),
-                            new StringLiteral('title'),
-                            new StringLiteral('John Doe'),
-                            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-                        )
-                    )
-                )
-                ->expect('event.xml')
-                ->finish(),
+            [
+                new PlaceImportedFromUDB2(
+                    '061C13AC-A15F-F419-D8993D68C9E94548',
+                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                ),
+                'place-actor-generated.xml',
+            ],
+            [
+                new PlaceUpdatedFromUDB2(
+                    '061C13AC-A15F-F419-D8993D68C9E94548',
+                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                ),
+                'place-actor-generated.xml',
+            ],
         ];
     }
 
     /**
      * @test
      */
-    public function it_should_make_the_oldest_image_main_when_deleting_the_current_main_image()
+    public function it_projects_places_imported_from_udb2_events()
     {
-        $id = $this->createEvent();
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
-        $firstImage = new Image(
-            new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
-            new MIMEType('image/jpg'),
-            new StringLiteral('Beep Boop'),
-            new StringLiteral('Noo Idee'),
-            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+        $placeImportedFromUdb2Event = new PlaceImportedFromUDB2Event(
+            $id,
+            $this->loadCdbXmlFromFile('place-event-namespaced.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
         );
 
-        $events = [
-            new ImageAdded(
-                $id,
-                $firstImage
-            ),
-            new ImageAdded(
-                $id,
-                new Image(
-                    new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-                    new MIMEType('image/png'),
-                    new StringLiteral('title'),
-                    new StringLiteral('John Doe'),
-                    Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-                )
-            ),
-            new ImageRemoved(
-                $id,
-                $firstImage
-            )
-        ];
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $placeImportedFromUdb2Event,
+            $this->metadata
+        );
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event-with-image.xml')
-        );
-
-        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
-
-        $this->handleDomainEventStream($stream);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_should_update_the_image_property_when_selecting_a_main_image()
-    {
-        $id = $this->createEvent();
-
-        $events = [
-            new ImageAdded(
-                $id,
-                new Image(
-                    new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
-                    new MIMEType('image/png'),
-                    new StringLiteral('sexy ladies without clothes'),
-                    new StringLiteral('John Doe'),
-                    Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
-                )
-            ),
-            new ImageAdded(
-                $id,
-                new Image(
-                    new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
-                    new MIMEType('image/jpg'),
-                    new StringLiteral('Beep Boop'),
-                    new StringLiteral('Noo Idee'),
-                    Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
-                )
-            ),
-            new MainImageSelected(
-                $id,
-                new Image(
-                    new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
-                    new MIMEType('image/jpg'),
-                    new StringLiteral('Beep Boop'),
-                    new StringLiteral('Noo Idee'),
-                    Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
-                )
-            ),
-        ];
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-images.xml')
-        );
-
-        $stream = $this->createDomainEventStream($id, $events, $this->metadata);
-
-        $this->handleDomainEventStream($stream);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_the_deletion_of_an_event()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $eventDeleted = new EventDeleted(
-            $id
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $eventDeleted, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-deleted.xml')
+            $this->loadCdbXmlFromFile('place-event-namespaced-to-actor.xml')
         );
 
         $this->projector->handle($domainMessage);
@@ -808,6 +499,281 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param string $id
+     * @param string $cdbXmlType
+     */
+    public function it_projects_title_translations(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
+        $test = $this->given($offerType)
+            ->apply(
+                new TitleTranslated(
+                    $id,
+                    new Language('en'),
+                    new StringLiteral('Horror movie')
+                )
+            )
+            ->expect($cdbXmlType . '-with-title-translated-to-en.xml')
+            ->apply(
+                new TitleTranslated(
+                    $id,
+                    new Language('en'),
+                    new StringLiteral('Horror movie updated')
+                )
+            )
+            ->expect($cdbXmlType . '-with-title-translated-to-en-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_description_translations()
+    {
+        $offerType = OfferType::EVENT();
+        $id = $this->getEventId();
+        $cdbXmlType = 'event';
+
+        $test = $this->given($offerType)
+            ->apply(
+                new DescriptionTranslated(
+                    $id,
+                    new Language('en'),
+                    new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+                )
+            )
+            ->expect($cdbXmlType . '-with-description-translated-to-en.xml')
+            ->apply(
+                new DescriptionTranslated(
+                    $id,
+                    new Language('en'),
+                    new StringLiteral('Description updated.')
+                )
+            )
+            ->expect($cdbXmlType . '-with-description-translated-to-en-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_description_updates()
+    {
+        $offerType = OfferType::EVENT();
+        $id = $this->getEventId();
+        $cdbXmlType = 'event';
+
+        $test = $this->given($offerType)
+            ->apply(
+                new DescriptionUpdated(
+                    $id,
+                    'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+                )
+            )
+            ->expect($cdbXmlType . '-with-description.xml')
+            ->apply(
+                new DescriptionUpdated(
+                    $id,
+                    'Description updated'
+                )
+            )
+            ->expect($cdbXmlType . '-with-description-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_label_events()
+    {
+        $offerType = OfferType::EVENT();
+        $id = $this->getEventId();
+        $cdbXmlType = 'event';
+
+        $test = $this->given($offerType)
+            ->apply(
+                new LabelAdded(
+                    $id,
+                    new Label('foobar')
+                )
+            )
+            ->expect($cdbXmlType . '-with-keyword.xml')
+            ->apply(
+                new LabelAdded(
+                    $id,
+                    new Label('foobar')
+                )
+            )
+            ->expect($cdbXmlType . '-with-keyword.xml')
+            ->apply(
+                new LabelAdded(
+                    $id,
+                    new Label('foobar', false)
+                )
+            )
+            ->expect($cdbXmlType . '-with-keyword-visible-false.xml')
+            ->apply(
+                new LabelDeleted(
+                    $id,
+                    new Label('foobar')
+                )
+            )
+            ->expect($cdbXmlType . '.xml')
+            ->apply(
+                new LabelDeleted(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Label('foobar')
+                )
+            )
+            ->expect($cdbXmlType . '.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_booking_info_events()
+    {
+        $offerType = OfferType::EVENT();
+        $id = $this->getEventId();
+        $cdbXmlType = 'event';
+
+        $test = $this->given($offerType)
+            ->apply(
+                new BookingInfoUpdated(
+                    $id,
+                    new BookingInfo(
+                        'http://tickets.example.com',
+                        'Tickets on Example.com',
+                        '+32 666 666',
+                        'tickets@example.com',
+                        '2014-01-31T12:00:00',
+                        '2014-02-20T15:00:00',
+                        'booking name'
+                    )
+                )
+            )
+            ->expect($cdbXmlType . '-booking-info-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_contact_point_events()
+    {
+        $offerType = OfferType::EVENT();
+        $id = $this->getEventId();
+        $cdbXmlType = 'event';
+
+        $test = $this->given($offerType)
+            ->apply(
+                new ContactPointUpdated(
+                    $id,
+                    new ContactPoint(
+                        array('+32 666 666'),
+                        array('tickets@example.com'),
+                        array('http://tickets.example.com'),
+                        'type'
+                    )
+                )
+            )
+            ->expect($cdbXmlType . '-contact-point-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_basic_image_events()
+    {
+        $offerType = OfferType::EVENT();
+        $id = $this->getEventId();
+        $cdbXmlType = 'event';
+
+        $image = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('title'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $test = $this->given($offerType)
+            ->apply(
+                new ImageAdded($id, $image)
+            )
+            ->expect($cdbXmlType . '-with-image.xml')
+            ->apply(
+                new ImageUpdated(
+                    $id,
+                    $image->getMediaObjectId(),
+                    new StringLiteral('title updated'),
+                    new StringLiteral('John Doe')
+                )
+            )
+            ->expect($cdbXmlType . '-with-image-updated.xml')
+            ->apply(
+                new ImageRemoved($id, $image)
+            )
+            ->expect($cdbXmlType . '.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_main_image_selected_events()
+    {
+        $offerType = OfferType::EVENT();
+        $id = $this->getEventId();
+        $cdbXmlType = 'event';
+
+        $firstImage = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('title'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $secondImage = new Image(
+            new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
+            new MIMEType('image/jpg'),
+            new StringLiteral('Beep Boop'),
+            new StringLiteral('Noo Idee'),
+            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+        );
+
+        $test = $this->given($offerType)
+            ->apply(
+                new ImageAdded($id, $firstImage)
+            )
+            ->apply(
+                new ImageAdded($id, $secondImage)
+            )
+            ->apply(
+                new MainImageSelected($id, $secondImage)
+            )
+            ->expect($cdbXmlType . '-with-images.xml');
+
+        $this->execute($test);
     }
 
     /**
@@ -1240,70 +1206,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_event_imported_from_udb2()
-    {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventImportedFromUdb2 = new EventImportedFromUDB2(
-            $id,
-            $this->loadCdbXmlFromFile('event-namespaced.xml'),
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-        );
-        $domainMessage = $this->createDomainMessage(
-            $id,
-            $eventImportedFromUdb2,
-            $this->metadata
-        );
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_event_updated_from_udb2()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // add some random changes
-        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
-        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // update from udb2 event
-        $eventUpdatedFromUdb2 = new EventUpdatedFromUDB2(
-            $id,
-            $this->loadCdbXmlFromFile('event-namespaced.xml'),
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-        );
-        $domainMessage = $this->createDomainMessage(
-            $id,
-            $eventUpdatedFromUdb2,
-            $this->metadata
-        );
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
     public function it_projects_event_collaboration_data_added()
     {
         $this->createEvent();
@@ -1340,82 +1242,122 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
-     * @dataProvider placeImportedFromUdb2DataProvider
-     * @param ActorImportedFromUDB2 $actorImportedFromUDB2
-     * @param string $expectedCdbXmlFile
      */
-    public function it_projects_imported_actor_places_from_udb2_as_actors(
-        ActorImportedFromUDB2 $actorImportedFromUDB2,
-        $expectedCdbXmlFile
-    ) {
-        $id = $actorImportedFromUDB2->getActorId();
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @return array
-     */
-    public function placeImportedFromUdb2DataProvider()
+    public function it_projects_old_event_translations()
     {
-        return [
-            [
-                new PlaceImportedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-            [
-                new PlaceUpdatedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-        ];
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TranslationApplied(
+                    new StringLiteral($this->getEventId()),
+                    new Language('en'),
+                    new StringLiteral('Horror movie'),
+                    new StringLiteral('This is a short description.'),
+                    new StringLiteral('This is a long, long, long, very long description.')
+                )
+            )
+            ->expect('event-with-translation-applied-en-added.xml')
+            ->apply(
+                new TranslationApplied(
+                    new StringLiteral($this->getEventId()),
+                    new Language('en'),
+                    new StringLiteral('Horror movie updated'),
+                    new StringLiteral('This is a short description updated.'),
+                    new StringLiteral('This is a long, long, long, very long description updated.')
+                )
+            )
+            ->expect('event-with-translation-applied-en-updated.xml')
+            ->apply(
+                new TranslationDeleted(
+                    new StringLiteral($this->getEventId()),
+                    new Language('en')
+                )
+            )
+            ->expect('event.xml');
+
+        $this->execute($test);
     }
 
     /**
      * @test
      */
-    public function it_projects_places_imported_from_udb2_events()
+    public function it_logs_an_error_when_translation_applied_on_missing_document()
     {
-        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING';
 
-        $placeImportedFromUdb2Event = new PlaceImportedFromUDB2Event(
-            $id,
-            $this->loadCdbXmlFromFile('place-event-namespaced.xml'),
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        $translationApplied = new TranslationApplied(
+            new StringLiteral($id),
+            new Language('en'),
+            new StringLiteral('Horror movie'),
+            new StringLiteral('This is a short description.'),
+            new StringLiteral('This is a long, long, long, very long description.')
         );
 
-        $domainMessage = $this->createDomainMessage(
-            $id,
-            $placeImportedFromUdb2Event,
-            $this->metadata
-        );
+        $domainMessage = $this->createDomainMessage($id, $translationApplied, $this->metadata);
 
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('place-event-namespaced-to-actor.xml')
-        );
+        $message = 'Handle error for uuid=404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING for type CultuurNet.UDB3.Event.Events.TranslationApplied recorded on ';
+        $message .= $domainMessage->getRecordedOn()->toString();
+
+        $this->logger->expects($this->once())->method('error')
+            ->with($message);
 
         $this->projector->handle($domainMessage);
+    }
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    /**
+     * @return array
+     */
+    public function genericOfferTestDataProvider()
+    {
+        return [
+            [
+                OfferType::EVENT(),
+                $this->getEventId(),
+                'event'
+            ],
+            [
+                OfferType::PLACE(),
+                $this->getPlaceId(),
+                'actor'
+            ],
+        ];
+    }
+
+    /**
+     * @param OfferType $offerType
+     * @return OfferToCdbXmlProjectorTestBuilder
+     */
+    private function given(OfferType $offerType)
+    {
+        return (new OfferToCdbXmlProjectorTestBuilder($this->getDefaultMetadata()))
+            ->given($offerType);
+    }
+
+    /**
+     * @param OfferToCdbXmlProjectorTestBuilder $test
+     */
+    private function execute(OfferToCdbXmlProjectorTestBuilder $test)
+    {
+        $id = $this->createOffer($test->getOfferType());
+
+        $stream = $this->createDomainEventStream(
+            $id,
+            $test->getEvents(),
+            $test->getMetadata()
+        );
+
+        $expectedCdbXmlDocuments = [];
+
+        foreach ($test->getExpectedCdbXmlFiles() as $expectedCdbXmlFile) {
+            $expectedCdbXmlDocuments[] = new CdbXmlDocument(
+                $id,
+                $this->loadCdbXmlFromFile($expectedCdbXmlFile)
+            );
+        }
+
+        $this->handleDomainEventStream($stream);
+
+        $this->assertCdbXmlDocumentsArePublished($expectedCdbXmlDocuments);
+        $this->assertFinalCdbXmlDocumentInRepository($expectedCdbXmlDocuments);
     }
 
     /**
@@ -1434,6 +1376,14 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
+     * @return string
+     */
+    private function getEventId()
+    {
+        return '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+    }
+
+    /**
      * Helper function to create an event.
      *
      * @param bool $theme
@@ -1443,7 +1393,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private function createEvent($theme = true)
     {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $id = $this->getEventId();
 
         $timestamps = [
             new Timestamp(
@@ -1456,7 +1406,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
         ];
 
-        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
+        $placeId = $this->getPlaceId();
 
         $placeCreated = new PlaceCreated(
             $placeId,
@@ -1486,13 +1436,21 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
+     * @return string
+     */
+    private function getPlaceId()
+    {
+        return 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
+    }
+
+    /**
      * Helper function to create a place.
      *
      * @return string
      */
     private function createPlace()
     {
-        $id = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
+        $id = $this->getPlaceId();
 
         $place = new PlaceCreated(
             $id,

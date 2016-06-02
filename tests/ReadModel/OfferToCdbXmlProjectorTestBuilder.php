@@ -63,7 +63,7 @@ class OfferToCdbXmlProjectorTestBuilder
      * @param Metadata $metadata
      * @return OfferToCdbXmlProjectorTestBuilder
      */
-    public function metadata(Metadata $metadata)
+    public function withMetadata(Metadata $metadata)
     {
         $c = clone $this;
         $c->metaData = $metadata;
@@ -93,6 +93,38 @@ class OfferToCdbXmlProjectorTestBuilder
         $c = clone $this;
         $c->expectedCdbXmlFiles[] = $expectedCdbXmlFile;
         return $c;
+    }
+
+    /**
+     * @return OfferType
+     */
+    public function getOfferType()
+    {
+        return $this->offerType;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEvents()
+    {
+        return $this->events;
+    }
+
+    /**
+     * @return metaData
+     */
+    public function getMetadata()
+    {
+        return $this->metaData;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getExpectedCdbXmlFiles()
+    {
+        return $this->expectedCdbXmlFiles;
     }
 
     /**
