@@ -749,12 +749,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_an_organizer_updated()
+    public function it_projects_organizer_events()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // create an organizer.
+        // Create an organizer.
         $organizerId = 'ORG-123';
         $organizerCdbxml = new CdbXmlDocument(
             $organizerId,
@@ -762,19 +759,22 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
         $this->actorRepository->save($organizerCdbxml);
 
-        // add the organizer to the event.
-        $organizerUpdated = new OrganizerUpdated($id, $organizerId);
-        $domainMessage = $this->createDomainMessage($id, $organizerUpdated, $this->metadata);
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new OrganizerUpdated(
+                    $this->getEventId(),
+                    $organizerId
+                )
+            )
+            ->expect('event-with-organizer.xml')
+            ->apply(
+                new OrganizerDeleted(
+                    $this->getEventId(),
+                    $organizerId
+                )
+            )->expect('event.xml');
 
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-organizer.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**
@@ -782,64 +782,19 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_logs_a_warning_when_organizer_updated_but_organizer_not_found()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // create an organizer.
-        $organizerId = 'ORG-123';
-
-        // add the organizer to the event.
-        $organizerUpdated = new OrganizerUpdated($id, $organizerId);
-        $domainMessage = $this->createDomainMessage($id, $organizerUpdated, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-without-organizer.xml')
-        );
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new OrganizerUpdated(
+                    $this->getEventId(),
+                    'ORG-123'
+                )
+            )
+            ->expect('event-without-organizer.xml');
 
         $this->logger->expects($this->once())->method('warning')
             ->with('Could not find organizer with id ORG-123 when applying organizer updated on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_an_organizer_deleted()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // create an organizer.
-        $organizerId = 'ORG-123';
-        $organizerCdbxml = new CdbXmlDocument(
-            $organizerId,
-            $this->loadCdbXmlFromFile('actor.xml')
-        );
-        $this->actorRepository->save($organizerCdbxml);
-
-        // add the organizer to the event.
-        $organizerUpdated = new OrganizerUpdated($id, $organizerId);
-        $domainMessage = $this->createDomainMessage($id, $organizerUpdated, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // remove the organizer from the event.
-        $organizerDeleted = new OrganizerDeleted($id, $organizerId);
-        $domainMessage = $this->createDomainMessage($id, $organizerDeleted, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**
