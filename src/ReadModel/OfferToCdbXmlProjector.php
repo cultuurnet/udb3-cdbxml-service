@@ -262,7 +262,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $this->logger->error(
                     'Handle error for uuid=' . $domainMessage->getId()
                     . ' for type ' . $domainMessage->getType()
-                    . ' recorded on ' .$domainMessage->getRecordedOn()->toString()
+                    . ' recorded on ' .$domainMessage->getRecordedOn()->toString(),
+                    [
+                        'exception' => get_class($exception),
+                        'message' => $exception->getMessage()
+                    ]
                 );
             }
         }
@@ -816,6 +820,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $details = $offer->getDetails();
         $detail = $details->getDetailByLanguage($languageCode);
 
+        $nlDetail = $details->getDetailByLanguage('nl');
+
         if (!empty($detail)) {
             $detail->setLongDescription($description);
             $detail->setShortDescription(iconv_substr($description, 0, 400));
@@ -823,6 +829,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage($descriptionTranslated->getLanguage()->getCode());
 
+            $detail->setTitle($nlDetail->getTitle());
             $detail->setLongDescription($description);
             $detail->setShortDescription(iconv_substr($description, 0, 400));
 
