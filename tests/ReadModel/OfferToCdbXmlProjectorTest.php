@@ -689,13 +689,17 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param $id
+     * @param $cdbXmlType
      */
-    public function it_projects_basic_image_events()
-    {
-        $offerType = OfferType::EVENT();
-        $id = $this->getEventId();
-        $cdbXmlType = 'event';
-
+    public function it_projects_basic_image_events(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
         $image = new Image(
             new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
             new MIMEType('image/png'),
@@ -728,13 +732,17 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param $id
+     * @param $cdbXmlType
      */
-    public function it_projects_main_image_selected_events()
-    {
-        $offerType = OfferType::EVENT();
-        $id = $this->getEventId();
-        $cdbXmlType = 'event';
-
+    public function it_projects_main_image_selected_events(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
         $firstImage = new Image(
             new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
             new MIMEType('image/png'),
