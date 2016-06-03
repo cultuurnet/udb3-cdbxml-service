@@ -1143,7 +1143,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             [
                 OfferType::PLACE(),
                 $this->getPlaceId(),
-                'actor',
+                'actor-place',
             ],
         ];
     }
