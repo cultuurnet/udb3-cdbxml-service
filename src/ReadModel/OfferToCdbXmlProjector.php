@@ -1493,53 +1493,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * Set the location on the cdbEvent based on a PlaceCreated event.
-     * @param PlaceCreated $placeCreated
-     * @param CultureFeed_Cdb_Item_Event $cdbEvent
-     */
-    private function setLocationForPlaceCreated(PlaceCreated $placeCreated, CultureFeed_Cdb_Item_Event $cdbEvent)
-    {
-        $address = $placeCreated->getAddress();
-        $cdbAddress = new CultureFeed_Cdb_Data_Address(
-            $this->getPhysicalAddressForUdb3Address($address)
-        );
-
-        $location = new CultureFeed_Cdb_Data_Location($cdbAddress);
-        $location->setCdbid($placeCreated->getPlaceId());
-        $location->setLabel($placeCreated->getTitle());
-
-        $cdbEvent->setLocation($location);
-    }
-
-    /**
-     * Create a physical addres based on a given udb3 address.
-     * @param Address $address
-     * @return CultureFeed_Cdb_Data_Address_PhysicalAddress
-     */
-    private function getPhysicalAddressForUdb3Address(Address $address)
-    {
-        $physicalAddress = new CultureFeed_Cdb_Data_Address_PhysicalAddress();
-        $physicalAddress->setCountry($address->getCountry());
-        $physicalAddress->setCity($address->getLocality());
-        $physicalAddress->setZip($address->getPostalCode());
-
-        // @todo This is not an exact mapping, because we do not have a separate
-        // house number in JSONLD, this should be fixed somehow. Probably it's
-        // better to use another read model than JSON-LD for this purpose.
-        $streetParts = explode(' ', $address->getStreetAddress());
-
-        if (count($streetParts) > 1) {
-            $number = array_pop($streetParts);
-            $physicalAddress->setStreet(implode(' ', $streetParts));
-            $physicalAddress->setHouseNumber($number);
-        } else {
-            $physicalAddress->setStreet($address->getStreetAddress());
-        }
-
-        return $physicalAddress;
-    }
-
-    /**
      * Update the cdb item based on a bookingInfo object.
      *
      * @param CultureFeed_Cdb_Item_Base $cdbItem
