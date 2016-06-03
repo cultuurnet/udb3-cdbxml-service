@@ -6,8 +6,6 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultureFeed_Cdb_Data_ActorDetail;
-use CultureFeed_Cdb_Data_Address;
-use CultureFeed_Cdb_Data_Address_PhysicalAddress;
 use CultureFeed_Cdb_Data_Calendar_BookingPeriod;
 use CultureFeed_Cdb_Data_Calendar_OpeningTime;
 use CultureFeed_Cdb_Data_Calendar_Period;
@@ -34,7 +32,6 @@ use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultureFeed_Cdb_ParseException;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
-use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
@@ -1477,7 +1474,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
             $period = new CultureFeed_Cdb_Data_Calendar_Period($startdate, $enddate);
             if (!empty($weekScheme)) {
-                $calendar->setWeekScheme($weekscheme);
+                $period->setWeekScheme($weekscheme);
             }
             $calendar->add($period);
 
@@ -1487,10 +1484,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             if (!empty($weekScheme)) {
                 $calendar->setWeekScheme($weekscheme);
             }
-
         }
 
-        $cdbEvent->setCalendar($calendar);
+        if (isset($calendar)) {
+            $cdbEvent->setCalendar($calendar);
+        }
     }
 
     /**
