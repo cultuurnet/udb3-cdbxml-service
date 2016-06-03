@@ -830,38 +830,30 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_should_add_keywords_to_the_projection_when_labels_are_merged()
+    public function it_projects_labels_merged_events()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-with-keyword.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )->apply(
+                new LabelsMerged(
+                    new StringLiteral($this->getEventId()),
+                    new LabelCollection(
+                        [
+                            new Label('foob'),
+                            // foobar is already added to the document but we add it to make sure we don't end up with doubles.
+                            new Label('foobar'),
+                            new Label('barb', false),
+                        ]
+                    )
+                )
+            )->expect('event-with-merged-labels-as-keywords.xml');
 
-        $originalPlaceCdbXml = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword.xml')
-        );
-        $this->actorRepository->save($originalPlaceCdbXml);
-
-        $mergedLabels = new LabelCollection(
-            [
-                new Label('foob'),
-                // foobar is already added to the document but we add it to make sure we don't end up with doubles.
-                new Label('foobar'),
-                new Label('barb', false),
-            ]
-        );
-        $labelsMerged = new LabelsMerged(StringLiteral::fromNative($id), $mergedLabels);
-        $domainMessage = $this->createDomainMessage($id, $labelsMerged, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-merged-labels-as-keywords.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**
