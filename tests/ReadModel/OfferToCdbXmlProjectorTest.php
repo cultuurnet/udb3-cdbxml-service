@@ -318,24 +318,15 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_the_deletion_of_an_event()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventDeleted(
+                    $this->getEventId()
+                )
+            )
+            ->expect('event-deleted.xml');
 
-        $eventDeleted = new EventDeleted(
-            $id
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $eventDeleted, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-deleted.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**
