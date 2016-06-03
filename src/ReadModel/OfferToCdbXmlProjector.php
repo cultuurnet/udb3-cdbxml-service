@@ -175,6 +175,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
      * @param DocumentRepositoryInterface $actorDocumentRepository
      * @param DateFormatterInterface $dateFormatter
+     * @param AddressFactoryInterface $addressFactory
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
