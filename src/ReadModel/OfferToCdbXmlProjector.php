@@ -265,7 +265,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                     . ' recorded on ' .$domainMessage->getRecordedOn()->toString(),
                     [
                         'exception' => get_class($exception),
-                        'message' => $exception->getMessage()
+                        'message' => $exception->getMessage(),
                     ]
                 );
             }
@@ -1556,7 +1556,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $endDate = new DateTime($bookingInfo->getAvailabilityEnds());
                 $bookingPeriod->setDateTill($endDate->getTimestamp());
             }
-            
+
             $cdbItem->setBookingPeriod($bookingPeriod);
         }
 
