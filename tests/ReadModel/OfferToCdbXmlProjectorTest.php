@@ -1180,6 +1180,14 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             );
         }
 
+        $this->logger->expects($this->any())
+            ->method('error')
+            ->willReturnCallback(
+                function ($message, $context) {
+                    $this->fail($message . ' (' . $context['message'] . ')');
+                }
+            );
+
         $this->handleDomainEventStream($stream);
 
         $this->assertCdbXmlDocumentsArePublished($expectedCdbXmlDocuments);
