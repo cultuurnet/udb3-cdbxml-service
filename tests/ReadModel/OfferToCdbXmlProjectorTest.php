@@ -569,13 +569,17 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param $id
+     * @param $cdbXmlType
      */
-    public function it_projects_label_events()
-    {
-        $offerType = OfferType::EVENT();
-        $id = $this->getEventId();
-        $cdbXmlType = 'event';
-
+    public function it_projects_label_events(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
         $test = $this->given($offerType)
             ->apply(
                 new LabelAdded(
@@ -607,7 +611,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->expect($cdbXmlType . '.xml')
             ->apply(
                 new LabelDeleted(
-                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $id,
                     new Label('foobar')
                 )
             )
