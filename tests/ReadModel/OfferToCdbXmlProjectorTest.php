@@ -481,24 +481,15 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_the_deletion_of_a_place()
     {
-        $this->createPlace();
-        $id = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new PlaceDeleted(
+                    $this->getPlaceId()
+                )
+            )
+            ->expect('place-deleted.xml');
 
-        $placeDeleted = new PlaceDeleted(
-            $id
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $placeDeleted, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('place-deleted.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**
