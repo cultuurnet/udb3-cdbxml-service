@@ -281,35 +281,23 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_event_updated_from_udb2()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    "9-12"
+                )
+            )
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-namespaced.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->expect('event.xml');
 
-        // add some random changes
-        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
-        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // update from udb2 event
-        $eventUpdatedFromUdb2 = new EventUpdatedFromUDB2(
-            $id,
-            $this->loadCdbXmlFromFile('event-namespaced.xml'),
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-        );
-        $domainMessage = $this->createDomainMessage(
-            $id,
-            $eventUpdatedFromUdb2,
-            $this->metadata
-        );
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
 
