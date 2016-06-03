@@ -859,52 +859,24 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_a_typical_age_range_updated()
+    public function it_projects_a_typical_age_range_events()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    "9-12"
+                )
+            )
+            ->expect('event-with-age-from.xml')
+            ->apply(
+                new TypicalAgeRangeDeleted(
+                    $this->getEventId()
+                )
+            )
+            ->expect('event.xml');
 
-        // add the typical age range to the event.
-        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
-        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-age-from.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_a_typical_age_range_deleted()
-    {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        // add the typical age range to the event.
-        $typicalAgeRangeUpdated = new TypicalAgeRangeUpdated($id, "9-12");
-        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeUpdated, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        // remove the typical age range from the event.
-        $typicalAgeRangeDeleted = new TypicalAgeRangeDeleted($id);
-        $domainMessage = $this->createDomainMessage($id, $typicalAgeRangeDeleted, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**
