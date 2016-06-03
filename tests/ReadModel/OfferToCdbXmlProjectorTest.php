@@ -802,33 +802,29 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_should_project_an_updated_list_of_categories_when_place_facilities_have_changed()
     {
-        $this->createPlace();
-        $placeId = '061C13AC-A15F-F419-D8993D68C9E94548';
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new FacilitiesUpdated(
+                    $this->getPlaceId(),
+                    [
+                        new Facility('3.13.3.0.0', 'Brochure beschikbaar in braille'),
+                        new Facility('3.17.3.0.0', 'Ondertiteling'),
+                        new Facility('3.17.1.0.0', 'Ringleiding'),
+                    ]
+                )
+            )->expect('place-with-facilities.xml')
+            ->apply(
+                new FacilitiesUpdated(
+                    $this->getPlaceId(),
+                    [
+                        new Facility('3.13.2.0.0', 'Audiodescriptie'),
+                        new Facility('3.17.3.0.0', 'Ondertiteling'),
+                        new Facility('3.17.1.0.0', 'Ringleiding'),
+                    ]
+                )
+            )->expect('place-with-updated-facilities.xml');
 
-        $originalPlaceCdbXml = new CdbXmlDocument(
-            $placeId,
-            $this->loadCdbXmlFromFile('place-with-facilities.xml')
-        );
-        $this->actorRepository->save($originalPlaceCdbXml);
-
-        $facilities = [
-            new Facility('3.13.2.0.0', 'Audiodescriptie'),
-            new Facility('3.17.3.0.0', 'Ondertiteling'),
-            new Facility('3.17.1.0.0', 'Ringleiding'),
-        ];
-        $facilitiesUpdates = new FacilitiesUpdated($placeId, $facilities);
-        $domainMessage = $this->createDomainMessage($placeId, $facilitiesUpdates, $this->metadata);
-        $this->projector->handle($domainMessage);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $placeId,
-            $this->loadCdbXmlFromFile('place-with-updated-facilities.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**

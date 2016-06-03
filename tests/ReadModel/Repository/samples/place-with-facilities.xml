@@ -1,45 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-<actor availablefrom="2012-12-03T12:09:28" availableto="2100-01-01T00:00:00" cdbid="061C13AC-A15F-F419-D8993D68C9E94548" createdby="sarahducha" creationdate="2010-01-06T13:11:46" externalid="061C13AC-A15F-F419-D8993D68C9E94548" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" owner="Invoerders Algemeen ">
-  <actordetails>
-    <actordetail lang="nl">
-      <calendarsummary>ma tot zo</calendarsummary>
-      <shortdescription>Muziekcentrum Het Depot is dé plek in Leuven waar muzikanten en
-        muziekliefhebbers zich helemaal kunnen uitleven! Het Depot is niet alleen een concertzaal, waar het
-        goed toeven is, maar het is ook gangmaker voor talrijke muzikale initiatieven in de regio. Daarnaast
-        biedt Het Depot een eigenzinnig spectrum van instrumentlessen, softwarelessen, PA-cursussen,
-        workshops en masterclasses aan
-      </shortdescription>
-      <title>Muziekcentrum Het Depot</title>
-    </actordetail>
-  </actordetails>
-  <categories>
-    <category catid="8.15.0.0.0" type="actortype">Locatie</category>
-    <category type="facility" catid="3.13.3.0.0">Brochure beschikbaar in braille</category>
-    <category type="facility" catid="3.17.1.0.0">Ringleiding</category>
-    <category type="facility" catid="3.17.2.0.0">Voelstoelen</category>
-    <category type="facility" catid="3.17.3.0.0">Ondertiteling</category>
-  </categories>
-  <contactinfo>
-    <address>
-      <physical>
-        <city>Leuven</city>
-        <country>BE</country>
-        <gis>
-          <xcoordinate>50.881350</xcoordinate>
-          <ycoordinate>4.714561</ycoordinate>
-        </gis>
-        <housenr>12</housenr>
-        <street>Martelarenplein</street>
-        <zipcode>3000</zipcode>
-      </physical>
-    </address>
-    <mail>info@hetdepot.be</mail>
-    <phone type="phone">+32 16 220603</phone>
-  </contactinfo>
-  <keywords>
-    <keyword>foo</keyword>
-  </keywords>
-</actor>
+  <actor cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" asset="true">
+    <actordetails>
+      <actordetail lang="nl">
+        <title>My Place</title>
+      </actordetail>
+    </actordetails>
+    <categories>
+      <category catid="8.15.0.0.0" type="actortype">Locatie</category>
+      <category catid="3.13.3.0.0" type="facility">Brochure beschikbaar in braille</category>
+      <category catid="3.17.3.0.0" type="facility">Ondertiteling</category>
+      <category catid="3.17.1.0.0" type="facility">Ringleiding</category>
+    </categories>
+    <contactinfo>
+      <address>
+        <physical>
+          <city>$locality</city>
+          <country>$country</country>
+          <street>$street</street>
+          <zipcode>$postalCode</zipcode>
+        </physical>
+      </address>
+    </contactinfo>
+  </actor>
 </cdbxml>
-
