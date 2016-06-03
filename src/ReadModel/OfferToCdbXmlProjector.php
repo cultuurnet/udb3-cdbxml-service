@@ -1531,32 +1531,34 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * Update the cdb item based on a bookingInfo object.
      *
-     * @param CultureFeed_Cdb_Item_Event $cdbItem
+     * @param CultureFeed_Cdb_Item_Base $cdbItem
      * @param BookingInfo $bookingInfo
      */
     private function updateCdbItemByBookingInfo(
-        CultureFeed_Cdb_Item_Event $cdbItem,
+        CultureFeed_Cdb_Item_Base $cdbItem,
         BookingInfo $bookingInfo
     ) {
-
         // Add the booking Period.
-        $bookingPeriod = $cdbItem->getBookingPeriod();
-        if (empty($bookingPeriod)) {
-            $bookingPeriod = new CultureFeed_Cdb_Data_Calendar_BookingPeriod(
-                null,
-                null
-            );
-        }
+        if ($cdbItem instanceof CultureFeed_Cdb_Item_Event) {
+            $bookingPeriod = $cdbItem->getBookingPeriod();
+            if (empty($bookingPeriod)) {
+                $bookingPeriod = new CultureFeed_Cdb_Data_Calendar_BookingPeriod(
+                    null,
+                    null
+                );
+            }
 
-        if ($bookingInfo->getAvailabilityStarts()) {
-            $startDate = new DateTime($bookingInfo->getAvailabilityStarts());
-            $bookingPeriod->setDateFrom($startDate->getTimestamp());
+            if ($bookingInfo->getAvailabilityStarts()) {
+                $startDate = new DateTime($bookingInfo->getAvailabilityStarts());
+                $bookingPeriod->setDateFrom($startDate->getTimestamp());
+            }
+            if ($bookingInfo->getAvailabilityEnds()) {
+                $endDate = new DateTime($bookingInfo->getAvailabilityEnds());
+                $bookingPeriod->setDateTill($endDate->getTimestamp());
+            }
+            
+            $cdbItem->setBookingPeriod($bookingPeriod);
         }
-        if ($bookingInfo->getAvailabilityEnds()) {
-            $endDate = new DateTime($bookingInfo->getAvailabilityEnds());
-            $bookingPeriod->setDateTill($endDate->getTimestamp());
-        }
-        $cdbItem->setBookingPeriod($bookingPeriod);
 
         // Add the contact info.
         $contactInfo = $cdbItem->getContactInfo();

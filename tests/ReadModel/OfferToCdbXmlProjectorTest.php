@@ -626,13 +626,17 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param $id
+     * @param $cdbXmlType
      */
-    public function it_projects_booking_info_events()
-    {
-        $offerType = OfferType::EVENT();
-        $id = $this->getEventId();
-        $cdbXmlType = 'event';
-
+    public function it_projects_booking_info_events(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
         $test = $this->given($offerType)
             ->apply(
                 new BookingInfoUpdated(
