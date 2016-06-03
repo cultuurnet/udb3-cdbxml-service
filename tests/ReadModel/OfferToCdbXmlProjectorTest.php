@@ -1043,36 +1043,27 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_event_collaboration_data_added()
     {
-        $this->createEvent();
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new CollaborationDataAdded(
+                    String::fromNative($this->getEventId()),
+                    new Language("nl"),
+                    CollaborationData::deserialize(
+                        [
+                            'copyright' => 'Kristof Coomans',
+                            'text' => "this is the text 2",
+                            'keyword' => "foo",
+                            'article' => "bar",
+                            'plainText' => 'whatever',
+                            'title' =>  'title',
+                            'subBrand' => 'e36c2db19aeb6d2760ce0500d393e83c',
+                        ]
+                    )
+                )
+            )
+            ->expect('event-with-collaboration-data.xml');
 
-        // add collaboration data
-        $dataArray = [
-            'copyright' => 'Kristof Coomans',
-            'text' => "this is the text 2",
-            'keyword' => "foo",
-            'article' => "bar",
-            'plainText' => 'whatever',
-            'title' =>  'title',
-            'subBrand' => 'e36c2db19aeb6d2760ce0500d393e83c',
-        ];
-        $collaborationData = CollaborationData::deserialize($dataArray);
-        $collaborationDataAdded = new CollaborationDataAdded(
-            String::fromNative($id),
-            new Language("nl"),
-            $collaborationData
-        );
-        $domainMessage = $this->createDomainMessage($id, $collaborationDataAdded, $this->metadata);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-collaboration-data.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+        $this->execute($test);
     }
 
     /**
