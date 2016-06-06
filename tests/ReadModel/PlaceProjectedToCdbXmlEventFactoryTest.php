@@ -6,7 +6,7 @@ use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 
-class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
+class PlaceProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var IriGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
@@ -14,7 +14,7 @@ class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
     private $iriGenerator;
 
     /**
-     * @var OfferEventFactory
+     * @var PlaceProjectedToCdbXmlEventFactory
      */
     private $factory;
 
@@ -22,7 +22,7 @@ class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->iriGenerator = $this->getMock(IriGeneratorInterface::class);
 
-        $this->factory = new OfferEventFactory(
+        $this->factory = new PlaceProjectedToCdbXmlEventFactory(
             $this->iriGenerator
         );
     }

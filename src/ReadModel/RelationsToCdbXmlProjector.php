@@ -90,7 +90,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
     /**
      * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToCdbXmlProjector
+     * @return RelationsToCdbXmlProjector
      */
     public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
     {

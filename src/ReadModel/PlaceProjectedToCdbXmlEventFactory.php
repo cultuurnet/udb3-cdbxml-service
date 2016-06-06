@@ -8,7 +8,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentEventFactoryInter
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 use CultuurNet\UDB3\Offer\Events\AbstractEventWithIri;
 
-class OfferEventFactory implements DocumentEventFactoryInterface
+class PlaceProjectedToCdbXmlEventFactory implements DocumentEventFactoryInterface
 {
     /**
      * @var IriGeneratorInterface

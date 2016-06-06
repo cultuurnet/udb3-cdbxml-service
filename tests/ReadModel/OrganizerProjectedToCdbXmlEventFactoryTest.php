@@ -5,16 +5,16 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 
-class OrganizerEventFactoryTest extends \PHPUnit_Framework_TestCase
+class OrganizerProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var OrganizerEventFactory
+     * @var OrganizerProjectedToCdbXmlEventFactory
      */
     private $factory;
 
     public function setUp()
     {
-        $this->factory = new OrganizerEventFactory();
+        $this->factory = new OrganizerProjectedToCdbXmlEventFactory();
     }
 
     /**
