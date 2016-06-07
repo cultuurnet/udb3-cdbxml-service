@@ -3,10 +3,10 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
 
-class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
+class PlaceProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var IriGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
@@ -14,7 +14,7 @@ class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
     private $iriGenerator;
 
     /**
-     * @var OfferEventFactory
+     * @var PlaceProjectedToCdbXmlEventFactory
      */
     private $factory;
 
@@ -22,7 +22,7 @@ class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->iriGenerator = $this->getMock(IriGeneratorInterface::class);
 
-        $this->factory = new OfferEventFactory(
+        $this->factory = new PlaceProjectedToCdbXmlEventFactory(
             $this->iriGenerator
         );
     }
@@ -32,8 +32,8 @@ class OfferEventFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function it_converts_the_id_to_an_iri_when_creating_the_event()
     {
-        $id = 'MY-PLACE-123';
-        $iri = 'place/MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
+        $iri = 'place/34973B89-BDA3-4A79-96C7-78ACC022907D';
         $expectedEvent = new PlaceProjectedToCdbXml($iri);
 
         $this->iriGenerator->expects($this->once())

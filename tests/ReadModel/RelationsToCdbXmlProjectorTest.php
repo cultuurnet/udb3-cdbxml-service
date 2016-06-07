@@ -5,11 +5,12 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
@@ -26,9 +27,9 @@ use ValueObjects\Web\Url;
 class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
     /**
-     * @var OfferToEventCdbXmlProjector
+     * @var OfferToCdbXmlProjector
      */
-    private $projector;
+    protected $projector;
 
     /**
      * @var RelationsToCdbXmlProjector
@@ -64,14 +65,15 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
-        $projector = new OfferToEventCdbXmlProjector(
+        $projector = new OfferToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(
                 new CdbXmlDateFormatter()
             ),
             $this->actorRepository,
-            new CdbXmlDateFormatter()
+            new CdbXmlDateFormatter(),
+            new AddressFactory()
         );
 
         $this->projector = $projector->withCdbXmlPublisher($this->cdbXmlPublisher);
@@ -155,7 +157,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event-with-organizer.xml')
+            $this->loadCdbXmlFromFile('event-with-organizer-1.xml')
         );
 
         $expectedSecondCdbXmlDocument = new CdbXmlDocument(
@@ -183,9 +185,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $secondEventId = 'EVENT-ABC-123';
         $this->createEvent($secondEventId);
 
+        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
         // Create a place.
-        $this->createPlace();
-        $placeId = 'MY-PLACE-123';
+        $this->createPlace($placeId);
         $placeIri = Url::fromNative('http://foo.bar/place/' . $placeId);
 
         $placeIdentifier = new IriOfferIdentifier($placeIri, $placeId, OfferType::PLACE());
@@ -269,7 +271,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ]
         );
 
-        $placeId = 'LOCATION-ABC-123';
+        $placeId = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         $placeMetadata = new Metadata(
             [
@@ -296,7 +298,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $eventId,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location('LOCATION-ABC-123', '$name', '$country', '$locality', '$postalcode', '$street'),
+            new Location('34973B89-BDA3-4A79-96C7-78ACC022907D', '$name', '$country', '$locality', '$postalcode', '$street'),
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             $theme
         );
@@ -309,10 +311,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * Helper function to create a place.
      */
-    public function createPlace()
+    public function createPlace($id = '34973B89-BDA3-4A79-96C7-78ACC022907D')
     {
-        $id = 'MY-PLACE-123';
-
         $place = new PlaceCreated(
             $id,
             new Title('My Place'),

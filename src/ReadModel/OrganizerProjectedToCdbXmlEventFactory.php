@@ -3,11 +3,11 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentEventFactoryInterface;
 use CultuurNet\UDB3\Organizer\Events\OrganizerEvent;
 
-class OrganizerEventFactory implements DocumentEventFactoryInterface
+class OrganizerProjectedToCdbXmlEventFactory implements DocumentEventFactoryInterface
 {
     /**
      * @param CdbXmlDocument $cdbXmlDocument

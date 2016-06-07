@@ -4,7 +4,7 @@ namespace CultuurNet\UDB3\CdbXmlService;
 
 use Broadway\Domain\DomainMessage;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 
 /**
  * @codeCoverageIgnore

@@ -10,8 +10,8 @@ use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
@@ -23,7 +23,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @var OrganizerToActorCdbXmlProjector
      */
-    private $projector;
+    protected $projector;
 
     /**
      * @var Metadata
@@ -89,8 +89,9 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -114,8 +115,9 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -139,8 +141,9 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor.xml')
         );
 
-        $this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 }

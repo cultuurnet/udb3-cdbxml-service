@@ -3,6 +3,8 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use Broadway\EventHandling\EventBusInterface;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\CdbXmlDocumentSpecificationInterface;
 
 class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,9 +29,9 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
     protected $eventFactory;
 
     /**
-     * @var BroadcastingCdbXmlFilterInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var CdbXmlDocumentSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $broadcastingCdbXmlFilter;
+    protected $cdbXmlDocumentSpecification;
 
     public function setUp()
     {
@@ -37,12 +39,13 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
         $this->eventBus = $this->getMock(EventBusInterface::class);
         $this->eventFactory = $this->getMock(DocumentEventFactoryInterface::class);
         $this->broadcastingCdbXmlFilter = $this->getMock(BroadcastingCdbXmlFilterInterface::class);
+        $this->cdbXmlDocumentSpecification = $this->getMock(CdbXmlDocumentSpecificationInterface::class);
 
         $this->repository = new BroadcastingDocumentRepositoryDecorator(
             $this->decoratedRepository,
             $this->eventBus,
             $this->eventFactory,
-            $this->broadcastingCdbXmlFilter
+            $this->cdbXmlDocumentSpecification
         );
     }
 
@@ -52,12 +55,12 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
     public function it_broadcasts_when_a_document_is_saved()
     {
         $document = new CdbXmlDocument(
-            'MY-PLACE-123',
+            '34973B89-BDA3-4A79-96C7-78ACC022907D',
             file_get_contents(__DIR__ . '/samples/place.xml')
         );
 
-        $this->broadcastingCdbXmlFilter->expects($this->once())
-            ->method('matches')
+        $this->cdbXmlDocumentSpecification->expects($this->once())
+            ->method('isSatisfiedBy')
             ->with($document)
             ->willReturn(true);
 
@@ -82,7 +85,7 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
      */
     public function it_can_remove_a_document()
     {
-        $id = 'MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         // when removing the document it should also remove the document in the decorated repository
         $this->decoratedRepository->expects($this->once())
@@ -97,7 +100,7 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
      */
     public function it_can_get_a_document()
     {
-        $id = 'MY-PLACE-123';
+        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
 
         // when getting the document it should also get the document in the decorated repository
         $this->decoratedRepository->expects($this->once())

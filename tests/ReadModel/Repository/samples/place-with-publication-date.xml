@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event availablefrom="2016-04-23T15:30:06" cdbid="MY-PLACE-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
-    <keywords>
-      <keyword>UDB3 place</keyword>
-    </keywords>
-    <categories>
-      <category catid="0.50.4.0.0" type="eventtype">concert</category>
-    </categories>
-    <calendar>
-      <permanentopeningtimes>
-        <permanent/>
-      </permanentopeningtimes>
-    </calendar>
-    <contactinfo/>
-    <eventdetails>
-      <eventdetail lang="nl">
+  <actor availablefrom="2016-04-23T15:30:06" cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" asset="true">
+    <actordetails>
+      <actordetail lang="nl">
         <title>My Place</title>
-      </eventdetail>
-    </eventdetails>
-    <location>
+      </actordetail>
+    </actordetails>
+    <categories>
+      <category catid="8.15.0.0.0" type="actortype">Locatie</category>
+    </categories>
+    <contactinfo>
       <address>
         <physical>
           <city>$locality</city>
@@ -27,7 +18,6 @@
           <zipcode>$postalCode</zipcode>
         </physical>
       </address>
-      <label>My Place</label>
-    </location>
-  </event>
+    </contactinfo>
+  </actor>
 </cdbxml>

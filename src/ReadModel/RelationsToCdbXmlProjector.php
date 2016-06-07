@@ -12,7 +12,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactoryInterface;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
@@ -90,7 +90,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
     /**
      * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToEventCdbXmlProjector
+     * @return RelationsToCdbXmlProjector
      */
     public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
     {
@@ -196,12 +196,15 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
     {
         $placeCdbXml = $this->documentRepository->get($placeId);
 
-        $place = EventItemFactory::createEventFromCdbXml(
+        $place = ActorItemFactory::createActorFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $placeCdbXml->getCdbXml()
         );
 
-        $location = $place->getLocation();
+        $address = $place->getContactInfo()->getAddresses()[0];
+        $location = new \CultureFeed_Cdb_Data_Location($address);
+        $location->setCdbid($place->getCdbId());
+        $location->setLabel($place->getDetails()->getDetailByLanguage('nl')->getTitle());
 
         return $location;
     }
@@ -241,7 +244,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         DomainMessage $domainMessage
     ) {
         if ($newEvent != $event) {
-
             $this->metadataCdbItemEnricher->enrichTime(
                 $newEvent,
                 $metadata

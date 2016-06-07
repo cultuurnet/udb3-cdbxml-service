@@ -34,7 +34,7 @@
                     <cdb:zipcode>$postalCode</cdb:zipcode>
                 </cdb:physical>
             </cdb:address>
-            <cdb:label>$name</cdb:label>
+            <cdb:label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">$name</cdb:label>
         </cdb:location>
     </cdb:event>
 </cdb:cdbxml>

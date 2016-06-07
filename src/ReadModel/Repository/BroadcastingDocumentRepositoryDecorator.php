@@ -7,6 +7,8 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\CdbXmlDocumentSpecificationInterface;
 
 /**
  * Class BroadcastingDocumentRepositoryDecorator
@@ -26,20 +28,20 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
     protected $eventBus;
 
     /**
-     * @var BroadcastingCdbXmlFilterInterface
+     * @var CdbXmlDocumentSpecificationInterface
      */
-    protected $broadcastingCdbXmlFilter;
+    protected $cdbXmlDocumentSpecification;
 
     public function __construct(
         DocumentRepositoryInterface $repository,
         EventBusInterface $eventBus,
         DocumentEventFactoryInterface $eventFactory,
-        BroadcastingCdbXmlFilterInterface $broadcastingCdbXmlFilter
+        CdbXmlDocumentSpecificationInterface $cdbXmlDocumentSpecification
     ) {
         parent::__construct($repository);
         $this->eventFactory = $eventFactory;
         $this->eventBus = $eventBus;
-        $this->broadcastingCdbXmlFilter = $broadcastingCdbXmlFilter;
+        $this->cdbXmlDocumentSpecification = $cdbXmlDocumentSpecification;
     }
 
     /**
@@ -49,7 +51,8 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
     {
         parent::save($document);
 
-        if ($this->broadcastingCdbXmlFilter->matches($document)) {
+
+        if ($this->cdbXmlDocumentSpecification->isSatisfiedBy($document)) {
             $event = $this->eventFactory->createEvent($document);
 
             $this->broadcastDocumentUpdated($event);

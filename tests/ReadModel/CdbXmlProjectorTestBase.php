@@ -3,15 +3,23 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DateTime;
+use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
+use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\Offer\OfferType;
 use Doctrine\Common\Cache\ArrayCache;
 
 abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventListenerInterface
+     */
+    protected $projector;
+
     /**
      * @var string
      */
@@ -32,6 +40,11 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
      */
     protected $cdbXmlPublisher;
 
+    /**
+     * @var CdbXmlDocument[]
+     */
+    private $publishedCdbXmlDocuments;
+
     public function setUp()
     {
         $this->cdbXmlFilesPath = __DIR__;
@@ -39,6 +52,14 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
         $this->cdbXmlPublisher = $this->getMock(CdbXmlPublisherInterface::class);
+
+        $this->cdbXmlPublisher->expects($this->any())
+            ->method('publish')
+            ->willReturnCallback(
+                function (CdbXmlDocument $document, DomainMessage $domainMessage) {
+                    $this->publishedCdbXmlDocuments[] = $document;
+                }
+            );
     }
 
     /**
@@ -81,6 +102,34 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $id
+     * @param array $events
+     * @param Metadata $metadata
+     * @return DomainEventStream
+     */
+    protected function createDomainEventStream(
+        $id,
+        array $events,
+        Metadata $metadata
+    ) {
+        $domainMessages = [];
+        foreach ($events as $event) {
+            $domainMessages[] = $this->createDomainMessage($id, $event, $metadata);
+        }
+        return new DomainEventStream($domainMessages);
+    }
+
+    /**
+     * @param DomainEventStream $stream
+     */
+    protected function handleDomainEventStream(DomainEventStream $stream)
+    {
+        foreach ($stream as $message) {
+            $this->projector->handle($message);
+        }
+    }
+
+    /**
      * @param string $fileName
      * @return string
      */
@@ -90,16 +139,23 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param CdbXmlDocument $expectedCdbXmlDocument
-     * @param DomainMessage $domainMessage
+     * @param CdbXmlDocument $cdbXmlDocument
      */
-    protected function expectCdbXmlDocumentToBePublished(
-        CdbXmlDocument $expectedCdbXmlDocument,
-        DomainMessage $domainMessage
-    ) {
-        $this->cdbXmlPublisher->expects($this->once())
-            ->method('publish')
-            ->with($expectedCdbXmlDocument, $domainMessage);
+    protected function assertCdbXmlDocumentIsPublished(CdbXmlDocument $cdbXmlDocument)
+    {
+        $this->assertTrue(in_array($cdbXmlDocument, $this->publishedCdbXmlDocuments));
+    }
+
+    /**
+     * @param CdbXmlDocument[] $cdbXmlDocuments
+     */
+    protected function assertCdbXmlDocumentsArePublished(array $cdbXmlDocuments)
+    {
+        $offSet = count($this->publishedCdbXmlDocuments) - count($cdbXmlDocuments);
+        $published = array_slice($this->publishedCdbXmlDocuments, $offSet);
+        $published = array_values($published);
+
+        $this->assertEquals($cdbXmlDocuments, $published);
     }
 
     /**
@@ -115,5 +171,14 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertEquals($expectedCdbXmlDocument->getCdbXml(), $actualCdbXmlDocument->getCdbXml());
+    }
+
+    /**
+     * @param CdbXmlDocument[] $cdbXmlDocuments
+     */
+    protected function assertFinalCdbXmlDocumentInRepository(array $cdbXmlDocuments)
+    {
+        $final = $cdbXmlDocuments[count($cdbXmlDocuments) - 1];
+        $this->assertCdbXmlDocumentInRepository($final);
     }
 }

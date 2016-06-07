@@ -1,25 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event cdbid="MY-PLACE-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
-    <keywords>
-      <keyword>UDB3 place</keyword>
-    </keywords>
+  <actor cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" asset="true">
+    <actordetails>
+      <actordetail lang="nl">
+        <title>Nieuwe titel</title>
+      </actordetail>
+    </actordetails>
     <categories>
-      <category catid="id" type="eventtype">label</category>
+      <category catid="8.15.0.0.0" type="actortype">Locatie</category>
       <category catid="tid" type="theme">tlabel</category>
     </categories>
-    <calendar>
-      <permanentopeningtimes>
-        <permanent/>
-      </permanentopeningtimes>
-    </calendar>
-    <contactinfo/>
-    <eventdetails>
-      <eventdetail lang="nl">
-        <title>Nieuwe titel</title>
-      </eventdetail>
-    </eventdetails>
-    <location>
+    <contactinfo>
       <address>
         <physical>
           <city>$locality2</city>
@@ -28,7 +19,6 @@
           <zipcode>$postalCode2</zipcode>
         </physical>
       </address>
-      <label>Nieuwe titel</label>
-    </location>
-  </event>
+    </contactinfo>
+  </actor>
 </cdbxml>

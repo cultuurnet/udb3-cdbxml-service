@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use Doctrine\Common\Cache\Cache;
 
 class CacheDocumentRepository implements DocumentRepositoryInterface

@@ -14,16 +14,17 @@ use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToEventCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use DerAlex\Silex\YamlConfigServiceProvider;
@@ -96,12 +97,13 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
 
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = (new OfferToEventCdbXmlProjector(
+        $projector = (new OfferToCdbXmlProjector(
             $app['cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
             $app['cdbxml_actor_repository'],
-            $app['cdbxml_date_formatter']
+            $app['cdbxml_date_formatter'],
+            $app['address_factory']
         ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
         return $projector;
@@ -165,13 +167,21 @@ $app['real_cdbxml_actor_repository'] = $app->share(
     }
 );
 
+$app['cdbxml_document_parser'] = $app->share(
+    function (Application $app) {
+        return new \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser();
+    }
+);
+
 $app['cdbxml_actor_repository'] = $app->share(
     function (Application $app) {
         $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
             $app['real_cdbxml_actor_repository'],
             $app['event_bus.udb3-core.relations'],
-            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerEventFactory(),
-            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOrganizerCdbXmlFilter()
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerProjectedToCdbXmlEventFactory(),
+            new \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\ActorCdbXmlDocumentSpecification(
+                $app['cdbxml_document_parser']
+            )
         );
 
         return $broadcastingRepository;
@@ -197,10 +207,10 @@ $app['cdbxml_offer_repository'] = $app->share(
         $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
             $app['real_cdbxml_offer_repository'],
             $app['event_bus.udb3-core.relations'],
-            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OfferEventFactory(
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\PlaceProjectedToCdbXmlEventFactory(
                 $app['document_iri_generator']
             ),
-            new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingOfferCdbXmlFilter()
+            new \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\PlaceCdbXmlDocumentSpecification()
         );
 
         return $broadcastingRepository;
@@ -262,7 +272,8 @@ $app['document_iri_generator'] = $app->share(
 $app['cdbxml_publisher'] = $app->share(
     function (Application $app) {
         return new EventBusCdbXmlPublisher(
-            $app['event_bus.udb2']
+            $app['event_bus.udb2'],
+            new CdbXmlDocumentParser()
         );
     }
 );
