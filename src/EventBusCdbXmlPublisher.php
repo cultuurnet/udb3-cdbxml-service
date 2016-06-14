@@ -22,12 +22,16 @@ use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\UpdatedActorPublic
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use DateTimeImmutable;
 use InvalidArgumentException;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
 
 class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var EventBusInterface
      */
@@ -66,6 +70,7 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
         $this->actorCdbXmlDocumentSpecification = new ActorCdbXmlDocumentSpecification($cdbXmlDocumentParser);
         $this->newEventPublication = new NewEventPublication();
         $this->newActorPublication = new NewActorPublication();
+        $this->logger = new NullLogger();
     }
 
     public function publish(
@@ -130,7 +135,16 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
                 $domainMessage->getRecordedOn()
             );
 
+            $this->logger->info(
+                'publishing message ' . get_class($event) . ' for cdbid ' . $id . ' on internal event bus'
+            );
+
             $this->eventBus->publish(new DomainEventStream([$message]));
+        } else {
+            $this->logger->warning(
+                'failed to determine udb2 domain message for cdbxml document ' . $id . ', cdbxml: ' .
+                    $cdbXmlDocument->getCdbXml()
+            );
         }
     }
 }

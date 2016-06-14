@@ -271,10 +271,14 @@ $app['document_iri_generator'] = $app->share(
 
 $app['cdbxml_publisher'] = $app->share(
     function (Application $app) {
-        return new EventBusCdbXmlPublisher(
+        $publisher = new EventBusCdbXmlPublisher(
             $app['event_bus.udb2'],
             new CdbXmlDocumentParser()
         );
+
+        $publisher->setLogger($app['logger.amqp.udb2_publisher']);
+
+        return $publisher;
     }
 );
 
