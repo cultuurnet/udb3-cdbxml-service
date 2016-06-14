@@ -264,8 +264,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $handler = $handlers[$payloadClassName];
 
             try {
-                $this->logger->info('handling message ' . $payloadClassName . ' using ' .
-                    $handlers[$payloadClassName] . ' in OfferToCdbXmlProjector');
+                $this->logger->info(
+                    'handling message ' . $payloadClassName . ' using ' .
+                    $handlers[$payloadClassName] . ' in OfferToCdbXmlProjector'
+                );
 
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
