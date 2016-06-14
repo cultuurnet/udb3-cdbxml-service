@@ -258,10 +258,15 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceImportedFromUDB2Event::class => 'applyPlaceImportedFromUdb2Event',
         ];
 
+        $this->logger->info('found message ' . $payloadClassName . ' in OfferToCdbXmlProjector');
+
         if (isset($handlers[$payloadClassName])) {
             $handler = $handlers[$payloadClassName];
 
             try {
+                $this->logger->info('handling message ' . $payloadClassName . ' using ' .
+                    $handlers[$payloadClassName] . ' in OfferToCdbXmlProjector');
+
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
                 $this->documentRepository->save($cdbXmlDocument);
@@ -278,6 +283,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                     ]
                 );
             }
+        } else {
+            $this->logger->info('no handler found for message ' . $payloadClassName);
         }
     }
 

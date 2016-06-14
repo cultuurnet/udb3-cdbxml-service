@@ -106,6 +106,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $app['address_factory']
         ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
+        $projector->setLogger($app['logger.projector']);
+
         return $projector;
     }
 );
