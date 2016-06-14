@@ -18,11 +18,14 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var CdbXmlPublisherInterface
      */
@@ -47,11 +50,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      * @var MetadataCdbItemEnricherInterface
      */
     private $metadataCdbItemEnricher;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @param DocumentRepositoryInterface $documentRepository
@@ -83,11 +81,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $c = clone $this;
         $c->cdbXmlPublisher = $cdbXmlPublisher;
         return $c;
-    }
-
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
     }
 
     /**
