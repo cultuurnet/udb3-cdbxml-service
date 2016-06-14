@@ -214,6 +214,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         } else {
             return new \CultureFeed_Cdb_Data_Location(
                 new \CultureFeed_Cdb_Data_Address(
+                    null,
                     new \CultureFeed_Cdb_Data_Address_VirtualAddress($placeTitle)
                 )
             );
