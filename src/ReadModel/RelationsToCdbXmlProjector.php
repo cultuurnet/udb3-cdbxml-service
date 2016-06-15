@@ -203,7 +203,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
         $placeTitle = $place->getDetails()->getDetailByLanguage('nl')->getTitle();
 
-        $addresses = $place->getContactInfo()->getAddresses();
+        $addresses = !is_null($place->getContactInfo()) ? $place->getContactInfo()->getAddresses() : array();
 
         if (!empty($addresses)) {
             $address = $addresses[0];
