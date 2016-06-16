@@ -23,6 +23,7 @@ $consoleApp = $app['console'];
 
 $consoleApp->add(
     (new ConsumeCommand('consume-udb3-core', 'amqp.udb3-core'))
+        ->withHeartBeat('dbal_connection:keepalive')
         ->setDescription('Process messages from UDB3 core')
 );
 $consoleApp->add(new \CultuurNet\UDB3\CdbXmlService\Console\InstallCommand());

@@ -18,11 +18,14 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var CdbXmlPublisherInterface
      */
@@ -47,11 +50,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      * @var MetadataCdbItemEnricherInterface
      */
     private $metadataCdbItemEnricher;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @param DocumentRepositoryInterface $documentRepository
@@ -85,11 +83,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         return $c;
     }
 
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
     /**
      * {@inheritdoc}
      *
@@ -109,8 +102,15 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             OrganizerUpdatedFromUDB2::class => 'applyActorImportedFromUdb2',
         ];
 
+        $this->logger->info('found message ' . $payloadClassName . ' in OrganizerToActorCdbXmlProjector');
+
         if (isset($handlers[$payloadClassName])) {
             try {
+                $this->logger->info(
+                    'handling message ' . $payloadClassName . ' using ' .
+                    $handlers[$payloadClassName] . ' in OfferToCdbXmlProjector'
+                );
+
                 $handler = $handlers[$payloadClassName];
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
@@ -122,6 +122,8 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
                 // The exception is passed to context as specified in: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#13-context
                 $this->logger->error($exception->getMessage(), ['exception' => $exception]);
             }
+        } else {
+            $this->logger->info('no handler found for message ' . $payloadClassName);
         }
     }
 

@@ -106,6 +106,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $app['address_factory']
         ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
+        $projector->setLogger($app['logger.projector']);
+
         return $projector;
     }
 );
@@ -271,10 +273,14 @@ $app['document_iri_generator'] = $app->share(
 
 $app['cdbxml_publisher'] = $app->share(
     function (Application $app) {
-        return new EventBusCdbXmlPublisher(
+        $publisher = new EventBusCdbXmlPublisher(
             $app['event_bus.udb2'],
             new CdbXmlDocumentParser()
         );
+
+        $publisher->setLogger($app['logger.amqp.udb2_publisher']);
+
+        return $publisher;
     }
 );
 

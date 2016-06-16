@@ -201,12 +201,24 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
             $placeCdbXml->getCdbXml()
         );
 
-        $address = $place->getContactInfo()->getAddresses()[0];
-        $location = new \CultureFeed_Cdb_Data_Location($address);
-        $location->setCdbid($place->getCdbId());
-        $location->setLabel($place->getDetails()->getDetailByLanguage('nl')->getTitle());
+        $placeTitle = $place->getDetails()->getDetailByLanguage('nl')->getTitle();
 
-        return $location;
+        $addresses = !is_null($place->getContactInfo()) ? $place->getContactInfo()->getAddresses() : array();
+
+        if (!empty($addresses)) {
+            $address = $addresses[0];
+            $location = new \CultureFeed_Cdb_Data_Location($address);
+            $location->setCdbid($place->getCdbId());
+            $location->setLabel($placeTitle);
+            return $location;
+        } else {
+            return new \CultureFeed_Cdb_Data_Location(
+                new \CultureFeed_Cdb_Data_Address(
+                    null,
+                    new \CultureFeed_Cdb_Data_Address_VirtualAddress($placeTitle)
+                )
+            );
+        }
     }
 
     /**
