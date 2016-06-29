@@ -544,6 +544,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $details->add($nlDetail);
         $event->setDetails($details);
 
+        // Empty contact info.
+        $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+        $event->setContactInfo($contactInfo);
+
         // Set location and calendar info.
         $this->setLocation($eventCreated->getLocation(), $event);
         $this->setCalendar($eventCreated->getCalendar(), $event);
@@ -565,10 +569,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             );
             $event->getCategories()->add($theme);
         }
-
-        // Empty contact info.
-        $contactInfo = new CultureFeed_Cdb_Data_ContactInfo();
-        $event->setContactInfo($contactInfo);
 
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($eventCreated, $event);
@@ -1339,10 +1339,24 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             );
             $contactInfo = $place->getContactInfo();
 
-            $location = new CultureFeed_Cdb_Data_Location($contactInfo->getAddresses()[0]);
+            $address = $contactInfo->getAddresses()[0];
+
+            $location = new CultureFeed_Cdb_Data_Location($address);
             $location->setCdbid($eventLocation->getCdbid());
             $location->setLabel($eventLocation->getName());
             $cdbEvent->setLocation($location);
+
+            $eventContactInfo = $cdbEvent->getContactInfo();
+            if (is_null($eventContactInfo)) {
+                $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+            }
+
+            foreach ($eventContactInfo->getAddresses() as $index => $address) {
+                $eventContactInfo->removeAddress($index);
+            }
+            $eventContactInfo->addAddress($address);
+
+            $cdbEvent->setContactInfo($eventContactInfo);
         } else {
             $warning = 'Could not find location with id ' . $eventLocation->getCdbid();
             $warning .= ' when setting location on event ' . $cdbEvent->getCdbId() . '.';
