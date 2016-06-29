@@ -19,7 +19,16 @@
         </timestamp>
       </timestamps>
     </calendar>
-    <contactinfo/>
+    <contactinfo>
+      <address>
+        <physical>
+          <city>$locality</city>
+          <country>$country</country>
+          <street>$street</street>
+          <zipcode>$postalCode</zipcode>
+        </physical>
+      </address>
+    </contactinfo>
     <eventdetails>
       <eventdetail lang="nl">
         <media>
