@@ -494,12 +494,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "17b2bb9e9cb3aa3281c4fb89891aefb87d2d2991"
+                "reference": "28287770c45603f50acacbf68d187350d072f2d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/17b2bb9e9cb3aa3281c4fb89891aefb87d2d2991",
-                "reference": "17b2bb9e9cb3aa3281c4fb89891aefb87d2d2991",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/28287770c45603f50acacbf68d187350d072f2d1",
+                "reference": "28287770c45603f50acacbf68d187350d072f2d1",
                 "shasum": ""
             },
             "require-dev": {
@@ -521,7 +521,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-06-21 15:00:48"
+            "time": "2016-06-29 13:21:51"
         },
         {
             "name": "cultuurnet/clock",
@@ -1026,12 +1026,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "c9805af9b3dfca6d968b0ecffa0d7cee037b4d60"
+                "reference": "e59942f164270e78e07535525dd1e55d7d12ef58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/c9805af9b3dfca6d968b0ecffa0d7cee037b4d60",
-                "reference": "c9805af9b3dfca6d968b0ecffa0d7cee037b4d60",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e59942f164270e78e07535525dd1e55d7d12ef58",
+                "reference": "e59942f164270e78e07535525dd1e55d7d12ef58",
                 "shasum": ""
             },
             "require": {
@@ -1104,7 +1104,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-06-17 13:34:09"
+            "time": "2016-06-29 12:59:19"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -4423,16 +4423,16 @@
         },
         {
             "name": "zendframework/zend-validator",
-            "version": "2.8.0",
+            "version": "2.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-validator.git",
-                "reference": "f956581bc5fa4cf3f2933fe24e77deded8d1937b"
+                "reference": "8ec9f57a717dd37340308aa632f148a2c2be1cfc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-validator/zipball/f956581bc5fa4cf3f2933fe24e77deded8d1937b",
-                "reference": "f956581bc5fa4cf3f2933fe24e77deded8d1937b",
+                "url": "https://api.github.com/repos/zendframework/zend-validator/zipball/8ec9f57a717dd37340308aa632f148a2c2be1cfc",
+                "reference": "8ec9f57a717dd37340308aa632f148a2c2be1cfc",
                 "shasum": ""
             },
             "require": {
@@ -4490,7 +4490,7 @@
                 "validator",
                 "zf2"
             ],
-            "time": "2016-05-16 13:39:40"
+            "time": "2016-06-23 13:44:31"
         }
     ],
     "packages-dev": [
