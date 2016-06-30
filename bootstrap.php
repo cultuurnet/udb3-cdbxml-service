@@ -117,6 +117,20 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
     }
 );
 
+$app['label_to_item_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = (new \CultuurNet\UDB3\CdbXmlService\ReadModel\LabelToItemCdbxmlProjector(
+            $app[CDBXML_OFFER_REPOSITORY],
+            $app[OFFER_LABEL_RELATION_REPOSITORY],
+            $app[CDBXML_DOCUMENT_FACTORY]
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);;
+
+        $projector->setLogger($app['logger.projector']);
+
+        return $projector;
+    }
+);
+
 $app['offer_relations_service'] = $app->share(
     function (Application $app) {
         return new \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsService(
@@ -393,6 +407,7 @@ $app['deserializer_locator'] = $app->share(
         $maps =
             \CultuurNet\UDB3\Event\Events\ContentTypes::map() +
             \CultuurNet\UDB3\Place\Events\ContentTypes::map() +
+            \CultuurNet\UDB3\Label\Events\CONTENTTYPES +
             \CultuurNet\UDB3\Organizer\Events\ContentTypes::map();
 
         foreach ($maps as $payloadClass => $contentType) {
@@ -514,16 +529,6 @@ $app['place_relations_projector'] = $app->share(
     function ($app) {
         return new \CultuurNet\UDB3\Place\ReadModel\Relations\Projector(
             $app['place_relations_repository']
-        );
-    }
-);
-
-$app['label_to_item_cdbxml_projector'] = $app->share(
-    function (Application $app) {
-        return new \CultuurNet\UDB3\CdbXmlService\ReadModel\LabelToItemCdbxmlProjector(
-            $app[CDBXML_OFFER_REPOSITORY],
-            $app[OFFER_LABEL_RELATION_REPOSITORY],
-            $app[CDBXML_DOCUMENT_FACTORY]
         );
     }
 );
