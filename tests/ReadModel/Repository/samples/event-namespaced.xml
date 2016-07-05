@@ -19,7 +19,16 @@
                 </cdb:timestamp>
             </cdb:timestamps>
         </cdb:calendar>
-        <cdb:contactinfo/>
+        <cdb:contactinfo>
+            <cdb:address>
+                <cdb:physical>
+                    <cdb:city>$locality</cdb:city>
+                    <cdb:country>$country</cdb:country>
+                    <cdb:street>$street</cdb:street>
+                    <cdb:zipcode>$postalCode</cdb:zipcode>
+                </cdb:physical>
+            </cdb:address>
+        </cdb:contactinfo>
         <cdb:eventdetails>
             <cdb:eventdetail lang="nl">
                 <cdb:title>Griezelfilm of horror</cdb:title>

@@ -1285,7 +1285,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
+            new Location($placeId, '$name', '$country', '$locality', '$postalcode', '$street'),
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             $theme
         );
