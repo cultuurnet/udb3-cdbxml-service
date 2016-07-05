@@ -151,16 +151,16 @@ $app['relations_to_cdbxml_projector'] = $app->share(
 );
 
 $app['flanders_region_actor_cdbxml_projector'] = $app->share(
-  function (Application $app) {
-    $projector = (new FlandersRegionActorCdbXmlProjector(
-      $app['cdbxml_actor_repository'],
-      $app['cdbxml_document_factory']
-    ))->withCdbXmlPublisher($app['cdbxml_publisher']);
+    function (Application $app) {
+        $projector = (new FlandersRegionActorCdbXmlProjector(
+            $app['cdbxml_actor_repository'],
+            $app['cdbxml_document_factory']
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
-    $projector->setLogger($app['logger.projector']);
+        $projector->setLogger($app['logger.projector']);
 
-    return $projector;
-  }
+        return $projector;
+    }
 );
 
 $app['flanders_region_offer_cdbxml_projector'] = $app->share(
@@ -177,16 +177,16 @@ $app['flanders_region_offer_cdbxml_projector'] = $app->share(
 );
 
 $app['flanders_region_relations_cdbxml_projector'] = $app->share(
-  function (Application $app) {
-    $projector = new FlandersRegionRelationsCdbXmlProjector(
-      $app['real_cdbxml_offer_repository'],
-      $app['cdbxml_document_factory'],
-      $app['offer_relations_service'],
-      $app['iri_offer_identifier_factory']
-    );
+    function (Application $app) {
+        $projector = new FlandersRegionRelationsCdbXmlProjector(
+            $app['real_cdbxml_offer_repository'],
+            $app['cdbxml_document_factory'],
+            $app['offer_relations_service'],
+            $app['iri_offer_identifier_factory']
+        );
 
-    return $projector;
-  }
+        return $projector;
+    }
 );
 
 $app['cache'] = $app->share(
