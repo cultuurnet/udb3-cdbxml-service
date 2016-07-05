@@ -19,7 +19,8 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionActorCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionRelationsCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
@@ -55,7 +56,8 @@ $app['event_bus.udb3-core'] = $app->share(
         $bus->subscribe($app['offer_to_event_cdbxml_projector']);
         $bus->subscribe($app['event_relations_projector']);
         $bus->subscribe($app['place_relations_projector']);
-        $bus->subscribe($app['flanders_region_cdbxml_projector']);
+        $bus->subscribe($app['flanders_region_actor_cdbxml_projector']);
+        $bus->subscribe($app['flanders_region_offer_cdbxml_projector']);
 
         return $bus;
     }
@@ -148,9 +150,22 @@ $app['relations_to_cdbxml_projector'] = $app->share(
     }
 );
 
-$app['flanders_region_cdbxml_projector'] = $app->share(
+$app['flanders_region_actor_cdbxml_projector'] = $app->share(
+  function (Application $app) {
+    $projector = (new FlandersRegionActorCdbXmlProjector(
+      $app['cdbxml_actor_repository'],
+      $app['cdbxml_document_factory']
+    ))->withCdbXmlPublisher($app['cdbxml_publisher']);
+
+    $projector->setLogger($app['logger.projector']);
+
+    return $projector;
+  }
+);
+
+$app['flanders_region_offer_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = (new FlandersRegionCdbXmlProjector(
+        $projector = (new FlandersRegionOfferCdbXmlProjector(
             $app['cdbxml_offer_repository'],
             $app['cdbxml_document_factory']
         ))->withCdbXmlPublisher($app['cdbxml_publisher']);
