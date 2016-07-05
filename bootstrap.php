@@ -20,6 +20,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionRelationsCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
@@ -66,6 +67,7 @@ $app['event_bus.udb3-core.relations'] = $app->share(
         $bus =  new SimpleEventBus();
 
         $bus->subscribe($app['relations_to_cdbxml_projector']);
+        $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
 
         return $bus;
     }
@@ -157,6 +159,19 @@ $app['flanders_region_cdbxml_projector'] = $app->share(
 
         return $projector;
     }
+);
+
+$app['flanders_region_relations_cdbxml_projector'] = $app->share(
+  function (Application $app) {
+    $projector = new FlandersRegionRelationsCdbXmlProjector(
+      $app['real_cdbxml_offer_repository'],
+      $app['cdbxml_document_factory'],
+      $app['offer_relations_service'],
+      $app['iri_offer_identifier_factory']
+    );
+
+    return $projector;
+  }
 );
 
 $app['cache'] = $app->share(
