@@ -34,7 +34,7 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     /**
      * @var LoggerInterface|PHPUnit_Framework_MockObject_MockObject
      */
-    protected $logger;
+    private $logger;
 
     /**
      * @var string
@@ -50,7 +50,6 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      * @var DocumentRepositoryInterface
      */
     private $repository;
-
 
     /**
      * @test

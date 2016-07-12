@@ -28,10 +28,11 @@
     <location>
       <address>
         <physical>
-          <city>$locality</city>
-          <country>$country</country>
-          <street>$street</street>
-          <zipcode>$postalCode</zipcode>
+          <city>Herent</city>
+          <country>BE</country>
+          <housenr>14</housenr>
+          <street>Generaal Gerardstraat</street>
+          <zipcode>3020</zipcode>
         </physical>
       </address>
       <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">$name</label>

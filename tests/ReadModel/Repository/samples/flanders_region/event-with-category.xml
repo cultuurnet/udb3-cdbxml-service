@@ -4,6 +4,7 @@
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
+      <category catid="reg.475" type="flandersregion">2000 Antwerpen</category>
     </categories>
     <calendar>
       <timestamps>

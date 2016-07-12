@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
+  <event availablefrom="2016-04-23T15:30:06" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24481" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24481" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
+      <category catid="reg.643" type="flandersregion">3020 Herent</category>
     </categories>
     <calendar>
       <timestamps>
@@ -28,11 +29,11 @@
     <location>
       <address>
         <physical>
-          <city>Antwerpen</city>
+          <city>Herent</city>
           <country>BE</country>
-          <housenr>4</housenr>
-          <street>Maarschalk Gerardstraat</street>
-          <zipcode>2000</zipcode>
+          <housenr>14</housenr>
+          <street>Generaal Gerardstraat</street>
+          <zipcode>3020</zipcode>
         </physical>
       </address>
       <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">$name</label>
