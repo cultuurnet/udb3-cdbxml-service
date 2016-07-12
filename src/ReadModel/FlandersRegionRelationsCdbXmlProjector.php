@@ -28,6 +28,11 @@ use ValueObjects\Web\Url;
 class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXmlProjector
 {
     /**
+     * @var FlandersRegionCategories
+     */
+    private $categories;
+
+    /**
      * @var CdbXmlDocumentFactoryInterface
      */
     private $cdbXmlDocumentFactory;
@@ -47,9 +52,17 @@ class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXm
      */
     private $realRepository;
 
+    /**
+     * @param DocumentRepositoryInterface $documentRepository
+     * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+     * @param FlandersRegionCategories $categories
+     * @param OfferRelationsServiceInterface $offerRelationsService
+     * @param IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
+     */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
+        FlandersRegionCategories $categories,
         OfferRelationsServiceInterface $offerRelationsService,
         IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
     ) {
@@ -57,6 +70,7 @@ class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXm
 
         $this->realRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
+        $this->categories = $categories;
         $this->offerRelationsService = $offerRelationsService;
         $this->iriOfferIdentifierFactory = $iriOfferIdentifierFactory;
     }
@@ -103,8 +117,8 @@ class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXm
             $address = $location->getAddress();
             $physicalAddress = $address->getPhysicalAddress();
 
-            $category = $this->findFlandersRegion($physicalAddress);
-            $this->updateFlandersRegionCategories($event, $category);
+            $category = $this->categories->findFlandersRegionCategory($physicalAddress);
+            $this->categories->updateFlandersRegionCategories($event, $category);
 
             // Return a new CdbXmlDocument.
             $cdbXmlDocuments[] = $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($event);

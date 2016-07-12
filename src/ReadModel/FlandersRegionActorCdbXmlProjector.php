@@ -19,6 +19,11 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlProjector
 {
     /**
+     * @var FlandersRegionCategories
+     */
+    private $categories;
+
+    /**
      * @var CdbXmlDocumentFactoryInterface
      */
     private $cdbXmlDocumentFactory;
@@ -27,16 +32,19 @@ class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
     /**
      * FlandersRegionCdbXmlProjector constructor.
      *
-     * @param \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface $documentRepository
-     * @param \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+     * @param DocumentRepositoryInterface $documentRepository
+     * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+     * @param FlandersRegionCategories $categories
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
-        CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+        CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
+        FlandersRegionCategories $categories
     ) {
         parent::__construct($documentRepository);
 
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
+        $this->categories = $categories;
     }
 
     /**
@@ -73,8 +81,8 @@ class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
         $address = $addresses[0];
         $physicalAddress = $address->getPhysicalAddress();
 
-        $category = $this->findFlandersRegion($physicalAddress);
-        $this->updateFlandersRegionCategories($organizer, $category);
+        $category = $this->categories->findFlandersRegionCategory($physicalAddress);
+        $this->categories->updateFlandersRegionCategories($organizer, $category);
 
         // Return a new CdbXmlDocument.
         return array(

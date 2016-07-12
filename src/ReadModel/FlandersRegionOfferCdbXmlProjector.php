@@ -21,6 +21,11 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlProjector
 {
     /**
+     * @var FlandersRegionCategories
+     */
+    private $categories;
+
+    /**
      * @var CdbXmlDocumentFactoryInterface
      */
     private $cdbXmlDocumentFactory;
@@ -29,16 +34,19 @@ class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
     /**
      * FlandersRegionCdbXmlProjector constructor.
      *
-     * @param \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface $documentRepository
-     * @param \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+     * @param DocumentRepositoryInterface $documentRepository
+     * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+     * @param FlandersRegionCategories $categories
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
-        CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
+        CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
+        FlandersRegionCategories $categories
     ) {
         parent::__construct($documentRepository);
 
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
+        $this->categories = $categories;
     }
 
     /**
@@ -74,8 +82,8 @@ class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
         $address = $location->getAddress();
         $physicalAddress = $address->getPhysicalAddress();
 
-        $category = $this->findFlandersRegion($physicalAddress);
-        $this->updateFlandersRegionCategories($event, $category);
+        $category = $this->categories->findFlandersRegionCategory($physicalAddress);
+        $this->categories->updateFlandersRegionCategories($event, $category);
 
         // Return a new CdbXmlDocument.
         return array(
@@ -105,8 +113,8 @@ class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
         $address = $addresses[0];
         $physicalAddress = $address->getPhysicalAddress();
 
-        $category = $this->findFlandersRegion($physicalAddress);
-        $this->updateFlandersRegionCategories($place, $category);
+        $category = $this->categories->findFlandersRegionCategory($physicalAddress);
+        $this->categories->updateFlandersRegionCategories($place, $category);
 
         // Return a new CdbXmlDocument.
         return array(
