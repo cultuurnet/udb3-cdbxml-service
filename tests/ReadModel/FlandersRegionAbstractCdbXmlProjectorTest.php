@@ -231,9 +231,8 @@ class FlandersRegionAbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCa
             ->willThrowException(new Exception());
 
         $domainMessage = $this->createDomainMessage($id, $event);
+        $this->logger->expects($this->at(1))->method('error');
         $this->projector->handle($domainMessage);
-
-        $this->logger->expects($this->any())->method('error');
     }
 
     /**
@@ -247,9 +246,8 @@ class FlandersRegionAbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCa
         SerializableInterface $event
     ) {
         $domainMessage = $this->createDomainMessage($id, $event);
+        $this->logger->expects($this->at(1))->method('info');
         $this->projector->handle($domainMessage);
-
-        $this->logger->expects($this->any())->method('info');
     }
 
     /**

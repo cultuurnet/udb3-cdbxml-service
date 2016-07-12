@@ -95,7 +95,7 @@ abstract class FlandersRegionAbstractCdbXmlProjector implements EventListenerInt
             try {
                 $this->logger->info(
                     'handling message ' . $payloadClassName . ' using ' .
-                    $handlers[$payloadClassName] . ' in OfferToCdbXmlProjector'
+                    $handlers[$payloadClassName] . ' in FlandersRegionCdbXmlProjector'
                 );
 
                 $cdbXmlDocuments = $this->{$handler}($payload);
