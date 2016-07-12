@@ -21,6 +21,7 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
+use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -140,7 +141,7 @@ abstract class FlandersRegionAbstractCdbXmlProjector implements EventListenerInt
                     $this->documentRepository->save($cdbXmlDocument);
                     $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
                 }
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $this->logger->error(
                     'Handle error for uuid=' . $domainMessage->getId()
                     . ' for type ' . $domainMessage->getType()
