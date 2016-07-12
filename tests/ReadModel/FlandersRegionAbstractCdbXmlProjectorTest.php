@@ -19,10 +19,11 @@ use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 use Exception;
 use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-class FlandersRegionAbstractCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
+class FlandersRegionAbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var ArrayCache
