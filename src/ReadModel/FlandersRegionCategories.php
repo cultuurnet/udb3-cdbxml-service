@@ -22,7 +22,6 @@ class FlandersRegionCategories
         $this->terms = new SimpleXMLElement($xml);
     }
 
-
     /**
      * @param CultureFeed_Cdb_Data_Address_PhysicalAddress $physicalAddress
      *

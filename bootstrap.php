@@ -153,7 +153,13 @@ $app['relations_to_cdbxml_projector'] = $app->share(
 
 $app['flanders_region_categories'] = $app->share(
     function (Application $app) {
-        $xml = file_get_contents('config/term.xml');
+
+        if (file_exists('config/term.xml')) {
+            $xml = file_get_contents('config/term.xml');
+        }
+        else {
+            $xml = '<cdbxml></cdbxml>';
+        }
         $categories = new FlandersRegionCategories($xml);
         return $categories;
     }
