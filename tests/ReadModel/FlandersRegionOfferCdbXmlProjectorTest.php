@@ -41,11 +41,6 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     private $logger;
 
     /**
-     * @var string
-     */
-    private $organizerId;
-
-    /**
      * @var FlandersRegionOfferCdbXmlProjector
      */
     private $projector;
@@ -61,9 +56,9 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     public function it_applies_a_category_on_events()
     {
         /* @var EventCreated $event */
-        $event = $this->dataProvider()[0][2];
+        $event = $this->handlersDataProvider()[0][2];
 
-        $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event.xml');
+        $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1.xml');
         $cdbXmlDocument = new CdbXmlDocument($event->getEventId(), $xml);
         $this->repository->save($cdbXmlDocument);
 
@@ -73,7 +68,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
         $actualCdbXmlDocument = $actualCdbXmlDocuments[0];
         $actualCdbXml = $actualCdbXmlDocument->getCdbXml();
 
-        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-with-category.xml');
+        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1-with-category.xml');
 
         $this->assertEquals($expectedCdbXml, $actualCdbXml);
     }
@@ -84,7 +79,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     public function it_applies_a_category_on_places()
     {
         /* @var PlaceCreated $event */
-        $event = $this->dataProvider()[2][2];
+        $event = $this->handlersDataProvider()[2][2];
 
         $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place.xml');
         $cdbXmlDocument = new CdbXmlDocument($event->getPlaceId(), $xml);
@@ -103,20 +98,20 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @dataProvider dataProvider
+     * @dataProvider handlersDataProvider
      * @param string $class
      * @param string $method
      * @param mixed $event
      */
     public function it_returns_handlers($class, $method, $event)
     {
-        $domainMessage = new DomainMessage($this->organizerId, 1, new Metadata(), $event, DateTime::now());
+        $domainMessage = new DomainMessage('id', 1, new Metadata(), $event, DateTime::now());
         $message = 'handling message ' . $class . ' using ' . $method . ' in FlandersRegionCdbXmlProjector';
         $this->logger->expects($this->at(1))->method('info')->with($message);
         $this->projector->handle($domainMessage);
     }
 
-    public function dataProvider()
+    public function handlersDataProvider()
     {
         return array(
             array(
@@ -181,7 +176,5 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 
         $this->logger = $this->getMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
-
-        $this->organizerId = 'ORG-123';
     }
 }

@@ -5,7 +5,6 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
-use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
@@ -56,38 +55,40 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      */
     public function it_applies_a_category()
     {
-        $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/actor-with-contact-info.xml');
-        $cdbXmlDocument = new CdbXmlDocument($this->organizerId, $xml);
+        /* @var OrganizerCreated $event */
+        $event = $this->handlersDataProvider()[0][2];
+
+        $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/organizer.xml');
+        $cdbXmlDocument = new CdbXmlDocument($event->getOrganizerId(), $xml);
         $this->repository->save($cdbXmlDocument);
 
-        $event = $this->dataProvider()[0][2];
         $actualCdbXmlDocuments = $this->projector->applyFlandersRegionOrganizerCreatedImportedUpdated($event);
         $this->assertEquals(1, count($actualCdbXmlDocuments));
 
         $actualCdbXmlDocument = $actualCdbXmlDocuments[0];
         $actualCdbXml = $actualCdbXmlDocument->getCdbXml();
 
-        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/actor-with-contact-info-and-category.xml');
+        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/organizer-with-category.xml');
 
         $this->assertEquals($expectedCdbXml, $actualCdbXml);
     }
 
     /**
      * @test
-     * @dataProvider dataProvider
+     * @dataProvider handlersDataProvider
      * @param string $class
      * @param string $method
      * @param mixed $event
      */
     public function it_returns_handlers($class, $method, $event)
     {
-        $domainMessage = new DomainMessage($this->organizerId, 1, new Metadata(), $event, DateTime::now());
+        $domainMessage = new DomainMessage('id', 1, new Metadata(), $event, DateTime::now());
         $message = 'handling message ' . $class . ' using ' . $method . ' in FlandersRegionCdbXmlProjector';
         $this->logger->expects($this->at(1))->method('info')->with($message);
         $this->projector->handle($domainMessage);
     }
 
-    public function dataProvider()
+    public function handlersDataProvider()
     {
         return array(
             array(
@@ -95,7 +96,7 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 'applyFlandersRegionOrganizerCreatedImportedUpdated',
                 new OrganizerCreated(
                     $this->organizerId,
-                    new Title('foo'),
+                    new Title('title'),
                     array(),
                     array(),
                     array(),
@@ -105,12 +106,12 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
             array(
                 OrganizerImportedFromUDB2::class,
                 'applyFlandersRegionOrganizerCreatedImportedUpdated',
-                new OrganizerImportedFromUDB2($this->organizerId, 'foo', 'bar'),
+                new OrganizerImportedFromUDB2($this->organizerId, 'cdbxml', 'cdbxml_namespace_uri'),
             ),
             array(
                 OrganizerUpdatedFromUDB2::class,
                 'applyFlandersRegionOrganizerCreatedImportedUpdated',
-                new OrganizerUpdatedFromUDB2($this->organizerId, 'foo', 'bar'),
+                new OrganizerUpdatedFromUDB2($this->organizerId, 'cdbxml', 'cdbxml_namespace_uri'),
             ),
         );
     }
@@ -131,6 +132,6 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
         $this->logger = $this->getMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
 
-        $this->organizerId = 'ORG-123';
+        $this->organizerId = 'organizer';
     }
 }
