@@ -7,10 +7,13 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\Event\EventEvent;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
+use CultuurNet\UDB3\Place\PlaceEvent;
 
 /**
  * Class FlandersRegionOfferCdbXmlProjector
@@ -55,22 +58,22 @@ class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
     public function getHandlers()
     {
         return [
-            EventCreated::class => 'applyFlandersRegionEventAddedUpdated',
-            PlaceCreated::class => 'applyFlandersRegionPlaceAddedUpdated',
-            EventMajorInfoUpdated::class => 'applyFlandersRegionEventAddedUpdated',
-            PlaceMajorInfoUpdated::class => 'applyFlandersRegionPlaceAddedUpdated',
+            EventCreated::class => 'applyFlandersRegionToEvent',
+            PlaceCreated::class => 'applyFlandersRegionToPlace',
+            EventMajorInfoUpdated::class => 'applyFlandersRegionToEvent',
+            PlaceMajorInfoUpdated::class => 'applyFlandersRegionToPlace',
         ];
     }
 
     /**
      * @param EventCreated | EventMajorInfoUpdated $payload
      *
-     * @return CdbXmlDocument[]
+     * @return \Generator|CdbXmlDocument[]
      */
-    public function applyFlandersRegionEventAddedUpdated($payload)
+    public function applyFlandersRegionToEvent($payload)
     {
         $eventCdbXml = $this->getCdbXmlDocument(
-            (get_class($payload) == EventMajorInfoUpdated::class) ? $payload->getItemId() : $payload->getEventId()
+            $this->determineOfferId($payload)
         );
 
         $event = EventItemFactory::createEventFromCdbXml(
@@ -86,20 +89,18 @@ class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
         $this->categories->updateFlandersRegionCategories($event, $category);
 
         // Return a new CdbXmlDocument.
-        return array(
-            $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($event),
-        );
+        yield $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($event);
     }
 
     /**
      * @param PlaceCreated | PlaceMajorInfoUpdated $payload
      *
-     * @return CdbXmlDocument[]
+     * @return \Generator|CdbXmlDocument[]
      */
-    public function applyFlandersRegionPlaceAddedUpdated($payload)
+    public function applyFlandersRegionToPlace($payload)
     {
         $placeCdbXml = $this->getCdbXmlDocument(
-            $payload->getPlaceId()
+            $this->determineOfferId($payload)
         );
 
         $place = ActorItemFactory::createActorFromCdbXml(
@@ -117,8 +118,24 @@ class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
         $this->categories->updateFlandersRegionCategories($place, $category);
 
         // Return a new CdbXmlDocument.
-        return array(
-            $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($place),
-        );
+        yield $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($place);
+
+    }
+
+    /**
+     * @param mixed $event
+     * @return string
+     */
+    private function determineOfferId($event)
+    {
+        if ($event instanceof EventEvent) {
+            return $event->getEventId();
+        } elseif ($event instanceof PlaceEvent) {
+            return $event->getPlaceId();
+        } elseif ($event instanceof AbstractEvent) {
+            return $event->getItemId();
+        } else {
+            throw new \InvalidArgumentException('Could not determine offer id from ' . get_class($event));
+        }
     }
 }

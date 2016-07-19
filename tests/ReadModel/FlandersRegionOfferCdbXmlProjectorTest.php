@@ -11,12 +11,15 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\Event\EventEvent;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
+use CultuurNet\UDB3\Place\PlaceEvent;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 use PHPUnit_Framework_TestCase;
@@ -50,121 +53,11 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      */
     private $repository;
 
-    /**
-     * @test
-     */
-    public function it_applies_a_category_on_events()
-    {
-        /* @var EventCreated $event */
-        $event = $this->handlersDataProvider()[0][2];
-
-        $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1.xml');
-        $cdbXmlDocument = new CdbXmlDocument($event->getEventId(), $xml);
-        $this->repository->save($cdbXmlDocument);
-
-        $actualCdbXmlDocuments = $this->projector->applyFlandersRegionEventAddedUpdated($event);
-        $this->assertEquals(1, count($actualCdbXmlDocuments));
-
-        $actualCdbXmlDocument = $actualCdbXmlDocuments[0];
-        $actualCdbXml = $actualCdbXmlDocument->getCdbXml();
-
-        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1-with-category.xml');
-
-        $this->assertEquals($expectedCdbXml, $actualCdbXml);
-    }
-
-    /**
-     * @test
-     */
-    public function it_applies_a_category_on_places()
-    {
-        /* @var PlaceCreated $event */
-        $event = $this->handlersDataProvider()[2][2];
-
-        $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place.xml');
-        $cdbXmlDocument = new CdbXmlDocument($event->getPlaceId(), $xml);
-        $this->repository->save($cdbXmlDocument);
-
-        $actualCdbXmlDocuments = $this->projector->applyFlandersRegionPlaceAddedUpdated($event);
-        $this->assertEquals(1, count($actualCdbXmlDocuments));
-
-        $actualCdbXmlDocument = $actualCdbXmlDocuments[0];
-        $actualCdbXml = $actualCdbXmlDocument->getCdbXml();
-
-        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place-with-category.xml');
-
-        $this->assertEquals($expectedCdbXml, $actualCdbXml);
-    }
-
-    /**
-     * @test
-     * @dataProvider handlersDataProvider
-     * @param string $class
-     * @param string $method
-     * @param mixed $event
-     */
-    public function it_returns_handlers($class, $method, $event)
-    {
-        $domainMessage = new DomainMessage('id', 1, new Metadata(), $event, DateTime::now());
-        $message = 'handling message ' . $class . ' using ' . $method . ' in FlandersRegionCdbXmlProjector';
-        $this->logger->expects($this->at(1))->method('info')->with($message);
-        $this->projector->handle($domainMessage);
-    }
-
-    public function handlersDataProvider()
-    {
-        return array(
-            array(
-                EventCreated::class,
-                'applyFlandersRegionEventAddedUpdated',
-                new EventCreated(
-                    'event_created',
-                    new Title('title'),
-                    new EventType('id', 'label'),
-                    new Location('', '', '', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
-                ),
-            ),
-            array(
-                EventMajorInfoUpdated::class,
-                'applyFlandersRegionEventAddedUpdated',
-                new EventMajorInfoUpdated(
-                    'event_updated',
-                    new Title('title'),
-                    new EventType('id', 'label'),
-                    new Location('', '', '', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
-                ),
-            ),
-            array(
-                PlaceCreated::class,
-                'applyFlandersRegionPlaceAddedUpdated',
-                new PlaceCreated(
-                    'place_created',
-                    new Title('title'),
-                    new EventType('id', 'label'),
-                    new Address('', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
-                ),
-            ),
-            array(
-                PlaceMajorInfoUpdated::class,
-                'applyFlandersRegionPlaceAddedUpdated',
-                new PlaceMajorInfoUpdated(
-                    'place_updated',
-                    new Title('title'),
-                    new EventType('id', 'label'),
-                    new Address('', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
-                ),
-            ),
-        );
-    }
-
     public function setUp()
     {
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
+
         $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/term.xml');
         $this->categories = new FlandersRegionCategories($xml);
 
@@ -175,6 +68,128 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
         );
 
         $this->logger = $this->getMock(LoggerInterface::class);
+
+        $this->logger->expects($this->never())
+            ->method('error');
+
         $this->projector->setLogger($this->logger);
+    }
+
+    /**
+     * @test
+     * @dataProvider eventDataProvider
+     *
+     * @param CdbXmlDocument $originalCdbXmlDocument
+     * @param EventEvent|PlaceEvent $event
+     * @param CdbXmlDocument $expectedCdbXmlDocument
+     */
+    public function it_applies_a_category_on_events(
+        CdbXmlDocument $originalCdbXmlDocument,
+        $event,
+        CdbXmlDocument $expectedCdbXmlDocument
+    ) {
+        $this->repository->save($originalCdbXmlDocument);
+
+        if ($event instanceof EventEvent) {
+            $offerId = $event->getEventId();
+        } elseif ($event instanceof PlaceEvent) {
+            $offerId = $event->getPlaceId();
+        } elseif ($event instanceof AbstractEvent) {
+            $offerId = $event->getItemId();
+        } else {
+            $this->fail('Could not determine offer id from given event.');
+            return;
+        }
+
+        $domainMessage = new DomainMessage(
+            $offerId,
+            is_null($originalCdbXmlDocument) ? 0 : 1,
+            new Metadata(),
+            $event,
+            DateTime::now()
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $actualCdbXmlDocument = $this->repository->get($offerId);
+
+        $this->assertEquals($expectedCdbXmlDocument, $actualCdbXmlDocument);
+    }
+
+    /**
+     * @return array
+     */
+    public function eventDataProvider()
+    {
+        return [
+            [
+                new CdbXmlDocument(
+                    'event_1_id',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1.xml')
+                ),
+                new EventCreated(
+                    'event_1_id',
+                    new Title('title'),
+                    new EventType('id', 'label'),
+                    new Location('', '', '', '', '', ''),
+                    new Calendar(Calendar::PERMANENT)
+                ),
+                new CdbXmlDocument(
+                    'event_1_id',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1-with-category.xml')
+                )
+            ],
+            [
+                new CdbXmlDocument(
+                    'event_1_id',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1.xml')
+                ),
+                new EventMajorInfoUpdated(
+                    'event_1_id',
+                    new Title('title'),
+                    new EventType('id', 'label'),
+                    new Location('', '', '', '', '', ''),
+                    new Calendar(Calendar::PERMANENT)
+                ),
+                new CdbXmlDocument(
+                    'event_1_id',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1-with-category.xml')
+                )
+            ],
+            [
+                new CdbXmlDocument(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place.xml')
+                ),
+                new PlaceCreated(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    new Title('title'),
+                    new EventType('id', 'label'),
+                    new Address('', '', '', ''),
+                    new Calendar(Calendar::PERMANENT)
+                ),
+                new CdbXmlDocument(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place-with-category.xml')
+                )
+            ],
+            [
+                new CdbXmlDocument(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place.xml')
+                ),
+                new PlaceMajorInfoUpdated(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    new Title('title'),
+                    new EventType('id', 'label'),
+                    new Address('', '', '', ''),
+                    new Calendar(Calendar::PERMANENT)
+                ),
+                new CdbXmlDocument(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place-with-category.xml')
+                )
+            ],
+        ];
     }
 }
