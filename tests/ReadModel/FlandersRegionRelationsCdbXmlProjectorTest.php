@@ -57,54 +57,6 @@ class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestC
      */
     private $repository;
 
-    /**
-     * @test
-     */
-    public function it_applies_a_category()
-    {
-        $event = $this->handlersDataProvider()[0][2];
-        $actualCdbXmlDocuments = $this->projector->applyFlandersRegionPlaceProjectedToCdbXml($event);
-        $this->assertEquals(2, count($actualCdbXmlDocuments));
-
-        $actualCdbXmlDocument = $actualCdbXmlDocuments[0];
-        $actualCdbXml = $actualCdbXmlDocument->getCdbXml();
-        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1-with-category.xml');
-        $this->assertEquals($expectedCdbXml, $actualCdbXml);
-
-        $actualCdbXmlDocument = $actualCdbXmlDocuments[1];
-        $actualCdbXml = $actualCdbXmlDocument->getCdbXml();
-        $expectedCdbXml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-2-with-category.xml');
-        $this->assertEquals($expectedCdbXml, $actualCdbXml);
-    }
-
-    /**
-     * @test
-     * @dataProvider handlersDataProvider
-     * @param string $class
-     * @param string $method
-     * @param mixed $event
-     */
-    public function it_returns_handlers($class, $method, $event)
-    {
-        $domainMessage = new DomainMessage('place_id', 1, new Metadata(), $event, DateTime::now());
-        $message = 'handling message ' . $class . ' using ' . $method . ' in FlandersRegionCdbXmlProjector';
-        $this->logger->expects($this->at(1))->method('info')->with($message);
-        $this->projector->handle($domainMessage);
-    }
-
-    public function handlersDataProvider()
-    {
-        return array(
-            array(
-                PlaceProjectedToCdbXml::class,
-                'applyFlandersRegionPlaceProjectedToCdbXml',
-                new PlaceProjectedToCdbXml(
-                    'http://foo.bar/place/place_id'
-                ),
-            ),
-        );
-    }
-
     public function setUp()
     {
         $this->cache = new ArrayCache();
@@ -151,5 +103,61 @@ class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestC
             ->willReturn(
                 array($eventId1, $eventId2)
             );
+    }
+
+    /**
+     * @test
+     * @dataProvider eventDataProvider
+     *
+     * @param mixed $event
+     * @param CdbXmlDocument[] $expectedCdbXmlDocuments
+     */
+    public function it_applies_a_category(
+        $event,
+        array $expectedCdbXmlDocuments
+    ) {
+        $domainMessage = new DomainMessage(
+            'place_id',
+            1,
+            new Metadata(),
+            $event,
+            DateTime::now()
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $actualCdbXmlDocuments = [];
+
+        foreach ($expectedCdbXmlDocuments as $expectedCdbXmlDocument) {
+            $id = $expectedCdbXmlDocument->getId();
+            $actualCdbXmlDocument = $this->repository->get($id);
+            $actualCdbXmlDocuments[] = $actualCdbXmlDocument;
+        }
+
+        $this->assertEquals($expectedCdbXmlDocuments, $actualCdbXmlDocuments);
+    }
+
+    /**
+     * @return array
+     */
+    public function eventDataProvider()
+    {
+        return [
+            [
+                new PlaceProjectedToCdbXml(
+                    'http://foo.bar/place/place_id'
+                ),
+                [
+                    new CdbXmlDocument(
+                        'event_1_id',
+                        file_get_contents(__DIR__ . "/Repository/samples/flanders_region/event-1-with-category.xml")
+                    ),
+                    new CdbXmlDocument(
+                        'event_2_id',
+                        file_get_contents(__DIR__ . "/Repository/samples/flanders_region/event-2-with-category.xml")
+                    ),
+                ],
+            ],
+        ];
     }
 }

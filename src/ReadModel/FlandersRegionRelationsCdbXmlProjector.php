@@ -88,7 +88,7 @@ class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXm
     /**
      * @param PlaceProjectedToCdbXml $placeProjectedToCdbXml
      *
-     * @return CdbXmlDocument[]
+     * @return \Generator|CdbXmlDocument[]
      */
     public function applyFlandersRegionPlaceProjectedToCdbXml(
         PlaceProjectedToCdbXml $placeProjectedToCdbXml
@@ -102,8 +102,6 @@ class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXm
         $eventIds = $this->offerRelationsService->getByPlace(
             $placeId
         );
-
-        $cdbXmlDocuments = array();
 
         foreach ($eventIds as $eventId) {
             $eventCdbXml = $this->realRepository->get($eventId);
@@ -121,9 +119,7 @@ class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXm
             $this->categories->updateFlandersRegionCategories($event, $category);
 
             // Return a new CdbXmlDocument.
-            $cdbXmlDocuments[] = $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($event);
+            yield $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($event);
         }
-
-        return $cdbXmlDocuments;
     }
 }
