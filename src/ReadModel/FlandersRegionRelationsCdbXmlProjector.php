@@ -28,7 +28,7 @@ use ValueObjects\Web\Url;
 class FlandersRegionRelationsCdbXmlProjector extends AbstractCdbXmlProjector
 {
     /**
-     * @var FlandersRegionCategoryService
+     * @var FlandersRegionCategoryServiceInterface
      */
     private $categories;
 
@@ -55,14 +55,14 @@ class FlandersRegionRelationsCdbXmlProjector extends AbstractCdbXmlProjector
     /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
-     * @param FlandersRegionCategoryService $categories
+     * @param FlandersRegionCategoryServiceInterface $categories
      * @param OfferRelationsServiceInterface $offerRelationsService
      * @param IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        FlandersRegionCategoryService $categories,
+        FlandersRegionCategoryServiceInterface $categories,
         OfferRelationsServiceInterface $offerRelationsService,
         IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
     ) {

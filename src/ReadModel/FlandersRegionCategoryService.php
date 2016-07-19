@@ -7,7 +7,7 @@ use CultureFeed_Cdb_Data_Category;
 use CultureFeed_Cdb_Item_Base;
 use SimpleXMLElement;
 
-class FlandersRegionCategoryService
+class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInterface
 {
     /**
      * @var SimpleXMLElement

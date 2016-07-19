@@ -18,7 +18,7 @@ use CultuurNet\UDB3\Place\PlaceEvent;
 class FlandersRegionOfferCdbXmlProjector extends AbstractCdbXmlProjector
 {
     /**
-     * @var FlandersRegionCategoryService
+     * @var FlandersRegionCategoryServiceInterface
      */
     private $categories;
 
@@ -31,12 +31,12 @@ class FlandersRegionOfferCdbXmlProjector extends AbstractCdbXmlProjector
     /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
-     * @param FlandersRegionCategoryService $categories
+     * @param FlandersRegionCategoryServiceInterface $categories
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        FlandersRegionCategoryService $categories
+        FlandersRegionCategoryServiceInterface $categories
     ) {
         parent::__construct($documentRepository);
 

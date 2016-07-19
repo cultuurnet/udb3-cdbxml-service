@@ -13,7 +13,7 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 class FlandersRegionOrganizerCdbXmlProjector extends AbstractCdbXmlProjector
 {
     /**
-     * @var FlandersRegionCategoryService
+     * @var FlandersRegionCategoryServiceInterface
      */
     private $categories;
 
@@ -25,12 +25,12 @@ class FlandersRegionOrganizerCdbXmlProjector extends AbstractCdbXmlProjector
     /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
-     * @param FlandersRegionCategoryService $categories
+     * @param FlandersRegionCategoryServiceInterface $categories
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        FlandersRegionCategoryService $categories
+        FlandersRegionCategoryServiceInterface $categories
     ) {
         parent::__construct($documentRepository);
 
