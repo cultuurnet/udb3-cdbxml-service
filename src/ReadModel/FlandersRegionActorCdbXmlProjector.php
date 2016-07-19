@@ -85,8 +85,6 @@ class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
         $this->categories->updateFlandersRegionCategories($organizer, $category);
 
         // Return a new CdbXmlDocument.
-        return array(
-            $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($organizer),
-        );
+        yield $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($organizer);
     }
 }
