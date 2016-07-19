@@ -20,7 +20,7 @@ use PHPUnit_Framework_TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
 
-class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
+class FlandersRegionOrganizerCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var ArrayCache
@@ -28,7 +28,7 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     private $cache;
 
     /**
-     * @var FlandersRegionCategories
+     * @var FlandersRegionCategoryService
      */
     private $categories;
 
@@ -43,7 +43,7 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     private $organizerId;
 
     /**
-     * @var FlandersRegionActorCdbXmlProjector
+     * @var FlandersRegionOrganizerCdbXmlProjector
      */
     private $projector;
 
@@ -57,9 +57,9 @@ class FlandersRegionActorCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
         $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/term.xml');
-        $this->categories = new FlandersRegionCategories($xml);
+        $this->categories = new FlandersRegionCategoryService($xml);
 
-        $this->projector = new FlandersRegionActorCdbXmlProjector(
+        $this->projector = new FlandersRegionOrganizerCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             $this->categories

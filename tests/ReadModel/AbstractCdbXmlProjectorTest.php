@@ -23,7 +23,7 @@ use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-class FlandersRegionAbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
+class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var ArrayCache
@@ -46,7 +46,7 @@ class FlandersRegionAbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCa
     protected $logger;
 
     /**
-     * @var FlandersRegionAbstractCdbXmlProjector|PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractCdbXmlProjector|PHPUnit_Framework_MockObject_MockObject
      */
     protected $projector;
 
@@ -288,7 +288,7 @@ class FlandersRegionAbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCa
             );
 
         $this->projector = $this->getMockForAbstractClass(
-            FlandersRegionAbstractCdbXmlProjector::class,
+            AbstractCdbXmlProjector::class,
             array(
                 $this->repository,
             ),

@@ -10,16 +10,10 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 
-/**
- * Class FlandersRegionActorCdbXmlProjector
- * This projector takes UDB3 domain messages, projects additional
- * flanders region categories to CdbXml and then
- * publishes the changes to a public URL.
- */
-class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlProjector
+class FlandersRegionOrganizerCdbXmlProjector extends AbstractCdbXmlProjector
 {
     /**
-     * @var FlandersRegionCategories
+     * @var FlandersRegionCategoryService
      */
     private $categories;
 
@@ -28,18 +22,15 @@ class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
      */
     private $cdbXmlDocumentFactory;
 
-
     /**
-     * FlandersRegionCdbXmlProjector constructor.
-     *
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
-     * @param FlandersRegionCategories $categories
+     * @param FlandersRegionCategoryService $categories
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        FlandersRegionCategories $categories
+        FlandersRegionCategoryService $categories
     ) {
         parent::__construct($documentRepository);
 
@@ -53,9 +44,9 @@ class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
     public function getHandlers()
     {
         return [
-            OrganizerCreated::class => 'applyFlandersRegionOrganizerCreatedImportedUpdated',
-            OrganizerImportedFromUDB2::class => 'applyFlandersRegionOrganizerCreatedImportedUpdated',
-            OrganizerUpdatedFromUDB2::class => 'applyFlandersRegionOrganizerCreatedImportedUpdated',
+            OrganizerCreated::class => 'applyFlandersRegionToOrganizer',
+            OrganizerImportedFromUDB2::class => 'applyFlandersRegionToOrganizer',
+            OrganizerUpdatedFromUDB2::class => 'applyFlandersRegionToOrganizer',
         ];
     }
 
@@ -64,7 +55,7 @@ class FlandersRegionActorCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
      *
      * @return CdbXmlDocument[]
      */
-    public function applyFlandersRegionOrganizerCreatedImportedUpdated($payload)
+    public function applyFlandersRegionToOrganizer($payload)
     {
         $organizerCdbXml = $this->getCdbXmlDocument(
             (get_class($payload) == OrganizerCreated::class) ? $payload->getOrganizerId() : $payload->getActorId()

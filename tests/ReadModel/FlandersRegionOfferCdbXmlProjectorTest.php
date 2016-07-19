@@ -34,7 +34,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     private $cache;
 
     /**
-     * @var FlandersRegionCategories
+     * @var FlandersRegionCategoryService
      */
     private $categories;
 
@@ -59,7 +59,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
         $this->repository = new CacheDocumentRepository($this->cache);
 
         $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/term.xml');
-        $this->categories = new FlandersRegionCategories($xml);
+        $this->categories = new FlandersRegionCategoryService($xml);
 
         $this->projector = new FlandersRegionOfferCdbXmlProjector(
             $this->repository,

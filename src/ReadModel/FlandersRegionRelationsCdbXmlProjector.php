@@ -25,10 +25,10 @@ use ValueObjects\Web\Url;
  * flandersregion categories to CdbXml and then
  * publishes the changes to a public URL.
  */
-class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXmlProjector
+class FlandersRegionRelationsCdbXmlProjector extends AbstractCdbXmlProjector
 {
     /**
-     * @var FlandersRegionCategories
+     * @var FlandersRegionCategoryService
      */
     private $categories;
 
@@ -55,14 +55,14 @@ class FlandersRegionRelationsCdbXmlProjector extends FlandersRegionAbstractCdbXm
     /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
-     * @param FlandersRegionCategories $categories
+     * @param FlandersRegionCategoryService $categories
      * @param OfferRelationsServiceInterface $offerRelationsService
      * @param IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        FlandersRegionCategories $categories,
+        FlandersRegionCategoryService $categories,
         OfferRelationsServiceInterface $offerRelationsService,
         IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
     ) {

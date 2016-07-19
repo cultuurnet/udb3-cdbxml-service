@@ -24,13 +24,7 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use RuntimeException;
 
-/**
- * Class FlandersRegionCdbXmlProjector
- * This projector takes UDB3 domain messages, projects additional
- * flandersregion categories to CdbXml and then
- * publishes the changes to a public URL.
- */
-abstract class FlandersRegionAbstractCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
+abstract class AbstractCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
@@ -45,7 +39,7 @@ abstract class FlandersRegionAbstractCdbXmlProjector implements EventListenerInt
     private $documentRepository;
 
     /**
-     * FlandersRegionAbstractCdbXmlProjector constructor.
+     * AbstractCdbXmlProjector constructor.
      *
      * @param \CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface $documentRepository
      */

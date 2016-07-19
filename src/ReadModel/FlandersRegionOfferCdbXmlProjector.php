@@ -15,16 +15,10 @@ use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\PlaceEvent;
 
-/**
- * Class FlandersRegionOfferCdbXmlProjector
- * This projector takes UDB3 domain messages, projects additional
- * flandersregion categories to CdbXml and then
- * publishes the changes to a public URL.
- */
-class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlProjector
+class FlandersRegionOfferCdbXmlProjector extends AbstractCdbXmlProjector
 {
     /**
-     * @var FlandersRegionCategories
+     * @var FlandersRegionCategoryService
      */
     private $categories;
 
@@ -35,16 +29,14 @@ class FlandersRegionOfferCdbXmlProjector extends FlandersRegionAbstractCdbXmlPro
 
 
     /**
-     * FlandersRegionCdbXmlProjector constructor.
-     *
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
-     * @param FlandersRegionCategories $categories
+     * @param FlandersRegionCategoryService $categories
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory,
-        FlandersRegionCategories $categories
+        FlandersRegionCategoryService $categories
     ) {
         parent::__construct($documentRepository);
 

@@ -19,8 +19,8 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionActorCdbXmlProjector;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionCategories;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionRelationsCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
@@ -160,7 +160,7 @@ $app['flanders_region_categories'] = $app->share(
         else {
             $xml = '<cdbxml></cdbxml>';
         }
-        $categories = new FlandersRegionCategories($xml);
+        $categories = new FlandersRegionCategoryService($xml);
         return $categories;
     }
 );
@@ -169,7 +169,7 @@ $app['flanders_region_categories'] = $app->share(
 
 $app['flanders_region_actor_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = (new FlandersRegionActorCdbXmlProjector(
+        $projector = (new FlandersRegionOrganizerCdbXmlProjector(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_document_factory'],
             $app['flanders_region_categories']
