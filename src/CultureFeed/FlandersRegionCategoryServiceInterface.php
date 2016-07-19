@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
+namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
 use CultureFeed_Cdb_Data_Address_PhysicalAddress;
 use CultureFeed_Cdb_Data_Category;

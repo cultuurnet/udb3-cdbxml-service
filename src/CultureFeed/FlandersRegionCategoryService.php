@@ -1,10 +1,11 @@
 <?php
 
-namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
+namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
 use CultureFeed_Cdb_Data_Address_PhysicalAddress;
 use CultureFeed_Cdb_Data_Category;
 use CultureFeed_Cdb_Item_Base;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryServiceInterface;
 use SimpleXMLElement;
 
 class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInterface

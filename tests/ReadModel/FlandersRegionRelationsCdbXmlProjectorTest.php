@@ -7,6 +7,7 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;

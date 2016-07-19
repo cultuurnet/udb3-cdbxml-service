@@ -20,7 +20,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionCategoryService;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionRelationsCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;

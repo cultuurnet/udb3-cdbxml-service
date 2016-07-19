@@ -1,8 +1,9 @@
 <?php
 
-namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
+namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
 use CultureFeed_Cdb_Data_Category;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use PHPUnit_Framework_TestCase;
 
 class FlandersRegionCategoryServiceTest extends PHPUnit_Framework_TestCase
@@ -14,7 +15,7 @@ class FlandersRegionCategoryServiceTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/term.xml');
+        $xml = file_get_contents(__DIR__ . '/samples/flanders_region_terms.xml');
         $this->categories = new FlandersRegionCategoryService($xml);
     }
 
