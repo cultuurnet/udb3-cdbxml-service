@@ -43,8 +43,8 @@ class FlandersRegionCategories
         if (count($result)) {
             $category = new CultureFeed_Cdb_Data_Category(
                 CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION,
-                $result[0]['id'],
-                $result[0]['label']
+                (string) $result[0]['id'],
+                (string) $result[0]['label']
             );
         }
 
