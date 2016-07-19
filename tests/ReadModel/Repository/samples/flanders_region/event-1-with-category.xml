@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <event cdbid="event_1_id" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/event_1_id" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
+    <categories>
+      <category catid="0.50.6.0.0" type="eventtype">film</category>
+      <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
+      <category catid="reg.475" type="flandersregion">2000 Antwerpen</category>
+    </categories>
+    <calendar>
+      <timestamps>
+        <timestamp>
+          <date>2014-01-31</date>
+          <timestart>12:00:00</timestart>
+          <timeend>15:00:00</timeend>
+        </timestamp>
+        <timestamp>
+          <date>2014-02-20</date>
+          <timestart>12:00:00</timestart>
+          <timeend>15:00:00</timeend>
+        </timestamp>
+      </timestamps>
+    </calendar>
+    <contactinfo/>
+    <eventdetails>
+      <eventdetail lang="nl">
+        <title>Griezelfilm of horror</title>
+      </eventdetail>
+    </eventdetails>
+    <location>
+      <address>
+        <physical>
+          <city>Antwerpen</city>
+          <country>BE</country>
+          <housenr>4</housenr>
+          <street>Maarschalk Gerardstraat</street>
+          <zipcode>2000</zipcode>
+        </physical>
+      </address>
+      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">$name</label>
+    </location>
+  </event>
+</cdbxml>

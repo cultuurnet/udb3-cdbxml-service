@@ -19,6 +19,10 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOfferCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionRelationsCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
@@ -53,6 +57,8 @@ $app['event_bus.udb3-core'] = $app->share(
         $bus->subscribe($app['offer_to_event_cdbxml_projector']);
         $bus->subscribe($app['event_relations_projector']);
         $bus->subscribe($app['place_relations_projector']);
+        $bus->subscribe($app['flanders_region_actor_cdbxml_projector']);
+        $bus->subscribe($app['flanders_region_offer_cdbxml_projector']);
 
         return $bus;
     }
@@ -64,6 +70,7 @@ $app['event_bus.udb3-core.relations'] = $app->share(
         $bus =  new SimpleEventBus();
 
         $bus->subscribe($app['relations_to_cdbxml_projector']);
+        $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
 
         return $bus;
     }
@@ -136,6 +143,64 @@ $app['relations_to_cdbxml_projector'] = $app->share(
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
             $app['real_cdbxml_actor_repository'],
+            $app['offer_relations_service'],
+            $app['iri_offer_identifier_factory']
+        );
+
+        return $projector;
+    }
+);
+
+$app['flanders_region_categories'] = $app->share(
+    function (Application $app) {
+
+        if (file_exists('config/term.xml')) {
+            $xml = file_get_contents('config/term.xml');
+        }
+        else {
+            $xml = '<cdbxml></cdbxml>';
+        }
+        $categories = new FlandersRegionCategoryService($xml);
+        return $categories;
+    }
+);
+
+
+
+$app['flanders_region_actor_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = (new FlandersRegionOrganizerCdbXmlProjector(
+            $app['cdbxml_actor_repository'],
+            $app['cdbxml_document_factory'],
+            $app['flanders_region_categories']
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
+
+        $projector->setLogger($app['logger.projector']);
+
+        return $projector;
+    }
+);
+
+$app['flanders_region_offer_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = (new FlandersRegionOfferCdbXmlProjector(
+            $app['cdbxml_offer_repository'],
+            $app['cdbxml_document_factory'],
+            $app['flanders_region_categories']
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
+
+        $projector->setLogger($app['logger.projector']);
+
+        return $projector;
+    }
+);
+
+$app['flanders_region_relations_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = new FlandersRegionRelationsCdbXmlProjector(
+            $app['real_cdbxml_offer_repository'],
+            $app['cdbxml_document_factory'],
+            $app['flanders_region_categories'],
             $app['offer_relations_service'],
             $app['iri_offer_identifier_factory']
         );
