@@ -138,7 +138,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 new CdbXmlDocument(
                     'event_1_id',
                     file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1-with-category.xml')
-                )
+                ),
             ],
             [
                 new CdbXmlDocument(
@@ -155,7 +155,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 new CdbXmlDocument(
                     'event_1_id',
                     file_get_contents(__DIR__ . '/Repository/samples/flanders_region/event-1-with-category.xml')
-                )
+                ),
             ],
             [
                 new CdbXmlDocument(
@@ -172,7 +172,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 new CdbXmlDocument(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place-with-category.xml')
-                )
+                ),
             ],
             [
                 new CdbXmlDocument(
@@ -189,7 +189,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 new CdbXmlDocument(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place-with-category.xml')
-                )
+                ),
             ],
         ];
     }
