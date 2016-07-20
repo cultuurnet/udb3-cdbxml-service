@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "95c9a99ca51b12fc2fa3a9aa1ea7002b",
-    "content-hash": "b2ee943f0db1ed3f07e6454ef3cbb9f5",
+    "hash": "ab49c8058bb448491a3ae5a7ac74264b",
+    "content-hash": "ba7cec13d8fa37886aee54682fe7d2d0",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1026,12 +1026,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "3699090a7fffd786836b7e8ee7e4e220c0075491"
+                "reference": "690dc407b0a4cf54c655f9bf0d80856f8488d1c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/3699090a7fffd786836b7e8ee7e4e220c0075491",
-                "reference": "3699090a7fffd786836b7e8ee7e4e220c0075491",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/690dc407b0a4cf54c655f9bf0d80856f8488d1c2",
+                "reference": "690dc407b0a4cf54c655f9bf0d80856f8488d1c2",
                 "shasum": ""
             },
             "require": {
@@ -1104,7 +1104,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-07-18 11:29:36"
+            "time": "2016-07-19 12:43:29"
         },
         {
             "name": "cultuurnet/udb3-jwt",
