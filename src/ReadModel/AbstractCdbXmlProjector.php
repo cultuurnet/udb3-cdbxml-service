@@ -81,15 +81,14 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
 
         $handlers = $this->getHandlers();
 
-        $this->logger->info('found message ' . $payloadClassName . ' in FlandersRegionCdbXmlProjector');
+        $this->logger->info('found message ' . $payloadClassName . ' in ' . get_class($this));
 
         if (isset($handlers[$payloadClassName])) {
             $handler = $handlers[$payloadClassName];
 
             try {
                 $this->logger->info(
-                    'handling message ' . $payloadClassName . ' using ' .
-                    $handlers[$payloadClassName] . ' in FlandersRegionCdbXmlProjector'
+                    'handling message ' . $payloadClassName . ' using ' . $handlers[$payloadClassName]
                 );
 
                 $cdbXmlDocuments = $this->{$handler}($payload);
