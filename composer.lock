@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b78d2946b16ad0345849ebfc7f48dd2c",
-    "content-hash": "ec695b5cd27d0c870854c8ceacfcc215",
+    "hash": "6d1b8f43d70563c46e2fed1648bee974",
+    "content-hash": "e2ab5fed21c5b47003f6a924efa25e72",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1071,16 +1071,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-1260",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "f5c692e4b1e82583ba25ed376321d56876ed8284"
+                "reference": "d3e41b3d7b046afbf159769e73c229e2e4e519fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/f5c692e4b1e82583ba25ed376321d56876ed8284",
-                "reference": "f5c692e4b1e82583ba25ed376321d56876ed8284",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/d3e41b3d7b046afbf159769e73c229e2e4e519fb",
+                "reference": "d3e41b3d7b046afbf159769e73c229e2e4e519fb",
                 "shasum": ""
             },
             "require": {
@@ -1153,7 +1153,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-07-20 11:16:34"
+            "time": "2016-07-25 14:06:30"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -5188,16 +5188,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.26",
+            "version": "4.8.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "fc1d8cd5b5de11625979125c5639347896ac2c74"
+                "reference": "c062dddcb68e44b563f66ee319ddae2b5a322a90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fc1d8cd5b5de11625979125c5639347896ac2c74",
-                "reference": "fc1d8cd5b5de11625979125c5639347896ac2c74",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c062dddcb68e44b563f66ee319ddae2b5a322a90",
+                "reference": "c062dddcb68e44b563f66ee319ddae2b5a322a90",
                 "shasum": ""
             },
             "require": {
@@ -5256,7 +5256,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-05-17 03:09:28"
+            "time": "2016-07-21 06:48:14"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -6022,18 +6022,9 @@
             "time": "2015-08-24 13:29:44"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-1260",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
