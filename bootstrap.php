@@ -10,14 +10,18 @@ use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\BroadwayAMQP\Message\EntireDomainMessageBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
+use CultuurNet\Geocoding\CachedGeocodingService;
+use CultuurNet\Geocoding\DefaultGeocodingService;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
+use CultuurNet\UDB3\Address\DefaultAddressFormatter;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\GeocodingOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
@@ -32,6 +36,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use DerAlex\Silex\YamlConfigServiceProvider;
+use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Silex\Application;
@@ -59,6 +64,7 @@ $app['event_bus.udb3-core'] = $app->share(
         $bus->subscribe($app['place_relations_projector']);
         $bus->subscribe($app['flanders_region_actor_cdbxml_projector']);
         $bus->subscribe($app['flanders_region_offer_cdbxml_projector']);
+        $bus->subscribe($app['geocoding_offer_cdbxml_projector']);
 
         return $bus;
     }
@@ -204,6 +210,49 @@ $app['flanders_region_relations_cdbxml_projector'] = $app->share(
             $app['offer_relations_service'],
             $app['iri_offer_identifier_factory']
         );
+
+        $projector->setLogger($app['logger.projector']);
+
+        return $projector;
+    }
+);
+
+$app['geocoding_service'] = $app->share(
+    function (Application $app) {
+        return new DefaultGeocodingService(
+            new Geocoder\Geocoder(
+                new GoogleMapsProvider(
+                    new Geocoder\HttpAdapter\CurlHttpAdapter(),
+                    null,
+                    null,
+                    false,
+                    isset($app['config']['google_maps_api_key']) ? $app['config']['google_maps_api_key'] : null
+                )
+            )
+        );
+    }
+);
+
+$app['cached_geocoding_service'] = $app->share(
+    function (Application $app) {
+        return new CachedGeocodingService(
+            $app['geocoding_service'],
+            $app['cache']('geocoords')
+        );
+    }
+);
+
+$app['geocoding_offer_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = (new GeocodingOfferCdbXmlProjector(
+            $app['real_cdbxml_offer_repository'],
+            $app['cdbxml_document_factory'],
+            $app['offer_relations_service'],
+            new DefaultAddressFormatter(),
+            $app['cached_geocoding_service']
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);;
+
+        $projector->setLogger($app['logger.projector']);
 
         return $projector;
     }
