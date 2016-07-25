@@ -244,13 +244,13 @@ $app['cached_geocoding_service'] = $app->share(
 
 $app['geocoding_offer_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = new GeocodingOfferCdbXmlProjector(
+        $projector = (new GeocodingOfferCdbXmlProjector(
             $app['real_cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
             $app['offer_relations_service'],
             new DefaultAddressFormatter(),
             $app['cached_geocoding_service']
-        );
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);;
 
         $projector->setLogger($app['logger.projector']);
 

@@ -83,7 +83,7 @@ class GeocodingOfferCdbXmlProjector extends AbstractCdbXmlProjector
 
         yield $this->getCdbXmlDocumentWithUpdatedAddressCoordinates($placeId, $address);
 
-        foreach ($this->getEventIdsRelatedToPlace($placeId) as $eventId) {
+        foreach ($this->offerRelationsService->getByPlace($placeId) as $eventId) {
             yield $this->getCdbXmlDocumentWithUpdatedAddressCoordinates($eventId, $address);
         }
     }
@@ -107,15 +107,6 @@ class GeocodingOfferCdbXmlProjector extends AbstractCdbXmlProjector
     }
 
     /**
-     * @param $placeId
-     * @return string[]
-     */
-    private function getEventIdsRelatedToPlace($placeId)
-    {
-        return $this->offerRelationsService->getByPlace($placeId);
-    }
-
-    /**
      * @param $id
      * @param $address
      * @return CdbXmlDocument
@@ -133,22 +124,16 @@ class GeocodingOfferCdbXmlProjector extends AbstractCdbXmlProjector
 
         $cdbXmlDocument = $this->getCdbXmlDocument($id);
 
-        $this->logger->info("cdbxml document found ({$id})");
-
         try {
             $cdbItem = ActorItemFactory::createActorFromCdbXml(
                 \CultureFeed_Cdb_Xml::namespaceUriForVersion('3.3'),
                 $cdbXmlDocument->getCdbXml()
             );
-
-            $this->logger->info("cdbxml document is actor ({$id})");
         } catch (\CultureFeed_Cdb_ParseException $e) {
             $cdbItem = EventItemFactory::createEventFromCdbXml(
                 \CultureFeed_Cdb_Xml::namespaceUriForVersion('3.3'),
                 $cdbXmlDocument->getCdbXml()
             );
-
-            $this->logger->info("cdbxml document is event ({$id})");
 
             if (!empty($cdbItem->getLocation()) &&
                 !empty($cdbItem->getLocation()->getAddress()) &&
