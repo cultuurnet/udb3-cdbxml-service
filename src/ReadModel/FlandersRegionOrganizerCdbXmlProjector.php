@@ -58,20 +58,38 @@ class FlandersRegionOrganizerCdbXmlProjector extends AbstractCdbXmlProjector
      */
     public function applyFlandersRegionToOrganizer($payload)
     {
-        $organizerCdbXml = $this->getCdbXmlDocument(
-            (get_class($payload) == OrganizerCreated::class) ? $payload->getOrganizerId() : $payload->getActorId()
-        );
+        $organizerId = (get_class($payload) == OrganizerCreated::class) ? $payload->getOrganizerId() : $payload->getActorId();
+
+        $organizerCdbXmlDocument = $this->getCdbXmlDocument($organizerId);
 
         $organizer = ActorItemFactory::createActorFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $organizerCdbXml->getCdbXml()
+            $organizerCdbXmlDocument->getCdbXml()
         );
 
         $contactInfo = $organizer->getContactInfo();
+
+        if (empty($contactInfo)) {
+            $this->logger->error("no contactinfo found in organizer ({$organizerId})");
+            return;
+        }
+
         $addresses = $contactInfo->getAddresses();
+
+        if (empty($addresses)) {
+            $this->logger->error("no address found in organizer contactinfo ({$organizerId})");
+            return;
+        }
+
         /* @var \CultureFeed_Cdb_Data_Address $address */
         $address = $addresses[0];
+
         $physicalAddress = $address->getPhysicalAddress();
+
+        if (empty($physicalAddress)) {
+            $this->logger->error("no physical address found in organizer address ({$organizerId})");
+            return;
+        }
 
         $category = $this->categories->findFlandersRegionCategory($physicalAddress);
         $this->categories->updateFlandersRegionCategories($organizer, $category);
