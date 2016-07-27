@@ -49,9 +49,13 @@ class CdbXmlDocumentController
               '/(?<=<longdescription>)(.*)(?=<\/longdescription>)/s',
               '/(?<=<shortdescription>)(.*)(?=<\/shortdescription>)/s',
             );
-            $xml = preg_replace_callback($patterns, function($matches) {
-                return str_replace("\n", "&lt;br />", $matches[0]);
-            }, $document->getCdbXml());
+            $xml = preg_replace_callback(
+                $patterns,
+                function ($matches) {
+                    return str_replace("\n", "&lt;br />", $matches[0]);
+                },
+                $document->getCdbXml()
+            );
             $response->setContent($xml);
         }
 
