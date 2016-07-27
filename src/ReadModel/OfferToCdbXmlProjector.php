@@ -105,6 +105,7 @@ use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
+use CultuurNet\UDB3\StringFilter\StringFilterInterface;
 use CultuurNet\UDB3\Theme;
 use DateTime;
 use Psr\Log\LoggerAwareInterface;
@@ -167,12 +168,24 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $addressFactory;
 
     /**
+     * @var \CultuurNet\UDB3\StringFilter\StringFilterInterface
+     */
+    private $longDescriptionFilter;
+
+    /**
+     * @var \CultuurNet\UDB3\StringFilter\StringFilterInterface
+     */
+    private $shortDescriptionFilter;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
      * @param DocumentRepositoryInterface $actorDocumentRepository
      * @param DateFormatterInterface $dateFormatter
      * @param AddressFactoryInterface $addressFactory
+     * @param StringFilterInterface $longDescriptionFilter
+     * @param StringFilterInterface $shortDescriptionFilter
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -180,7 +193,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         MetadataCdbItemEnricherInterface $metadataCdbItemEnricher,
         DocumentRepositoryInterface $actorDocumentRepository,
         DateFormatterInterface $dateFormatter,
-        AddressFactoryInterface $addressFactory
+        AddressFactoryInterface $addressFactory,
+        StringFilterInterface $longDescriptionFilter,
+        StringFilterInterface $shortDescriptionFilter
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -189,6 +204,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->actorDocumentRepository = $actorDocumentRepository;
         $this->dateFormatter = $dateFormatter;
         $this->addressFactory = $addressFactory;
+        $this->longDescriptionFilter = $longDescriptionFilter;
+        $this->shortDescriptionFilter = $shortDescriptionFilter;
         $this->logger = new NullLogger();
     }
 
@@ -707,8 +724,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $languageCode = $translationApplied->getLanguage()->getCode();
         $title = $translationApplied->getTitle()->toNative();
-        $longDescription = $translationApplied->getLongDescription()->toNative();
-        $shortDescription = $translationApplied->getShortDescription()->toNative();
+        $longDescription = $this->longDescriptionFilter->filter(
+            $translationApplied->getLongDescription()->toNative()
+        );
+        $shortDescription = $this->shortDescriptionFilter->filter(
+            $translationApplied->getShortDescription()->toNative()
+        );
 
         $details = $offer->getDetails();
         $detail = $details->getDetailByLanguage($languageCode);
@@ -841,15 +862,23 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $nlDetail = $details->getDetailByLanguage('nl');
 
         if (!empty($detail)) {
-            $detail->setLongDescription($description);
-            $detail->setShortDescription(iconv_substr($description, 0, 400));
+            $detail->setLongDescription(
+                $this->longDescriptionFilter->filter($description)
+            );
+            $detail->setShortDescription(
+                $this->shortDescriptionFilter->filter($description)
+            );
         } else {
             $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage($descriptionTranslated->getLanguage()->getCode());
 
             $detail->setTitle($nlDetail->getTitle());
-            $detail->setLongDescription($description);
-            $detail->setShortDescription(iconv_substr($description, 0, 400));
+            $detail->setLongDescription(
+                $this->longDescriptionFilter->filter($description)
+            );
+            $detail->setShortDescription(
+                $this->shortDescriptionFilter->filter($description)
+            );
 
             $details->add($detail);
         }
@@ -883,13 +912,21 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $detailNl = $details->getDetailByLanguage('nl');
 
         if (!empty($detailNl)) {
-            $detailNl->setLongDescription(str_replace("\n", "<br />", $description));
-            $detailNl->setShortDescription(iconv_substr($description, 0, 400));
+            $detailNl->setLongDescription(
+                $this->longDescriptionFilter->filter($description)
+            );
+            $detailNl->setShortDescription(
+                $this->shortDescriptionFilter->filter($description)
+            );
         } else {
             $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage('nl');
-            $detail->setLongDescription(str_replace("\n", "<br />", $description));
-            $detail->setShortDescription(iconv_substr($description, 0, 400));
+            $detail->setLongDescription(
+                $this->longDescriptionFilter->filter($description)
+            );
+            $detail->setShortDescription(
+                $this->shortDescriptionFilter->filter($description)
+            );
             $details->add($detail);
         }
 

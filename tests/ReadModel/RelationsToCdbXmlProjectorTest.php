@@ -19,6 +19,10 @@ use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
+use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
+use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
+use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
+use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
@@ -65,6 +69,10 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
+        $shortDescriptionFilter = new CombinedStringFilter();
+        $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
+        $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
+
         $projector = new OfferToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
@@ -73,7 +81,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
             $this->actorRepository,
             new CdbXmlDateFormatter(),
-            new AddressFactory()
+            new AddressFactory(),
+            new NewlineToBreakTagStringFilter(),
+            $shortDescriptionFilter
         );
 
         $this->projector = $projector->withCdbXmlPublisher($this->cdbXmlPublisher);
