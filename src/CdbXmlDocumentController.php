@@ -44,15 +44,7 @@ class CdbXmlDocumentController
         }
 
         if (isset($document)) {
-            // Ensure line endings are parsed correctly.
-            $patterns = array(
-              '/(?<=<longdescription>)(.*)(?=<\/longdescription>)/s',
-              '/(?<=<shortdescription>)(.*)(?=<\/shortdescription>)/s',
-            );
-            $xml = preg_replace_callback($patterns, function($matches) {
-                return str_replace("\n", "&lt;br />", $matches[0]);
-            }, $document->getCdbXml());
-            $response->setContent($xml);
+            $response->setContent($document->getCdbXml());
         }
 
         if (isset($problem)) {
