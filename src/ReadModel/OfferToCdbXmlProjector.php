@@ -883,12 +883,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $detailNl = $details->getDetailByLanguage('nl');
 
         if (!empty($detailNl)) {
-            $detailNl->setLongDescription($description);
+            $detailNl->setLongDescription(str_replace("\n", "<br />", $description));
             $detailNl->setShortDescription(iconv_substr($description, 0, 400));
         } else {
             $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage('nl');
-            $detail->setLongDescription($description);
+            $detail->setLongDescription(str_replace("\n", "<br />", $description));
             $detail->setShortDescription(iconv_substr($description, 0, 400));
             $details->add($detail);
         }
