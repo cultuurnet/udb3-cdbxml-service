@@ -35,6 +35,10 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
+use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
+use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
+use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
+use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
@@ -110,13 +114,25 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
 
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
+        $longDescriptionFilter = new NewlineToBreakTagStringFilter();
+
+        $truncateFilter = new TruncateStringFilter(400);
+        $truncateFilter->addEllipsis();
+        $truncateFilter->turnOnWordSafe();
+
+        $shortDescriptionFilter = new CombinedStringFilter();
+        $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
+        $shortDescriptionFilter->addFilter($truncateFilter);
+
         $projector = (new OfferToCdbXmlProjector(
             $app['cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
             $app['metadata_cdb_item_enricher'],
             $app['cdbxml_actor_repository'],
             $app['cdbxml_date_formatter'],
-            $app['address_factory']
+            $app['address_factory'],
+            $longDescriptionFilter,
+            $shortDescriptionFilter
         ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
         $projector->setLogger($app['logger.projector']);

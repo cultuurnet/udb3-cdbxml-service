@@ -53,6 +53,10 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
+use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
+use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
+use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
+use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
@@ -93,6 +97,10 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
+        $shortDescriptionFilter = new CombinedStringFilter();
+        $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
+        $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
+
         $this->projector = (
         new OfferToCdbXmlProjector(
             $this->repository,
@@ -102,7 +110,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
             $this->actorRepository,
             new CdbXmlDateFormatter(),
-            new AddressFactory()
+            new AddressFactory(),
+            new NewlineToBreakTagStringFilter(),
+            $shortDescriptionFilter
         )
         )->withCdbXmlPublisher($this->cdbXmlPublisher);
 
@@ -556,7 +566,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new DescriptionUpdated(
                     $id,
-                    'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                 )
             )
             ->expect($cdbXmlType . '-with-description.xml')
