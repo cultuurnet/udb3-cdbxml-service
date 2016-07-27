@@ -28,7 +28,6 @@ class FlandersRegionOfferCdbXmlProjector extends AbstractCdbXmlProjector
      */
     private $cdbXmlDocumentFactory;
 
-
     /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
@@ -65,18 +64,35 @@ class FlandersRegionOfferCdbXmlProjector extends AbstractCdbXmlProjector
      */
     public function applyFlandersRegionToEvent($payload)
     {
-        $eventCdbXml = $this->getCdbXmlDocument(
-            $this->determineOfferId($payload)
-        );
+        $eventId = $this->determineOfferId($payload);
+
+        $eventCdbXmlDocument = $this->getCdbXmlDocument($eventId);
 
         $event = EventItemFactory::createEventFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
+            $eventCdbXmlDocument->getCdbXml()
         );
 
         $location = $event->getLocation();
+
+        if (empty($location)) {
+            $this->logger->error("no location found in event ({$eventId})");
+            return;
+        }
+
         $address = $location->getAddress();
+
+        if (empty($address)) {
+            $this->logger->error("no address found in event ({$eventId})");
+            return;
+        }
+
         $physicalAddress = $address->getPhysicalAddress();
+
+        if (empty($physicalAddress)) {
+            $this->logger->error("no physical address found in event address ({$eventId})");
+            return;
+        }
 
         $category = $this->categories->findFlandersRegionCategory($physicalAddress);
         $this->categories->updateFlandersRegionCategories($event, $category);
@@ -92,20 +108,38 @@ class FlandersRegionOfferCdbXmlProjector extends AbstractCdbXmlProjector
      */
     public function applyFlandersRegionToPlace($payload)
     {
-        $placeCdbXml = $this->getCdbXmlDocument(
-            $this->determineOfferId($payload)
-        );
+        $placeId = $this->determineOfferId($payload);
+
+        $placeCdbXmlDocument = $this->getCdbXmlDocument($placeId);
 
         $place = ActorItemFactory::createActorFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $placeCdbXml->getCdbXml()
+            $placeCdbXmlDocument->getCdbXml()
         );
 
         $contactInfo = $place->getContactInfo();
+
+        if (empty($contactInfo)) {
+            $this->logger->error("no contactinfo found in place ({$placeId})");
+            return;
+        }
+
         $addresses = $contactInfo->getAddresses();
+
+        if (empty($addresses)) {
+            $this->logger->error("no address found in place contactinfo ({$placeId})");
+            return;
+        }
+
         /* @var \CultureFeed_Cdb_Data_Address $address */
         $address = $addresses[0];
+
         $physicalAddress = $address->getPhysicalAddress();
+
+        if (empty($physicalAddress)) {
+            $this->logger->error("no physical address found in place address ({$placeId})");
+            return;
+        }
 
         $category = $this->categories->findFlandersRegionCategory($physicalAddress);
         $this->categories->updateFlandersRegionCategories($place, $category);

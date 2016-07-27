@@ -105,16 +105,33 @@ class FlandersRegionRelationsCdbXmlProjector extends AbstractCdbXmlProjector
         );
 
         foreach ($eventIds as $eventId) {
-            $eventCdbXml = $this->realRepository->get($eventId);
+            $eventCdbXmlDocument = $this->realRepository->get($eventId);
 
             $event = EventItemFactory::createEventFromCdbXml(
                 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $eventCdbXml->getCdbXml()
+                $eventCdbXmlDocument->getCdbXml()
             );
 
             $location = $event->getLocation();
+
+            if (empty($location)) {
+                $this->logger->error("no location found in event ({$eventId})");
+                return;
+            }
+
             $address = $location->getAddress();
+
+            if (empty($address)) {
+                $this->logger->error("no address found in event ({$eventId})");
+                return;
+            }
+
             $physicalAddress = $address->getPhysicalAddress();
+
+            if (empty($physicalAddress)) {
+                $this->logger->error("no physical address found in event address ({$eventId})");
+                return;
+            }
 
             $category = $this->categories->findFlandersRegionCategory($physicalAddress);
             $this->categories->updateFlandersRegionCategories($event, $category);
