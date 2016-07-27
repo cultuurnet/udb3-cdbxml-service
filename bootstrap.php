@@ -116,9 +116,13 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $longDescriptionFilter = new NewlineToBreakTagStringFilter();
 
+        $truncateFilter = new TruncateStringFilter(400);
+        $truncateFilter->addEllipsis();
+        $truncateFilter->turnOnWordSafe();
+
         $shortDescriptionFilter = new CombinedStringFilter();
         $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
-        $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
+        $shortDescriptionFilter->addFilter($truncateFilter);
 
         $projector = (new OfferToCdbXmlProjector(
             $app['cdbxml_offer_repository'],
