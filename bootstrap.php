@@ -17,6 +17,7 @@ use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
+use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
@@ -27,6 +28,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
+use CultuurNet\UDB3\Label\LabelEventOfferTypeResolver;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -53,6 +55,7 @@ $app['event_bus.udb3-core'] = $app->share(
     function (Application $app) {
         $bus =  new SimpleEventBus();
 
+        $bus->subscribe($app['labels_relations_projector']);
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
         $bus->subscribe($app['offer_to_event_cdbxml_projector']);
         $bus->subscribe($app['label_to_item_cdbxml_projector']);
@@ -508,6 +511,15 @@ $app['place_relations_repository'] = $app->share(
     }
 );
 
+$app['labels_relations_repository'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\DBALWriteRepository(
+            $app['dbal_connection'],
+            new StringLiteral('labels_relations')
+        );
+    }
+);
+
 $app[OFFER_LABEL_RELATION_REPOSITORY] = $app->share(
   function (Application $app) {
       return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\ReadRepository(
@@ -533,9 +545,36 @@ $app['place_relations_projector'] = $app->share(
     }
 );
 
+$app['labels_relations_projector'] = $app->share(
+    function ($app) {
+        return new \CultuurNet\UDB3\Label\ReadModels\Relations\Projector(
+            $app['place_relations_repository'],
+            new LabelEventOfferTypeResolver()
+        );
+    }
+);
+
 $app['database.installer'] = $app->share(
     function (Application $app) {
         return new \CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller($app);
+    }
+);
+
+$app['labels_relations_schema'] = $app->share(
+    function (Application $app) {
+        return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\SchemaConfigurator(
+            new StringLiteral('labels_relations')
+        );
+    }
+);
+
+$app['database.installer'] = $app->extend(
+    'database.installer',
+    function (DatabaseSchemaInstaller $installer, Application $app) {
+        $installer->addSchemaConfigurator(
+            $app['labels_relations_schema']
+        );
+        return $installer;
     }
 );
 
