@@ -548,7 +548,7 @@ $app['place_relations_projector'] = $app->share(
 $app['labels_relations_projector'] = $app->share(
     function ($app) {
         return new \CultuurNet\UDB3\Label\ReadModels\Relations\Projector(
-            $app['place_relations_repository'],
+            $app['labels_relations_repository'],
             new LabelEventOfferTypeResolver()
         );
     }
