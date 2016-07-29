@@ -48,6 +48,7 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
      * LabelToActorCdbxmlProjector constructor.
      * @param DocumentRepositoryInterface $cdbxmlRepository
      * @param ReadRepositoryInterface $relationRepository
+     * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      */
     public function __construct(
         DocumentRepositoryInterface $cdbxmlRepository,
@@ -80,8 +81,6 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
         $payload = $domainMessage->getPayload();
         $payloadClassName = get_class($payload);
 
-        $metadata = $domainMessage->getMetadata();
-
         $handlers = [
             MadeVisible::class => 'applyMadeVisible',
             MadeInvisible::class => 'applyMadeInvisible',
@@ -103,11 +102,9 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
                 $this->logger->error(
                     'Handle error for uuid=' . $domainMessage->getId()
                     . ' for type ' . $domainMessage->getType()
-                    . ' recorded on ' .$domainMessage->getRecordedOn()->toString(),
-                    [
-                        'exception' => get_class($exception),
-                        'message' => $exception->getMessage(),
-                    ]
+                    . ' recorded on ' .$domainMessage->getRecordedOn()->toString()
+                    . 'exception' . get_class($exception)
+                    . ' message' . $exception->getMessage()
                 );
             }
         } else {
@@ -132,47 +129,68 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
      */
     private function applyVisibility(AbstractEvent $labelEvent, DomainMessage $domainMessage, $isVisible)
     {
-        $offerLabelRelations = $this->relationRepository->getOfferLabelRelations($labelEvent->getUuid());
+        $labelName = $this->getLabelName($domainMessage);
 
-        foreach ($offerLabelRelations as $offerRelation) {
-            $offerDocument = $this->cdbxmlRepository->get($offerRelation->getRelationId());
+        if ($labelName) {
+            $offerLabelRelations = $this->relationRepository->getOfferLabelRelations($labelEvent->getUuid());
 
-            if ($offerRelation->getRelationType() === OfferType::EVENT()) {
-                $cdbXmlItem = EventItemFactory::createEventFromCdbXml(
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                    $offerDocument->getCdbXml()
-                );
-            } elseif ($offerRelation->getRelationType() === OfferType::PLACE()) {
-                $cdbXmlItem = ActorItemFactory::createActorFromCdbXml(
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                    $offerDocument->getCdbXml()
-                );
-            } else {
-                $this->logger->info(
-                    'Can not update visibility for label: '. $offerRelation->getLabelName()
-                    . ' The item with id: ' . $offerRelation->getRelationId()
-                    . ', has an unsupported type: ' . $offerRelation->getRelationType()
-                );
-            }
+            foreach ($offerLabelRelations as $offerRelation) {
+                $offerDocument = $this->cdbxmlRepository->get($offerRelation->getOfferId());
 
-            if (isset($cdbXmlItem)) {
-                $keywords = $cdbXmlItem->getKeywords(true);
-
-                /** @var \CultureFeed_Cdb_Data_Keyword $keyword */
-                foreach ($keywords as $keyword) {
-                    $keywordLabel = new Label($keyword->getValue());
-                    $visibleLabel = new Label((string) $offerRelation->getLabelName());
-                    if ($keywordLabel->equals($visibleLabel)) {
-                        $keyword->setVisibility($isVisible);
-                    }
+                if ($offerRelation->getOfferType() === OfferType::EVENT()) {
+                    $cdbXmlItem = EventItemFactory::createEventFromCdbXml(
+                        'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                        $offerDocument->getCdbXml()
+                    );
+                } elseif ($offerRelation->getOfferType() === OfferType::PLACE()) {
+                    $cdbXmlItem = ActorItemFactory::createActorFromCdbXml(
+                        'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                        $offerDocument->getCdbXml()
+                    );
+                } else {
+                    $this->logger->info(
+                        'Can not update visibility for label: ' . $labelName
+                        . ' The item with id: ' . $offerRelation->getOfferId()
+                        . ', has an unsupported type: ' . $offerRelation->getOfferId()
+                    );
                 }
 
-                $cdbXmlDocument = $this->cdbXmlDocumentFactory
-                    ->fromCulturefeedCdbItem($cdbXmlItem);
-                
-                $this->cdbxmlRepository->save($cdbXmlDocument);
-                $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
+                if (isset($cdbXmlItem)) {
+                    $keywords = $cdbXmlItem->getKeywords(true);
+
+                    /** @var \CultureFeed_Cdb_Data_Keyword $keyword */
+                    foreach ($keywords as $keyword) {
+                        $keywordLabel = new Label($keyword->getValue());
+                        $visibleLabel = new Label($labelName);
+                        if ($keywordLabel->equals($visibleLabel)) {
+                            $keyword->setVisibility($isVisible);
+                        }
+                    }
+
+                    $cdbXmlDocument = $this->cdbXmlDocumentFactory
+                        ->fromCulturefeedCdbItem($cdbXmlItem);
+
+                    $this->cdbxmlRepository->save($cdbXmlDocument);
+                    $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
+                }
             }
+        } else {
+            $this->logger->info(
+                'Could not update visibility for label: ' . $labelEvent->getUuid() .
+                ' because metadata has no label name!'
+            );
         }
+    }
+
+    /**
+     * @param DomainMessage $domainMessage
+     * @return string|null
+     */
+    private function getLabelName(DomainMessage $domainMessage)
+    {
+        $metaDataAsArray = $domainMessage->getMetadata()->serialize();
+
+        return isset($metaDataAsArray['labelName']) ?
+            $metaDataAsArray['labelName'] : null;
     }
 }

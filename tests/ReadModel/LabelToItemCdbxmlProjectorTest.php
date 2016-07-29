@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
+use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Label\Events\MadeInvisible;
@@ -55,7 +56,6 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 [
                     new OfferLabelRelation(
                         $labelId,
-                        new StringLiteral('foobar'),
                         OfferType::PLACE(),
                         $placeId
                     ),
@@ -64,7 +64,11 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
 
         $madeVisible = new MadeVisible($labelId);
 
-        $domainMessage = $this->createDomainMessage((string) $labelId, $madeVisible);
+        $domainMessage = $this->createDomainMessage(
+            (string) $labelId,
+            $madeVisible,
+            new Metadata(['labelName' => 'foobar'])
+        );
 
         $placeCdbXmlDocument = new CdbXmlDocument(
             (string) $placeId,
@@ -97,7 +101,6 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 [
                     new OfferLabelRelation(
                         $labelId,
-                        new StringLiteral('foobar'),
                         OfferType::PLACE(),
                         $placeId
                     ),
@@ -106,7 +109,11 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
 
         $madeInvisible = new MadeInvisible($labelId);
 
-        $domainMessage = $this->createDomainMessage((string) $labelId, $madeInvisible);
+        $domainMessage = $this->createDomainMessage(
+            (string) $labelId,
+            $madeInvisible,
+            new Metadata(['labelName' => 'foobar'])
+        );
 
         $placeCdbXmlDocument = new CdbXmlDocument(
             (string) $placeId,
@@ -139,7 +146,6 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 [
                     new OfferLabelRelation(
                         $labelId,
-                        new StringLiteral('foobar'),
                         OfferType::EVENT(),
                         $eventId
                     ),
@@ -148,7 +154,11 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
 
         $madeVisible = new MadeVisible($labelId);
 
-        $domainMessage = $this->createDomainMessage((string) $labelId, $madeVisible);
+        $domainMessage = $this->createDomainMessage(
+            (string) $labelId,
+            $madeVisible,
+            new Metadata(['labelName' => 'foobar'])
+        );
 
         $eventCdbXmlDocument = new CdbXmlDocument(
             (string) $eventId,
@@ -181,7 +191,6 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 [
                     new OfferLabelRelation(
                         $labelId,
-                        new StringLiteral('foobar'),
                         OfferType::EVENT(),
                         $eventId
                     ),
@@ -190,7 +199,11 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
 
         $madeInvisible = new MadeInvisible($labelId);
 
-        $domainMessage = $this->createDomainMessage((string) $labelId, $madeInvisible);
+        $domainMessage = $this->createDomainMessage(
+            (string) $labelId,
+            $madeInvisible,
+            new Metadata(['labelName' => 'foobar'])
+        );
 
         $eventCdbXmlDocument = new CdbXmlDocument(
             (string) $eventId,
