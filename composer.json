@@ -45,13 +45,17 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "preferred-install": "source",
     "extra": {
         "branch-alias": {
             "dev-master": "0.x-dev"
         }
     },
     "config": {
+        "preferred-install": {
+            "cultuurnet/*": "source",
+            "2dotstwice/*": "source",
+            "*": "dist"
+        },
         "platform": {
             "php": "5.5.9"
         }
