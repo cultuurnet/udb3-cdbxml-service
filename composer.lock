@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6d1b8f43d70563c46e2fed1648bee974",
-    "content-hash": "e2ab5fed21c5b47003f6a924efa25e72",
+    "hash": "358e9b210a9895185e8afaaa9a05fc6a",
+    "content-hash": "c58c02e5515a47a4badd1e82d28f2a64",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -59,16 +59,16 @@
         },
         {
             "name": "beberlei/assert",
-            "version": "v2.5.1",
+            "version": "v2.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/assert.git",
-                "reference": "8a9ad22f1220e47a6d174843e8abef08f5eac441"
+                "reference": "9c86caae1354c663cc6e24032ae7c3d0154ec331"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/assert/zipball/8a9ad22f1220e47a6d174843e8abef08f5eac441",
-                "reference": "8a9ad22f1220e47a6d174843e8abef08f5eac441",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/9c86caae1354c663cc6e24032ae7c3d0154ec331",
+                "reference": "9c86caae1354c663cc6e24032ae7c3d0154ec331",
                 "shasum": ""
             },
             "require": {
@@ -81,7 +81,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.5-dev"
                 }
             },
             "autoload": {
@@ -99,7 +99,13 @@
             "authors": [
                 {
                     "name": "Benjamin Eberlei",
-                    "email": "kontakt@beberlei.de"
+                    "email": "kontakt@beberlei.de",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Richard Quadling",
+                    "email": "rquadling@gmail.com",
+                    "role": "Collaborator"
                 }
             ],
             "description": "Thin assertion library for input validation in business models.",
@@ -108,7 +114,7 @@
                 "assertion",
                 "validation"
             ],
-            "time": "2016-06-20 12:01:28"
+            "time": "2016-07-26 00:20:59"
         },
         {
             "name": "broadway/broadway",
@@ -1071,16 +1077,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-master",
+            "version": "dev-feature/III-1107",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "cea266febc7d7360c276304304dac82cfef3075c"
+                "reference": "f14f5211fc7eb08e0cb3594d5bb3ae7531945212"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/cea266febc7d7360c276304304dac82cfef3075c",
-                "reference": "cea266febc7d7360c276304304dac82cfef3075c",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/f14f5211fc7eb08e0cb3594d5bb3ae7531945212",
+                "reference": "f14f5211fc7eb08e0cb3594d5bb3ae7531945212",
                 "shasum": ""
             },
             "require": {
@@ -1153,7 +1159,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-07-27 13:36:57"
+            "time": "2016-08-02 09:04:20"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2260,16 +2266,16 @@
         },
         {
             "name": "lcobucci/jwt",
-            "version": "3.1.1",
+            "version": "3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "afea8e682e911a21574fd8519321b32522fa25b5"
+                "reference": "9a8db2cd42346f96993928ff6a6c22563f555ab1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/afea8e682e911a21574fd8519321b32522fa25b5",
-                "reference": "afea8e682e911a21574fd8519321b32522fa25b5",
+                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/9a8db2cd42346f96993928ff6a6c22563f555ab1",
+                "reference": "9a8db2cd42346f96993928ff6a6c22563f555ab1",
                 "shasum": ""
             },
             "require": {
@@ -2277,7 +2283,7 @@
                 "php": ">=5.5"
             },
             "require-dev": {
-                "mdanter/ecc": "~0.3",
+                "mdanter/ecc": "~0.3.1",
                 "mikey179/vfsstream": "~1.5",
                 "phpmd/phpmd": "~2.2",
                 "phpunit/php-invoker": "~1.1",
@@ -2314,7 +2320,7 @@
                 "JWS",
                 "jwt"
             ],
-            "time": "2016-03-24 22:46:13"
+            "time": "2016-07-27 11:09:37"
         },
         {
             "name": "league/flysystem",
@@ -6024,7 +6030,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/udb3": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
