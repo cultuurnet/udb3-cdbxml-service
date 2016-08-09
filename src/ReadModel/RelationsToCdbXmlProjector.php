@@ -194,7 +194,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $eventContactInfo = $event->getContactInfo();
             if (is_null($eventContactInfo)) {
-              $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+                $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
             }
 
             foreach ($eventContactInfo->getAddresses() as $index => $address) {
