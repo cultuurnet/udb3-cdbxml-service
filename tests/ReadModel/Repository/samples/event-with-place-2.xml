@@ -22,10 +22,10 @@
     <contactinfo>
       <address>
         <physical>
-          <city>$locality</city>
-          <country>$country</country>
-          <street>$street</street>
-          <zipcode>$postalCode</zipcode>
+          <city>Leuven</city>
+          <country>België</country>
+          <street>Teststraat</street>
+          <zipcode>3000</zipcode>
         </physical>
       </address>
     </contactinfo>
