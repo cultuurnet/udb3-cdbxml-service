@@ -708,6 +708,11 @@ $app['database.installer'] = $app->extend(
     }
 );
 
+$app->register(
+    new \CultuurNet\UDB3\CdbXmlService\DoctrineMigrationsServiceProvider(),
+    ['migrations.config_file' => __DIR__ . '/migrations.yml']
+);
+
 /**
  * Load additional bootstrap files.
  */
