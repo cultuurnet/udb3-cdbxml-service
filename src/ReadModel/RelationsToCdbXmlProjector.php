@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
+use CultureFeed_Cdb_Data_ContactInfo;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
@@ -183,6 +184,19 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
             $newEvent = clone $event;
 
             $newEvent->setLocation($location);
+
+            $eventContactInfo = $event->getContactInfo();
+            if (is_null($eventContactInfo)) {
+                $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+            }
+
+            foreach ($eventContactInfo->getAddresses() as $index => $address) {
+                $eventContactInfo->removeAddress($index);
+            }
+
+            $eventContactInfo->addAddress($location->getAddress());
+
+            $newEvent->setContactInfo($eventContactInfo);
 
             $this->saveAndPublishIfChanged($newEvent, $event, $metadata, $domainMessage);
         }
