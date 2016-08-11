@@ -6,7 +6,6 @@ use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultureFeed_Cdb_Data_ContactInfo;
-use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
@@ -19,7 +18,6 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterfa
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
-use RuntimeException;
 use ValueObjects\Web\Url;
 
 /**
@@ -186,11 +184,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
             $newEvent = clone $event;
 
             $newEvent->setLocation($location);
-
-            $event = EventItemFactory::createEventFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $eventCdbXml->getCdbXml()
-            );
 
             $eventContactInfo = $event->getContactInfo();
             if (is_null($eventContactInfo)) {
