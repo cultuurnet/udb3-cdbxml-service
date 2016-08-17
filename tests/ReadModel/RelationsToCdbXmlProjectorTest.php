@@ -228,7 +228,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_nick' => 'foobar',
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
-                'request_time' => '1460710907',
+                'request_time' => '1460710917',
                 'id' => 'http://foo.be/item/' . $placeId,
             ]
         );
