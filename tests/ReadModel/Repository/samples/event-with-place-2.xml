@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event cdbid="EVENT-ABC-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/EVENT-ABC-123" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
+  <event cdbid="EVENT-ABC-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/EVENT-ABC-123" lastupdated="2016-04-15T11:01:57" lastupdatedby="foo@bar.com">
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>

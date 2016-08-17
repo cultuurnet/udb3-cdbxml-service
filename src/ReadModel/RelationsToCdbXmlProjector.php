@@ -270,7 +270,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         DomainMessage $domainMessage
     ) {
         if ($newEvent != $event) {
-            $this->metadataCdbItemEnricher->enrichTime(
+            $newEvent = $this->metadataCdbItemEnricher->enrichTime(
                 $newEvent,
                 $metadata
             );
