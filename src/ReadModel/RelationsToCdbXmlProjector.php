@@ -127,8 +127,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         OrganizerProjectedToCdbXml $organizerProjectedToCdbXml,
         DomainMessage $domainMessage
     ) {
-        $metadata = $domainMessage->getMetadata();
-
         $organizerId = $organizerProjectedToCdbXml->getOrganizerId();
 
         $eventIds = $this->offerRelationsService->getByOrganizer($organizerId);
@@ -147,7 +145,12 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $newEvent->setOrganiser($organizer);
 
-            $this->saveAndPublishIfChanged($newEvent, $event, $metadata, $domainMessage);
+            $domainMessage = $this->fixDomainMessage(
+                $domainMessage,
+                $newEvent,
+                $organizer->getActor()->getLastUpdated()
+            );
+            $this->saveAndPublishIfChanged($newEvent, $event, $domainMessage);
         }
     }
 
@@ -159,8 +162,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         PlaceProjectedToCdbXml $placeProjectedToCdbXml,
         DomainMessage $domainMessage
     ) {
-        $metadata = $domainMessage->getMetadata();
-
         $identifier = $this->iriOfferIdentifierFactory->fromIri(
             Url::fromNative((string) $placeProjectedToCdbXml->getIri())
         );
@@ -198,7 +199,12 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $newEvent->setContactInfo($eventContactInfo);
 
-            $this->saveAndPublishIfChanged($newEvent, $event, $metadata, $domainMessage);
+            $domainMessage = $this->fixDomainMessage(
+                $domainMessage,
+                $newEvent,
+                $location->getActor()->getLastUpdated()
+            );
+            $this->saveAndPublishIfChanged($newEvent, $event, $domainMessage);
         }
     }
 
@@ -260,19 +266,17 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
     /**
      * @param CultureFeed_Cdb_Item_Event $newEvent
      * @param CultureFeed_Cdb_Item_Event $event
-     * @param Metadata $metadata
      * @param DomainMessage $domainMessage
      */
     private function saveAndPublishIfChanged(
         CultureFeed_Cdb_Item_Event $newEvent,
         CultureFeed_Cdb_Item_Event $event,
-        Metadata $metadata,
         DomainMessage $domainMessage
     ) {
         if ($newEvent != $event) {
             $newEvent = $this->metadataCdbItemEnricher->enrichTime(
                 $newEvent,
-                $metadata
+                $domainMessage->getMetadata()
             );
 
             $newCdbXmlDocument = $this->cdbXmlDocumentFactory
@@ -282,5 +286,26 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $this->cdbXmlPublisher->publish($newCdbXmlDocument, $domainMessage);
         }
+    }
+
+    /**
+     * @param DomainMessage $domainMessage
+     * @param CultureFeed_Cdb_Item_Event $cdbItemEvent
+     * @param string $lastUpdated
+     * @return DomainMessage
+     */
+    private function fixDomainMessage(
+        DomainMessage $domainMessage,
+        CultureFeed_Cdb_Item_Event $cdbItemEvent,
+        $lastUpdated
+    ) {
+        $metadata = new Metadata(
+            [
+                'id' => $cdbItemEvent->getExternalId(),
+                'request_time' => $lastUpdated
+            ]
+        );
+
+        return $domainMessage->andMetadata($metadata);
     }
 }
