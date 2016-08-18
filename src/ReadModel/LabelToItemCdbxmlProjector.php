@@ -100,11 +100,11 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
                 $this->{$handler}($payload, $domainMessage);
             } catch (\Exception $exception) {
                 $this->logger->error(
-                    'Handle error for uuid=' . $domainMessage->getId()
+                    'Handle error for uuid = ' . $domainMessage->getId()
                     . ' for type ' . $domainMessage->getType()
                     . ' recorded on ' .$domainMessage->getRecordedOn()->toString()
-                    . 'exception' . get_class($exception)
-                    . ' message' . $exception->getMessage()
+                    . 'exception ' . get_class($exception)
+                    . ' message ' . $exception->getMessage()
                 );
             }
         } else {
