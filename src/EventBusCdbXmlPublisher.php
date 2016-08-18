@@ -4,12 +4,15 @@ namespace CultuurNet\UDB3\CdbXmlService;
 
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
+use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\BroadwayAMQP\DomainMessage\SpecificationInterface;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
+use CultuurNet\UDB3\Cdb\ActorItemFactory;
+use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXml\Specification\ActorCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXml\Specification\EventCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
@@ -81,14 +84,18 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
 
         // Author id can be empty in metadata if event is
         // Event/PlaceImportedFromUDB2 or Event/PlaceUpdatedFromUDB2.
-        $metadata = $domainMessage->getMetadata()->serialize();
-        $authorId = isset($metadata['user_id']) ? $metadata['user_id'] : '';
+        $metadataArray = $domainMessage->getMetadata()->serialize();
+        $authorId = isset($metadataArray['user_id']) ? $metadataArray['user_id'] : '';
 
-        if (!isset($metadata['id'])) {
-            throw new InvalidArgumentException('An id metadata property is required to determine the publication location.');
+        if (!isset($metadataArray['id'])) {
+            $domainMessage = $this->enrichDomainMessage(
+                $domainMessage,
+                $cdbXmlDocument
+            );
+            $metadataArray = $domainMessage->getMetadata()->serialize();
         }
 
-        $location = $metadata['id'];
+        $externalUrl = $metadataArray['id'];
 
         $event = false;
 
@@ -98,14 +105,14 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
                     new StringLiteral($id),
                     new DateTimeImmutable(),
                     new StringLiteral($authorId),
-                    Url::fromNative($location)
+                    Url::fromNative($externalUrl)
                 );
             } else {
                 $event = new ActorUpdated(
                     new StringLiteral($id),
                     new DateTimeImmutable(),
                     new StringLiteral($authorId),
-                    Url::fromNative($location)
+                    Url::fromNative($externalUrl)
                 );
             }
         } elseif ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
@@ -114,14 +121,14 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
                     new StringLiteral($id),
                     new DateTimeImmutable(),
                     new StringLiteral($authorId),
-                    Url::fromNative($location)
+                    Url::fromNative($externalUrl)
                 );
             } else {
                 $event = new EventUpdated(
                     new StringLiteral($id),
                     new DateTimeImmutable(),
                     new StringLiteral($authorId),
-                    Url::fromNative($location)
+                    Url::fromNative($externalUrl)
                 );
             }
         }
@@ -146,5 +153,27 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
                     $cdbXmlDocument->getCdbXml()
             );
         }
+    }
+
+    private function enrichDomainMessage(
+        DomainMessage $domainMessage,
+        CdbXmlDocument $cdbXmlDocument
+    ) {
+
+        if ($this->actorCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
+            $actor = ActorItemFactory::createActorFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $cdbXmlDocument->getCdbXml()
+            );
+            $externalUrl = $actor->getExternalUrl();
+        } else {
+            $event = EventItemFactory::createEventFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $cdbXmlDocument->getCdbXml()
+            );
+            $externalUrl = $event->getExternalUrl();
+        }
+
+        return $domainMessage->andMetadata(new Metadata(['id' => $externalUrl]));
     }
 }
