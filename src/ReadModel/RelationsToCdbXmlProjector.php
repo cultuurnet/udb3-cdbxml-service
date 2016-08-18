@@ -145,11 +145,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $newEvent->setOrganiser($organizer);
 
-            $domainMessage = $this->fixDomainMessage(
-                $domainMessage,
-                $newEvent,
-                $organizer->getActor()->getLastUpdated()
-            );
             $this->saveAndPublishIfChanged($newEvent, $event, $domainMessage);
         }
     }
@@ -199,11 +194,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $newEvent->setContactInfo($eventContactInfo);
 
-            $domainMessage = $this->fixDomainMessage(
-                $domainMessage,
-                $newEvent,
-                $location->getActor()->getLastUpdated()
-            );
             $this->saveAndPublishIfChanged($newEvent, $event, $domainMessage);
         }
     }
@@ -286,26 +276,5 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
 
             $this->cdbXmlPublisher->publish($newCdbXmlDocument, $domainMessage);
         }
-    }
-
-    /**
-     * @param DomainMessage $domainMessage
-     * @param CultureFeed_Cdb_Item_Event $cdbItemEvent
-     * @param string $lastUpdated
-     * @return DomainMessage
-     */
-    private function fixDomainMessage(
-        DomainMessage $domainMessage,
-        CultureFeed_Cdb_Item_Event $cdbItemEvent,
-        $lastUpdated
-    ) {
-        $metadata = new Metadata(
-            [
-                'id' => $cdbItemEvent->getExternalId(),
-                'request_time' => $lastUpdated
-            ]
-        );
-
-        return $domainMessage->andMetadata($metadata);
     }
 }
