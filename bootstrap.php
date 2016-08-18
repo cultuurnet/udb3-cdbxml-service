@@ -182,14 +182,14 @@ $app['iri_offer_identifier_factory'] = $app->share(
 
 $app['relations_to_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $projector = new RelationsToCdbXmlProjector(
+        $projector = (new RelationsToCdbXmlProjector(
             $app['real_cdbxml_offer_repository'],
             $app[CDBXML_DOCUMENT_FACTORY],
             $app['metadata_cdb_item_enricher'],
             $app['real_cdbxml_actor_repository'],
             $app['offer_relations_service'],
             $app['iri_offer_identifier_factory']
-        );
+        ))->withCdbXmlPublisher($app['cdbxml_publisher']);
 
         return $projector;
     }
@@ -706,6 +706,11 @@ $app['database.installer'] = $app->extend(
         );
         return $installer;
     }
+);
+
+$app->register(
+    new \CultuurNet\UDB3\CdbXmlService\DoctrineMigrationsServiceProvider(),
+    ['migrations.config_file' => __DIR__ . '/migrations.yml']
 );
 
 /**
