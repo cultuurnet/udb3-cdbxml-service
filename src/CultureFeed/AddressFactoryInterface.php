@@ -2,7 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
 
 interface AddressFactoryInterface
 {

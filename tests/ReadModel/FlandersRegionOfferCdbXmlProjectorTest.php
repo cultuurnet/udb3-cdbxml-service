@@ -5,7 +5,10 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -26,6 +29,9 @@ use Doctrine\Common\Cache\ArrayCache;
 use PHPUnit_Framework_TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
+use ValueObjects\Geography\Country;
+use ValueObjects\Identity\UUID;
+use ValueObjects\String\String as StringLiteral;
 
 class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {
@@ -122,6 +128,19 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      */
     public function eventDataProvider()
     {
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
+
+        $location = new Location(
+            UUID::generateAsString(),
+            new StringLiteral('Bibberburcht'),
+            $address
+        );
+
         return [
             [
                 new CdbXmlDocument(
@@ -132,7 +151,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     'event_1_id',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Location('', '', '', '', '', ''),
+                    $location,
                     new Calendar(Calendar::PERMANENT)
                 ),
                 new CdbXmlDocument(
@@ -149,7 +168,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     'event_1_id',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Location('', '', '', '', '', ''),
+                    $location,
                     new Calendar(Calendar::PERMANENT)
                 ),
                 new CdbXmlDocument(
@@ -166,7 +185,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Address('', '', '', ''),
+                    $address,
                     new Calendar(Calendar::PERMANENT)
                 ),
                 new CdbXmlDocument(
@@ -183,7 +202,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Address('', '', '', ''),
+                    $address,
                     new Calendar(Calendar::PERMANENT)
                 ),
                 new CdbXmlDocument(

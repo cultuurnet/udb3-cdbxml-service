@@ -3,7 +3,10 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
@@ -26,7 +29,9 @@ use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use ValueObjects\Geography\Country;
 use ValueObjects\Web\Url;
+use ValueObjects\String\String as StringLiteral;
 
 class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -293,11 +298,18 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ]
         );
 
+
+
         $placeCreated = new PlaceCreated(
             $placeId,
             new Title('$name'),
             new EventType('0.50.4.0.0', 'concert'),
-            new Address('$street', '$postalCode', '$locality', '$country'),
+            new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            ),
             new Calendar('permanent')
         );
         $domainMessage = $this->createDomainMessage($placeId, $placeCreated, $placeMetadata);
@@ -308,7 +320,16 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $eventId,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location('34973B89-BDA3-4A79-96C7-78ACC022907D', '$name', '$country', '$locality', '$postalcode', '$street'),
+            new Location(
+                '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                new StringLiteral('Bibberburcht'),
+                new Address(
+                    new Street('Bondgenotenlaan 1'),
+                    new PostalCode('3000'),
+                    new Locality('Leuven'),
+                    Country::fromNative('BE')
+                )
+            ),
             new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
             $theme
         );
@@ -327,7 +348,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('My Place'),
             new EventType('0.50.4.0.0', 'concert'),
-            new Address('Teststraat', '3000', 'Leuven', 'België'),
+            new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            ),
             new Calendar('permanent')
         );
 

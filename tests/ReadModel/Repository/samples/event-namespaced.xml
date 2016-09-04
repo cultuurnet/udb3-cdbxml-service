@@ -22,10 +22,11 @@
         <cdb:contactinfo>
             <cdb:address>
                 <cdb:physical>
-                    <cdb:city>$locality</cdb:city>
-                    <cdb:country>$country</cdb:country>
-                    <cdb:street>$street</cdb:street>
-                    <cdb:zipcode>$postalCode</cdb:zipcode>
+                    <cdb:city>Leuven</cdb:city>
+                    <cdb:country>BE</cdb:country>
+                    <cdb:housenr>1</cdb:housenr>
+                    <cdb:street>Bondgenotenlaan</cdb:street>
+                    <cdb:zipcode>3000</cdb:zipcode>
                 </cdb:physical>
             </cdb:address>
         </cdb:contactinfo>
@@ -37,13 +38,14 @@
         <cdb:location>
             <cdb:address>
                 <cdb:physical>
-                    <cdb:city>$locality</cdb:city>
-                    <cdb:country>$country</cdb:country>
-                    <cdb:street>$street</cdb:street>
-                    <cdb:zipcode>$postalCode</cdb:zipcode>
+                    <cdb:city>Leuven</cdb:city>
+                    <cdb:country>BE</cdb:country>
+                    <cdb:housenr>1</cdb:housenr>
+                    <cdb:street>Bondgenotenlaan</cdb:street>
+                    <cdb:zipcode>3000</cdb:zipcode>
                 </cdb:physical>
             </cdb:address>
-            <cdb:label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">$name</cdb:label>
+            <cdb:label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</cdb:label>
         </cdb:location>
     </cdb:event>
 </cdb:cdbxml>

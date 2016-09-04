@@ -9,8 +9,11 @@ use CultuurNet\Geocoding\Coordinate\Coordinates;
 use CultuurNet\Geocoding\Coordinate\Latitude;
 use CultuurNet\Geocoding\Coordinate\Longitude;
 use CultuurNet\Geocoding\GeocodingServiceInterface;
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\DefaultAddressFormatter;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -25,6 +28,9 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
+use ValueObjects\Geography\Country;
+use ValueObjects\Identity\UUID;
+use ValueObjects\String\String as StringLiteral;
 
 class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
 {
@@ -123,7 +129,20 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             file_get_contents(__DIR__ . '/Repository/samples/event.xml')
         );
 
-        $address = '$street, $postalCode $locality, $country';
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
+
+        $location = new Location(
+            UUID::generateAsString(),
+            new StringLiteral('Bibberburcht'),
+            $address
+        );
+
+        $addressSummary = 'Bondgenotenlaan 1, 3000 Leuven, BE';
 
         $coordinates = new Coordinates(
             new Latitude(50.9692424),
@@ -142,10 +161,10 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Location('', '', '$country', '$locality', '$postalCode', '$street'),
+                    $location,
                     new Calendar(Calendar::PERMANENT)
                 ),
-                $address,
+                $addressSummary,
                 $coordinates,
                 $expectedCdbXmlDocument,
             ],
@@ -155,10 +174,10 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Location('', '', '$country', '$locality', '$postalCode', '$street'),
+                    $location,
                     new Calendar(Calendar::PERMANENT)
                 ),
-                $address,
+                $addressSummary,
                 $coordinates,
                 $expectedCdbXmlDocument,
             ],
@@ -236,7 +255,20 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             file_get_contents(__DIR__ . '/Repository/samples/place.xml')
         );
 
-        $address = '$street, $postalCode $locality, $country';
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
+
+        $location = new Location(
+            UUID::generateAsString(),
+            new StringLiteral('Bibberburcht'),
+            $address
+        );
+
+        $addressSummary = 'Bondgenotenlaan 1, 3000 Leuven, BE';
 
         $coordinates = new Coordinates(
             new Latitude(50.9692424),
@@ -271,10 +303,10 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Address('$street', '$postalCode', '$locality', '$country'),
+                    $address,
                     new Calendar(Calendar::PERMANENT)
                 ),
-                $address,
+                $addressSummary,
                 $coordinates,
                 $expectedCdbXmlDocument,
                 $relatedEventIds,
@@ -287,10 +319,10 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Address('$street', '$postalCode', '$locality', '$country'),
+                    $address,
                     new Calendar(Calendar::PERMANENT)
                 ),
-                $address,
+                $addressSummary,
                 $coordinates,
                 $expectedCdbXmlDocument,
                 $relatedEventIds,

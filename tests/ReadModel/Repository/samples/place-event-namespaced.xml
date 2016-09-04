@@ -21,10 +21,11 @@
     <cdb:location>
       <cdb:address>
         <cdb:physical>
-          <cdb:city>$locality</cdb:city>
-          <cdb:country>$country</cdb:country>
-          <cdb:street>$street</cdb:street>
-          <cdb:zipcode>$postalCode</cdb:zipcode>
+          <cdb:city>Leuven</cdb:city>
+          <cdb:country>BE</cdb:country>
+          <cdb:housenr>1</cdb:housenr>
+          <cdb:street>Bondgenotenlaan</cdb:street>
+          <cdb:zipcode>3000</cdb:zipcode>
         </cdb:physical>
       </cdb:address>
       <cdb:label cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D">My Place</cdb:label>

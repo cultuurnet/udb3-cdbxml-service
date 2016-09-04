@@ -23,8 +23,9 @@
       <address>
         <physical>
           <city>Leuven</city>
-          <country>België</country>
-          <street>Teststraat</street>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
           <zipcode>3000</zipcode>
         </physical>
       </address>
@@ -38,8 +39,9 @@
       <address>
         <physical>
           <city>Leuven</city>
-          <country>België</country>
-          <street>Teststraat</street>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
           <zipcode>3000</zipcode>
         </physical>
       </address>

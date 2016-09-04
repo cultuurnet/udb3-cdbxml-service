@@ -2,7 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
 
 class AddressFactory implements AddressFactoryInterface
 {
@@ -15,7 +15,7 @@ class AddressFactory implements AddressFactoryInterface
         // Taken from Udb2UtilityTrait in udb3-udb2-bridge.
         $physicalAddress = new \CultureFeed_Cdb_Data_Address_PhysicalAddress();
 
-        $physicalAddress->setCountry((string) $address->getCountry());
+        $physicalAddress->setCountry((string) $address->getCountry()->getCode());
         $physicalAddress->setCity((string) $address->getLocality());
         $physicalAddress->setZip((string) $address->getPostalCode());
 

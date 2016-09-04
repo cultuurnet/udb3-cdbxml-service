@@ -10,6 +10,10 @@ use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
@@ -22,6 +26,7 @@ use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
+use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 
@@ -48,6 +53,20 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    private function randomLocation()
+    {
+        return new Location(
+            UUID::generateAsString(),
+            new StringLiteral('Bibberburcht'),
+            new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            )
+        );
+    }
+
     /**
      * @test
      */
@@ -65,7 +84,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $documentId,
             new Title('Some Event'),
             new EventType('some', 'type'),
-            new Location('q', 'w', 'e', 'r', 't', 'y'),
+            $this->randomLocation(),
             $calendar
         );
         $originalDomainMessage = new DomainMessage(
@@ -112,7 +131,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $documentId,
             new Title('Some Event'),
             new EventType('some', 'type'),
-            new Location('q', 'w', 'e', 'r', 't', 'y'),
+            $this->randomLocation(),
             $calendar
         );
         $originalDomainMessage = new DomainMessage(

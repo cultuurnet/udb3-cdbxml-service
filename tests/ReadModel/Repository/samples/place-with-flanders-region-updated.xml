@@ -13,10 +13,10 @@
     <contactinfo>
       <address>
         <physical>
-          <city>$locality2</city>
-          <country>$country2</country>
-          <street>$street2</street>
-          <zipcode>$postalCode2</zipcode>
+          <city>Leuven2</city>
+          <country>BE2</country>
+          <street>Bondgenotenlaan 12</street>
+          <zipcode>30002</zipcode>
         </physical>
       </address>
     </contactinfo>

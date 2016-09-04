@@ -2,7 +2,11 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
+use ValueObjects\Geography\Country;
 
 class AddressFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -46,26 +50,14 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
         $physicalAddress->setHouseNumber('1');
         $physicalAddress->setZip('3000');
         $physicalAddress->setCity('Leuven');
-        $physicalAddress->setCountry('België');
+        $physicalAddress->setCountry('BE');
 
         $data[] = [
             new Address(
-                'Bondgenotenlaan 1',
-                '3000',
-                'Leuven',
-                'België'
-            ),
-            new \CultureFeed_Cdb_Data_Address(
-                $physicalAddress
-            ),
-        ];
-
-        $data[] = [
-            new Address(
-                'Bondgenotenlaan 1',
-                3000,
-                'Leuven',
-                'België'
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
             ),
             new \CultureFeed_Cdb_Data_Address(
                 $physicalAddress
@@ -77,14 +69,14 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
         $physicalAddress->setStreet('Bondgenotenlaan');
         $physicalAddress->setZip('3000');
         $physicalAddress->setCity('Leuven');
-        $physicalAddress->setCountry('België');
+        $physicalAddress->setCountry('BE');
 
         $data[] = [
             new Address(
-                'Bondgenotenlaan',
-                '3000',
-                'Leuven',
-                'België'
+                new Street('Bondgenotenlaan'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
             ),
             new \CultureFeed_Cdb_Data_Address(
                 $physicalAddress
@@ -99,14 +91,14 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
         $physicalAddress->setHouseNumber('03.01');
         $physicalAddress->setZip('3000');
         $physicalAddress->setCity('Leuven');
-        $physicalAddress->setCountry('België');
+        $physicalAddress->setCountry('BE');
 
         $data[] = [
             new Address(
-                'Bondgenotenlaan 1 03.01',
-                '3000',
-                'Leuven',
-                'België'
+                new Street('Bondgenotenlaan 1 03.01'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
             ),
             new \CultureFeed_Cdb_Data_Address(
                 $physicalAddress
@@ -119,14 +111,14 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
         $physicalAddress->setHouseNumber('4');
         $physicalAddress->setZip('2000');
         $physicalAddress->setCity('Antwerpen');
-        $physicalAddress->setCountry('België');
+        $physicalAddress->setCountry('BE');
 
         $data[] = [
             new Address(
-                'Maarschalk Gerardstraat 4',
-                '2000',
-                'Antwerpen',
-                'België'
+                new Street('Maarschalk Gerardstraat 4'),
+                new PostalCode('2000'),
+                new Locality('Antwerpen'),
+                Country::fromNative('BE')
             ),
             new \CultureFeed_Cdb_Data_Address(
                 $physicalAddress
@@ -141,14 +133,14 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
         $physicalAddress->setHouseNumber('Gerardstraat');
         $physicalAddress->setZip('2000');
         $physicalAddress->setCity('Antwerpen');
-        $physicalAddress->setCountry('België');
+        $physicalAddress->setCountry('BE');
 
         $data[] = [
             new Address(
-                'Maarschalk Gerardstraat',
-                '2000',
-                'Antwerpen',
-                'België'
+                new Street('Maarschalk Gerardstraat'),
+                new PostalCode('2000'),
+                new Locality('Antwerpen'),
+                Country::fromNative('BE')
             ),
             new \CultureFeed_Cdb_Data_Address(
                 $physicalAddress
@@ -163,14 +155,14 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
         $physicalAddress->setHouseNumber('03.01');
         $physicalAddress->setZip('2000');
         $physicalAddress->setCity('Antwerpen');
-        $physicalAddress->setCountry('België');
+        $physicalAddress->setCountry('BE');
 
         $data[] = [
             new Address(
-                'Maarschalk Gerardstraat 4 03.01',
-                '2000',
-                'Antwerpen',
-                'België'
+                new Street('Maarschalk Gerardstraat 4 03.01'),
+                new PostalCode('2000'),
+                new Locality('Antwerpen'),
+                Country::fromNative('BE')
             ),
             new \CultureFeed_Cdb_Data_Address(
                 $physicalAddress
@@ -183,14 +175,14 @@ class AddressFactoryTest extends \PHPUnit_Framework_TestCase
         $physicalAddress->setHouseNumber('163a');
         $physicalAddress->setZip('8930');
         $physicalAddress->setCity('Menen');
-        $physicalAddress->setCountry('België');
+        $physicalAddress->setCountry('BE');
 
         $data[] = [
             new Address(
-                'j & m Sabbestraat 163a',
-                '8930',
-                'Menen',
-                'België'
+                new Street('j & m Sabbestraat 163a'),
+                new PostalCode('8930'),
+                new Locality('Menen'),
+                Country::fromNative('BE')
             ),
             new \CultureFeed_Cdb_Data_Address(
                 $physicalAddress

@@ -6,6 +6,10 @@ use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\Serializer\SerializableInterface;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
@@ -22,6 +26,9 @@ use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use ValueObjects\Geography\Country;
+use ValueObjects\Identity\UUID;
+use ValueObjects\String\String as StringLiteral;
 
 class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {
@@ -130,6 +137,17 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
             ),
         ];
 
+        $location = new Location(
+            UUID::generateAsString(),
+            new StringLiteral('Bibberburcht'),
+            new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            )
+        );
+
         return [
             [
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
@@ -137,7 +155,7 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
-                    new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
+                    $location,
                     new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror')
                 ),
@@ -149,7 +167,7 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24481',
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
-                    new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
+                    $location,
                     new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror'),
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')

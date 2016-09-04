@@ -5,7 +5,10 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
@@ -17,6 +20,7 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
+use ValueObjects\Geography\Country;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -71,10 +75,10 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Title('DE Studio'),
             [
                 new Address(
-                    'Maarschalk Gerardstraat 4',
-                    '2000',
-                    'Antwerpen',
-                    'BE'
+                    new Street('Maarschalk Gerardstraat 4'),
+                    new PostalCode('2000'),
+                    new Locality('Antwerpen'),
+                    Country::fromNative('BE')
                 ),
             ],
             ['+32 3 260 96 10'],

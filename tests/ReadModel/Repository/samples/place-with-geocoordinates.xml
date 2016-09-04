@@ -12,14 +12,15 @@
     <contactinfo>
       <address>
         <physical>
-          <city>$locality</city>
-          <country>$country</country>
+          <city>Leuven</city>
+          <country>BE</country>
           <gis>
             <xcoordinate>4.6910644</xcoordinate>
             <ycoordinate>50.9692424</ycoordinate>
           </gis>
-          <street>$street</street>
-          <zipcode>$postalCode</zipcode>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
         </physical>
       </address>
     </contactinfo>
