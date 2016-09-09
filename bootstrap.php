@@ -361,7 +361,7 @@ $app[CDBXML_OFFER_REPOSITORY] = $app->share(
         $broadcastingRepository = new BroadcastingDocumentRepositoryDecorator(
             $app['real_cdbxml_offer_repository'],
             $app['event_bus.udb3-core.relations'],
-            new \CultuurNet\UDB3\CdbXmlService\ReadModel\PlaceProjectedToCdbXmlEventFactory(
+            new \CultuurNet\UDB3\CdbXmlService\ReadModel\OfferProjectedToCdbXmlEventFactory(
                 $app['document_iri_generator']
             ),
             new \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\PlaceCdbXmlDocumentSpecification()
