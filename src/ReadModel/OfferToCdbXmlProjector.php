@@ -1379,36 +1379,44 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
     /**
      * @param AbstractApproved $approved
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
     public function applyApproved(
-        AbstractApproved $approved
+        AbstractApproved $approved,
+        Metadata $metadata
     ) {
-        return $this->setWorkflowStatus($approved, WorkflowStatus::APPROVED());
+        return $this->setWorkflowStatus($approved, $metadata, WorkflowStatus::APPROVED());
 
     }
 
     /**
      * @param AbstractEvent $rejectionEvent
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
     public function applyRejected(
-        AbstractEvent $rejectionEvent
+        AbstractEvent $rejectionEvent,
+        Metadata $metadata
     ) {
-        return $this->setWorkflowStatus($rejectionEvent, WorkflowStatus::REJECTED());
+        return $this->setWorkflowStatus($rejectionEvent, $metadata, WorkflowStatus::REJECTED());
     }
 
     /**
      * @param AbstractEvent $event
      * @param WorkflowStatus $status
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    public function setWorkflowStatus(AbstractEvent $event, WorkflowStatus $status)
+    public function setWorkflowStatus(AbstractEvent $event, Metadata $metadata, WorkflowStatus $status)
     {
         $cdbXmlDocument = $this->documentRepository->get($event->getItemId());
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $offer->setWfStatus($status->getValue());
+
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
