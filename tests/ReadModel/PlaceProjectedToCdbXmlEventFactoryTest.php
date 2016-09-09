@@ -14,7 +14,7 @@ class PlaceProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
     private $iriGenerator;
 
     /**
-     * @var PlaceProjectedToCdbXmlEventFactory
+     * @var OfferProjectedToCdbXmlEventFactory
      */
     private $factory;
 
@@ -22,7 +22,7 @@ class PlaceProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->iriGenerator = $this->getMock(IriGeneratorInterface::class);
 
-        $this->factory = new PlaceProjectedToCdbXmlEventFactory(
+        $this->factory = new OfferProjectedToCdbXmlEventFactory(
             $this->iriGenerator
         );
     }
