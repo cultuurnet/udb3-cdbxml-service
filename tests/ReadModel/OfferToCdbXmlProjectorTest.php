@@ -30,6 +30,10 @@ use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
+use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
+use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
+use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
+use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
@@ -45,6 +49,7 @@ use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
+use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -53,6 +58,10 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
+use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
+use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
+use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsDuplicate as PlaceFlaggedAsDuplicate;
+use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsInappropriate as PlaceFlaggedAsInappropriate;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
@@ -1165,6 +1174,93 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->with($message);
 
         $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_updated_the_workflow_status_when_an_event_is_approved()
+    {
+        $eventId = $this->getEventId();
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(new EventApproved($eventId))
+            ->expect('event-with-workflow-status-approved.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_updated_the_workflow_status_when_a_place_is_approved()
+    {
+        $placeId = $this->getPlaceId();
+
+        $test = $this->given(OfferType::PLACE())
+            ->apply(new PlaceApproved($placeId))
+            ->expect('actor-place-with-workflow-status-approved.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     * @dataProvider rejectionEventsDataProvider
+     */
+    public function it_should_updated_the_workflow_status_when_an_offer_is_rejected(
+        OfferType $offerType,
+        AbstractEvent $event,
+        $expectedDocument
+    ) {
+
+        $test = $this->given($offerType)
+            ->apply($event)
+            ->expect($expectedDocument);
+
+        $this->execute($test);
+    }
+
+    public function rejectionEventsDataProvider()
+    {
+        return [
+            'event rejected' => [
+                'offerType' => OfferType::EVENT(),
+                'event' => new EventRejected(
+                    $this->getEventId(),
+                    new StringLiteral('Image contains nudity.')
+                ),
+                'expectedDocument' => 'event-with-workflow-status-rejected.xml',
+            ],
+            'event flagged as duplicate' => [
+                'offerType' => OfferType::EVENT(),
+                'event' => new EventFlaggedAsDuplicate($this->getEventId()),
+                'expectedDocument' => 'event-with-workflow-status-rejected.xml',
+            ],
+            'event flagged as inappropriate' => [
+                'offerType' => OfferType::EVENT(),
+                'event' => new EventFlaggedAsInappropriate($this->getEventId()),
+                'expectedDocument' => 'event-with-workflow-status-rejected.xml',
+            ],
+            'place rejected' => [
+                'offerType' => OfferType::PLACE(),
+                'event' => new PlaceRejected(
+                    $this->getPlaceId(),
+                    new StringLiteral('Image contains nudity.')
+                ),
+                'expectedDocument' => 'actor-place-with-workflow-status-rejected.xml',
+            ],
+            'place flagged as duplicate' => [
+                'offerType' => OfferType::PLACE(),
+                'event' => new PlaceFlaggedAsDuplicate($this->getPlaceId()),
+                'expectedDocument' => 'actor-place-with-workflow-status-rejected.xml',
+            ],
+            'place flagged as inappropriate' => [
+                'offerType' => OfferType::PLACE(),
+                'event' => new PlaceFlaggedAsInappropriate($this->getPlaceId()),
+                'expectedDocument' => 'actor-place-with-workflow-status-rejected.xml',
+            ],
+        ];
     }
 
     /**
