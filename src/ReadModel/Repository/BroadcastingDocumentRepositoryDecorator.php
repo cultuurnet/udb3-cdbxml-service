@@ -9,6 +9,7 @@ use Broadway\EventHandling\EventBusInterface;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\CdbXmlDocumentSpecificationInterface;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferDocumentMetadataFactory;
 
 /**
  * Class BroadcastingDocumentRepositoryDecorator
@@ -32,16 +33,23 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
      */
     protected $cdbXmlDocumentSpecification;
 
+    /**
+     * @var OfferDocumentMetadataFactory
+     */
+    protected $offerDocumentMetadataFactory;
+
     public function __construct(
         DocumentRepositoryInterface $repository,
         EventBusInterface $eventBus,
         DocumentEventFactoryInterface $eventFactory,
-        CdbXmlDocumentSpecificationInterface $cdbXmlDocumentSpecification
+        CdbXmlDocumentSpecificationInterface $cdbXmlDocumentSpecification,
+        OfferDocumentMetadataFactory $offerDocumentMetadataFactory
     ) {
         parent::__construct($repository);
         $this->eventFactory = $eventFactory;
         $this->eventBus = $eventBus;
         $this->cdbXmlDocumentSpecification = $cdbXmlDocumentSpecification;
+        $this->offerDocumentMetadataFactory = $offerDocumentMetadataFactory;
     }
 
     /**
@@ -54,28 +62,21 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
 
         if ($this->cdbXmlDocumentSpecification->isSatisfiedBy($document)) {
             $event = $this->eventFactory->createEvent($document);
+            $metadata = $this->offerDocumentMetadataFactory->createMetadata($document);
 
-            $this->broadcastDocumentUpdated($event);
+            $generator = new Version4Generator();
+            $events = [
+                DomainMessage::recordNow(
+                    $generator->generate(),
+                    1,
+                    $metadata,
+                    $event
+                ),
+            ];
+
+            $this->eventBus->publish(
+                new DomainEventStream($events)
+            );
         }
-    }
-
-    /**
-     * @param $event
-     */
-    protected function broadcastDocumentUpdated($event)
-    {
-        $generator = new Version4Generator();
-        $events = [
-            DomainMessage::recordNow(
-                $generator->generate(),
-                1,
-                new Metadata(),
-                $event
-            ),
-        ];
-
-        $this->eventBus->publish(
-            new DomainEventStream($events)
-        );
     }
 }
