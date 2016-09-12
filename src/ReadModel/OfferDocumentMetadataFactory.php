@@ -8,6 +8,7 @@ use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentMetadataFactoryInterface;
+use DateTime;
 use RuntimeException;
 
 class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
@@ -36,7 +37,8 @@ class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
         }
 
         if (!empty($offer->getLastUpdated())) {
-            $values['request_time'] = $offer->getLastUpdated();
+            $requestTime = $this->cdbXmlDatetoTimestamp($offer->getLastUpdated());
+            $values['request_time'] = $requestTime;
         }
 
         return new Metadata($values);
@@ -66,5 +68,16 @@ class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
         }
 
         return $item;
+    }
+
+    /**
+     * @param string $date
+     * @return int
+     */
+    private function cdbXmlDatetoTimestamp($date)
+    {
+        $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+
+        return $datetime->getTimestamp();
     }
 }

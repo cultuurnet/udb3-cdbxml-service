@@ -35,7 +35,7 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
             'user_nick' => 'foobar',
             'user_mail' => 'foo@bar.com',
             'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            'request_time' => '2016-04-15T11:01:47',
+            'request_time' => '1460710907',
         ]);
 
         $this->assertEquals($expectedMetadata, $metadata);
@@ -59,7 +59,7 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
             'user_nick' => 'foobar',
             'user_mail' => 'foo@bar.com',
             'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            'request_time' => '2016-04-15T11:01:47',
+            'request_time' => '1460710907',
         ]);
 
         $this->assertEquals($expectedMetadata, $metadata);
