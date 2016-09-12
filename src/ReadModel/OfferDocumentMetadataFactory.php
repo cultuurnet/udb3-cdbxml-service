@@ -23,19 +23,19 @@ class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
 
         $values = [];
 
-        if (isset($offer->getCreatedBy())) {
+        if (!empty($offer->getCreatedBy())) {
             $values['user_nick'] = $offer->getCreatedBy();
         }
 
-        if (isset($offer->getLastUpdatedBy())) {
+        if (!empty($offer->getLastUpdatedBy())) {
             $values['user_mail'] = $offer->getLastUpdatedBy();
         }
 
-        if (isset($offer->getCdbId())) {
+        if (!empty($offer->getCdbId())) {
             $values['id'] = $offer->getExternalUrl();
         }
 
-        if (isset($offer->getLastUpdated())) {
+        if (!empty($offer->getLastUpdated())) {
             $values['request_time'] = $offer->getLastUpdated();
         }
 
