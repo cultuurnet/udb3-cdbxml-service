@@ -91,7 +91,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -117,7 +116,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -143,7 +141,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 }

@@ -35,31 +35,12 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
      */
     protected $repository;
 
-    /**
-     * @var CdbXmlPublisherInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $cdbXmlPublisher;
-
-    /**
-     * @var CdbXmlDocument[]
-     */
-    private $publishedCdbXmlDocuments;
-
     public function setUp()
     {
         $this->cdbXmlFilesPath = __DIR__;
 
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
-        $this->cdbXmlPublisher = $this->getMock(CdbXmlPublisherInterface::class);
-
-        $this->cdbXmlPublisher->expects($this->any())
-            ->method('publish')
-            ->willReturnCallback(
-                function (CdbXmlDocument $document, DomainMessage $domainMessage) {
-                    $this->publishedCdbXmlDocuments[] = $document;
-                }
-            );
     }
 
     /**
@@ -136,26 +117,6 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     protected function loadCdbXmlFromFile($fileName)
     {
         return file_get_contents($this->cdbXmlFilesPath . '/' . $fileName);
-    }
-
-    /**
-     * @param CdbXmlDocument $cdbXmlDocument
-     */
-    protected function assertCdbXmlDocumentIsPublished(CdbXmlDocument $cdbXmlDocument)
-    {
-        $this->assertTrue(in_array($cdbXmlDocument, $this->publishedCdbXmlDocuments));
-    }
-
-    /**
-     * @param CdbXmlDocument[] $cdbXmlDocuments
-     */
-    protected function assertCdbXmlDocumentsArePublished(array $cdbXmlDocuments)
-    {
-        $offSet = count($this->publishedCdbXmlDocuments) - count($cdbXmlDocuments);
-        $published = array_slice($this->publishedCdbXmlDocuments, $offSet);
-        $published = array_values($published);
-
-        $this->assertEquals($cdbXmlDocuments, $published);
     }
 
     /**
