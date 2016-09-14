@@ -9,10 +9,8 @@ use CultureFeed_Cdb_Data_ContactInfo;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
-use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
@@ -41,11 +39,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
      * @var MetadataCdbItemEnricherInterface
      */
     private $metadataCdbItemEnricher;
-
-    /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
 
     /**
      * @var DocumentRepositoryInterface
@@ -83,21 +76,9 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
         $this->offerRelationsService = $offerRelationsService;
         $this->iriOfferIdentifierFactory = $iriOfferIdentifierFactory;
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return RelationsToCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 
     /**
@@ -279,8 +260,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface
                 ->fromCulturefeedCdbItem($newEvent);
 
             $this->documentRepository->save($newCdbXmlDocument);
-
-            $this->cdbXmlPublisher->publish($newCdbXmlDocument, $domainMessage);
         }
     }
 }

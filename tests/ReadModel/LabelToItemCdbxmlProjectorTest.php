@@ -38,8 +38,7 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
             $this->repository,
             $this->relationRepository,
             new CdbXmlDocumentFactory('3.3')
-        )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        ));
     }
 
     /**

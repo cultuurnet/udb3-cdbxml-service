@@ -35,11 +35,6 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
     private $relationRepository;
 
     /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
-
-    /**
      * @var CdbXmlDocumentFactoryInterface
      */
     private $cdbXmlDocumentFactory;
@@ -58,19 +53,7 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
         $this->cdbxmlRepository = $cdbxmlRepository;
         $this->relationRepository = $relationRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 
     /**
@@ -171,7 +154,6 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
                         ->fromCulturefeedCdbItem($cdbXmlItem);
 
                     $this->cdbxmlRepository->save($cdbXmlDocument);
-                    $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
                 }
             }
         } else {

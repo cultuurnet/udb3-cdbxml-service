@@ -113,8 +113,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new AddressFactory(),
             new NewlineToBreakTagStringFilter(),
             $shortDescriptionFilter
-        )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        ));
 
         $this->logger = $this->getMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);

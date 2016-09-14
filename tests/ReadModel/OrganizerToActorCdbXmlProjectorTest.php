@@ -46,7 +46,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new CdbXmlDateFormatter()
                 )
             )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        );
 
         $this->metadata = new Metadata(
             [

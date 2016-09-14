@@ -29,11 +29,6 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
     use LoggerAwareTrait;
 
     /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
-
-    /**
      * @var DocumentRepositoryInterface
      */
     private $documentRepository;
@@ -47,7 +42,6 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
         DocumentRepositoryInterface $documentRepository
     ) {
         $this->documentRepository = $documentRepository;
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->logger = new NullLogger();
     }
 
@@ -112,16 +106,5 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
         } else {
             $this->logger->info('no handler found for message ' . $payloadClassName);
         }
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 }

@@ -36,11 +36,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     protected $cdbXmlFilesPath;
 
     /**
-     * @var CdbXmlPublisherInterface
-     */
-    protected $cdbXmlPublisher;
-
-    /**
      * @var LoggerInterface|PHPUnit_Framework_MockObject_MockObject
      */
     protected $logger;
@@ -276,16 +271,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
         $this->cdbXmlFilesPath = __DIR__ . '/Repository/samples/';
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
-        $this->cdbXmlPublisher = $this->getMock(CdbXmlPublisherInterface::class);
-
-        $this->cdbXmlPublisher
-            ->expects($this->any())
-            ->method('publish')
-            ->willReturnCallback(
-                function (CdbXmlDocument $document, DomainMessage $domainMessage) {
-                    $this->publishedCdbXmlDocuments[] = $document;
-                }
-            );
 
         $this->projector = $this->getMockForAbstractClass(
             AbstractCdbXmlProjector::class,
@@ -298,7 +283,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
             true,
             array('applyFoo')
         );
-        $this->projector = $this->projector->withCdbXmlPublisher($this->cdbXmlPublisher);
 
         foreach ($this->entityDataProvider() as $entity) {
             $this->repository->save(
