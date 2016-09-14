@@ -89,7 +89,6 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
 
                 foreach ($cdbXmlDocuments as $cdbXmlDocument) {
                     $this->documentRepository->save($cdbXmlDocument);
-                    $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
                 }
             } catch (Exception $exception) {
                 $this->logger->error(

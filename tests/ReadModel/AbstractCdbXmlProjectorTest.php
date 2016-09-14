@@ -71,15 +71,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param CdbXmlDocument $cdbXmlDocument
-     */
-    protected function assertCdbXmlDocumentIsPublished(CdbXmlDocument $cdbXmlDocument)
-    {
-        $this->assertTrue(in_array($cdbXmlDocument, $this->publishedCdbXmlDocuments));
-    }
-
-
-    /**
      * @param string $entityId
      * @param object $event
      * @param Metadata|null $metadata
@@ -199,7 +190,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
             $this->loadCdbXmlFromFile($cdbXmlFileName)
         );
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
