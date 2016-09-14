@@ -2,9 +2,9 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Events;
 
-use CultuurNet\UDB3\Offer\Events\AbstractEvent;
+use CultuurNet\UDB3\Offer\Events\AbstractEventWithIri;
 
-class AbstractOfferProjectedToCdbXml extends AbstractEvent
+class AbstractOfferProjectedToCdbXml extends AbstractEventWithIri
 {
     /**
      * @var bool
