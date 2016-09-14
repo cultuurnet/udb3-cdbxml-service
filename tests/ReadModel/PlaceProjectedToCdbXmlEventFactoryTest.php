@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
@@ -18,12 +19,20 @@ class PlaceProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
      */
     private $factory;
 
+    /**
+     * @var CdbXmlDocumentParser
+     */
+    private $cdbXmlDocumentParser;
+
     public function setUp()
     {
         $this->iriGenerator = $this->getMock(IriGeneratorInterface::class);
 
+        $this->cdbXmlDocumentParser = new CdbXmlDocumentParser();
+
         $this->factory = new OfferProjectedToCdbXmlEventFactory(
-            $this->iriGenerator
+            $this->iriGenerator,
+            $this->cdbXmlDocumentParser
         );
     }
 
@@ -46,7 +55,7 @@ class PlaceProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
             file_get_contents(__DIR__ . '/Repository/samples/' . 'place.xml')
         );
 
-        $actualEvent = $this->factory->createEvent($cdbXmlDocument);
+        $actualEvent = $this->factory->createEvent($cdbXmlDocument, false);
 
         $this->assertEquals($expectedEvent, $actualEvent);
     }
