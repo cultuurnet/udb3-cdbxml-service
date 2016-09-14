@@ -5,21 +5,16 @@ namespace CultuurNet\UDB3\CdbXmlService;
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventBusInterface;
-use CultuurNet\BroadwayAMQP\DomainMessage\SpecificationInterface;
+use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
-use CultuurNet\UDB3\CdbXmlService\CdbXml\Specification\ActorCdbXml;
-use CultuurNet\UDB3\CdbXmlService\CdbXml\Specification\EventCdbXml;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParserInterface;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\ActorCdbXmlDocumentSpecification;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\EventCdbXmlDocumentSpecification;
-use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\NewActorPublication;
-use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\NewEventPublication;
-use CultuurNet\UDB3\CdbXmlService\DomainMessage\Specification\UpdatedActorPublication;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\CdbXmlService\Events\EventProjectedToCdbXml;
+use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
+use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
+use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
+use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Psr\Log\LoggerAwareTrait;
@@ -28,7 +23,7 @@ use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
 
-class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
+class EventBusCdbXmlPublisher implements EventListenerInterface
 {
     use LoggerAwareTrait;
 
@@ -38,46 +33,56 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
     private $eventBus;
 
     /**
-     * @var EventCdbXmlDocumentSpecification
+     * @var IriOfferIdentifierFactory
      */
-    private $eventCdbXmlDocumentSpecification;
-
-    /**
-     * @var ActorCdbXmlDocumentSpecification
-     */
-    private $actorCdbXmlDocumentSpecification;
-
-    /**
-     * @var SpecificationInterface
-     */
-    private $newEventPublication;
-
-    /**
-     * @var SpecificationInterface
-     */
-    private $newActorPublication;
+    private $iriOfferIdentifierFactory;
 
     /**
      * @param EventBusInterface $eventBus
-     * @param CdbXmlDocumentParserInterface $cdbXmlDocumentParser
+     * @param IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
      */
     public function __construct(
         EventBusInterface $eventBus,
-        CdbXmlDocumentParserInterface $cdbXmlDocumentParser
+        IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
     ) {
         $this->eventBus = $eventBus;
-        $this->eventCdbXmlDocumentSpecification = new EventCdbXmlDocumentSpecification($cdbXmlDocumentParser);
-        $this->actorCdbXmlDocumentSpecification = new ActorCdbXmlDocumentSpecification($cdbXmlDocumentParser);
-        $this->newEventPublication = new NewEventPublication();
-        $this->newActorPublication = new NewActorPublication();
+        $this->iriOfferIdentifierFactory = $iriOfferIdentifierFactory;
         $this->logger = new NullLogger();
     }
 
-    public function publish(
-        CdbXmlDocument $cdbXmlDocument,
+    /**
+     * @param DomainMessage $domainMessage
+     */
+    public function handle(DomainMessage $domainMessage)
+    {
+        $payload = $domainMessage->getPayload();
+        $payloadClassName = get_class($payload);
+
+        $handlers = [
+            EventProjectedToCdbXml::class => 'applyEventProjectedToCdbXml',
+            PlaceProjectedToCdbXml::class => 'applyPlaceProjectedToCdbXml',
+            OrganizerProjectedToCdbXml::class => 'applyOrganizerProjectedToCdbXml',
+        ];
+
+        if (isset($handlers[$payloadClassName])) {
+            $handler = $handlers[$payloadClassName];
+            $this->{$handler}($payload, $domainMessage);
+        }
+    }
+
+    /**
+     * @param PlaceProjectedToCdbXml $placeProjectedToCdbXml
+     * @param DomainMessage $domainMessage
+     */
+    public function applyPlaceProjectedToCdbXml(
+        PlaceProjectedToCdbXml $placeProjectedToCdbXml,
         DomainMessage $domainMessage
-    ) {
-        $id = $cdbXmlDocument->getId();
+    ){
+        $identifier = $this->iriOfferIdentifierFactory->fromIri(
+            Url::fromNative((string) $placeProjectedToCdbXml->getIri())
+        );
+
+        $id = $identifier->getId();
 
         // Author id can be empty in metadata if event is
         // Event/PlaceImportedFromUDB2 or Event/PlaceUpdatedFromUDB2.
@@ -90,43 +95,130 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
 
         $location = $metadata['id'];
 
-        $event = false;
-
-        if ($this->actorCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
-            if ($this->newActorPublication->isSatisfiedBy($domainMessage)) {
-                $event = new ActorCreated(
-                    new StringLiteral($id),
-                    new DateTimeImmutable(),
-                    new StringLiteral($authorId),
-                    Url::fromNative($location)
-                );
-            } else {
-                $event = new ActorUpdated(
-                    new StringLiteral($id),
-                    new DateTimeImmutable(),
-                    new StringLiteral($authorId),
-                    Url::fromNative($location)
-                );
-            }
-        } elseif ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
-            if ($this->newEventPublication->isSatisfiedBy($domainMessage)) {
-                $event = new EventCreated(
-                    new StringLiteral($id),
-                    new DateTimeImmutable(),
-                    new StringLiteral($authorId),
-                    Url::fromNative($location)
-                );
-            } else {
-                $event = new EventUpdated(
-                    new StringLiteral($id),
-                    new DateTimeImmutable(),
-                    new StringLiteral($authorId),
-                    Url::fromNative($location)
-                );
-            }
+        if ($placeProjectedToCdbXml->isNew()) {
+            $event = new ActorCreated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
+        } else {
+            $event = new ActorUpdated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
         }
 
         if ($event) {
+            $this->publish($event, $id, $domainMessage);
+        } else {
+            $this->logger->warning(
+                'failed to determine udb2 domain message for cdbxml document ' . $id
+            );
+        }
+    }
+
+    /**
+     * @param EventProjectedToCdbXml $eventProjectedToCdbXml
+     * @param DomainMessage $domainMessage
+     */
+    public function applyEventProjectedToCdbXml(
+        EventProjectedToCdbXml $eventProjectedToCdbXml,
+        DomainMessage $domainMessage
+    ){
+        $identifier = $this->iriOfferIdentifierFactory->fromIri(
+            Url::fromNative((string) $eventProjectedToCdbXml->getIri())
+        );
+
+        $id = $identifier->getId();
+
+        // Author id can be empty in metadata if event is
+        // Event/PlaceImportedFromUDB2 or Event/PlaceUpdatedFromUDB2.
+        $metadata = $domainMessage->getMetadata()->serialize();
+        $authorId = isset($metadata['user_id']) ? $metadata['user_id'] : '';
+
+        if (!isset($metadata['id'])) {
+            throw new InvalidArgumentException('An id metadata property is required to determine the publication location.');
+        }
+
+        $location = $metadata['id'];
+
+        if ($eventProjectedToCdbXml->isNew()) {
+            $event = new EventCreated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
+        } else {
+            $event = new EventUpdated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
+        }
+
+        if ($event) {
+            $this->publish($event, $id, $domainMessage);
+        } else {
+            $this->logger->warning(
+                'failed to determine udb2 domain message for cdbxml document ' . $id
+            );
+        }
+    }
+
+    public function applyOrganizerProjectedToCdbXml(
+        OrganizerProjectedToCdbXml $organizerProjectedToCdbXml,
+        DomainMessage $domainMessage
+    ) {
+        $id = $organizerProjectedToCdbXml->getOrganizerId();
+
+        // Author id can be empty in metadata if event is
+        // Event/PlaceImportedFromUDB2 or Event/PlaceUpdatedFromUDB2.
+        $metadata = $domainMessage->getMetadata()->serialize();
+        $authorId = isset($metadata['user_id']) ? $metadata['user_id'] : '';
+
+        if (!isset($metadata['id'])) {
+            throw new InvalidArgumentException('An id metadata property is required to determine the publication location.');
+        }
+
+        $location = $metadata['id'];
+
+        if ($organizerProjectedToCdbXml->isNew()) {
+            $event = new ActorCreated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
+        } else {
+            $event = new ActorUpdated(
+                new StringLiteral($id),
+                new DateTimeImmutable(),
+                new StringLiteral($authorId),
+                Url::fromNative($location)
+            );
+        }
+
+        if ($event) {
+            $this->publish($event, $id, $domainMessage);
+        } else {
+            $this->logger->warning(
+                'failed to determine udb2 domain message for cdbxml document ' . $id
+            );
+        }
+    }
+
+    /**
+     * @param $event
+     * @param string $id
+     * @param DomainMessage $domainMessage
+     */
+    private function publish($event, $id, DomainMessage $domainMessage)
+    {
             $message = new DomainMessage(
                 UUID::generateAsString(),
                 0,
@@ -140,11 +232,5 @@ class EventBusCdbXmlPublisher implements CdbXmlPublisherInterface
             );
 
             $this->eventBus->publish(new DomainEventStream([$message]));
-        } else {
-            $this->logger->warning(
-                'failed to determine udb2 domain message for cdbxml document ' . $id . ', cdbxml: ' .
-                    $cdbXmlDocument->getCdbXml()
-            );
-        }
     }
 }
