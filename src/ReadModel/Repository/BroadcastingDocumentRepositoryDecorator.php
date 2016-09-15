@@ -57,11 +57,15 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
      */
     public function save(CdbXmlDocument $document)
     {
+        $isNew = true;
+        if (!empty($this->decoratedRepository->get($document->getId()))) {
+            $isNew = false;
+        }
+
         parent::save($document);
 
-
         if ($this->cdbXmlDocumentSpecification->isSatisfiedBy($document)) {
-            $event = $this->eventFactory->createEvent($document);
+            $event = $this->eventFactory->createEvent($document, $isNew);
             $metadata = $this->offerDocumentMetadataFactory->createMetadata($document);
 
             $generator = new Version4Generator();

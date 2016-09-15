@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\CdbXmlDocumentSpecificationInterface;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferDocumentMetadataFactory;
 
 class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,6 +30,11 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
     protected $eventFactory;
 
     /**
+     * @var OfferDocumentMetadataFactory
+     */
+    protected $offerDocumentMetadataFactory;
+
+    /**
      * @var CdbXmlDocumentSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $cdbXmlDocumentSpecification;
@@ -38,14 +44,15 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
         $this->decoratedRepository = $this->getMock(DocumentRepositoryInterface::class);
         $this->eventBus = $this->getMock(EventBusInterface::class);
         $this->eventFactory = $this->getMock(DocumentEventFactoryInterface::class);
-        $this->broadcastingCdbXmlFilter = $this->getMock(BroadcastingCdbXmlFilterInterface::class);
         $this->cdbXmlDocumentSpecification = $this->getMock(CdbXmlDocumentSpecificationInterface::class);
+        $this->offerDocumentMetadataFactory = new OfferDocumentMetadataFactory();
 
         $this->repository = new BroadcastingDocumentRepositoryDecorator(
             $this->decoratedRepository,
             $this->eventBus,
             $this->eventFactory,
-            $this->cdbXmlDocumentSpecification
+            $this->cdbXmlDocumentSpecification,
+            $this->offerDocumentMetadataFactory
         );
     }
 
