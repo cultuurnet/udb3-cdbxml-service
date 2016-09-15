@@ -30,7 +30,6 @@ use CultureFeed_Cdb_Data_Url;
 use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
-use CultureFeed_Cdb_ParseException;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
@@ -1387,7 +1386,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         Metadata $metadata
     ) {
         return $this->setWorkflowStatus($approved, $metadata, WorkflowStatus::APPROVED());
-
     }
 
     /**
