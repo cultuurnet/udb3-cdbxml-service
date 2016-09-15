@@ -64,4 +64,28 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedMetadata, $metadata);
     }
+
+    /**
+     * @test
+     */
+    public function it_returns_the_correct_metadata_when_given_an_organizer_cdbxml()
+    {
+        $id = 'ORG-123';
+
+        $cdbXmlDocument = new CdbXmlDocument(
+            $id,
+            file_get_contents(__DIR__ . '/Repository/samples/' . 'actor.xml')
+        );
+
+        $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
+
+        $expectedMetadata = new Metadata([
+            'user_nick' => 'foobar',
+            'user_mail' => 'foo@bar.com',
+            'id' => 'http://foo.be/item/ORG-123',
+            'request_time' => '1460710907',
+        ]);
+
+        $this->assertEquals($expectedMetadata, $metadata);
+    }
 }
