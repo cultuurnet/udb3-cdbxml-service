@@ -31,12 +31,14 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
 
-        $expectedMetadata = new Metadata([
-            'user_nick' => 'foobar',
-            'user_mail' => 'foo@bar.com',
-            'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            'request_time' => '1460710907',
-        ]);
+        $expectedMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_mail' => 'foo@bar.com',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                'request_time' => '1460710907',
+            ]
+        );
 
         $this->assertEquals($expectedMetadata, $metadata);
     }
@@ -55,12 +57,14 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
 
-        $expectedMetadata = new Metadata([
-            'user_nick' => 'foobar',
-            'user_mail' => 'foo@bar.com',
-            'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-            'request_time' => '1460710907',
-        ]);
+        $expectedMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_mail' => 'foo@bar.com',
+                'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                'request_time' => '1460710907',
+            ]
+        );
 
         $this->assertEquals($expectedMetadata, $metadata);
     }
@@ -79,12 +83,14 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
 
-        $expectedMetadata = new Metadata([
-            'user_nick' => 'foobar',
-            'user_mail' => 'foo@bar.com',
-            'id' => 'http://foo.be/item/ORG-123',
-            'request_time' => '1460710907',
-        ]);
+        $expectedMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_mail' => 'foo@bar.com',
+                'id' => 'http://foo.be/item/ORG-123',
+                'request_time' => '1460710907',
+            ]
+        );
 
         $this->assertEquals($expectedMetadata, $metadata);
     }

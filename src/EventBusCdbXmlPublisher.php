@@ -77,7 +77,7 @@ class EventBusCdbXmlPublisher implements EventListenerInterface
     public function applyPlaceProjectedToCdbXml(
         PlaceProjectedToCdbXml $placeProjectedToCdbXml,
         DomainMessage $domainMessage
-    ){
+    ) {
         $identifier = $this->iriOfferIdentifierFactory->fromIri(
             Url::fromNative((string) $placeProjectedToCdbXml->getIri())
         );
@@ -127,7 +127,7 @@ class EventBusCdbXmlPublisher implements EventListenerInterface
     public function applyEventProjectedToCdbXml(
         EventProjectedToCdbXml $eventProjectedToCdbXml,
         DomainMessage $domainMessage
-    ){
+    ) {
         $identifier = $this->iriOfferIdentifierFactory->fromIri(
             Url::fromNative((string) $eventProjectedToCdbXml->getIri())
         );

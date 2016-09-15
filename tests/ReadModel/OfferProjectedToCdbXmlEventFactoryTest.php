@@ -85,7 +85,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                     'place/34973B89-BDA3-4A79-96C7-78ACC022907D',
                     false
                 ),
-                '/Repository/samples/place.xml'
+                '/Repository/samples/place.xml',
             ],
             [
                 '34973B89-BDA3-4A79-96C7-78ACC022907D',
@@ -96,7 +96,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                     'place/34973B89-BDA3-4A79-96C7-78ACC022907D',
                     true
                 ),
-                '/Repository/samples/place.xml'
+                '/Repository/samples/place.xml',
             ],
             [
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
@@ -107,7 +107,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                     'event/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     false
                 ),
-                '/Repository/samples/event.xml'
+                '/Repository/samples/event.xml',
             ],
             [
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
@@ -118,7 +118,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                     'event/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     true
                 ),
-                '/Repository/samples/event.xml'
+                '/Repository/samples/event.xml',
             ],
         ];
     }
