@@ -70,7 +70,7 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeD
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
-use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
@@ -1361,7 +1361,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * Set the location on the cdb event based on an eventCreated event.
      *
-     * @param Location $eventLocation
+     * @param \CultuurNet\UDB3\Location\Location $eventLocation
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
      * @throws \CultuurNet\UDB3\EntityNotFoundException
      */
