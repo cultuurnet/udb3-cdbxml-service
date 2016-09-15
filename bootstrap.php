@@ -100,7 +100,7 @@ $app['event_bus.udb2'] = $app->share(
     function (Application $app) {
         $bus =  new SimpleEventBus();
 
-        $bus->subscribe($app['amqp.udb2_publisher']);
+        $bus->subscribe($app['amqp.publisher']);
 
         return $bus;
     }
@@ -442,71 +442,35 @@ $app['cdbxml_publisher'] = $app->share(
     }
 );
 
-$app['amqp.connection'] = $app->share(
-    function (Application $app) {
-        $amqpConfig = $app['config']['amqp'];
-
-        $connection = new AMQPStreamConnection(
-            $amqpConfig['host'],
-            $amqpConfig['port'],
-            $amqpConfig['user'],
-            $amqpConfig['password'],
-            $amqpConfig['vhost']
-        );
-
-        return $connection;
-    }
+$app->register(
+    new \CultuurNet\SilexAMQP\AMQPConnectionServiceProvider(),
+    [
+        'amqp.connection.host' => $app['config']['amqp']['host'],
+        'amqp.connection.port' => $app['config']['amqp']['port'],
+        'amqp.connection.user' => $app['config']['amqp']['user'],
+        'amqp.connection.password' => $app['config']['amqp']['password'],
+        'amqp.connection.vhost' => $app['config']['amqp']['vhost'],
+    ]
 );
 
-$app['amqp.udb2_publisher'] = $app->share(
-    function (Application $app) {
-        /** @var AMQPStreamConnection $connection */
-        $connection = $app['amqp.connection'];
-        $exchange = $app['config']['amqp']['publishers']['udb2']['exchange'];
-
-        $map = [
+$app->register(
+    new \CultuurNet\SilexAMQP\AMQPPublisherServiceProvider(),
+    [
+        'amqp.publisher.content_type_map' => [
             EventCreated::class => 'application/vnd.cultuurnet.udb2-events.event-created+json',
             EventUpdated::class => 'application/vnd.cultuurnet.udb2-events.event-updated+json',
             ActorCreated::class => 'application/vnd.cultuurnet.udb2-events.actor-created+json',
             ActorUpdated::class => 'application/vnd.cultuurnet.udb2-events.actor-updated+json',
-        ];
-
-        $classes = new SpecificationCollection();
-        foreach (array_keys($map) as $className) {
-            $classes = $classes->with(
-                new PayloadIsInstanceOf($className)
-            );
-        }
-
-        $specification = new AnyOf($classes);
-
-        $contentTypeLookup = new ContentTypeLookup($map);
-
-        $publisher = new AMQPPublisher(
-            $connection->channel(),
-            $exchange,
-            $specification,
-            $contentTypeLookup
-        );
-
-        $publisher->setLogger($app['logger.amqp.udb2_publisher']);
-
-        return $publisher;
-    }
+        ],
+        'amqp.publisher.exchange_name' => $app['config']['amqp']['publishers']['udb2']['exchange'],
+    ]
 );
 
-$app['logger.amqp.udb2_publisher'] = $app->share(
-    function (Application $app) {
-        $logger = new Monolog\Logger('amqp.udb2_publisher');
-        $logger->pushHandler(new StreamHandler('php://stdout'));
-
-        $logFileHandler = new StreamHandler(
-            __DIR__ . '/log/amqp.log',
-            \Monolog\Logger::DEBUG
-        );
-        $logger->pushHandler($logFileHandler);
-
-        return $logger;
+$app->extend(
+    'amqp.publisher',
+    function (AMQPPublisher $amqpPublisher, Application $app) {
+        $amqpPublisher->setLogger($app['logger.amqp.udb2_publisher']);
+        return $amqpPublisher;
     }
 );
 
