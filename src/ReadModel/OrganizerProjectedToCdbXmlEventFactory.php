@@ -17,7 +17,8 @@ class OrganizerProjectedToCdbXmlEventFactory implements DocumentEventFactoryInte
     public function createEvent(CdbXmlDocument $cdbXmlDocument, $isNew = false)
     {
         return new OrganizerProjectedToCdbXml(
-            $cdbXmlDocument->getId()
+            $cdbXmlDocument->getId(),
+            $isNew
         );
     }
 }
