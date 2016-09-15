@@ -34,24 +34,17 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
      */
     protected $offerDocumentMetadataFactory;
 
-    /**
-     * @var CdbXmlDocumentSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $cdbXmlDocumentSpecification;
-
     public function setUp()
     {
         $this->decoratedRepository = $this->getMock(DocumentRepositoryInterface::class);
         $this->eventBus = $this->getMock(EventBusInterface::class);
         $this->eventFactory = $this->getMock(DocumentEventFactoryInterface::class);
-        $this->cdbXmlDocumentSpecification = $this->getMock(CdbXmlDocumentSpecificationInterface::class);
         $this->offerDocumentMetadataFactory = new OfferDocumentMetadataFactory();
 
         $this->repository = new BroadcastingDocumentRepositoryDecorator(
             $this->decoratedRepository,
             $this->eventBus,
             $this->eventFactory,
-            $this->cdbXmlDocumentSpecification,
             $this->offerDocumentMetadataFactory
         );
     }
@@ -65,11 +58,6 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
             '34973B89-BDA3-4A79-96C7-78ACC022907D',
             file_get_contents(__DIR__ . '/samples/place.xml')
         );
-
-        $this->cdbXmlDocumentSpecification->expects($this->once())
-            ->method('isSatisfiedBy')
-            ->with($document)
-            ->willReturn(true);
 
         // the provided factory should be used to create a new event
         $this->eventFactory->expects($this->once())

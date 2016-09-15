@@ -29,11 +29,6 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
     protected $eventBus;
 
     /**
-     * @var CdbXmlDocumentSpecificationInterface
-     */
-    protected $cdbXmlDocumentSpecification;
-
-    /**
      * @var OfferDocumentMetadataFactory
      */
     protected $offerDocumentMetadataFactory;
@@ -42,13 +37,11 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
         DocumentRepositoryInterface $repository,
         EventBusInterface $eventBus,
         DocumentEventFactoryInterface $eventFactory,
-        CdbXmlDocumentSpecificationInterface $cdbXmlDocumentSpecification,
         OfferDocumentMetadataFactory $offerDocumentMetadataFactory
     ) {
         parent::__construct($repository);
         $this->eventFactory = $eventFactory;
         $this->eventBus = $eventBus;
-        $this->cdbXmlDocumentSpecification = $cdbXmlDocumentSpecification;
         $this->offerDocumentMetadataFactory = $offerDocumentMetadataFactory;
     }
 
@@ -64,23 +57,21 @@ class BroadcastingDocumentRepositoryDecorator extends DocumentRepositoryDecorato
 
         parent::save($document);
 
-        if ($this->cdbXmlDocumentSpecification->isSatisfiedBy($document)) {
-            $event = $this->eventFactory->createEvent($document, $isNew);
-            $metadata = $this->offerDocumentMetadataFactory->createMetadata($document);
+        $event = $this->eventFactory->createEvent($document, $isNew);
+        $metadata = $this->offerDocumentMetadataFactory->createMetadata($document);
 
-            $generator = new Version4Generator();
-            $events = [
-                DomainMessage::recordNow(
-                    $generator->generate(),
-                    1,
-                    $metadata,
-                    $event
-                ),
-            ];
+        $generator = new Version4Generator();
+        $events = [
+            DomainMessage::recordNow(
+                $generator->generate(),
+                1,
+                $metadata,
+                $event
+            ),
+        ];
 
-            $this->eventBus->publish(
-                new DomainEventStream($events)
-            );
-        }
+        $this->eventBus->publish(
+            new DomainEventStream($events)
+        );
     }
 }
