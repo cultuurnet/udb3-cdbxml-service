@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <actor cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" asset="true">
+  <actor cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="readyforvalidation" asset="true">
     <actordetails>
       <actordetail lang="nl">
         <title>Nieuwe titel</title>
