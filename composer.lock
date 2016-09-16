@@ -644,12 +644,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/deserializer.git",
-                "reference": "6346791a5173067d45a11d662bbb221167a5eacc"
+                "reference": "ff9b8eeedd0ae3a0e22b3821141ab13a88645af1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/6346791a5173067d45a11d662bbb221167a5eacc",
-                "reference": "6346791a5173067d45a11d662bbb221167a5eacc",
+                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/ff9b8eeedd0ae3a0e22b3821141ab13a88645af1",
+                "reference": "ff9b8eeedd0ae3a0e22b3821141ab13a88645af1",
                 "shasum": ""
             },
             "require": {
@@ -664,7 +664,8 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "0.x-dev",
-                    "dev-1.x": "1.x-dev"
+                    "dev-1.x": "1.x-dev",
+                    "dev-feature/III-1325": "0.x-dev"
                 }
             },
             "autoload": {
@@ -683,7 +684,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2016-09-15 10:31:43"
+            "time": "2016-09-16 08:12:43"
         },
         {
             "name": "cultuurnet/entry",
