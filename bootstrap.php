@@ -2,13 +2,8 @@
 
 use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\AMQPPublisher;
-use CultuurNet\BroadwayAMQP\ContentTypeLookup;
-use CultuurNet\BroadwayAMQP\DomainMessage\AnyOf;
-use CultuurNet\BroadwayAMQP\DomainMessage\PayloadIsInstanceOf;
-use CultuurNet\BroadwayAMQP\DomainMessage\SpecificationCollection;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
-use CultuurNet\BroadwayAMQP\Message\EntireDomainMessageBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\Geocoding\CachedGeocodingService;
 use CultuurNet\Geocoding\DefaultGeocodingService;
@@ -44,7 +39,6 @@ use CultuurNet\UDB3\Label\LabelEventOfferTypeResolver;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Silex\Application;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;

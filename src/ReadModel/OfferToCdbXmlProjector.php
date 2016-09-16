@@ -30,7 +30,6 @@ use CultureFeed_Cdb_Data_Url;
 use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
-use CultureFeed_Cdb_ParseException;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
@@ -60,6 +59,10 @@ use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
+use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
+use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
+use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
+use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
@@ -76,6 +79,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
@@ -87,6 +91,8 @@ use CultuurNet\UDB3\Offer\Events\Image\AbstractImageAdded;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractImageRemoved;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractImageUpdated;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
+use CultuurNet\UDB3\Offer\Events\Moderation\AbstractApproved;
+use CultuurNet\UDB3\Offer\WorkflowStatus;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
@@ -98,6 +104,10 @@ use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
 use CultuurNet\UDB3\Place\Events\LabelAdded as PlaceLabelAdded;
 use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
 use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
+use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
+use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
+use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsDuplicate as PlaceFlaggedAsDuplicate;
+use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsInappropriate as PlaceFlaggedAsInappropriate;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
@@ -273,6 +283,14 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
             PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
             PlaceImportedFromUDB2Event::class => 'applyPlaceImportedFromUdb2Event',
+            EventApproved::class => 'applyApproved',
+            PlaceApproved::class => 'applyApproved',
+            EventRejected::class => 'applyRejected',
+            PlaceRejected::class => 'applyRejected',
+            EventFlaggedAsDuplicate::class => 'applyRejected',
+            PlaceFlaggedAsDuplicate::class => 'applyRejected',
+            EventFlaggedAsInappropriate::class => 'applyRejected',
+            PlaceFlaggedAsInappropriate::class => 'applyRejected',
         ];
 
         $this->logger->info('found message ' . $payloadClassName . ' in OfferToCdbXmlProjector');
@@ -590,6 +608,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($eventCreated, $event);
 
+        $event->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
+
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
           ->enrich($event, $metadata);
@@ -671,6 +691,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($placeCreated, $actor);
+
+        $actor->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $actor = $this->metadataCdbItemEnricher
@@ -1350,6 +1372,51 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->selectCdbItemMainImage($offer, $mainImageSelected->getImage());
 
         // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($offer);
+    }
+
+    /**
+     * @param AbstractApproved $approved
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyApproved(
+        AbstractApproved $approved,
+        Metadata $metadata
+    ) {
+        return $this->setWorkflowStatus($approved, $metadata, WorkflowStatus::APPROVED());
+    }
+
+    /**
+     * @param AbstractEvent $rejectionEvent
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyRejected(
+        AbstractEvent $rejectionEvent,
+        Metadata $metadata
+    ) {
+        return $this->setWorkflowStatus($rejectionEvent, $metadata, WorkflowStatus::REJECTED());
+    }
+
+    /**
+     * @param AbstractEvent $event
+     * @param WorkflowStatus $status
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function setWorkflowStatus(AbstractEvent $event, Metadata $metadata, WorkflowStatus $status)
+    {
+        $cdbXmlDocument = $this->documentRepository->get($event->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+
+        $offer->setWfStatus($status->getValue());
+
         $offer = $this->metadataCdbItemEnricher
             ->enrich($offer, $metadata);
 
