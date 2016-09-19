@@ -4,7 +4,7 @@ namespace CultuurNet\UDB3\CdbXmlService\Events;
 
 use CultuurNet\UDB3\Offer\Events\AbstractEventWithIri;
 
-class AbstractOfferProjectedToCdbXml extends AbstractEventWithIri
+abstract class AbstractOfferProjectedToCdbXml extends AbstractEventWithIri
 {
     /**
      * @var bool
