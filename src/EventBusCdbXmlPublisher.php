@@ -170,6 +170,10 @@ class EventBusCdbXmlPublisher implements EventListenerInterface
         }
     }
 
+    /**
+     * @param OrganizerProjectedToCdbXml $organizerProjectedToCdbXml
+     * @param DomainMessage $domainMessage
+     */
     public function applyOrganizerProjectedToCdbXml(
         OrganizerProjectedToCdbXml $organizerProjectedToCdbXml,
         DomainMessage $domainMessage
@@ -219,18 +223,18 @@ class EventBusCdbXmlPublisher implements EventListenerInterface
      */
     private function publish($event, $id, DomainMessage $domainMessage)
     {
-            $message = new DomainMessage(
-                UUID::generateAsString(),
-                0,
-                $domainMessage->getMetadata(),
-                $event,
-                $domainMessage->getRecordedOn()
-            );
+        $message = new DomainMessage(
+            UUID::generateAsString(),
+            0,
+            $domainMessage->getMetadata(),
+            $event,
+            $domainMessage->getRecordedOn()
+        );
 
-            $this->logger->info(
-                'publishing message ' . get_class($event) . ' for cdbid ' . $id . ' on internal event bus'
-            );
+        $this->logger->info(
+            'publishing message ' . get_class($event) . ' for cdbid ' . $id . ' on internal event bus'
+        );
 
-            $this->eventBus->publish(new DomainEventStream([$message]));
+        $this->eventBus->publish(new DomainEventStream([$message]));
     }
 }
