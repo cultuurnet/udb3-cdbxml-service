@@ -4,11 +4,9 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
-use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\CdbXmlDocumentSpecificationInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferDocumentMetadataFactory;
 
 /**
