@@ -73,7 +73,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
         $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
 
-        $projector = new OfferToCdbXmlProjector(
+        $this->projector = new OfferToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(
@@ -86,13 +86,11 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $shortDescriptionFilter
         );
 
-        $this->projector = $projector->withCdbXmlPublisher($this->cdbXmlPublisher);
-
         $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
 
         $this->iriOfferIdentifierFactory = $this->getMock(IriOfferIdentifierFactoryInterface::class);
 
-        $relationsProjector = new RelationsToCdbXmlProjector(
+        $this->relationsProjector = new RelationsToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
             new MetadataCdbItemEnricher(
@@ -102,8 +100,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->offerRelationsService,
             $this->iriOfferIdentifierFactory
         );
-
-        $this->relationsProjector = $relationsProjector->withCdbXmlPublisher($this->cdbXmlPublisher);
 
         $this->metadata = new Metadata(
             [

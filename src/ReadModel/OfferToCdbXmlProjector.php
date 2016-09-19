@@ -36,9 +36,7 @@ use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
-use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
@@ -158,11 +156,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $metadataCdbItemEnricher;
 
     /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
-
-    /**
      * @var DocumentRepositoryInterface
      */
     private $actorDocumentRepository;
@@ -210,24 +203,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->actorDocumentRepository = $actorDocumentRepository;
         $this->dateFormatter = $dateFormatter;
         $this->addressFactory = $addressFactory;
         $this->longDescriptionFilter = $longDescriptionFilter;
         $this->shortDescriptionFilter = $shortDescriptionFilter;
         $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 
     /**
@@ -307,8 +288,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
                 $this->documentRepository->save($cdbXmlDocument);
-
-                $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
             } catch (\Exception $exception) {
                 $this->logger->error(
                     'Handle error for uuid=' . $domainMessage->getId()

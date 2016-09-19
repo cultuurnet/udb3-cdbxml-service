@@ -9,19 +9,18 @@ use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
+use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
-use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
-use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\CdbXmlService\Events\EventProjectedToCdbXml;
+use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
+use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
-use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Language;
-use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
-use CultuurNet\UDB3\Title;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 
@@ -34,39 +33,48 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
     protected $eventBus;
 
     /**
-     * @var CdbXmlPublisherInterface
+     * @var IriOfferIdentifierFactory
+     */
+    protected $iriOfferIdentifierFactory;
+
+    /**
+     * @var EventBusCdbXmlPublisher
      */
     protected $publisher;
+
+    /**
+     * @var string
+     */
+    private $regex;
 
     public function setUp()
     {
         $this->eventBus = $this->getMock(EventBusInterface::class);
 
+        $this->regex = 'https?://foo\.bar/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)';
+        $this->iriOfferIdentifierFactory = new IriOfferIdentifierFactory(
+            $this->regex
+        );
+
         $this->publisher = new EventBusCdbXmlPublisher(
             $this->eventBus,
-            new CdbXmlDocumentParser()
+            $this->iriOfferIdentifierFactory
         );
     }
 
     /**
      * @test
      */
-    public function it_should_add_the_author_and_public_url_when_publishing_cbdxml()
+    public function it_should_add_the_author_and_public_url_when_publishing()
     {
         $authorId = 'DA215A10-06E5-493B-B069-71AC6EBE1E5D';
-        $documentId = 'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
+        $iri = 'https://foo.bar/event/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
         $publicationUrl = 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
         $publicationDate = '2016-04-12T10:58:55+00:00';
 
-        /* @var CalendarInterface $calendar */
-        $calendar = $this->getMock(CalendarInterface::class);
-
-        $originalDomainEvent = new EventCreated(
-            $documentId,
-            new Title('Some Event'),
-            new EventType('some', 'type'),
-            new Location('q', 'w', 'e', 'r', 't', 'y'),
-            $calendar
+        $originalDomainEvent = new EventProjectedToCdbXml(
+            $iri,
+            false
         );
         $originalDomainMessage = new DomainMessage(
             UUID::generateAsString(),
@@ -75,7 +83,6 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::fromString($publicationDate)
         );
-        $document = $this->getEmptyDocument($documentId, 'event');
 
         $this->eventBus
             ->expects($this->once())
@@ -93,7 +100,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $this->publisher->publish($document, $originalDomainMessage);
+        $this->publisher->handle($originalDomainMessage);
     }
 
     /**
@@ -101,19 +108,13 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
      */
     public function it_should_not_add_the_author_if_there_is_none()
     {
-        $documentId = 'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
+        $iri = 'https://foo.bar/event/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
         $publicationUrl = 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
         $publicationDate = '2016-04-12T10:58:55+00:00';
 
-        /* @var CalendarInterface $calendar */
-        $calendar = $this->getMock(CalendarInterface::class);
-
-        $originalDomainEvent = new EventCreated(
-            $documentId,
-            new Title('Some Event'),
-            new EventType('some', 'type'),
-            new Location('q', 'w', 'e', 'r', 't', 'y'),
-            $calendar
+        $originalDomainEvent = new EventProjectedToCdbXml(
+            $iri,
+            false
         );
         $originalDomainMessage = new DomainMessage(
             UUID::generateAsString(),
@@ -122,7 +123,6 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::fromString($publicationDate)
         );
-        $document = $this->getEmptyDocument($documentId, 'event');
 
         $this->eventBus
             ->expects($this->once())
@@ -139,7 +139,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $this->publisher->publish($document, $originalDomainMessage);
+        $this->publisher->handle($originalDomainMessage);
     }
 
     /**
@@ -148,13 +148,11 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
      * @param string $publicationUrl
      * @param string $originalDomainEvent
      * @param string $expectedPayloadType
-     * @param CdbXmlDocument $cdbXmlDocument
      */
     public function it_should_broadcast_an_event_depending_on_the_original_domain_event(
         $publicationUrl,
         $originalDomainEvent,
-        $expectedPayloadType,
-        CdbXmlDocument $cdbXmlDocument
+        $expectedPayloadType
     ) {
         $originalDomainMessage = new DomainMessage(
             UUID::generateAsString(),
@@ -179,7 +177,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $this->publisher->publish($cdbXmlDocument, $originalDomainMessage);
+        $this->publisher->handle($originalDomainMessage);
     }
 
     /**
@@ -190,39 +188,51 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-                new OrganizerImportedFromUDB2(
+                new OrganizerProjectedToCdbXml(
                     'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-                    '<cdbxml></cdbxml>',
-                    'local://3.3.xsd'
+                    true
                 ),
                 ActorCreated::class,
-                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'actor'),
             ],
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-                new OrganizerUpdatedFromUDB2(
+                new OrganizerProjectedToCdbXml(
                     'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-                    '<cdbxml></cdbxml>',
-                    'local://3.3.xsd'
+                    false
                 ),
                 ActorUpdated::class,
-                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'actor'),
             ],
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-                new EventImportedFromUDB2(
-                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-                    '<cdbxml></cdbxml>',
-                    'local://3.3.xsd'
+                new PlaceProjectedToCdbXml(
+                    'https://foo.bar/place/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                    true
                 ),
-                \CultuurNet\UDB2DomainEvents\EventCreated::class,
-                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'event'),
+                ActorCreated::class,
             ],
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
-                new TitleTranslated('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', new Language('nl'), new StringLiteral('c')),
+                new PlaceProjectedToCdbXml(
+                    'https://foo.bar/place/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                    false
+                ),
+                ActorUpdated::class,
+            ],
+            [
+                'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                new EventProjectedToCdbXml(
+                    'https://foo.bar/event/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                    true
+                ),
+                EventCreated::class,
+            ],
+            [
+                'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                new EventProjectedToCdbXml(
+                    'https://foo.bar/event/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
+                    false
+                ),
                 EventUpdated::class,
-                $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'event'),
             ],
         ];
     }
@@ -232,9 +242,13 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
      */
     public function it_should_publish_the_item_at_the_url_provided_by_the_metadata_id_property()
     {
+        $iri = 'https://foo.bar/event/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
         $publicationUrl = 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
 
-        $originalDomainEvent = new TitleTranslated($publicationUrl, new Language('nl'), new StringLiteral('c'));
+        $originalDomainEvent = new EventProjectedToCdbXml(
+            $iri,
+            false
+        );
         $originalDomainMessage = new DomainMessage(
             UUID::generateAsString(),
             0,
@@ -242,7 +256,6 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             $originalDomainEvent,
             DateTime::now()
         );
-        $document = $this->getEmptyDocument('A59682E1-6745-4AF3-8B7F-FB8A8FE895D5', 'event');
 
         $this->eventBus
             ->expects($this->once())
@@ -259,22 +272,6 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $this->publisher->publish($document, $originalDomainMessage);
-    }
-
-    /**
-     * @param string $documentId
-     * @param string $elementName
-     *
-     * @return CdbXmlDocument
-     */
-    private function getEmptyDocument($documentId, $elementName)
-    {
-        $document = new CdbXmlDocument(
-            $documentId,
-            '<cdbxml><' . $elementName . '></' . $elementName . '></cdbxml>'
-        );
-
-        return $document;
+        $this->publisher->handle($originalDomainMessage);
     }
 }

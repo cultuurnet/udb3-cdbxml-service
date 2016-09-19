@@ -2,21 +2,15 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
-use Broadway\Domain\DateTime;
-use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address;
-use CultuurNet\UDB3\Cdb\ActorItemFactory;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
-use Doctrine\Common\Cache\ArrayCache;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -46,7 +40,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new CdbXmlDateFormatter()
                 )
             )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        );
 
         $this->metadata = new Metadata(
             [
@@ -91,7 +85,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -117,7 +110,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -143,7 +135,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 }

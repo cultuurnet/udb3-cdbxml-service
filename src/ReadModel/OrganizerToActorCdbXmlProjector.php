@@ -7,9 +7,7 @@ use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
-use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
@@ -19,17 +17,11 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
-
-    /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
 
     /**
      * @var DocumentRepositoryInterface
@@ -68,19 +60,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $this->addressFactory = $addressFactory;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
 
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OrganizerToActorCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 
     /**
@@ -115,8 +95,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
                 $this->documentRepository->save($cdbXmlDocument);
-
-                $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
             } catch (Exception $exception) {
                 // Log any exceptions that occur while projecting events.
                 // The exception is passed to context as specified in: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#13-context

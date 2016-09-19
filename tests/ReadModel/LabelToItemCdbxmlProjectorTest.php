@@ -38,8 +38,7 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
             $this->repository,
             $this->relationRepository,
             new CdbXmlDocumentFactory('3.3')
-        )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        ));
     }
 
     /**
@@ -84,7 +83,6 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentInRepository($expectedDocument);
-        $this->assertCdbXmlDocumentIsPublished($expectedDocument);
     }
 
     /**
@@ -129,7 +127,6 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentInRepository($expectedDocument);
-        $this->assertCdbXmlDocumentIsPublished($expectedDocument);
     }
 
     /**
@@ -174,7 +171,6 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentInRepository($expectedDocument);
-        $this->assertCdbXmlDocumentIsPublished($expectedDocument);
     }
 
     /**
@@ -219,6 +215,5 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentInRepository($expectedDocument);
-        $this->assertCdbXmlDocumentIsPublished($expectedDocument);
     }
 }

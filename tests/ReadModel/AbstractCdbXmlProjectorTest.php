@@ -8,7 +8,6 @@ use Broadway\Domain\Metadata;
 use Broadway\Serializer\SerializableInterface;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
@@ -34,11 +33,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      * @var string
      */
     protected $cdbXmlFilesPath;
-
-    /**
-     * @var CdbXmlPublisherInterface
-     */
-    protected $cdbXmlPublisher;
 
     /**
      * @var LoggerInterface|PHPUnit_Framework_MockObject_MockObject
@@ -74,15 +68,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedCdbXmlDocument->getCdbXml(), $actualCdbXmlDocument->getCdbXml());
     }
-
-    /**
-     * @param CdbXmlDocument $cdbXmlDocument
-     */
-    protected function assertCdbXmlDocumentIsPublished(CdbXmlDocument $cdbXmlDocument)
-    {
-        $this->assertTrue(in_array($cdbXmlDocument, $this->publishedCdbXmlDocuments));
-    }
-
 
     /**
      * @param string $entityId
@@ -204,7 +189,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
             $this->loadCdbXmlFromFile($cdbXmlFileName)
         );
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -276,16 +260,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
         $this->cdbXmlFilesPath = __DIR__ . '/Repository/samples/';
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
-        $this->cdbXmlPublisher = $this->getMock(CdbXmlPublisherInterface::class);
-
-        $this->cdbXmlPublisher
-            ->expects($this->any())
-            ->method('publish')
-            ->willReturnCallback(
-                function (CdbXmlDocument $document, DomainMessage $domainMessage) {
-                    $this->publishedCdbXmlDocuments[] = $document;
-                }
-            );
 
         $this->projector = $this->getMockForAbstractClass(
             AbstractCdbXmlProjector::class,
@@ -298,7 +272,6 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
             true,
             array('applyFoo')
         );
-        $this->projector = $this->projector->withCdbXmlPublisher($this->cdbXmlPublisher);
 
         foreach ($this->entityDataProvider() as $entity) {
             $this->repository->save(

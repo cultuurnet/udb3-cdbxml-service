@@ -2,18 +2,18 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Events;
 
-use CultuurNet\UDB3\Organizer\Events\OrganizerEvent;
+use CultuurNet\UDB3\Offer\Events\AbstractEventWithIri;
 
-class OrganizerProjectedToCdbXml extends OrganizerEvent
+abstract class AbstractOfferProjectedToCdbXml extends AbstractEventWithIri
 {
     /**
      * @var bool
      */
     protected $isNew;
 
-    public function __construct($organizerId, $isNew = false)
+    public function __construct($iri, $isNew = false)
     {
-        parent::__construct($organizerId);
+        parent::__construct($iri);
         $this->isNew = $isNew;
     }
 
