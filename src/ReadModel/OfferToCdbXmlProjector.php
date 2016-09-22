@@ -587,7 +587,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($eventCreated, $event);
 
-        $event->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
+        $event->setWfStatus(WorkflowStatus::DRAFT()->toNative());
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -671,7 +671,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($placeCreated, $actor);
 
-        $actor->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
+        $actor->setWfStatus(WorkflowStatus::DRAFT()->toNative());
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $actor = $this->metadataCdbItemEnricher
