@@ -7,10 +7,13 @@ use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
+use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
+use ValueObjects\Web\Url;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -81,6 +84,44 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_organizer_created_with_unique_website()
+    {
+        $id = 'ORG-123';
+
+        $event = new OrganizerCreatedWithUniqueWebsite(
+            $id,
+            Url::fromNative('http://www.destudio.com'),
+            new Title('DE Studio'),
+            [
+                new Address(
+                    'Maarschalk Gerardstraat 4',
+                    '2000',
+                    'Antwerpen',
+                    'BE'
+                ),
+            ],
+            new ContactPoint(
+                ['+32 3 260 96 10'],
+                ['info@villanella.be'],
+                ['https://www.antwerpen.be/nl/overzicht/cultuur-1/nieuws-81']
+            )
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-unique-website-with-contact-info.xml')
         );
 
         $this->projector->handle($domainMessage);

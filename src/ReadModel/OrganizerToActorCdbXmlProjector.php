@@ -12,6 +12,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
+use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use Exception;
@@ -67,6 +68,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      * {@inheritdoc}
      *
      * @uses applyOrganizerCreated()
+     * @uses applyOrganizerCreatedWithUniqueWebsite()
      * @uses applyActorImportedFromUdb2()
      */
     public function handle(DomainMessage $domainMessage)
@@ -78,6 +80,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
 
         $handlers = [
             OrganizerCreated::class => 'applyOrganizerCreated',
+            OrganizerCreatedWithUniqueWebsite::class => 'applyOrganizerCreatedWithUniqueWebsite',
             OrganizerImportedFromUDB2::class => 'applyActorImportedFromUdb2',
             OrganizerUpdatedFromUDB2::class => 'applyActorImportedFromUdb2',
         ];
@@ -144,6 +147,72 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         }
 
         foreach ($organizerCreated->getEmails() as $email) {
+            $contactInfo->addMail(new \CultureFeed_Cdb_Data_Mail($email));
+        }
+
+        $actor->setContactInfo($contactInfo);
+
+        // Categories.
+        $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
+        $categoryList->add(
+            new \CultureFeed_Cdb_Data_Category(
+                'actortype',
+                '8.11.0.0.0',
+                'Organisator(en)'
+            )
+        );
+        $actor->setCategories($categoryList);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+    }
+
+    /**
+     * @param OrganizerCreated|OrganizerCreatedWithUniqueWebsite $organizerCreated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function applyOrganizerCreatedWithUniqueWebsite(
+        OrganizerCreatedWithUniqueWebsite $organizerCreated,
+        Metadata $metadata
+    ) {
+        // Actor.
+        $actor = new \CultureFeed_Cdb_Item_Actor();
+        $actor->setCdbId($organizerCreated->getOrganizerId());
+
+        // Details.
+        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
+        $nlDetail->setLanguage('nl');
+        $nlDetail->setTitle($organizerCreated->getTitle());
+
+        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
+        $details->add($nlDetail);
+        $actor->setDetails($details);
+
+        // Contact info.
+        $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
+
+        foreach ($organizerCreated->getAddresses() as $udb3Address) {
+            $address = $this->addressFactory->fromUdb3Address($udb3Address);
+            $contactInfo->addAddress($address);
+        }
+
+        foreach ($organizerCreated->getContactPoint()->getPhones() as $phone) {
+            $contactInfo->addPhone(new \CultureFeed_Cdb_Data_Phone($phone));
+        }
+
+        foreach ($organizerCreated->getContactPoint()->getUrls() as $url) {
+            $contactInfo->addUrl(new \CultureFeed_Cdb_Data_Url($url));
+        }
+
+        $contactInfo->addUrl(new \CultureFeed_Cdb_Data_Url((string) $organizerCreated->getWebsite()));
+
+        foreach ($organizerCreated->getContactPoint()->getEmails() as $email) {
             $contactInfo->addMail(new \CultureFeed_Cdb_Data_Mail($email));
         }
 
