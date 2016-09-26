@@ -11,6 +11,7 @@ use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
 use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
@@ -128,12 +129,12 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     {
         $timestamps = [
             new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T15:00:00+01:00')
             ),
             new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T15:00:00+01:00')
             ),
         ];
 
@@ -156,7 +157,12 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,
-                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                        $timestamps
+                    ),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror')
                 ),
                 'event.xml',
@@ -168,7 +174,12 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,
-                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                        $timestamps
+                    ),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror'),
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
                 ),

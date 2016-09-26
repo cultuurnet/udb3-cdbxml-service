@@ -8,6 +8,7 @@ use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
 use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
@@ -267,12 +268,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $timestamps = [
             new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T15:00:00+01:00')
             ),
             new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T15:00:00+01:00')
             ),
         ];
 
@@ -310,7 +311,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new Locality('Leuven'),
                 Country::fromNative('BE')
             ),
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage($placeId, $placeCreated, $placeMetadata);
         $this->projector->handle($domainMessage);
@@ -330,7 +331,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     Country::fromNative('BE')
                 )
             ),
-            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+            new Calendar(
+                CalendarType::MULTIPLE(),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                $timestamps
+            ),
             $theme
         );
 
@@ -354,7 +360,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new Locality('Leuven'),
                 Country::fromNative('BE')
             ),
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
 
         $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);

@@ -15,6 +15,7 @@ use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
 use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
@@ -162,7 +163,7 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     new Title('title'),
                     new EventType('id', 'label'),
                     $location,
-                    new Calendar(Calendar::PERMANENT)
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 $addressSummary,
                 $coordinates,
@@ -175,7 +176,7 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     new Title('title'),
                     new EventType('id', 'label'),
                     $location,
-                    new Calendar(Calendar::PERMANENT)
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 $addressSummary,
                 $coordinates,
@@ -304,7 +305,7 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     new Title('title'),
                     new EventType('id', 'label'),
                     $address,
-                    new Calendar(Calendar::PERMANENT)
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 $addressSummary,
                 $coordinates,
@@ -320,7 +321,7 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
                     new Title('title'),
                     new EventType('id', 'label'),
                     $address,
-                    new Calendar(Calendar::PERMANENT)
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 $addressSummary,
                 $coordinates,

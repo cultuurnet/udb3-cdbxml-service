@@ -10,6 +10,7 @@ use CultuurNet\UDB3\Address\PostalCode;
 use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -148,7 +149,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new Locality('Leuven'),
                 Country::fromNative('BE')
             ),
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage($this->getPlaceId(), $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
@@ -170,16 +171,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function eventCreatedDataProvider()
     {
-        $timestamps = [
-            new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
-            ),
-            new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
-            ),
-        ];
+        $timestamps = $this->getTimestamps();
 
         $address = new Address(
             new Street('Bondgenotenlaan 1'),
@@ -202,7 +194,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,
-                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                        $timestamps
+                    ),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror')
                 ),
                 'event.xml',
@@ -214,7 +211,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,
-                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                        $timestamps
+                    ),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror'),
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
                 ),
@@ -229,17 +231,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_logs_warning_when_event_created_with_missing_location()
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-
-        $timestamps = [
-            new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
-            ),
-            new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
-            ),
-        ];
+        $timestamps = $this->getTimestamps();
 
         $placeId = UUID::generateAsString();
         $unknownPlaceId = UUID::generateAsString();
@@ -262,7 +254,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Title('$name'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
@@ -272,7 +264,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
             $location,
-            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+            new Calendar(
+                CalendarType::MULTIPLE(),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                $timestamps
+            ),
             new Theme('1.7.6.0.0', 'Griezelfilm of horror')
         );
 
@@ -406,7 +403,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
                     $address,
-                    new Calendar('permanent')
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 'place.xml',
             ],
@@ -417,7 +414,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
                     $address,
-                    new Calendar('permanent'),
+                    new Calendar(CalendarType::PERMANENT()),
                     null,
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
                 ),
@@ -981,7 +978,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                             Country::fromNative('BE')
                         )
                     ),
-                    new Calendar('permanent'),
+                    new Calendar(CalendarType::PERMANENT()),
                     new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
             )
@@ -1001,7 +998,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                             Country::fromNative('BE')
                         )
                     ),
-                    new Calendar('permanent'),
+                    new Calendar(CalendarType::PERMANENT()),
                     new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
             )
@@ -1037,7 +1034,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     Country::fromNative('BE')
                 )
             ),
-            new Calendar('permanent'),
+            new Calendar(CalendarType::PERMANENT()),
             new Theme('1.8.2.0.0', 'Jazz en blues')
         );
         $domainMessage = $this->createDomainMessage(
@@ -1081,7 +1078,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     Country::fromNative('BE')
                 )
             ),
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage(
             $id,
@@ -1117,7 +1114,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         new Locality('Brussel'),
                         Country::fromNative('DE')
                     ),
-                    new Calendar('permanent'),
+                    new Calendar(CalendarType::PERMANENT()),
                     new Theme('1.0.1.0.0', 'Schilderkunst')
                 )
             )
@@ -1316,17 +1313,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private function createEvent($theme = true)
     {
         $id = $this->getEventId();
-
-        $timestamps = [
-            new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
-            ),
-            new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
-            ),
-        ];
+        $timestamps = $this->getTimestamps();
 
         $address = new Address(
             new Street('Bondgenotenlaan 1'),
@@ -1346,7 +1333,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Title('$name'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage($this->getPlaceId(), $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
@@ -1357,7 +1344,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
             $location,
-            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+            new Calendar(
+                CalendarType::MULTIPLE(),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                $timestamps
+            ),
             $theme
         );
 
@@ -1395,7 +1387,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new Locality('Leuven'),
                 Country::fromNative('BE')
             ),
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
 
         $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
@@ -1419,5 +1411,22 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
             ]
         );
+    }
+
+    /**
+     * @return Timestamp[]
+     */
+    private function getTimestamps()
+    {
+        return [
+            new Timestamp(
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T15:00:00+01:00')
+            ),
+            new Timestamp(
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T15:00:00+01:00')
+            ),
+        ];
     }
 }

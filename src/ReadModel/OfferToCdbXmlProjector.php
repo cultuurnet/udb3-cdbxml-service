@@ -1488,19 +1488,19 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         if ($eventCalendar->getType() == Calendar::MULTIPLE) {
             $calendar = new CultureFeed_Cdb_Data_Calendar_TimestampList();
             foreach ($eventCalendar->getTimestamps() as $timestamp) {
-                $startdate = strtotime($timestamp->getStartDate());
-                $enddate = strtotime($timestamp->getEndDate());
-                $startHour = date('H:i:s', $startdate);
+                $startDate = $timestamp->getStartDate();
+                $endDate = $timestamp->getEndDate();
+                $startHour = $startDate->format('H:i:s');
                 if ($startHour == '00:00:00') {
                     $startHour = null;
                 }
-                $endHour = date('H:i:s', $enddate);
+                $endHour = $endDate->format('H:i:s');
                 if ($endHour == '00:00:00') {
                     $endHour = null;
                 }
                 $calendar->add(
                     new CultureFeed_Cdb_Data_Calendar_Timestamp(
-                        date('Y-m-d', $startdate),
+                        $startDate->format('Y-m-d'),
                         $startHour,
                         $endHour
                     )
@@ -1509,19 +1509,19 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             // Single day.
         } elseif ($eventCalendar->getType() == Calendar::SINGLE) {
             $calendar = new CultureFeed_Cdb_Data_Calendar_TimestampList();
-            $startdate = strtotime($eventCalendar->getStartDate());
-            $enddate = strtotime($eventCalendar->getEndDate());
-            $startHour = date('H:i:s', $startdate);
+            $startDate = $eventCalendar->getStartDate();
+            $endDate = $eventCalendar->getEndDate();
+            $startHour = $startDate->format('H:i:s');
             if ($startHour == '00:00:00') {
                 $startHour = null;
             }
-            $endHour = date('H:i:s', $enddate);
+            $endHour = $endDate->format('H:i:s');
             if ($endHour == '00:00:00') {
                 $endHour = null;
             }
             $calendar->add(
                 new CultureFeed_Cdb_Data_Calendar_Timestamp(
-                    date('Y-m-d', $startdate),
+                    $startDate->format('Y-m-d'),
                     $startHour,
                     $endHour
                 )
@@ -1529,10 +1529,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             // Period.
         } elseif ($eventCalendar->getType() == Calendar::PERIODIC) {
             $calendar = new CultureFeed_Cdb_Data_Calendar_PeriodList();
-            $startdate = date('Y-m-d', strtotime($eventCalendar->getStartDate()));
-            $enddate = date('Y-m-d', strtotime($eventCalendar->getEndDate()));
+            $startDate = $eventCalendar->getStartDate()->format('Y-m-d');
+            $endDate = $eventCalendar->getEndDate()->format('Y-m-d');
 
-            $period = new CultureFeed_Cdb_Data_Calendar_Period($startdate, $enddate);
+            $period = new CultureFeed_Cdb_Data_Calendar_Period($startDate, $endDate);
             if (!empty($weekScheme)) {
                 $period->setWeekScheme($weekscheme);
             }
