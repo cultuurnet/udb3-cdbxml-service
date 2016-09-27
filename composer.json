@@ -15,13 +15,14 @@
         "cultuurnet/deserializer": "~0.1",
         "cultuurnet/geocoding": "~0.1",
         "cultuurnet/silex-amqp": "~0.1",
-        "cultuurnet/udb3": "~0.1",
+        "cultuurnet/udb3": "dev-feature/III-1225 as 0.1",
         "cultuurnet/cdb": "~2.2",
         "cultuurnet/udb2-domain-events": "~0.1",
         "crell/api-problem": "^1.7",
         "doctrine/dbal": "^2.4",
         "doctrine/migrations": "~1.0",
-        "willdurand/geocoder": "~2.8"
+        "willdurand/geocoder": "~2.8",
+        "commerceguys/intl": "^0.7.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",
