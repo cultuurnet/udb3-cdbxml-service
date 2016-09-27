@@ -4,6 +4,8 @@ use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\AMQPPublisher;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
+use CultuurNet\BroadwayAMQP\Message\Body\BodyFactoryInterface;
+use CultuurNet\BroadwayAMQP\Message\Body\PayloadOnlyBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\Geocoding\CachedGeocodingService;
 use CultuurNet\Geocoding\DefaultGeocodingService;
@@ -458,6 +460,10 @@ $app->register(
         'amqp.publisher.exchange_name' => $app['config']['amqp']['publishers']['udb2']['exchange'],
     ]
 );
+
+$app->extend('amqp.publisher.body_factory', function (BodyFactoryInterface $originalBodyFactory) {
+    return new PayloadOnlyBodyFactory();
+});
 
 $app->extend(
     'amqp.publisher',
