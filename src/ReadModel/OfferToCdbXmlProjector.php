@@ -1009,13 +1009,23 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $eventCdbXml->getCdbXml()
         );
 
+        $numberFormat = $this->numberFormatRepository->get('nl-BE');
+        $currencyFormatter = new NumberFormatter($numberFormat, NumberFormatter::CURRENCY);
+
         $priceInfo = $priceInfoUpdated->getPriceInfo();
         $basePrice = $priceInfo->getBasePrice();
         $tariffs = $priceInfo->getTariffs();
 
-        $tariffStrings = [];
+        $basePriceCurrencyCode = $basePrice->getCurrency()->getCode()->toNative();
+        $basePriceCurrency = $this->currencyRepository->get($basePriceCurrencyCode);
+        $basePriceFormatted = $currencyFormatter->formatCurrency(
+            (string) $basePrice->getPrice()->toNative(),
+            $basePriceCurrency
+        );
 
-        $numberFormat = $this->numberFormatRepository->get('be');
+        $descriptionStrings = [
+            'Basistarief: ' . $basePriceFormatted,
+        ];
 
         foreach ($tariffs as $tariff) {
             $price = $tariff->getPrice()->toNative();
@@ -1023,14 +1033,13 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $currencyCode = $tariff->getCurrency()->getCode()->toNative();
             $currency = $this->currencyRepository->get($currencyCode);
 
-            $currencyFormatter = new NumberFormatter($numberFormat, NumberFormatter::CURRENCY);
             $tariffPrice = $currencyFormatter->formatCurrency((string) $price, $currency);
 
-            $tariffStrings[] = $tariff->getName() . ': ' . $tariffPrice;
+            $descriptionStrings[] = $tariff->getName() . ': ' . $tariffPrice;
         }
 
         $cdbPrice = new \CultureFeed_Cdb_Data_Price($basePrice->getPrice()->toNative());
-        $cdbPrice->setDescription(implode('; ', $tariffStrings));
+        $cdbPrice->setDescription(implode('; ', $descriptionStrings));
 
         $updatedDetails = new \CultureFeed_Cdb_Data_EventDetailList();
         foreach ($event->getDetails() as $detail) {
