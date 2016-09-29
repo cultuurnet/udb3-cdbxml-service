@@ -4,6 +4,8 @@ use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\AMQPPublisher;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
+use CultuurNet\BroadwayAMQP\Message\Body\BodyFactoryInterface;
+use CultuurNet\BroadwayAMQP\Message\Body\PayloadOnlyBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\Geocoding\CachedGeocodingService;
 use CultuurNet\Geocoding\DefaultGeocodingService;
@@ -76,17 +78,8 @@ $app['event_bus.udb3-core'] = $app->share(
 );
 
 // Broadcasting event stream to trigger updating of related projections.
-$app['event_bus.udb3-core.relations'] = $app->share(
-    function (Application $app) {
-        $bus =  new SimpleEventBus();
+$app['event_bus.udb3-core.relations'] = new SimpleEventBus();
 
-        $bus->subscribe($app['relations_to_cdbxml_projector']);
-        $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
-        $bus->subscribe($app['cdbxml_publisher']);
-
-        return $bus;
-    }
-);
 
 // Outgoing event-stream to UDB2.
 $app['event_bus.udb2'] = $app->share(
@@ -171,21 +164,6 @@ $app['iri_offer_identifier_factory'] = $app->share(
         return new \CultuurNet\UDB3\Offer\IriOfferIdentifierFactory(
             $app['config']['offer_url_regex']
         );
-    }
-);
-
-$app['relations_to_cdbxml_projector'] = $app->share(
-    function (Application $app) {
-        $projector = (new RelationsToCdbXmlProjector(
-            $app['real_cdbxml_offer_repository'],
-            $app[CDBXML_DOCUMENT_FACTORY],
-            $app['metadata_cdb_item_enricher'],
-            $app['real_cdbxml_actor_repository'],
-            $app['offer_relations_service'],
-            $app['iri_offer_identifier_factory']
-        ));
-
-        return $projector;
     }
 );
 
@@ -360,6 +338,21 @@ $app[CDBXML_OFFER_REPOSITORY] = $app->share(
             $app['cdbxml_offer_metadata_factory']
         );
 
+        $projector = (new RelationsToCdbXmlProjector(
+            $broadcastingRepository,
+            $app[CDBXML_DOCUMENT_FACTORY],
+            $app['metadata_cdb_item_enricher'],
+            $app['cdbxml_actor_repository'],
+            $app['offer_relations_service'],
+            $app['iri_offer_identifier_factory']
+        ));
+        $projector->setLogger($app['logger.projector']);
+
+        $bus = $app['event_bus.udb3-core.relations'];
+        $bus->subscribe($projector);
+        $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
+        $bus->subscribe($app['cdbxml_publisher']);
+
         return $broadcastingRepository;
     }
 );
@@ -458,6 +451,10 @@ $app->register(
         'amqp.publisher.exchange_name' => $app['config']['amqp']['publishers']['udb2']['exchange'],
     ]
 );
+
+$app->extend('amqp.publisher.body_factory', function (BodyFactoryInterface $originalBodyFactory) {
+    return new PayloadOnlyBodyFactory();
+});
 
 $app->extend(
     'amqp.publisher',
