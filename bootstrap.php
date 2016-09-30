@@ -1,5 +1,6 @@
 <?php
 
+use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\AMQPPublisher;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
@@ -31,6 +32,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepos
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
+use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
@@ -80,15 +82,18 @@ $app['event_bus.udb3-core'] = $app->share(
 // Broadcasting event stream to trigger updating of related projections.
 $app['event_bus.udb3-core.relations'] = $app->share(
     function (Application $app) {
-        $bus =  new SimpleEventBus();
+        $bus = new UDB3SimpleEventBus();
 
-        $bus->subscribe($app['relations_to_cdbxml_projector']);
-        $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
-        $bus->subscribe($app['cdbxml_publisher']);
+        $bus->beforeFirstPublication(function (EventBusInterface $bus) use ($app) {
+            $bus->subscribe($app['relations_to_cdbxml_projector']);
+            $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
+            $bus->subscribe($app['cdbxml_publisher']);
+        });
 
         return $bus;
     }
 );
+
 
 // Outgoing event-stream to UDB2.
 $app['event_bus.udb2'] = $app->share(
@@ -179,14 +184,14 @@ $app['iri_offer_identifier_factory'] = $app->share(
 $app['relations_to_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $projector = (new RelationsToCdbXmlProjector(
-            $app['real_cdbxml_offer_repository'],
+            $app['cdbxml_offer_repository'],
             $app[CDBXML_DOCUMENT_FACTORY],
             $app['metadata_cdb_item_enricher'],
-            $app['real_cdbxml_actor_repository'],
+            $app['cdbxml_actor_repository'],
             $app['offer_relations_service'],
             $app['iri_offer_identifier_factory']
         ));
-
+        
         return $projector;
     }
 );
