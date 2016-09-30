@@ -1,5 +1,6 @@
 <?php
 
+use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventHandling\SimpleEventBus;
 use CultuurNet\BroadwayAMQP\AMQPPublisher;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
@@ -31,6 +32,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepos
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
+use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
@@ -78,7 +80,19 @@ $app['event_bus.udb3-core'] = $app->share(
 );
 
 // Broadcasting event stream to trigger updating of related projections.
-$app['event_bus.udb3-core.relations'] = new SimpleEventBus();
+$app['event_bus.udb3-core.relations'] = $app->share(
+    function (Application $app) {
+        $bus = new UDB3SimpleEventBus();
+
+        $bus->beforeFirstPublication(function (EventBusInterface $bus) use ($app) {
+            $bus->subscribe($app['relations_to_cdbxml_projector']);
+            $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
+            $bus->subscribe($app['cdbxml_publisher']);
+        });
+
+        return $bus;
+    }
+);
 
 
 // Outgoing event-stream to UDB2.
@@ -164,6 +178,21 @@ $app['iri_offer_identifier_factory'] = $app->share(
         return new \CultuurNet\UDB3\Offer\IriOfferIdentifierFactory(
             $app['config']['offer_url_regex']
         );
+    }
+);
+
+$app['relations_to_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = (new RelationsToCdbXmlProjector(
+            $app['cdbxml_offer_repository'],
+            $app[CDBXML_DOCUMENT_FACTORY],
+            $app['metadata_cdb_item_enricher'],
+            $app['cdbxml_actor_repository'],
+            $app['offer_relations_service'],
+            $app['iri_offer_identifier_factory']
+        ));
+        
+        return $projector;
     }
 );
 
@@ -337,21 +366,6 @@ $app[CDBXML_OFFER_REPOSITORY] = $app->share(
             ),
             $app['cdbxml_offer_metadata_factory']
         );
-
-        $projector = (new RelationsToCdbXmlProjector(
-            $broadcastingRepository,
-            $app[CDBXML_DOCUMENT_FACTORY],
-            $app['metadata_cdb_item_enricher'],
-            $app['cdbxml_actor_repository'],
-            $app['offer_relations_service'],
-            $app['iri_offer_identifier_factory']
-        ));
-        $projector->setLogger($app['logger.projector']);
-
-        $bus = $app['event_bus.udb3-core.relations'];
-        $bus->subscribe($projector);
-        $bus->subscribe($app['flanders_region_relations_cdbxml_projector']);
-        $bus->subscribe($app['cdbxml_publisher']);
 
         return $broadcastingRepository;
     }
