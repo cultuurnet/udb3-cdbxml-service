@@ -57,6 +57,7 @@ use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
+use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
 use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
@@ -90,6 +91,7 @@ use CultuurNet\UDB3\Offer\Events\Image\AbstractImageRemoved;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractImageUpdated;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractApproved;
+use CultuurNet\UDB3\Offer\Events\Moderation\AbstractPublished;
 use CultuurNet\UDB3\Offer\WorkflowStatus;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
@@ -102,6 +104,7 @@ use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
 use CultuurNet\UDB3\Place\Events\LabelAdded as PlaceLabelAdded;
 use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
 use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
+use CultuurNet\UDB3\Place\Events\Moderation\Published as PlacePublished;
 use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
 use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
 use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsDuplicate as PlaceFlaggedAsDuplicate;
@@ -264,6 +267,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
             PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
             PlaceImportedFromUDB2Event::class => 'applyPlaceImportedFromUdb2Event',
+            EventPublished::class => 'applyPublished',
+            PlacePublished::class => 'applyPublished',
             EventApproved::class => 'applyApproved',
             PlaceApproved::class => 'applyApproved',
             EventRejected::class => 'applyRejected',
@@ -587,7 +592,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($eventCreated, $event);
 
-        $event->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
+        $event->setWfStatus(WorkflowStatus::DRAFT()->toNative());
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -671,7 +676,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($placeCreated, $actor);
 
-        $actor->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
+        $actor->setWfStatus(WorkflowStatus::DRAFT()->toNative());
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $actor = $this->metadataCdbItemEnricher
@@ -1357,6 +1362,18 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($offer);
+    }
+
+    /**
+     * @param AbstractPublished $published
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPublished(
+        AbstractPublished $published,
+        Metadata $metadata
+    ) {
+        return $this->setWorkflowStatus($published, $metadata, WorkflowStatus::READY_FOR_VALIDATION());
     }
 
     /**
