@@ -7,10 +7,14 @@ use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
+use CultuurNet\UDB3\Organizer\Events\LabelAdded;
+use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
+use ValueObjects\Identity\UUID;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -136,5 +140,63 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_label_added()
+    {
+        $organizerId = 'ORG-123';
+        $labelId = new UUID();
+        $labelAdded = new LabelAdded($organizerId, $labelId);
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded);
+        $domainMessage = $domainMessage->andMetadata(
+            new Metadata(['labelName' => '2dotstwice'])
+        );
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_label_removed()
+    {
+        $organizerId = 'ORG-123';
+        $labelId = new UUID();
+        $labelRemoved = new LabelRemoved($organizerId, $labelId);
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved);
+        $domainMessage = $domainMessage->andMetadata(
+            new Metadata(['labelName' => '2dotstwice'])
+        );
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
     }
 }
