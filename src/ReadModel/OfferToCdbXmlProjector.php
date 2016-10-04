@@ -1019,7 +1019,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $basePriceCurrencyCode = $basePrice->getCurrency()->getCode()->toNative();
         $basePriceCurrency = $this->currencyRepository->get($basePriceCurrencyCode);
         $basePriceFormatted = $currencyFormatter->formatCurrency(
-            (string) $basePrice->getPrice()->toNative(),
+            (string) $basePrice->getPrice()->toFloat(),
             $basePriceCurrency
         );
 
@@ -1028,7 +1028,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         ];
 
         foreach ($tariffs as $tariff) {
-            $price = $tariff->getPrice()->toNative();
+            $price = $tariff->getPrice()->toFloat();
 
             $currencyCode = $tariff->getCurrency()->getCode()->toNative();
             $currency = $this->currencyRepository->get($currencyCode);
@@ -1038,7 +1038,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $descriptionStrings[] = $tariff->getName() . ': ' . $tariffPrice;
         }
 
-        $cdbPrice = new \CultureFeed_Cdb_Data_Price($basePrice->getPrice()->toNative());
+        $cdbPrice = new \CultureFeed_Cdb_Data_Price($basePrice->getPrice()->toFloat());
         $cdbPrice->setDescription(implode('; ', $descriptionStrings));
 
         $updatedDetails = new \CultureFeed_Cdb_Data_EventDetailList();
