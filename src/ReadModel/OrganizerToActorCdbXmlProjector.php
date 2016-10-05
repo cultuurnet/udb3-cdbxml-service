@@ -114,7 +114,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      *
      * @param Metadata $metadata
      *
-     * @return \CultureFeed_Cdb_Item_Base
+     * @return \CultureFeed_Cdb_Item_Actor
      */
     private function buildActorFromOrganizerEvent(
         OrganizerEvent $organizerCreationEvent,
