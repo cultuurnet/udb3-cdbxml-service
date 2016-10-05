@@ -13,6 +13,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
+use CultuurNet\UDB3\Organizer\Events\OrganizerEvent;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use Exception;
@@ -109,6 +110,48 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
     }
 
     /**
+     * @param OrganizerEvent|OrganizerCreated|OrganizerCreatedWithUniqueWebsite $organizerCreationEvent
+     *
+     * @param Metadata $metadata
+     *
+     * @return \CultureFeed_Cdb_Item_Base
+     */
+    private function buildActorFromOrganizerEvent(
+        OrganizerEvent $organizerCreationEvent,
+        Metadata $metadata
+    ) {
+        // Actor.
+        $actor = new \CultureFeed_Cdb_Item_Actor();
+        $actor->setCdbId($organizerCreationEvent->getOrganizerId());
+
+        // Details.
+        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
+        $nlDetail->setLanguage('nl');
+        $nlDetail->setTitle($organizerCreationEvent->getTitle());
+
+        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
+        $details->add($nlDetail);
+        $actor->setDetails($details);
+
+        // Categories.
+        $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
+        $categoryList->add(
+            new \CultureFeed_Cdb_Data_Category(
+                'actortype',
+                '8.11.0.0.0',
+                'Organisator(en)'
+            )
+        );
+        $actor->setCategories($categoryList);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
+        return $actor;
+    }
+
+    /**
      * @param OrganizerCreated $organizerCreated
      * @param Metadata $metadata
      * @return CdbXmlDocument
@@ -117,18 +160,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         OrganizerCreated $organizerCreated,
         Metadata $metadata
     ) {
-        // Actor.
-        $actor = new \CultureFeed_Cdb_Item_Actor();
-        $actor->setCdbId($organizerCreated->getOrganizerId());
-
-        // Details.
-        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
-        $nlDetail->setLanguage('nl');
-        $nlDetail->setTitle($organizerCreated->getTitle());
-
-        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
-        $details->add($nlDetail);
-        $actor->setDetails($details);
+        $actor = $this->buildActorFromOrganizerEvent($organizerCreated, $metadata);
 
         // Contact info.
         $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
@@ -152,21 +184,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
 
         $actor->setContactInfo($contactInfo);
 
-        // Categories.
-        $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
-        $categoryList->add(
-            new \CultureFeed_Cdb_Data_Category(
-                'actortype',
-                '8.11.0.0.0',
-                'Organisator(en)'
-            )
-        );
-        $actor->setCategories($categoryList);
-
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $actor = $this->metadataCdbItemEnricher
-            ->enrich($actor, $metadata);
-
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
@@ -181,18 +198,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         OrganizerCreatedWithUniqueWebsite $organizerCreated,
         Metadata $metadata
     ) {
-        // Actor.
-        $actor = new \CultureFeed_Cdb_Item_Actor();
-        $actor->setCdbId($organizerCreated->getOrganizerId());
-
-        // Details.
-        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
-        $nlDetail->setLanguage('nl');
-        $nlDetail->setTitle($organizerCreated->getTitle());
-
-        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
-        $details->add($nlDetail);
-        $actor->setDetails($details);
+        $actor = $this->buildActorFromOrganizerEvent($organizerCreated, $metadata);
 
         // Contact info.
         $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
@@ -217,21 +223,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         }
 
         $actor->setContactInfo($contactInfo);
-
-        // Categories.
-        $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
-        $categoryList->add(
-            new \CultureFeed_Cdb_Data_Category(
-                'actortype',
-                '8.11.0.0.0',
-                'Organisator(en)'
-            )
-        );
-        $actor->setCategories($categoryList);
-
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $actor = $this->metadataCdbItemEnricher
-            ->enrich($actor, $metadata);
 
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
