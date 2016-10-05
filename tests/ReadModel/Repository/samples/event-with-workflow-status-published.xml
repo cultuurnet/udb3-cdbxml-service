@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
+  <event cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="readyforvalidation">
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
@@ -31,24 +31,6 @@
     </contactinfo>
     <eventdetails>
       <eventdetail lang="nl">
-        <media>
-          <file main="true">
-            <copyright>John Doe</copyright>
-            <filename>de305d54-75b4-431b-adb2-eb6b9e546014.png</filename>
-            <filetype>png</filetype>
-            <hlink>http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png</hlink>
-            <mediatype>imageweb</mediatype>
-            <title>title</title>
-          </file>
-          <file main="true">
-            <copyright>Noo Idee</copyright>
-            <filename>9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg</filename>
-            <filetype>jpeg</filetype>
-            <hlink>http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg</hlink>
-            <mediatype>photo</mediatype>
-            <title>Beep Boop</title>
-          </file>
-        </media>
         <title>Griezelfilm of horror</title>
       </eventdetail>
     </eventdetails>

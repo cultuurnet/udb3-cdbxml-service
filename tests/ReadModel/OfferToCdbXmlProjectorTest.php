@@ -32,6 +32,7 @@ use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
+use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
 use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
@@ -1215,6 +1216,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->with($message);
 
         $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_updated_the_workflow_status_when_an_event_is_published()
+    {
+        $eventId = $this->getEventId();
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(new EventPublished($eventId))
+            ->expect('event-with-workflow-status-published.xml');
+
+        $this->execute($test);
     }
 
     /**
