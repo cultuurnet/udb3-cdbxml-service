@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6ad725851d88a745dfe15b11ad0b4f33",
-    "content-hash": "a1b6cb2dc4b9a9d31e7a0764489ffc48",
+    "hash": "2deff4d6cdcc935ba36ba858dab6adfc",
+    "content-hash": "e2ab5fed21c5b47003f6a924efa25e72",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1079,16 +1079,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-1481",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "12825acbd38a98431ef7cf95f65db526a1882ab4"
+                "reference": "e5e9c3ac0fceff9a0fc6bf16b08ee81f69875398"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/12825acbd38a98431ef7cf95f65db526a1882ab4",
-                "reference": "12825acbd38a98431ef7cf95f65db526a1882ab4",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e5e9c3ac0fceff9a0fc6bf16b08ee81f69875398",
+                "reference": "e5e9c3ac0fceff9a0fc6bf16b08ee81f69875398",
                 "shasum": ""
             },
             "require": {
@@ -1161,7 +1161,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-04 09:45:56"
+            "time": "2016-10-05 13:03:30"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2254,7 +2254,7 @@
             ],
             "authors": [
                 {
-                    "name": "Knplabs",
+                    "name": "KnpLabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -6060,18 +6060,9 @@
             "time": "2016-08-09 15:02:57"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-1481",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
