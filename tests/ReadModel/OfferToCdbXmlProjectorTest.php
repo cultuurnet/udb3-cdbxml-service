@@ -3,6 +3,8 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
+use CommerceGuys\Intl\Currency\CurrencyRepository;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\BookingInfo;
@@ -36,6 +38,7 @@ use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAs
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\Events\TranslationApplied;
 use CultuurNet\UDB3\Event\Events\TranslationDeleted;
@@ -62,6 +65,10 @@ use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
 use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
 use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsDuplicate as PlaceFlaggedAsDuplicate;
 use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsInappropriate as PlaceFlaggedAsInappropriate;
+use CultuurNet\UDB3\PriceInfo\BasePrice;
+use CultuurNet\UDB3\PriceInfo\Price;
+use CultuurNet\UDB3\PriceInfo\PriceInfo;
+use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
@@ -71,6 +78,7 @@ use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Identity\UUID;
+use ValueObjects\Money\Currency;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
 use ValueObjects\Web\Url;
@@ -121,7 +129,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new CdbXmlDateFormatter(),
             new AddressFactory(),
             new NewlineToBreakTagStringFilter(),
-            $shortDescriptionFilter
+            $shortDescriptionFilter,
+            new CurrencyRepository(),
+            new NumberFormatRepository()
         ));
 
         $this->logger = $this->getMock(LoggerInterface::class);
@@ -665,6 +675,46 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect($cdbXmlType . '-booking-info-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_price_info_events_on_events()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(10.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $priceInfo = $priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Werkloze dodo kwekers'),
+                    Price::fromFloat(7.755),
+                    Currency::fromNative('EUR')
+                )
+            )
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Seniele senioren'),
+                    new Price(0),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-price-info.xml');
 
         $this->execute($test);
     }

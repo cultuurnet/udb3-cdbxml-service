@@ -3,6 +3,8 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
+use CommerceGuys\Intl\Currency\CurrencyRepository;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Address;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
@@ -83,7 +85,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new CdbXmlDateFormatter(),
             new AddressFactory(),
             new NewlineToBreakTagStringFilter(),
-            $shortDescriptionFilter
+            $shortDescriptionFilter,
+            new CurrencyRepository(),
+            new NumberFormatRepository()
         );
 
         $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
