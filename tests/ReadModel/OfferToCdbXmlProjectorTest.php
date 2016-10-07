@@ -722,6 +722,30 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     */
+    public function it_should_project_events_with_price_info_that_does_not_have_tariffs()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(0.20),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-price-info-and-no-tariffs.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
      * @dataProvider genericOfferTestDataProvider
      *
      * @param OfferType $offerType
