@@ -5,6 +5,9 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
+use CommerceGuys\Intl\Currency\CurrencyRepositoryInterface;
+use CommerceGuys\Intl\Formatter\NumberFormatter;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepositoryInterface;
 use CultureFeed_Cdb_Data_ActorDetail;
 use CultureFeed_Cdb_Data_Calendar_BookingPeriod;
 use CultureFeed_Cdb_Data_Calendar_OpeningTime;
@@ -62,6 +65,7 @@ use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
 use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
+use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
@@ -83,6 +87,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeUpdated;
@@ -184,6 +189,16 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $shortDescriptionFilter;
 
     /**
+     * @var CurrencyRepositoryInterface
+     */
+    private $currencyRepository;
+
+    /**
+     * @var NumberFormatRepositoryInterface
+     */
+    private $numberFormatRepository;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -192,6 +207,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param AddressFactoryInterface $addressFactory
      * @param StringFilterInterface $longDescriptionFilter
      * @param StringFilterInterface $shortDescriptionFilter
+     * @param CurrencyRepositoryInterface $currencyRepository
+     * @param NumberFormatRepositoryInterface $numberFormatRepository
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -201,7 +218,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         DateFormatterInterface $dateFormatter,
         AddressFactoryInterface $addressFactory,
         StringFilterInterface $longDescriptionFilter,
-        StringFilterInterface $shortDescriptionFilter
+        StringFilterInterface $shortDescriptionFilter,
+        CurrencyRepositoryInterface $currencyRepository,
+        NumberFormatRepositoryInterface $numberFormatRepository
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -211,6 +230,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->addressFactory = $addressFactory;
         $this->longDescriptionFilter = $longDescriptionFilter;
         $this->shortDescriptionFilter = $shortDescriptionFilter;
+        $this->currencyRepository = $currencyRepository;
+        $this->numberFormatRepository = $numberFormatRepository;
         $this->logger = new NullLogger();
     }
 
@@ -248,6 +269,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceMainImageSelected::class => 'applyMainImageSelected',
             EventBookingInfoUpdated::class => 'applyBookingInfoUpdated',
             PlaceBookingInfoUpdated::class => 'applyBookingInfoUpdated',
+            EventPriceInfoUpdated::class => 'applyPriceInfoUpdated',
             EventContactPointUpdated::class => 'applyContactPointUpdated',
             PlaceContactPointUpdated::class => 'applyContactPointUpdated',
             EventOrganizerUpdated::class => 'applyOrganizerUpdated',
@@ -970,6 +992,71 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($offer);
+    }
+
+    /**
+     * Only works for events for now, as price is not supported on actors.
+     *
+     * @param \CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated $priceInfoUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPriceInfoUpdated(
+        AbstractPriceInfoUpdated $priceInfoUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->getCdbXmlDocument(
+            $priceInfoUpdated->getItemId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $numberFormat = $this->numberFormatRepository->get('nl-BE');
+        $currencyFormatter = new NumberFormatter($numberFormat, NumberFormatter::CURRENCY);
+
+        $priceInfo = $priceInfoUpdated->getPriceInfo();
+        $basePrice = $priceInfo->getBasePrice();
+        $tariffs = $priceInfo->getTariffs();
+
+        $basePriceCurrencyCode = $basePrice->getCurrency()->getCode()->toNative();
+        $basePriceCurrency = $this->currencyRepository->get($basePriceCurrencyCode);
+        $basePriceFormatted = $currencyFormatter->formatCurrency(
+            (string) $basePrice->getPrice()->toFloat(),
+            $basePriceCurrency
+        );
+
+        $descriptionStrings = [
+            'Basistarief: ' . $basePriceFormatted,
+        ];
+
+        foreach ($tariffs as $tariff) {
+            $price = $tariff->getPrice()->toFloat();
+
+            $currencyCode = $tariff->getCurrency()->getCode()->toNative();
+            $currency = $this->currencyRepository->get($currencyCode);
+
+            $tariffPrice = $currencyFormatter->formatCurrency((string) $price, $currency);
+
+            $descriptionStrings[] = $tariff->getName() . ': ' . $tariffPrice;
+        }
+
+        $cdbPrice = new \CultureFeed_Cdb_Data_Price($basePrice->getPrice()->toFloat());
+        $cdbPrice->setDescription(implode('; ', $descriptionStrings));
+
+        $updatedDetails = new \CultureFeed_Cdb_Data_EventDetailList();
+        foreach ($event->getDetails() as $detail) {
+            /* @var \CultureFeed_Cdb_Data_Detail $detail */
+            $detail->setPrice($cdbPrice);
+            $updatedDetails->add($detail);
+        }
+
+        $event->setDetails($updatedDetails);
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**

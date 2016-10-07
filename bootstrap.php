@@ -141,7 +141,9 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $app['cdbxml_date_formatter'],
             $app['address_factory'],
             $longDescriptionFilter,
-            $shortDescriptionFilter
+            $shortDescriptionFilter,
+            new \CommerceGuys\Intl\Currency\CurrencyRepository(),
+            new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository()
         ));
 
         $projector->setLogger($app['logger.projector']);

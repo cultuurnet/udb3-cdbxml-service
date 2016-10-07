@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2deff4d6cdcc935ba36ba858dab6adfc",
-    "content-hash": "e2ab5fed21c5b47003f6a924efa25e72",
+    "hash": "955e8f1a32a1bf0d2967c3fb40b68629",
+    "content-hash": "3c321d420e39a14fb2f2b36dd892faa6",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -278,6 +278,50 @@
                 "resque"
             ],
             "time": "2012-10-13 07:28:16"
+        },
+        {
+            "name": "commerceguys/intl",
+            "version": "v0.7.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/commerceguys/intl.git",
+                "reference": "853daa50a30b32c3179e36526a0366481f5915b0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/commerceguys/intl/zipball/853daa50a30b32c3179e36526a0366481f5915b0",
+                "reference": "853daa50a30b32c3179e36526a0366481f5915b0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "mikey179/vfsstream": "1.*",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CommerceGuys\\Intl\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bojan Zivanovic"
+                }
+            ],
+            "description": "Internationalization library powered by CLDR data.",
+            "time": "2016-10-03 20:23:44"
         },
         {
             "name": "container-interop/container-interop",
@@ -1083,12 +1127,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "e5e9c3ac0fceff9a0fc6bf16b08ee81f69875398"
+                "reference": "509d0e7539d44cc92b76b957b80ffc615b10a595"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e5e9c3ac0fceff9a0fc6bf16b08ee81f69875398",
-                "reference": "e5e9c3ac0fceff9a0fc6bf16b08ee81f69875398",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/509d0e7539d44cc92b76b957b80ffc615b10a595",
+                "reference": "509d0e7539d44cc92b76b957b80ffc615b10a595",
                 "shasum": ""
             },
             "require": {
@@ -1161,7 +1205,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-05 13:03:30"
+            "time": "2016-10-07 09:37:49"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2254,7 +2298,7 @@
             ],
             "authors": [
                 {
-                    "name": "KnpLabs",
+                    "name": "Knplabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -4232,16 +4276,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.26.0",
+            "version": "v1.26.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "81c2b5fd36581370c7731387f05dcdb577050513"
+                "reference": "a09d8ee17ac1cfea29ed60c83960ad685c6a898d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/81c2b5fd36581370c7731387f05dcdb577050513",
-                "reference": "81c2b5fd36581370c7731387f05dcdb577050513",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/a09d8ee17ac1cfea29ed60c83960ad685c6a898d",
+                "reference": "a09d8ee17ac1cfea29ed60c83960ad685c6a898d",
                 "shasum": ""
             },
             "require": {
@@ -4289,7 +4333,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2016-10-02 16:19:13"
+            "time": "2016-10-05 18:57:41"
         },
         {
             "name": "willdurand/geocoder",
