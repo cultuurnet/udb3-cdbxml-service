@@ -9,7 +9,8 @@ interface DocumentEventFactoryInterface
 {
     /**
      * @param CdbXmlDocument $cdbXmlDocument
+     * @param bool $isNew
      * @return AbstractEvent
      */
-    public function createEvent(CdbXmlDocument $cdbXmlDocument);
+    public function createEvent(CdbXmlDocument $cdbXmlDocument, $isNew);
 }

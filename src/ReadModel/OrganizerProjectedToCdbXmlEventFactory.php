@@ -11,12 +11,14 @@ class OrganizerProjectedToCdbXmlEventFactory implements DocumentEventFactoryInte
 {
     /**
      * @param CdbXmlDocument $cdbXmlDocument
+     * @param bool $isNew
      * @return OrganizerEvent
      */
-    public function createEvent(CdbXmlDocument $cdbXmlDocument)
+    public function createEvent(CdbXmlDocument $cdbXmlDocument, $isNew = false)
     {
         return new OrganizerProjectedToCdbXml(
-            $cdbXmlDocument->getId()
+            $cdbXmlDocument->getId(),
+            $isNew
         );
     }
 }

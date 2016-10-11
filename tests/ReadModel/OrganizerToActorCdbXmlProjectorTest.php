@@ -2,8 +2,6 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
-use Broadway\Domain\DateTime;
-use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\Locality;
@@ -12,15 +10,18 @@ use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
+use CultuurNet\UDB3\Organizer\Events\LabelAdded;
+use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 use ValueObjects\Geography\Country;
+use ValueObjects\Identity\UUID;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -50,7 +51,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new CdbXmlDateFormatter()
                 )
             )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+        );
 
         $this->metadata = new Metadata(
             [
@@ -95,7 +96,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -121,7 +121,6 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -147,7 +146,64 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_label_added()
+    {
+        $organizerId = 'ORG-123';
+        $labelId = new UUID();
+        $labelAdded = new LabelAdded($organizerId, $labelId);
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded);
+        $domainMessage = $domainMessage->andMetadata(
+            new Metadata(['labelName' => '2dotstwice'])
+        );
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_label_removed()
+    {
+        $organizerId = 'ORG-123';
+        $labelId = new UUID();
+        $labelRemoved = new LabelRemoved($organizerId, $labelId);
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved);
+        $domainMessage = $domainMessage->andMetadata(
+            new Metadata(['labelName' => '2dotstwice'])
+        );
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
     }
 }

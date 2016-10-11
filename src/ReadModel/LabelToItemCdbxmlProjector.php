@@ -7,8 +7,6 @@ use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
-use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Label\Events\AbstractEvent;
@@ -35,11 +33,6 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
     private $relationRepository;
 
     /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
-
-    /**
      * @var CdbXmlDocumentFactoryInterface
      */
     private $cdbXmlDocumentFactory;
@@ -58,19 +51,7 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
         $this->cdbxmlRepository = $cdbxmlRepository;
         $this->relationRepository = $relationRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 
     /**
@@ -171,7 +152,6 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
                         ->fromCulturefeedCdbItem($cdbXmlItem);
 
                     $this->cdbxmlRepository->save($cdbXmlDocument);
-                    $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
                 }
             }
         } else {

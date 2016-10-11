@@ -3,6 +3,8 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
+use CommerceGuys\Intl\Currency\CurrencyRepository;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\Locality;
@@ -34,8 +36,14 @@ use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
+use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
+use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
+use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
+use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
+use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\Events\TranslationApplied;
 use CultuurNet\UDB3\Event\Events\TranslationDeleted;
@@ -49,6 +57,7 @@ use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
+use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -57,6 +66,14 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
+use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
+use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
+use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsDuplicate as PlaceFlaggedAsDuplicate;
+use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsInappropriate as PlaceFlaggedAsInappropriate;
+use CultuurNet\UDB3\PriceInfo\BasePrice;
+use CultuurNet\UDB3\PriceInfo\Price;
+use CultuurNet\UDB3\PriceInfo\PriceInfo;
+use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
@@ -67,6 +84,7 @@ use CultuurNet\UDB3\Title;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
+use ValueObjects\Money\Currency;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
 use ValueObjects\Web\Url;
@@ -117,9 +135,10 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new CdbXmlDateFormatter(),
             new AddressFactory(),
             new NewlineToBreakTagStringFilter(),
-            $shortDescriptionFilter
-        )
-        )->withCdbXmlPublisher($this->cdbXmlPublisher);
+            $shortDescriptionFilter,
+            new CurrencyRepository(),
+            new NumberFormatRepository()
+        ));
 
         $this->logger = $this->getMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
@@ -162,7 +181,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
 
         $this->projector->handle($domainMessage);
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -285,7 +303,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -313,7 +330,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -379,7 +395,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -444,7 +459,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -499,7 +513,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -701,6 +714,70 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect($cdbXmlType . '-booking-info-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_price_info_events_on_events()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(10.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $priceInfo = $priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Werkloze dodo kwekers'),
+                    Price::fromFloat(7.755),
+                    Currency::fromNative('EUR')
+                )
+            )
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Seniele senioren'),
+                    new Price(0),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-price-info.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_events_with_price_info_that_does_not_have_tariffs()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(0.20),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-price-info-and-no-tariffs.xml');
 
         $this->execute($test);
     }
@@ -1050,7 +1127,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1093,7 +1169,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->projector->handle($domainMessage);
 
-        $this->assertCdbXmlDocumentIsPublished($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
@@ -1215,6 +1290,107 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
+     * @test
+     */
+    public function it_should_updated_the_workflow_status_when_an_event_is_published()
+    {
+        $eventId = $this->getEventId();
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(new EventPublished($eventId))
+            ->expect('event-with-workflow-status-published.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_updated_the_workflow_status_when_an_event_is_approved()
+    {
+        $eventId = $this->getEventId();
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(new EventApproved($eventId))
+            ->expect('event-with-workflow-status-approved.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_updated_the_workflow_status_when_a_place_is_approved()
+    {
+        $placeId = $this->getPlaceId();
+
+        $test = $this->given(OfferType::PLACE())
+            ->apply(new PlaceApproved($placeId))
+            ->expect('actor-place-with-workflow-status-approved.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     * @dataProvider rejectionEventsDataProvider
+     */
+    public function it_should_updated_the_workflow_status_when_an_offer_is_rejected(
+        OfferType $offerType,
+        AbstractEvent $event,
+        $expectedDocument
+    ) {
+
+        $test = $this->given($offerType)
+            ->apply($event)
+            ->expect($expectedDocument);
+
+        $this->execute($test);
+    }
+
+    public function rejectionEventsDataProvider()
+    {
+        return [
+            'event rejected' => [
+                'offerType' => OfferType::EVENT(),
+                'event' => new EventRejected(
+                    $this->getEventId(),
+                    new StringLiteral('Image contains nudity.')
+                ),
+                'expectedDocument' => 'event-with-workflow-status-rejected.xml',
+            ],
+            'event flagged as duplicate' => [
+                'offerType' => OfferType::EVENT(),
+                'event' => new EventFlaggedAsDuplicate($this->getEventId()),
+                'expectedDocument' => 'event-with-workflow-status-rejected.xml',
+            ],
+            'event flagged as inappropriate' => [
+                'offerType' => OfferType::EVENT(),
+                'event' => new EventFlaggedAsInappropriate($this->getEventId()),
+                'expectedDocument' => 'event-with-workflow-status-rejected.xml',
+            ],
+            'place rejected' => [
+                'offerType' => OfferType::PLACE(),
+                'event' => new PlaceRejected(
+                    $this->getPlaceId(),
+                    new StringLiteral('Image contains nudity.')
+                ),
+                'expectedDocument' => 'actor-place-with-workflow-status-rejected.xml',
+            ],
+            'place flagged as duplicate' => [
+                'offerType' => OfferType::PLACE(),
+                'event' => new PlaceFlaggedAsDuplicate($this->getPlaceId()),
+                'expectedDocument' => 'actor-place-with-workflow-status-rejected.xml',
+            ],
+            'place flagged as inappropriate' => [
+                'offerType' => OfferType::PLACE(),
+                'event' => new PlaceFlaggedAsInappropriate($this->getPlaceId()),
+                'expectedDocument' => 'actor-place-with-workflow-status-rejected.xml',
+            ],
+        ];
+    }
+
+    /**
      * @return array
      */
     public function genericOfferTestDataProvider()
@@ -1275,7 +1451,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->handleDomainEventStream($stream);
 
-        $this->assertCdbXmlDocumentsArePublished($expectedCdbXmlDocuments);
         $this->assertFinalCdbXmlDocumentInRepository($expectedCdbXmlDocuments);
     }
 

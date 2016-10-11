@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <actor availablefrom="2012-12-03T12:09:28" availableto="2100-01-01T00:00:00" cdbid="061C13AC-A15F-F419-D8993D68C9E94548" createdby="sarahducha" creationdate="2010-01-06T13:11:46" externalid="061C13AC-A15F-F419-D8993D68C9E94548" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" owner="Invoerders Algemeen " asset="true">
+  <actor availablefrom="2012-12-03T12:09:28" availableto="2100-01-01T00:00:00" cdbid="061C13AC-A15F-F419-D8993D68C9E94548" createdby="sarahducha" creationdate="2010-01-06T13:11:46" externalid="061C13AC-A15F-F419-D8993D68C9E94548" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" owner="Invoerders Algemeen " wfstatus="draft" asset="true">
     <actordetails>
       <actordetail lang="nl">
         <calendarsummary>ma tot zo</calendarsummary>

@@ -4,20 +4,8 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\DomainMessage;
 use Broadway\EventHandling\EventListenerInterface;
-use CultuurNet\UDB3\Cdb\ActorItemFactory;
-use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
-use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
-use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
-use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
-use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
-use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
-use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
-use CultuurNet\UDB3\Place\Events\PlaceCreated;
-use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -27,11 +15,6 @@ use RuntimeException;
 abstract class AbstractCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
-
-    /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
 
     /**
      * @var DocumentRepositoryInterface
@@ -47,7 +30,6 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
         DocumentRepositoryInterface $documentRepository
     ) {
         $this->documentRepository = $documentRepository;
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->logger = new NullLogger();
     }
 
@@ -95,7 +77,6 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
 
                 foreach ($cdbXmlDocuments as $cdbXmlDocument) {
                     $this->documentRepository->save($cdbXmlDocument);
-                    $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
                 }
             } catch (Exception $exception) {
                 $this->logger->error(
@@ -112,16 +93,5 @@ abstract class AbstractCdbXmlProjector implements EventListenerInterface, Logger
         } else {
             $this->logger->info('no handler found for message ' . $payloadClassName);
         }
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OfferToCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 }

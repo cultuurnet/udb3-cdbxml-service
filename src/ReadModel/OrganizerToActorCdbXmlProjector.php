@@ -7,29 +7,24 @@ use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlPublisherInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
-use CultuurNet\UDB3\CdbXmlService\NullCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
+use CultuurNet\UDB3\Organizer\Events\LabelAdded;
+use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
-
-    /**
-     * @var CdbXmlPublisherInterface
-     */
-    private $cdbXmlPublisher;
 
     /**
      * @var DocumentRepositoryInterface
@@ -68,19 +63,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $this->addressFactory = $addressFactory;
         $this->metadataCdbItemEnricher = $metadataCdbItemEnricher;
 
-        $this->cdbXmlPublisher = new NullCdbXmlPublisher();
         $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param CdbXmlPublisherInterface $cdbXmlPublisher
-     * @return OrganizerToActorCdbXmlProjector
-     */
-    public function withCdbXmlPublisher(CdbXmlPublisherInterface $cdbXmlPublisher)
-    {
-        $c = clone $this;
-        $c->cdbXmlPublisher = $cdbXmlPublisher;
-        return $c;
     }
 
     /**
@@ -88,6 +71,8 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      *
      * @uses applyOrganizerCreated()
      * @uses applyActorImportedFromUdb2()
+     * @uses applyLabelAdded()
+     * @uses applyLabelRemoved()
      */
     public function handle(DomainMessage $domainMessage)
     {
@@ -100,6 +85,8 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             OrganizerCreated::class => 'applyOrganizerCreated',
             OrganizerImportedFromUDB2::class => 'applyActorImportedFromUdb2',
             OrganizerUpdatedFromUDB2::class => 'applyActorImportedFromUdb2',
+            LabelAdded::class => 'applyLabelAdded',
+            LabelRemoved::class => 'applyLabelRemoved',
         ];
 
         $this->logger->info('found message ' . $payloadClassName . ' in OrganizerToActorCdbXmlProjector');
@@ -115,8 +102,6 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
                 $this->documentRepository->save($cdbXmlDocument);
-
-                $this->cdbXmlPublisher->publish($cdbXmlDocument, $domainMessage);
             } catch (Exception $exception) {
                 // Log any exceptions that occur while projecting events.
                 // The exception is passed to context as specified in: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#13-context
@@ -211,5 +196,70 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
 
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
+    }
+
+    /**
+     * @param LabelAdded $labelAdded
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function applyLabelAdded(
+        LabelAdded $labelAdded,
+        Metadata $metadata
+    ) {
+        return $this->applyLabelEvent($labelAdded, $metadata);
+    }
+
+    /**
+     * @param LabelRemoved $labelRemoved
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function applyLabelRemoved(
+        LabelRemoved $labelRemoved,
+        Metadata $metadata
+    ) {
+        return $this->applyLabelEvent($labelRemoved, $metadata);
+    }
+
+    /**
+     * @param AbstractLabelEvent $labelEvent
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function applyLabelEvent(
+        AbstractLabelEvent $labelEvent,
+        Metadata $metadata
+    ) {
+        $labelName = $this->getLabelName($metadata);
+
+        $document = $this->documentRepository->get($labelEvent->getOrganizerId());
+        $organizer = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $document->getCdbXml()
+        );
+
+        if ($organizer && $labelName) {
+            if ($labelEvent instanceof LabelAdded) {
+                $organizer->addKeyword($labelName);
+            } else {
+                $organizer->deleteKeyword($labelName);
+            }
+        }
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($organizer);
+    }
+
+    /**
+     * @param Metadata $metadata
+     * @return string|null
+     */
+    private function getLabelName(Metadata $metadata)
+    {
+        $metaDataAsArray = $metadata->serialize();
+
+        return isset($metaDataAsArray['labelName']) ?
+            $metaDataAsArray['labelName'] : null;
     }
 }
