@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "66e40b492c2b418d82e5fb1c5e81fe8d",
-    "content-hash": "054cb6f8d4a9c4815697d341c5b58d74",
+    "hash": "955e8f1a32a1bf0d2967c3fb40b68629",
+    "content-hash": "3c321d420e39a14fb2f2b36dd892faa6",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -59,16 +59,16 @@
         },
         {
             "name": "beberlei/assert",
-            "version": "v2.6.4",
+            "version": "2.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/assert.git",
-                "reference": "ebab3d93e5f8f1ef95e016970ef149b4ad5ac024"
+                "reference": "fbadde44717ea3eb98fba35425d49731185bf418"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/assert/zipball/ebab3d93e5f8f1ef95e016970ef149b4ad5ac024",
-                "reference": "ebab3d93e5f8f1ef95e016970ef149b4ad5ac024",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/fbadde44717ea3eb98fba35425d49731185bf418",
+                "reference": "fbadde44717ea3eb98fba35425d49731185bf418",
                 "shasum": ""
             },
             "require": {
@@ -76,14 +76,10 @@
                 "php": ">=5.3"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "2.0.0-alpha",
                 "phpunit/phpunit": "@stable"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.5-dev"
-                }
-            },
             "autoload": {
                 "psr-0": {
                     "Assert": "lib/"
@@ -114,7 +110,7 @@
                 "assertion",
                 "validation"
             ],
-            "time": "2016-10-03 10:58:03"
+            "time": "2016-10-11 17:13:28"
         },
         {
             "name": "broadway/broadway",
@@ -684,16 +680,16 @@
         },
         {
             "name": "cultuurnet/deserializer",
-            "version": "dev-feature/III-1325",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/deserializer.git",
-                "reference": "ff9b8eeedd0ae3a0e22b3821141ab13a88645af1"
+                "reference": "6cbd59cfdc22e5067413df64887affacd5f22798"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/ff9b8eeedd0ae3a0e22b3821141ab13a88645af1",
-                "reference": "ff9b8eeedd0ae3a0e22b3821141ab13a88645af1",
+                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/6cbd59cfdc22e5067413df64887affacd5f22798",
+                "reference": "6cbd59cfdc22e5067413df64887affacd5f22798",
                 "shasum": ""
             },
             "require": {
@@ -708,8 +704,7 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "0.x-dev",
-                    "dev-1.x": "1.x-dev",
-                    "dev-feature/III-1325": "0.x-dev"
+                    "dev-1.x": "1.x-dev"
                 }
             },
             "autoload": {
@@ -728,7 +723,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2016-09-16 08:12:43"
+            "time": "2016-10-12 14:56:22"
         },
         {
             "name": "cultuurnet/entry",
@@ -1124,16 +1119,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-1325",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "97f7eabaad54a6603d7bcea055af9d64e0ee86d6"
+                "reference": "b25f983244d2fffb048f611fa910ad50e1f2b6b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/97f7eabaad54a6603d7bcea055af9d64e0ee86d6",
-                "reference": "97f7eabaad54a6603d7bcea055af9d64e0ee86d6",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/b25f983244d2fffb048f611fa910ad50e1f2b6b7",
+                "reference": "b25f983244d2fffb048f611fa910ad50e1f2b6b7",
                 "shasum": ""
             },
             "require": {
@@ -1145,7 +1140,7 @@
                 "cultuurnet/cdb": "~2.2.0",
                 "cultuurnet/clock": "~0.1",
                 "cultuurnet/culturefeed-php": "dev-master as 1.6",
-                "cultuurnet/deserializer": "dev-feature/III-1325 as 0.1",
+                "cultuurnet/deserializer": "~0.1",
                 "cultuurnet/entry": "~0.1",
                 "cultuurnet/search": "~1.1",
                 "cultuurnet/symfony-security-jwt": "~0.1",
@@ -1206,7 +1201,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-10 15:20:02"
+            "time": "2016-10-12 14:56:44"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -4726,16 +4721,16 @@
         },
         {
             "name": "phing/phing",
-            "version": "2.15.0",
+            "version": "2.15.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phingofficial/phing.git",
-                "reference": "bbfcaee391123220fc54e9c6feffeeea3c8775b7"
+                "reference": "16f6372d9bf71783abea98fdd8cd9cb4ecb3bf41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phingofficial/phing/zipball/bbfcaee391123220fc54e9c6feffeeea3c8775b7",
-                "reference": "bbfcaee391123220fc54e9c6feffeeea3c8775b7",
+                "url": "https://api.github.com/repos/phingofficial/phing/zipball/16f6372d9bf71783abea98fdd8cd9cb4ecb3bf41",
+                "reference": "16f6372d9bf71783abea98fdd8cd9cb4ecb3bf41",
                 "shasum": ""
             },
             "require": {
@@ -4815,7 +4810,7 @@
                 "task",
                 "tool"
             ],
-            "time": "2016-09-14 19:38:14"
+            "time": "2016-10-11 09:24:10"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -6105,25 +6100,9 @@
             "time": "2016-08-09 15:02:57"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-1325",
-            "package": "cultuurnet/deserializer"
-        },
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-1325",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/deserializer": 20,
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
