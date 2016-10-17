@@ -540,12 +540,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "28287770c45603f50acacbf68d187350d072f2d1"
+                "reference": "e9942f3acb33e0893d69985b44a11d6f615cbc9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/28287770c45603f50acacbf68d187350d072f2d1",
-                "reference": "28287770c45603f50acacbf68d187350d072f2d1",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/e9942f3acb33e0893d69985b44a11d6f615cbc9c",
+                "reference": "e9942f3acb33e0893d69985b44a11d6f615cbc9c",
                 "shasum": ""
             },
             "require-dev": {
@@ -567,7 +567,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-06-29 13:21:51"
+            "time": "2016-10-17 14:17:27"
         },
         {
             "name": "cultuurnet/clock",
@@ -1123,12 +1123,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "92d6b6b8e93e71c6bbe0fe480ecd4b31b1e54587"
+                "reference": "3b3622b1870b247b8c3b801cc91e08005dcf21f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/92d6b6b8e93e71c6bbe0fe480ecd4b31b1e54587",
-                "reference": "92d6b6b8e93e71c6bbe0fe480ecd4b31b1e54587",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/3b3622b1870b247b8c3b801cc91e08005dcf21f0",
+                "reference": "3b3622b1870b247b8c3b801cc91e08005dcf21f0",
                 "shasum": ""
             },
             "require": {
@@ -1201,7 +1201,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-13 07:47:28"
+            "time": "2016-10-17 13:50:01"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -4721,16 +4721,16 @@
         },
         {
             "name": "phing/phing",
-            "version": "2.15.1",
+            "version": "2.15.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phingofficial/phing.git",
-                "reference": "16f6372d9bf71783abea98fdd8cd9cb4ecb3bf41"
+                "reference": "0999ab4e94e609dc00998e3d1b88df843054db7c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phingofficial/phing/zipball/16f6372d9bf71783abea98fdd8cd9cb4ecb3bf41",
-                "reference": "16f6372d9bf71783abea98fdd8cd9cb4ecb3bf41",
+                "url": "https://api.github.com/repos/phingofficial/phing/zipball/0999ab4e94e609dc00998e3d1b88df843054db7c",
+                "reference": "0999ab4e94e609dc00998e3d1b88df843054db7c",
                 "shasum": ""
             },
             "require": {
@@ -4810,7 +4810,7 @@
                 "task",
                 "tool"
             ],
-            "time": "2016-10-11 09:24:10"
+            "time": "2016-10-13 09:01:45"
         },
         {
             "name": "phpdocumentor/reflection-common",
