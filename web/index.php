@@ -15,6 +15,6 @@ $app->register(new ServiceControllerServiceProvider());
 
 $app->get('/event/{cdbid}', 'cdbxml_offer.controller:get');
 $app->get('/place/{cdbid}', 'cdbxml_offer.controller:get');
-$app->get('/organizer/{cdbid}', 'cdbxml_actor.controller:get');
+$app->get('/organizers/{cdbid}', 'cdbxml_actor.controller:get');
 
 $app->run();
