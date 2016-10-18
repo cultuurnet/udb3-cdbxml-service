@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <actor cdbid="ORG-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/ORG-123" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com">
+  <actor cdbid="ORG-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/ORG-123" lastupdated="2016-10-18T11:00:56" lastupdatedby="foo@acme.com">
     <actordetails>
       <actordetail lang="nl">
         <title>DE Studio</title>
@@ -19,10 +19,9 @@
           <zipcode>2000</zipcode>
         </physical>
       </address>
-      <mail>info@villanella.be</mail>
-      <phone>+32 3 260 96 10</phone>
-      <url>https://www.antwerpen.be/nl/overzicht/cultuur-1/nieuws-81</url>
-      <url>http://www.destudio.com</url>
+      <mail>info@acme.com</mail>
+      <phone>+32 444 56 56 56</phone>
+      <url>http://acme.com</url>
     </contactinfo>
   </actor>
 </cdbxml>

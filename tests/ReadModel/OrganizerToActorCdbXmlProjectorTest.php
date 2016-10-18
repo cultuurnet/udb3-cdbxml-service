@@ -11,6 +11,8 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
+use CultuurNet\UDB3\Organizer\Events\AddressUpdated;
+use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
 use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
@@ -34,6 +36,11 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      * @var Metadata
      */
     private $metadata;
+
+    /**
+     * @var Metadata
+     */
+    private $updateMetadata;
 
     public function setUp()
     {
@@ -59,6 +66,16 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'user_email' => 'foo@bar.com',
                 'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'request_time' => '1460710907',
+                'id' => 'http://foo.be/item/ORG-123',
+            ]
+        );
+
+        $this->updateMetadata = new Metadata(
+            [
+                'user_nick' => 'foobaz',
+                'user_email' => 'foo@acme.com',
+                'user_id' => '165c4a43-635e-49f7-bda7-ba7da44a0bd4',
+                'request_time' => '1476781256',
                 'id' => 'http://foo.be/item/ORG-123',
             ]
         );
@@ -109,27 +126,83 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $event = new OrganizerCreatedWithUniqueWebsite(
             $id,
             Url::fromNative('http://www.destudio.com'),
-            new Title('DE Studio'),
-            [
-                new Address(
-                    'Maarschalk Gerardstraat 4',
-                    '2000',
-                    'Antwerpen',
-                    'BE'
-                ),
-            ],
-            new ContactPoint(
-                ['+32 3 260 96 10'],
-                ['info@villanella.be'],
-                ['https://www.antwerpen.be/nl/overzicht/cultuur-1/nieuws-81']
-            )
+            new Title('DE Studio')
         );
 
         $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('actor-with-unique-website-with-contact-info.xml')
+            $this->loadCdbXmlFromFile('actor-with-unique-website.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_address_updated_and_updates_the_lastupdated_attributes()
+    {
+        $id = 'ORG-123';
+
+        $event = new AddressUpdated(
+            $id,
+            new Address(
+                new Street('Martelarenplein 12'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            )
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->updateMetadata);
+
+        $initialDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->repository->save($initialDocument);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-updated-address.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_contact_point_updated_and_updates_the_lastupdated_attributes()
+    {
+        $id = 'ORG-123';
+
+        $event = new ContactPointUpdated(
+            $id,
+            new ContactPoint(
+                ['+32 444 56 56 56'],
+                ['info@acme.com'],
+                ['http://acme.com']
+            )
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->updateMetadata);
+
+        $initialDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->repository->save($initialDocument);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-updated-contact-point.xml')
         );
 
         $this->projector->handle($domainMessage);
