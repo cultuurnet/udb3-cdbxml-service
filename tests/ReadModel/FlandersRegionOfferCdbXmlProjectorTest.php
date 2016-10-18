@@ -5,8 +5,12 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DateTime;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
@@ -16,7 +20,7 @@ use CultuurNet\UDB3\Event\EventEvent;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -26,6 +30,9 @@ use Doctrine\Common\Cache\ArrayCache;
 use PHPUnit_Framework_TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
+use ValueObjects\Geography\Country;
+use ValueObjects\Identity\UUID;
+use ValueObjects\String\String as StringLiteral;
 
 class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {
@@ -122,6 +129,19 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      */
     public function eventDataProvider()
     {
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
+
+        $location = new Location(
+            UUID::generateAsString(),
+            new StringLiteral('Bibberburcht'),
+            $address
+        );
+
         return [
             [
                 new CdbXmlDocument(
@@ -132,8 +152,8 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     'event_1_id',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Location('', '', '', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
+                    $location,
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 new CdbXmlDocument(
                     'event_1_id',
@@ -149,8 +169,8 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     'event_1_id',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Location('', '', '', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
+                    $location,
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 new CdbXmlDocument(
                     'event_1_id',
@@ -166,8 +186,8 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Address('', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
+                    $address,
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 new CdbXmlDocument(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
@@ -183,8 +203,8 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    new Address('', '', '', ''),
-                    new Calendar(Calendar::PERMANENT)
+                    $address,
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 new CdbXmlDocument(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',

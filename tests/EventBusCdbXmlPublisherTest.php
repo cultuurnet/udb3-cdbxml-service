@@ -62,6 +62,20 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    private function randomLocation()
+    {
+        return new Location(
+            UUID::generateAsString(),
+            new StringLiteral('Bibberburcht'),
+            new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            )
+        );
+    }
+
     /**
      * @test
      */

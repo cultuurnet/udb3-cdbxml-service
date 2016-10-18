@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event cdbid="EVENT-ABC-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/EVENT-ABC-123" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="readyforvalidation">
+  <event cdbid="EVENT-ABC-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/EVENT-ABC-123" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
@@ -22,10 +22,11 @@
     <contactinfo>
       <address>
         <physical>
-          <city>$locality</city>
-          <country>$country</country>
-          <street>$street</street>
-          <zipcode>$postalCode</zipcode>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
         </physical>
       </address>
     </contactinfo>
@@ -37,13 +38,14 @@
     <location>
       <address>
         <physical>
-          <city>$locality</city>
-          <country>$country</country>
-          <street>$street</street>
-          <zipcode>$postalCode</zipcode>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
         </physical>
       </address>
-      <label cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D">$name</label>
+      <label cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D">Bibberburcht</label>
     </location>
     <organiser>
       <label cdbid="ORG-123">DE Studio</label>

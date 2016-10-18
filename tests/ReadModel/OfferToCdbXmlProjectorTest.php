@@ -3,10 +3,16 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
+use CommerceGuys\Intl\Currency\CurrencyRepository;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
+use CultuurNet\UDB3\Address\Locality;
+use CultuurNet\UDB3\Address\PostalCode;
+use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -30,12 +36,14 @@ use CultuurNet\UDB3\Event\Events\LabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
+use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
 use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\Events\TranslationApplied;
 use CultuurNet\UDB3\Event\Events\TranslationDeleted;
@@ -46,7 +54,7 @@ use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
-use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
@@ -62,6 +70,10 @@ use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
 use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
 use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsDuplicate as PlaceFlaggedAsDuplicate;
 use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsInappropriate as PlaceFlaggedAsInappropriate;
+use CultuurNet\UDB3\PriceInfo\BasePrice;
+use CultuurNet\UDB3\PriceInfo\Price;
+use CultuurNet\UDB3\PriceInfo\PriceInfo;
+use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
@@ -70,7 +82,9 @@ use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
 use Psr\Log\LoggerInterface;
+use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
+use ValueObjects\Money\Currency;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
 use ValueObjects\Web\Url;
@@ -121,7 +135,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new CdbXmlDateFormatter(),
             new AddressFactory(),
             new NewlineToBreakTagStringFilter(),
-            $shortDescriptionFilter
+            $shortDescriptionFilter,
+            new CurrencyRepository(),
+            new NumberFormatRepository()
         ));
 
         $this->logger = $this->getMock(LoggerInterface::class);
@@ -142,16 +158,19 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         EventCreated $eventCreated,
         $cdbXmlFileName
     ) {
-        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
-
         $placeCreated = new PlaceCreated(
-            $placeId,
-            new Title('$name'),
+            $this->getPlaceId(),
+            new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
-            new Address('$street', '$postalCode', '$locality', '$country'),
-            new Calendar('permanent')
+            new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            ),
+            new Calendar(CalendarType::PERMANENT())
         );
-        $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
+        $domainMessage = $this->createDomainMessage($this->getPlaceId(), $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
 
         $domainMessage = $this->createDomainMessage($id, $eventCreated, $this->metadata);
@@ -170,16 +189,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function eventCreatedDataProvider()
     {
-        $timestamps = [
-            new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
-            ),
-            new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
-            ),
-        ];
+        $timestamps = $this->getTimestamps();
+
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
+
+        $location = new Location(
+            $this->getPlaceId(),
+            new StringLiteral('Bibberburcht'),
+            $address
+        );
 
         return [
             [
@@ -188,8 +211,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
-                    new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
-                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    $location,
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                        $timestamps
+                    ),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror')
                 ),
                 'event.xml',
@@ -200,8 +228,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
-                    new Location('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6', '$name', '$country', '$locality', '$postalcode', '$street'),
-                    new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+                    $location,
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                        $timestamps
+                    ),
                     new Theme('1.7.6.0.0', 'Griezelfilm of horror'),
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
                 ),
@@ -216,26 +249,30 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_logs_warning_when_event_created_with_missing_location()
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $timestamps = $this->getTimestamps();
 
-        $timestamps = [
-            new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
-            ),
-            new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
-            ),
-        ];
+        $placeId = UUID::generateAsString();
+        $unknownPlaceId = UUID::generateAsString();
 
-        $placeId = 'LOCATION-MISSING';
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
+
+        $location = new Location(
+            $unknownPlaceId,
+            new StringLiteral('Bibberburcht'),
+            $address
+        );
 
         $placeCreated = new PlaceCreated(
             $placeId,
             new Title('$name'),
             new EventType('0.50.4.0.0', 'concert'),
-            new Address('$street', '$postalCode', '$locality', '$country'),
-            new Calendar('permanent')
+            $address,
+            new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
@@ -244,8 +281,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location('34973B89-BDA3-4A79-96C7-78ACC022907D', '$name', '$country', '$locality', '$postalcode', '$street'),
-            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+            $location,
+            new Calendar(
+                CalendarType::MULTIPLE(),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                $timestamps
+            ),
             new Theme('1.7.6.0.0', 'Griezelfilm of horror')
         );
 
@@ -257,7 +299,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
 
         $this->logger->expects($this->once())->method('warning')
-            ->with('Could not find location with id 34973B89-BDA3-4A79-96C7-78ACC022907D when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+            ->with('Could not find location with id ' . $unknownPlaceId . ' when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
         $this->projector->handle($domainMessage);
 
@@ -361,6 +403,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function placeCreatedDataProvider()
     {
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
+
         return [
             [
                 '34973B89-BDA3-4A79-96C7-78ACC022907D',
@@ -368,8 +417,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
-                    new Address('$street', '$postalCode', '$locality', '$country'),
-                    new Calendar('permanent')
+                    $address,
+                    new Calendar(CalendarType::PERMANENT())
                 ),
                 'place.xml',
             ],
@@ -379,8 +428,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
-                    new Address('$street', '$postalCode', '$locality', '$country'),
-                    new Calendar('permanent'),
+                    $address,
+                    new Calendar(CalendarType::PERMANENT()),
                     null,
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
                 ),
@@ -671,6 +720,70 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     */
+    public function it_projects_price_info_events_on_events()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(10.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $priceInfo = $priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Werkloze dodo kwekers'),
+                    Price::fromFloat(7.755),
+                    Currency::fromNative('EUR')
+                )
+            )
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Seniele senioren'),
+                    new Price(0),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-price-info.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_events_with_price_info_that_does_not_have_tariffs()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(0.20),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-price-info-and-no-tariffs.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
      * @dataProvider genericOfferTestDataProvider
      *
      * @param OfferType $offerType
@@ -924,22 +1037,26 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_projects_event_major_info_updated()
     {
+        $unknownPlaceID = UUID::generateAsString();
+
         $test = $this->given(OfferType::EVENT())
             ->apply(
                 new MajorInfoUpdated(
                     $this->getEventId(),
                     new Title("Nieuwe titel"),
-                    new EventType("id", "label"),
+                    new EventType('0.50.4.0.0', 'concert'),
                     new Location(
                         $this->getPlaceId(),
-                        '$name2',
-                        '$country',
-                        '$locality',
-                        '$postalcode',
-                        '$street'
+                        new StringLiteral('Bibberburcht'),
+                        new Address(
+                            new Street('Bondgenotenlaan 1'),
+                            new PostalCode('3000'),
+                            new Locality('Leuven'),
+                            Country::fromNative('BE')
+                        )
                     ),
-                    new Calendar('permanent'),
-                    new Theme('tid', 'tlabel')
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
             )
             ->expect('event-with-major-info-updated.xml')
@@ -947,24 +1064,26 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new MajorInfoUpdated(
                     $this->getEventId(),
                     new Title("Nieuwe titel"),
-                    new EventType("id", "label"),
+                    new EventType('0.50.4.0.0', 'concert'),
                     new Location(
-                        'LOCATION-MISSING',
-                        '$name3',
-                        '$country',
-                        '$locality',
-                        '$postalcode',
-                        '$street'
+                        $unknownPlaceID,
+                        new StringLiteral('Somewhere over the rainbow'),
+                        new Address(
+                            new Street('Kerkstraat 69'),
+                            new PostalCode('3000'),
+                            new Locality('Leuven'),
+                            Country::fromNative('BE')
+                        )
                     ),
-                    new Calendar('permanent'),
-                    new Theme('tid', 'tlabel')
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
             )
             ->expect('event-with-major-info-updated-without-location.xml');
 
         $this->logger->expects($this->once())
             ->method('warning')
-            ->with('Could not find location with id LOCATION-MISSING when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+            ->with('Could not find location with id ' . $unknownPlaceID .' when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
 
         $this->execute($test);
     }
@@ -976,23 +1095,24 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $this->createEvent(false);
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
 
         // add the major info to the event.
         $majorInfoUpdated = new MajorInfoUpdated(
             $id,
             new Title("Nieuwe titel"),
-            new EventType("id", "label"),
+            new EventType("0.50.4.0.0", "concert"),
             new Location(
-                $placeId,
-                '$name2',
-                '$country',
-                '$locality',
-                '$postalcode',
-                '$street'
+                $this->getPlaceId(),
+                new StringLiteral('Bibberburcht'),
+                new Address(
+                    new Street('Bondgenotenlaan 1'),
+                    new PostalCode('3000'),
+                    new Locality('Leuven'),
+                    Country::fromNative('BE')
+                )
             ),
-            new Calendar('permanent'),
-            new Theme('tid', 'tlabel')
+            new Calendar(CalendarType::PERMANENT()),
+            new Theme('1.8.2.0.0', 'Jazz en blues')
         );
         $domainMessage = $this->createDomainMessage(
             $id,
@@ -1026,13 +1146,15 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new EventType("id", "label"),
             new Location(
                 $placeId,
-                '$name2',
-                '$country',
-                '$locality',
-                '$postalcode',
-                '$street'
+                new StringLiteral('Bibberburcht'),
+                new Address(
+                    new Street('Bondgenotenlaan 1'),
+                    new PostalCode('3000'),
+                    new Locality('Leuven'),
+                    Country::fromNative('BE')
+                )
             ),
-            new Calendar('permanent')
+            new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage(
             $id,
@@ -1059,16 +1181,16 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new PlaceMajorInfoUpdated(
                     $this->getPlaceId(),
-                    new Title("Nieuwe titel"),
-                    new EventType("id", "label"),
+                    new Title("Monochrome Rainbow Rave"),
+                    new EventType("8.4.0.0.0", "Galerie"),
                     new Address(
-                        '$street2',
-                        '$postalCode2',
-                        '$locality2',
-                        '$country2'
+                        new Street('Kerkstraat 69'),
+                        new PostalCode('1000'),
+                        new Locality('Brussel'),
+                        Country::fromNative('DE')
                     ),
-                    new Calendar('permanent'),
-                    new Theme('tid', 'tlabel')
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.0.1.0.0', 'Schilderkunst')
                 )
             )
             ->expect('place-with-major-info-updated.xml');
@@ -1124,7 +1246,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new TranslationApplied(
                     new StringLiteral($this->getEventId()),
                     new Language('en'),
-                    new StringLiteral('Horror movie updated'),
+                    new StringLiteral('Horror film'),
                     new StringLiteral('This is a short description updated.'),
                     new StringLiteral('This is a long, long, long, very long description updated.')
                 )
@@ -1165,6 +1287,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->with($message);
 
         $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_updated_the_workflow_status_when_an_event_is_published()
+    {
+        $eventId = $this->getEventId();
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(new EventPublished($eventId))
+            ->expect('event-with-workflow-status-published.xml');
+
+        $this->execute($test);
     }
 
     /**
@@ -1352,28 +1488,29 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private function createEvent($theme = true)
     {
         $id = $this->getEventId();
+        $timestamps = $this->getTimestamps();
 
-        $timestamps = [
-            new Timestamp(
-                '2014-01-31T12:00:00',
-                '2014-01-31T15:00:00'
-            ),
-            new Timestamp(
-                '2014-02-20T12:00:00',
-                '2014-02-20T15:00:00'
-            ),
-        ];
+        $address = new Address(
+            new Street('Bondgenotenlaan 1'),
+            new PostalCode('3000'),
+            new Locality('Leuven'),
+            Country::fromNative('BE')
+        );
 
-        $placeId = $this->getPlaceId();
+        $location = new Location(
+            $this->getPlaceId(),
+            new StringLiteral('Bibberburcht'),
+            $address
+        );
 
         $placeCreated = new PlaceCreated(
-            $placeId,
+            $this->getPlaceId(),
             new Title('$name'),
             new EventType('0.50.4.0.0', 'concert'),
-            new Address('$street', '$postalCode', '$locality', '$country'),
-            new Calendar('permanent')
+            $address,
+            new Calendar(CalendarType::PERMANENT())
         );
-        $domainMessage = $this->createDomainMessage($placeId, $placeCreated, $this->metadata);
+        $domainMessage = $this->createDomainMessage($this->getPlaceId(), $placeCreated, $this->metadata);
         $this->projector->handle($domainMessage);
 
         $theme = $theme?new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null;
@@ -1381,8 +1518,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location($placeId, '$name', '$country', '$locality', '$postalcode', '$street'),
-            new Calendar('multiple', '2014-01-31T13:00:00+01:00', '2014-02-20T16:00:00+01:00', $timestamps),
+            $location,
+            new Calendar(
+                CalendarType::MULTIPLE(),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                $timestamps
+            ),
             $theme
         );
 
@@ -1414,8 +1556,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title('My Place'),
             new EventType('0.50.4.0.0', 'concert'),
-            new Address('$street', '$postalCode', '$locality', '$country'),
-            new Calendar('permanent')
+            $address = new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            ),
+            new Calendar(CalendarType::PERMANENT())
         );
 
         $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
@@ -1439,5 +1586,22 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
             ]
         );
+    }
+
+    /**
+     * @return Timestamp[]
+     */
+    private function getTimestamps()
+    {
+        return [
+            new Timestamp(
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T15:00:00+01:00')
+            ),
+            new Timestamp(
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T15:00:00+01:00')
+            ),
+        ];
     }
 }

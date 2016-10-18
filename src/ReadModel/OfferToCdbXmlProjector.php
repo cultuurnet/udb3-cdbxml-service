@@ -5,6 +5,9 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
 use Broadway\EventHandling\EventListenerInterface;
+use CommerceGuys\Intl\Currency\CurrencyRepositoryInterface;
+use CommerceGuys\Intl\Formatter\NumberFormatter;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepositoryInterface;
 use CultureFeed_Cdb_Data_ActorDetail;
 use CultureFeed_Cdb_Data_Calendar_BookingPeriod;
 use CultureFeed_Cdb_Data_Calendar_OpeningTime;
@@ -34,6 +37,7 @@ use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
+use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
@@ -57,10 +61,12 @@ use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
+use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
 use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
+use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
@@ -71,7 +77,7 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeD
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
-use CultuurNet\UDB3\Location;
+use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
@@ -82,6 +88,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeUpdated;
@@ -90,6 +97,7 @@ use CultuurNet\UDB3\Offer\Events\Image\AbstractImageRemoved;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractImageUpdated;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractApproved;
+use CultuurNet\UDB3\Offer\Events\Moderation\AbstractPublished;
 use CultuurNet\UDB3\Offer\WorkflowStatus;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
@@ -102,6 +110,7 @@ use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
 use CultuurNet\UDB3\Place\Events\LabelAdded as PlaceLabelAdded;
 use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
 use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
+use CultuurNet\UDB3\Place\Events\Moderation\Published as PlacePublished;
 use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
 use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
 use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsDuplicate as PlaceFlaggedAsDuplicate;
@@ -116,6 +125,7 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\StringFilter\StringFilterInterface;
 use CultuurNet\UDB3\Theme;
 use DateTime;
+use DateTimeInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -181,6 +191,16 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $shortDescriptionFilter;
 
     /**
+     * @var CurrencyRepositoryInterface
+     */
+    private $currencyRepository;
+
+    /**
+     * @var NumberFormatRepositoryInterface
+     */
+    private $numberFormatRepository;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -189,6 +209,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param AddressFactoryInterface $addressFactory
      * @param StringFilterInterface $longDescriptionFilter
      * @param StringFilterInterface $shortDescriptionFilter
+     * @param CurrencyRepositoryInterface $currencyRepository
+     * @param NumberFormatRepositoryInterface $numberFormatRepository
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -198,7 +220,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         DateFormatterInterface $dateFormatter,
         AddressFactoryInterface $addressFactory,
         StringFilterInterface $longDescriptionFilter,
-        StringFilterInterface $shortDescriptionFilter
+        StringFilterInterface $shortDescriptionFilter,
+        CurrencyRepositoryInterface $currencyRepository,
+        NumberFormatRepositoryInterface $numberFormatRepository
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -208,6 +232,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->addressFactory = $addressFactory;
         $this->longDescriptionFilter = $longDescriptionFilter;
         $this->shortDescriptionFilter = $shortDescriptionFilter;
+        $this->currencyRepository = $currencyRepository;
+        $this->numberFormatRepository = $numberFormatRepository;
         $this->logger = new NullLogger();
     }
 
@@ -245,6 +271,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceMainImageSelected::class => 'applyMainImageSelected',
             EventBookingInfoUpdated::class => 'applyBookingInfoUpdated',
             PlaceBookingInfoUpdated::class => 'applyBookingInfoUpdated',
+            EventPriceInfoUpdated::class => 'applyPriceInfoUpdated',
             EventContactPointUpdated::class => 'applyContactPointUpdated',
             PlaceContactPointUpdated::class => 'applyContactPointUpdated',
             EventOrganizerUpdated::class => 'applyOrganizerUpdated',
@@ -264,6 +291,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
             PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
             PlaceImportedFromUDB2Event::class => 'applyPlaceImportedFromUdb2Event',
+            EventPublished::class => 'applyPublished',
+            PlacePublished::class => 'applyPublished',
             EventApproved::class => 'applyApproved',
             PlaceApproved::class => 'applyApproved',
             EventRejected::class => 'applyRejected',
@@ -587,7 +616,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($eventCreated, $event);
 
-        $event->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
+        $event->setWfStatus(WorkflowStatus::DRAFT()->toNative());
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -671,7 +700,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($placeCreated, $actor);
 
-        $actor->setWfStatus(WorkflowStatus::READY_FOR_VALIDATION()->toNative());
+        $actor->setWfStatus(WorkflowStatus::DRAFT()->toNative());
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $actor = $this->metadataCdbItemEnricher
@@ -965,6 +994,71 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($offer);
+    }
+
+    /**
+     * Only works for events for now, as price is not supported on actors.
+     *
+     * @param \CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated $priceInfoUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPriceInfoUpdated(
+        AbstractPriceInfoUpdated $priceInfoUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->getCdbXmlDocument(
+            $priceInfoUpdated->getItemId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $numberFormat = $this->numberFormatRepository->get('nl-BE');
+        $currencyFormatter = new NumberFormatter($numberFormat, NumberFormatter::CURRENCY);
+
+        $priceInfo = $priceInfoUpdated->getPriceInfo();
+        $basePrice = $priceInfo->getBasePrice();
+        $tariffs = $priceInfo->getTariffs();
+
+        $basePriceCurrencyCode = $basePrice->getCurrency()->getCode()->toNative();
+        $basePriceCurrency = $this->currencyRepository->get($basePriceCurrencyCode);
+        $basePriceFormatted = $currencyFormatter->formatCurrency(
+            (string) $basePrice->getPrice()->toFloat(),
+            $basePriceCurrency
+        );
+
+        $descriptionStrings = [
+            'Basistarief: ' . $basePriceFormatted,
+        ];
+
+        foreach ($tariffs as $tariff) {
+            $price = $tariff->getPrice()->toFloat();
+
+            $currencyCode = $tariff->getCurrency()->getCode()->toNative();
+            $currency = $this->currencyRepository->get($currencyCode);
+
+            $tariffPrice = $currencyFormatter->formatCurrency((string) $price, $currency);
+
+            $descriptionStrings[] = $tariff->getName() . ': ' . $tariffPrice;
+        }
+
+        $cdbPrice = new \CultureFeed_Cdb_Data_Price($basePrice->getPrice()->toFloat());
+        $cdbPrice->setDescription(implode('; ', $descriptionStrings));
+
+        $updatedDetails = new \CultureFeed_Cdb_Data_EventDetailList();
+        foreach ($event->getDetails() as $detail) {
+            /* @var \CultureFeed_Cdb_Data_Detail $detail */
+            $detail->setPrice($cdbPrice);
+            $updatedDetails->add($detail);
+        }
+
+        $event->setDetails($updatedDetails);
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**
@@ -1360,6 +1454,18 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
+     * @param AbstractPublished $published
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPublished(
+        AbstractPublished $published,
+        Metadata $metadata
+    ) {
+        return $this->setWorkflowStatus($published, $metadata, WorkflowStatus::READY_FOR_VALIDATION());
+    }
+
+    /**
      * @param AbstractApproved $approved
      * @param Metadata $metadata
      * @return CdbXmlDocument
@@ -1407,7 +1513,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * Set the location on the cdb event based on an eventCreated event.
      *
-     * @param Location $eventLocation
+     * @param \CultuurNet\UDB3\Location\Location $eventLocation
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
      * @throws \CultuurNet\UDB3\EntityNotFoundException
      */
@@ -1530,71 +1636,77 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     {
         $weekscheme = $this->getWeekscheme($eventCalendar);
 
-        // Multiple days.
-        if ($eventCalendar->getType() == Calendar::MULTIPLE) {
-            $calendar = new CultureFeed_Cdb_Data_Calendar_TimestampList();
-            foreach ($eventCalendar->getTimestamps() as $timestamp) {
-                $startdate = strtotime($timestamp->getStartDate());
-                $enddate = strtotime($timestamp->getEndDate());
-                $startHour = date('H:i:s', $startdate);
-                if ($startHour == '00:00:00') {
-                    $startHour = null;
+        switch ($eventCalendar->getType()->toNative()) {
+            case CalendarType::MULTIPLE:
+                $calendar = new CultureFeed_Cdb_Data_Calendar_TimestampList();
+                foreach ($eventCalendar->getTimestamps() as $timestamp) {
+                    $this->timestampCalendar(
+                        $timestamp->getStartDate(),
+                        $timestamp->getEndDate(),
+                        $calendar
+                    );
                 }
-                $endHour = date('H:i:s', $enddate);
-                if ($endHour == '00:00:00') {
-                    $endHour = null;
-                }
-                $calendar->add(
-                    new CultureFeed_Cdb_Data_Calendar_Timestamp(
-                        date('Y-m-d', $startdate),
-                        $startHour,
-                        $endHour
-                    )
+                break;
+            case CalendarType::SINGLE:
+                $calendar = $this->timestampCalendar(
+                    $eventCalendar->getStartDate(),
+                    $eventCalendar->getEndDate(),
+                    new CultureFeed_Cdb_Data_Calendar_TimestampList()
                 );
-            }
-            // Single day.
-        } elseif ($eventCalendar->getType() == Calendar::SINGLE) {
-            $calendar = new CultureFeed_Cdb_Data_Calendar_TimestampList();
-            $startdate = strtotime($eventCalendar->getStartDate());
-            $enddate = strtotime($eventCalendar->getEndDate());
-            $startHour = date('H:i:s', $startdate);
-            if ($startHour == '00:00:00') {
-                $startHour = null;
-            }
-            $endHour = date('H:i:s', $enddate);
-            if ($endHour == '00:00:00') {
-                $endHour = null;
-            }
-            $calendar->add(
-                new CultureFeed_Cdb_Data_Calendar_Timestamp(
-                    date('Y-m-d', $startdate),
-                    $startHour,
-                    $endHour
-                )
-            );
-            // Period.
-        } elseif ($eventCalendar->getType() == Calendar::PERIODIC) {
-            $calendar = new CultureFeed_Cdb_Data_Calendar_PeriodList();
-            $startdate = date('Y-m-d', strtotime($eventCalendar->getStartDate()));
-            $enddate = date('Y-m-d', strtotime($eventCalendar->getEndDate()));
+                break;
+            case CalendarType::PERIODIC:
+                $calendar = new CultureFeed_Cdb_Data_Calendar_PeriodList();
+                $startDate = $eventCalendar->getStartDate()->format('Y-m-d');
+                $endDate = $eventCalendar->getEndDate()->format('Y-m-d');
 
-            $period = new CultureFeed_Cdb_Data_Calendar_Period($startdate, $enddate);
-            if (!empty($weekScheme)) {
-                $period->setWeekScheme($weekscheme);
-            }
-            $calendar->add($period);
-
-            // Permanent
-        } elseif ($eventCalendar->getType() == Calendar::PERMANENT) {
-            $calendar = new CultureFeed_Cdb_Data_Calendar_Permanent();
-            if (!empty($weekScheme)) {
-                $calendar->setWeekScheme($weekscheme);
-            }
+                $period = new CultureFeed_Cdb_Data_Calendar_Period($startDate, $endDate);
+                if (!empty($weekScheme)) {
+                    $period->setWeekScheme($weekscheme);
+                }
+                $calendar->add($period);
+                break;
+            case CalendarType::PERMANENT:
+                $calendar = new CultureFeed_Cdb_Data_Calendar_Permanent();
+                if (!empty($weekScheme)) {
+                    $calendar->setWeekScheme($weekscheme);
+                }
+                break;
         }
 
         if (isset($calendar)) {
             $cdbEvent->setCalendar($calendar);
         }
+    }
+
+    /**
+     * @param DateTimeInterface $startDate
+     * @param DateTimeInterface $endDate
+     * @param CultureFeed_Cdb_Data_Calendar_TimestampList $calendar
+     *
+     * @return CultureFeed_Cdb_Data_Calendar_TimestampList
+     */
+    private function timestampCalendar(
+        DateTimeInterface $startDate,
+        DateTimeInterface $endDate,
+        CultureFeed_Cdb_Data_Calendar_TimestampList $calendar
+    ) {
+        $startHour = $startDate->format('H:i:s');
+        if ($startHour == '00:00:00') {
+            $startHour = null;
+        }
+        $endHour = $endDate->format('H:i:s');
+        if ($endHour == '00:00:00') {
+            $endHour = null;
+        }
+        $calendar->add(
+            new CultureFeed_Cdb_Data_Calendar_Timestamp(
+                $startDate->format('Y-m-d'),
+                $startHour,
+                $endHour
+            )
+        );
+
+        return $calendar;
     }
 
     /**

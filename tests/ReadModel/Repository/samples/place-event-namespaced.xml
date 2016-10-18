@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cdb:cdbxml xmlns:cdb="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL">
-  <cdb:event cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="readyforvalidation">
+  <cdb:event cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
     <cdb:keywords>
       <cdb:keyword>UDB3 place</cdb:keyword>
     </cdb:keywords>
@@ -21,10 +21,11 @@
     <cdb:location>
       <cdb:address>
         <cdb:physical>
-          <cdb:city>$locality</cdb:city>
-          <cdb:country>$country</cdb:country>
-          <cdb:street>$street</cdb:street>
-          <cdb:zipcode>$postalCode</cdb:zipcode>
+          <cdb:city>Leuven</cdb:city>
+          <cdb:country>BE</cdb:country>
+          <cdb:housenr>1</cdb:housenr>
+          <cdb:street>Bondgenotenlaan</cdb:street>
+          <cdb:zipcode>3000</cdb:zipcode>
         </cdb:physical>
       </cdb:address>
       <cdb:label cdbid="34973B89-BDA3-4A79-96C7-78ACC022907D">My Place</cdb:label>

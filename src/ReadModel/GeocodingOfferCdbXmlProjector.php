@@ -3,7 +3,7 @@
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use CultuurNet\Geocoding\GeocodingServiceInterface;
-use CultuurNet\UDB3\Address;
+use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\AddressFormatterInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
@@ -96,22 +96,17 @@ class GeocodingOfferCdbXmlProjector extends AbstractCdbXmlProjector
     {
         $eventId = $event->getEventId();
 
-        $address = new Address(
-            $event->getLocation()->getStreet(),
-            $event->getLocation()->getPostalcode(),
-            $event->getLocation()->getLocality(),
-            $event->getLocation()->getCountry()
-        );
+        $address = $event->getLocation()->getAddress();
 
         yield $this->getCdbXmlDocumentWithUpdatedAddressCoordinates($eventId, $address);
     }
 
     /**
      * @param $id
-     * @param $address
+     * @param Address $address
      * @return CdbXmlDocument
      */
-    private function getCdbXmlDocumentWithUpdatedAddressCoordinates($id, $address)
+    private function getCdbXmlDocumentWithUpdatedAddressCoordinates($id, Address $address)
     {
         $coordinates = $this->geocodingService->getCoordinates(
             $this->addressFormatter->format($address)

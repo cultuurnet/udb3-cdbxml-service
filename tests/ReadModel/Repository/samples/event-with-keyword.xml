@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="readyforvalidation">
+  <event cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
     <keywords>
       <keyword>foobar</keyword>
     </keywords>
@@ -25,10 +25,11 @@
     <contactinfo>
       <address>
         <physical>
-          <city>$locality</city>
-          <country>$country</country>
-          <street>$street</street>
-          <zipcode>$postalCode</zipcode>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
         </physical>
       </address>
     </contactinfo>
@@ -40,13 +41,14 @@
     <location>
       <address>
         <physical>
-          <city>$locality</city>
-          <country>$country</country>
-          <street>$street</street>
-          <zipcode>$postalCode</zipcode>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
         </physical>
       </address>
-      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">$name</label>
+      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</label>
     </location>
   </event>
 </cdbxml>
