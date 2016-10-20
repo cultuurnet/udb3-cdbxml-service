@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "744d2c6454394289f11c69628e3c65bf",
-    "content-hash": "44b1df7677a7ed635409c4a72ec72fe4",
+    "hash": "955e8f1a32a1bf0d2967c3fb40b68629",
+    "content-hash": "3c321d420e39a14fb2f2b36dd892faa6",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -684,12 +684,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/deserializer.git",
-                "reference": "6cbd59cfdc22e5067413df64887affacd5f22798"
+                "reference": "8428e1bc9e0447dee18ed9bee0f66d112c8285ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/6cbd59cfdc22e5067413df64887affacd5f22798",
-                "reference": "6cbd59cfdc22e5067413df64887affacd5f22798",
+                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/8428e1bc9e0447dee18ed9bee0f66d112c8285ed",
+                "reference": "8428e1bc9e0447dee18ed9bee0f66d112c8285ed",
                 "shasum": ""
             },
             "require": {
@@ -714,7 +714,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-3.0"
+                "Apache-2.0"
             ],
             "authors": [
                 {
@@ -723,7 +723,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2016-10-12 14:56:22"
+            "time": "2016-10-19 08:49:50"
         },
         {
             "name": "cultuurnet/entry",
@@ -1119,16 +1119,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-1344",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "41edcae01eb885b0561a6495f8bdbb5c95725d68"
+                "reference": "2fca5abef934dd95ebe896c15f2f89158284c839"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/41edcae01eb885b0561a6495f8bdbb5c95725d68",
-                "reference": "41edcae01eb885b0561a6495f8bdbb5c95725d68",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/2fca5abef934dd95ebe896c15f2f89158284c839",
+                "reference": "2fca5abef934dd95ebe896c15f2f89158284c839",
                 "shasum": ""
             },
             "require": {
@@ -1201,7 +1201,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-18 13:09:59"
+            "time": "2016-10-20 13:15:44"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2294,7 +2294,7 @@
             ],
             "authors": [
                 {
-                    "name": "KnpLabs",
+                    "name": "Knplabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -2366,20 +2366,20 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.28",
+            "version": "1.0.32",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "a9663643ff2d16d7f66ed1e0d3212c5491bc9044"
+                "reference": "1b5c4a0031697f46e779a9d1b309c2e1b24daeab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/a9663643ff2d16d7f66ed1e0d3212c5491bc9044",
-                "reference": "a9663643ff2d16d7f66ed1e0d3212c5491bc9044",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/1b5c4a0031697f46e779a9d1b309c2e1b24daeab",
+                "reference": "1b5c4a0031697f46e779a9d1b309c2e1b24daeab",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=5.5.9"
             },
             "conflict": {
                 "league/flysystem-sftp": "<1.0.6"
@@ -2445,7 +2445,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-10-07 12:20:37"
+            "time": "2016-10-19 20:38:46"
         },
         {
             "name": "league/flysystem-ziparchive",
@@ -6100,18 +6100,9 @@
             "time": "2016-08-09 15:02:57"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-1344",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
