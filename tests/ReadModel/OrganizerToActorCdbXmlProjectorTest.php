@@ -24,7 +24,6 @@ use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
 use ValueObjects\Web\Url;
 
-
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
     /**
