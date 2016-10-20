@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "955e8f1a32a1bf0d2967c3fb40b68629",
-    "content-hash": "3c321d420e39a14fb2f2b36dd892faa6",
+    "hash": "265660d0d93a66f8562f7706ccda2d75",
+    "content-hash": "c73e6b57750cc215f31a1bc0c3d95d89",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -536,16 +536,16 @@
         },
         {
             "name": "cultuurnet/cdb",
-            "version": "2.2.x-dev",
+            "version": "dev-feature/III-1452",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "e9942f3acb33e0893d69985b44a11d6f615cbc9c"
+                "reference": "5d65fbf3b51fca9e5cf2bbda2d7f2eb448067682"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/e9942f3acb33e0893d69985b44a11d6f615cbc9c",
-                "reference": "e9942f3acb33e0893d69985b44a11d6f615cbc9c",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/5d65fbf3b51fca9e5cf2bbda2d7f2eb448067682",
+                "reference": "5d65fbf3b51fca9e5cf2bbda2d7f2eb448067682",
                 "shasum": ""
             },
             "require-dev": {
@@ -567,7 +567,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-10-17 14:17:27"
+            "time": "2016-10-19 13:39:17"
         },
         {
             "name": "cultuurnet/clock",
@@ -1119,16 +1119,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-master",
+            "version": "dev-feature/III-1452",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "2fca5abef934dd95ebe896c15f2f89158284c839"
+                "reference": "84eee45300bac998ad9b0891dc32b0d0a2376591"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/2fca5abef934dd95ebe896c15f2f89158284c839",
-                "reference": "2fca5abef934dd95ebe896c15f2f89158284c839",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/84eee45300bac998ad9b0891dc32b0d0a2376591",
+                "reference": "84eee45300bac998ad9b0891dc32b0d0a2376591",
                 "shasum": ""
             },
             "require": {
@@ -1137,7 +1137,7 @@
                 "chrisboulton/php-resque": "~1.2",
                 "cultuurnet/auth": "~1.2",
                 "cultuurnet/calendar-summary": "~1.0.2",
-                "cultuurnet/cdb": "~2.2.0",
+                "cultuurnet/cdb": "dev-feature/III-1452 as 2.2.0",
                 "cultuurnet/clock": "~0.1",
                 "cultuurnet/culturefeed-php": "dev-master as 1.6",
                 "cultuurnet/deserializer": "~0.1",
@@ -1201,7 +1201,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-20 13:15:44"
+            "time": "2016-10-20 13:15:36"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2294,7 +2294,7 @@
             ],
             "authors": [
                 {
-                    "name": "Knplabs",
+                    "name": "KnpLabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -6100,9 +6100,25 @@
             "time": "2016-08-09 15:02:57"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-1452",
+            "package": "cultuurnet/udb3"
+        },
+        {
+            "alias": "2.2",
+            "alias_normalized": "2.2.0.0",
+            "version": "dev-feature/III-1452",
+            "package": "cultuurnet/cdb"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/udb3": 20,
+        "cultuurnet/cdb": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
