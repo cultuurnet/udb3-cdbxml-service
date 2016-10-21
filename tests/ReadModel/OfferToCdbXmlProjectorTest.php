@@ -902,6 +902,38 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_make_the_oldest_remaining_image_main_when_the_original_main_image_is_removed()
+    {
+        $id = $this->getEventId();
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-images.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $originalMainImage = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new StringLiteral('title'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+        );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                $eventImportedFromUdb2
+            )
+            ->apply(
+                new ImageRemoved($id, $originalMainImage)
+            )
+            ->expect('event-with-original-main-image-removed.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_organizer_events()
     {
         // Create an organizer.
