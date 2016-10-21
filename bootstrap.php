@@ -707,10 +707,10 @@ $app['external_id_mapping_service'] = $app->share(
         $yamlFile = $appConfigLocation . '/external_id_mapping.yml';
         if (file_exists($yamlFile)) {
             $yaml = file_get_contents($yamlFile);
-            $mappingData = Yaml::parse($yaml);
+            $yaml = Yaml::parse($yaml);
 
-            if (is_array($mappingData)) {
-                $map = $mappingData;
+            if (is_array($yaml)) {
+                $map = $yaml;
             }
         }
 
