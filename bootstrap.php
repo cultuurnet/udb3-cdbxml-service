@@ -146,7 +146,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $longDescriptionFilter,
             $shortDescriptionFilter,
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
-            new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository()
+            new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
+            $app['event_cdbid_extractor']
         ));
 
         $projector->setLogger($app['logger.projector']);
