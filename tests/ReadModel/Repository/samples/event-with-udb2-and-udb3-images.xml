@@ -49,6 +49,14 @@
             <mediatype>photo</mediatype>
             <title>Beep Boop</title>
           </file>
+          <file>
+            <copyright>Duck Face</copyright>
+            <filename>c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png</filename>
+            <filetype>png</filetype>
+            <hlink>http://foo.bar/media/c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png</hlink>
+            <mediatype>photo</mediatype>
+            <title>My best selfie.</title>
+          </file>
         </media>
         <title>Griezelfilm of horror</title>
       </eventdetail>
