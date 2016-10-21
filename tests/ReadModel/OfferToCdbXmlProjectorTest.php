@@ -934,6 +934,38 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_keep_images_imported_from_udb2_when_you_add_an_udb3_image()
+    {
+        $id = $this->getEventId();
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-images.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $udb3Image = new Image(
+            new UUID('c0c96570-3b3c-4d3f-9d82-c26b290e6c12'),
+            new MIMEType('image/png'),
+            new StringLiteral('My best selfie.'),
+            new StringLiteral('Duck Face'),
+            Url::fromNative('http://foo.bar/media/c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png')
+        );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                $eventImportedFromUdb2
+            )
+            ->apply(
+                new ImageAdded($id, $udb3Image)
+            )
+            ->expect('event-with-udb2-and-udb3-images.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_organizer_events()
     {
         // Create an organizer.
