@@ -1123,12 +1123,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "2fca5abef934dd95ebe896c15f2f89158284c839"
+                "reference": "f6638779960a83d5abda222887a8b868fcc5038a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/2fca5abef934dd95ebe896c15f2f89158284c839",
-                "reference": "2fca5abef934dd95ebe896c15f2f89158284c839",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/f6638779960a83d5abda222887a8b868fcc5038a",
+                "reference": "f6638779960a83d5abda222887a8b868fcc5038a",
                 "shasum": ""
             },
             "require": {
@@ -1201,7 +1201,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-20 13:15:44"
+            "time": "2016-10-24 17:27:34"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2677,6 +2677,7 @@
                 "Value Object",
                 "money"
             ],
+            "abandoned": "moneyphp/money",
             "time": "2016-01-16 22:03:46"
         },
         {
