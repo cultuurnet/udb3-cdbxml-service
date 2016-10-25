@@ -109,11 +109,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private $actorRepository;
 
     /**
-     * @var ArrayMappingService
-     */
-    private $externalIdMappingService;
-
-    /**
      * @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $logger;
@@ -131,13 +126,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
         $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
 
-        $this->externalIdMappingService = new ArrayMappingService(
-            [
-                'external-id-1' => '20ffb163-d5be-4a70-8f3a-fc853d17bbb4',
-                'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
-            ]
-        );
-
         $this->projector = (
         new OfferToCdbXmlProjector(
             $this->repository,
@@ -153,7 +141,16 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(
-                $this->externalIdMappingService
+                new ArrayMappingService(
+                    [
+                        'external-id-1' => '20ffb163-d5be-4a70-8f3a-fc853d17bbb4',
+                    ]
+                ),
+                new ArrayMappingService(
+                    [
+                        'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
+                    ]
+                )
             )
         ));
 
