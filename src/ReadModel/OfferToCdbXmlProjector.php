@@ -1669,14 +1669,14 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $endDate = $eventCalendar->getEndDate()->format('Y-m-d');
 
                 $period = new CultureFeed_Cdb_Data_Calendar_Period($startDate, $endDate);
-                if (!empty($weekScheme)) {
+                if (!empty($weekscheme->getDays())) {
                     $period->setWeekScheme($weekscheme);
                 }
                 $calendar->add($period);
                 break;
             case CalendarType::PERMANENT:
                 $calendar = new CultureFeed_Cdb_Data_Calendar_Permanent();
-                if (!empty($weekScheme)) {
+                if (!empty($weekscheme)) {
                     $calendar->setWeekScheme($weekscheme);
                 }
                 break;
@@ -2067,18 +2067,21 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         Image $image
     ) {
         $oldMedia = $this->getCdbItemMedia($cdbItem);
+        $mainImageRemoved = false;
 
         $newMedia = new CultureFeed_Cdb_Data_Media();
         foreach ($oldMedia as $key => $file) {
             if (!$this->fileMatchesMediaObject($file, $image->getMediaObjectId())) {
                 $newMedia->add($file);
+            } else {
+                $mainImageRemoved = $mainImageRemoved || $file->isMain();
             }
         }
 
         $images = $newMedia->byMediaTypes($this->imageTypes);
-        if ($images->count() > 0) {
+        if ($mainImageRemoved && $images->count() > 0) {
             $images->rewind();
-            $images->current()->setMediaType(CultureFeed_Cdb_Data_File::MEDIA_TYPE_PHOTO);
+            $images->current()->setMain(true);
         }
 
         $details = $cdbItem->getDetails();
@@ -2099,16 +2102,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $media = $this->getCdbItemMedia($cdbItem);
         $mainImageId = $image->getMediaObjectId();
 
-        $mainImages = $media->byMediaType(CultureFeed_Cdb_Data_File::MEDIA_TYPE_PHOTO);
-        if ($mainImages->count() > 0) {
-            $mainImages->rewind();
-            $mainImages->current()->setMediaType(CultureFeed_Cdb_Data_File::MEDIA_TYPE_IMAGEWEB);
-        }
-
         foreach ($media as $file) {
-            if ($this->fileMatchesMediaObject($file, $mainImageId)) {
-                $file->setMediaType(CultureFeed_Cdb_Data_File::MEDIA_TYPE_PHOTO);
-            }
+            $file->setMain($this->fileMatchesMediaObject($file, $mainImageId));
         }
     }
 
@@ -2152,14 +2147,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $media = $this->getCdbItemMedia($cdbItem);
 
         $file = new CultureFeed_Cdb_Data_File();
-        $file->setMain();
         $file->setHLink($sourceUri);
+        $file->setMediaType(CultureFeed_Cdb_Data_File::MEDIA_TYPE_PHOTO);
 
         // If there are no existing images the newly added one should be main.
         if ($media->byMediaTypes($this->imageTypes)->count() === 0) {
-            $file->setMediaType(CultureFeed_Cdb_Data_File::MEDIA_TYPE_PHOTO);
-        } else {
-            $file->setMediaType(CultureFeed_Cdb_Data_File::MEDIA_TYPE_IMAGEWEB);
+            $file->setMain();
         }
 
         // If the file name does not contain an extension, default to jpeg.

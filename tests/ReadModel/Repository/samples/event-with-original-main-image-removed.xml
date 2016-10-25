@@ -33,14 +33,6 @@
     <eventdetails>
       <eventdetail lang="nl">
         <media>
-          <file>
-            <copyright>John Doe</copyright>
-            <filename>de305d54-75b4-431b-adb2-eb6b9e546014.png</filename>
-            <filetype>png</filetype>
-            <hlink>http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png</hlink>
-            <mediatype>photo</mediatype>
-            <title>title</title>
-          </file>
           <file main="true">
             <copyright>Noo Idee</copyright>
             <filename>9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg</filename>

@@ -4,12 +4,12 @@
     <actordetails>
       <actordetail lang="nl">
         <media>
-          <file main="true">
+          <file>
             <copyright>John Doe</copyright>
             <filename>de305d54-75b4-431b-adb2-eb6b9e546014.png</filename>
             <filetype>png</filetype>
             <hlink>http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png</hlink>
-            <mediatype>imageweb</mediatype>
+            <mediatype>photo</mediatype>
             <title>title</title>
           </file>
           <file main="true">
