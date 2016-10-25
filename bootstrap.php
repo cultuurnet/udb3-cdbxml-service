@@ -696,17 +696,33 @@ $app->register(
 
 $app['event_cdbid_extractor'] = $app->share(
     function (Application $app) {
-        return new EventCdbIdExtractor($app['external_id_mapping_service']);
+        return new EventCdbIdExtractor(
+            $app['place_external_id_mapping_service'],
+            $app['organizer_external_id_mapping_service']
+        );
     }
 );
 
-$app['external_id_mapping_service'] = $app->share(
-    function () use ($appConfigLocation) {
+$app['place_external_id_mapping_service'] = $app->share(
+    function (Application $app) use ($appConfigLocation) {
+        $yamlFileLocation = $appConfigLocation . '/external_id_mapping_place.yml';
+        return $app['udb2_external_id_mapping_service_factory']($yamlFileLocation);
+    }
+);
+
+$app['organizer_external_id_mapping_service'] = $app->share(
+    function (Application $app) use ($appConfigLocation) {
+        $yamlFileLocation = $appConfigLocation . '/external_id_mapping_organizer.yml';
+        return $app['udb2_external_id_mapping_service_factory']($yamlFileLocation);
+    }
+);
+
+$app['udb2_external_id_mapping_service_factory'] = $app->protect(
+    function ($yamlFileLocation) {
         $map = [];
 
-        $yamlFile = $appConfigLocation . '/external_id_mapping.yml';
-        if (file_exists($yamlFile)) {
-            $yaml = file_get_contents($yamlFile);
+        if (file_exists($yamlFileLocation)) {
+            $yaml = file_get_contents($yamlFileLocation);
             $yaml = Yaml::parse($yaml);
 
             if (is_array($yaml)) {
