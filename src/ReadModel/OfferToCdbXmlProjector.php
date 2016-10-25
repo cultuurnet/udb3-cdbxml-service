@@ -33,6 +33,7 @@ use CultureFeed_Cdb_Data_Url;
 use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
+use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
@@ -1675,6 +1676,16 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         if (isset($calendar)) {
             $cdbEvent->setCalendar($calendar);
+
+            $formatter = new CalendarPlainTextFormatter();
+
+            $calendarSummary = $formatter->format($calendar, 'lg');
+            // CDXML does not expect any formatting so breaks are replaced with spaces
+            $calendarSummary = str_replace(PHP_EOL, ' ', $calendarSummary);
+
+            $eventDetails = $cdbEvent->getDetails();
+            $eventDetails->rewind();
+            $eventDetails->current()->setCalendarSummary($calendarSummary);
         }
     }
 
