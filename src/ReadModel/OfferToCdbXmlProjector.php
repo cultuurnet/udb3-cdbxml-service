@@ -79,6 +79,7 @@ use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
+use CultuurNet\UDB3\Offer\AvailableTo;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
@@ -506,6 +507,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $actor->setWeekScheme($weekscheme);
         }
 
+        $this->setItemAvailableToFromCalendar(
+            $placeMajorInfoUpdated->getCalendar(),
+            $actor
+        );
+
         // set eventtype and theme
         $this->updateCategories(
             $actor,
@@ -552,6 +558,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->setLocation($eventMajorInfoUpdated->getLocation(), $event);
         $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
 
+        $this->setItemAvailableToFromCalendar(
+            $eventMajorInfoUpdated->getCalendar(),
+            $event
+        );
+
         $this->updateCategories(
             $event,
             $eventMajorInfoUpdated->getEventType(),
@@ -594,6 +605,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set location and calendar info.
         $this->setLocation($eventCreated->getLocation(), $event);
         $this->setCalendar($eventCreated->getCalendar(), $event);
+
+        $this->setItemAvailableToFromCalendar(
+            $eventCreated->getCalendar(),
+            $event
+        );
 
         // Set event type and theme.
         $event->setCategories(new CultureFeed_Cdb_Data_CategoryList());
@@ -696,6 +712,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             )
         );
         $actor->setCategories($categoryList);
+
+        $this->setItemAvailableToFromCalendar(
+            $placeCreated->getCalendar(),
+            $actor
+        );
 
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($placeCreated, $actor);
@@ -1956,12 +1977,37 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
 
         if (!is_null($offerCreated->getPublicationDate())) {
-            $formatted = $this->dateFormatter->format(
-                $offerCreated->getPublicationDate()->getTimestamp()
+            $formatted = $this->formatAvailable(
+                $offerCreated->getPublicationDate()
             );
 
             $item->setAvailableFrom($formatted);
         }
+    }
+
+    /**
+     * @param CalendarInterface $calendar
+     * @param \CultureFeed_Cdb_Item_Base $item
+     */
+    private function setItemAvailableToFromCalendar(
+        CalendarInterface $calendar,
+        \CultureFeed_Cdb_Item_Base $item
+    ) {
+        $availableTo = AvailableTo::createFromCalendar($calendar);
+        $formattedAvailableTo = $this->formatAvailable(
+            $availableTo->getAvailableTo()
+        );
+
+        $item->setAvailableTo($formattedAvailableTo);
+    }
+
+    /**
+     * @param DateTimeInterface $available
+     * @return string
+     */
+    private function formatAvailable(\DateTimeInterface $available)
+    {
+        return $this->dateFormatter->format($available->getTimestamp());
     }
 
     /**
