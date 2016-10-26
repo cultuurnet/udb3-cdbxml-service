@@ -1523,6 +1523,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $offer->setWfStatus($status->getValue());
 
+        if ($event instanceof AbstractPublished) {
+            /** @var AbstractPublished $event */
+            $availableFrom = $this->formatAvailable($event->getPublicationDate());
+            $offer->setAvailableFrom($availableFrom);
+        }
+
         $offer = $this->metadataCdbItemEnricher
             ->enrich($offer, $metadata);
 
