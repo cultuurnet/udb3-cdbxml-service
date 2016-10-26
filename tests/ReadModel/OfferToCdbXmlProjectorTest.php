@@ -1359,9 +1359,10 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_should_updated_the_workflow_status_when_an_event_is_published()
     {
         $eventId = $this->getEventId();
+        $now = new \DateTime();
 
         $test = $this->given(OfferType::EVENT())
-            ->apply(new EventPublished($eventId))
+            ->apply(new EventPublished($eventId, $now))
             ->expect('event-with-workflow-status-published.xml');
 
         $this->execute($test);
