@@ -13,6 +13,8 @@ use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarType;
+use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -137,7 +139,19 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new NewlineToBreakTagStringFilter(),
             $shortDescriptionFilter,
             new CurrencyRepository(),
-            new NumberFormatRepository()
+            new NumberFormatRepository(),
+            new EventCdbIdExtractor(
+                new ArrayMappingService(
+                    [
+                        'external-id-1' => '20ffb163-d5be-4a70-8f3a-fc853d17bbb4',
+                    ]
+                ),
+                new ArrayMappingService(
+                    [
+                        'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
+                    ]
+                )
+            )
         ));
 
         $this->logger = $this->getMock(LoggerInterface::class);
@@ -357,6 +371,52 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->execute($test);
     }
 
+    /**
+     * @test
+     */
+    public function it_adds_place_and_organizer_cdbid_based_on_external_id_for_events_imported_from_udb2()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-place-and-organizer-with-external-ids.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-place-and-organizer-with-external-ids-and-cdbids.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_adds_place_and_organizer_cdbid_based_on_external_id_for_events_updated_from_udb2()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-with-place-and-organizer-with-external-ids.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->expect('event-with-place-and-organizer-with-external-ids-and-cdbids.xml');
+
+        $this->execute($test);
+    }
 
     /**
      * @test

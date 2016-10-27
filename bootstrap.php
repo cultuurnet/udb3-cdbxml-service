@@ -15,6 +15,8 @@ use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\Address\DefaultAddressFormatter;
+use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
@@ -43,6 +45,7 @@ use DerAlex\Silex\YamlConfigServiceProvider;
 use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
 use Silex\Application;
+use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
@@ -143,7 +146,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $longDescriptionFilter,
             $shortDescriptionFilter,
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
-            new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository()
+            new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
+            $app['event_cdbid_extractor']
         ));
 
         $projector->setLogger($app['logger.projector']);
@@ -193,7 +197,7 @@ $app['relations_to_cdbxml_projector'] = $app->share(
             $app['offer_relations_service'],
             $app['iri_offer_identifier_factory']
         ));
-        
+
         return $projector;
     }
 );
@@ -638,7 +642,8 @@ $app[OFFER_LABEL_RELATION_REPOSITORY] = $app->share(
 $app['event_relations_projector'] = $app->share(
     function ($app) {
         return new \CultuurNet\UDB3\Event\ReadModel\Relations\Projector(
-            $app['event_relations_repository']
+            $app['event_relations_repository'],
+            $app['event_cdbid_extractor']
         );
     }
 );
@@ -687,6 +692,46 @@ $app['database.installer'] = $app->extend(
 $app->register(
     new \CultuurNet\UDB3\CdbXmlService\DoctrineMigrationsServiceProvider(),
     ['migrations.config_file' => __DIR__ . '/migrations.yml']
+);
+
+$app['event_cdbid_extractor'] = $app->share(
+    function (Application $app) {
+        return new EventCdbIdExtractor(
+            $app['place_external_id_mapping_service'],
+            $app['organizer_external_id_mapping_service']
+        );
+    }
+);
+
+$app['place_external_id_mapping_service'] = $app->share(
+    function (Application $app) use ($appConfigLocation) {
+        $yamlFileLocation = $appConfigLocation . '/external_id_mapping_place.yml';
+        return $app['udb2_external_id_mapping_service_factory']($yamlFileLocation);
+    }
+);
+
+$app['organizer_external_id_mapping_service'] = $app->share(
+    function (Application $app) use ($appConfigLocation) {
+        $yamlFileLocation = $appConfigLocation . '/external_id_mapping_organizer.yml';
+        return $app['udb2_external_id_mapping_service_factory']($yamlFileLocation);
+    }
+);
+
+$app['udb2_external_id_mapping_service_factory'] = $app->protect(
+    function ($yamlFileLocation) {
+        $map = [];
+
+        if (file_exists($yamlFileLocation)) {
+            $yaml = file_get_contents($yamlFileLocation);
+            $yaml = Yaml::parse($yaml);
+
+            if (is_array($yaml)) {
+                $map = $yaml;
+            }
+        }
+
+        return new ArrayMappingService($map);
+    }
 );
 
 /**

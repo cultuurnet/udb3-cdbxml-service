@@ -11,6 +11,7 @@ use CommerceGuys\Intl\Currency\CurrencyRepository;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarType;
+use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
@@ -93,7 +94,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new NewlineToBreakTagStringFilter(),
             $shortDescriptionFilter,
             new CurrencyRepository(),
-            new NumberFormatRepository()
+            new NumberFormatRepository(),
+            new EventCdbIdExtractor()
         );
 
         $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
