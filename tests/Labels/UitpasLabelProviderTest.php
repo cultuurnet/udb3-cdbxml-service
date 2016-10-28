@@ -39,7 +39,7 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function it_can_get_all_uitpas_labels()
     {
-        $labels = file_get_contents(__DIR__ . '/uitpas_labels.json');
+        $labels = file_get_contents(__DIR__ . '/Samples/uitpas_labels.json');
         $this->httpClient->method('send')
             ->willReturn(new Response('200', null, $labels));
 
