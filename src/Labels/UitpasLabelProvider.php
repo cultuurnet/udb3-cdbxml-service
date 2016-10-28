@@ -55,6 +55,8 @@ class UitpasLabelProvider implements LabelProviderInterface
 
         if ($response->getStatusCode() === 200) {
             $this->uitpasLabels = json_decode($response->getBody(true), true);
+        } else {
+            $this->uitpasLabels = [];
         }
     }
 }

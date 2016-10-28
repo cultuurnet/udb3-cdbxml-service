@@ -10,6 +10,11 @@ use ValueObjects\Web\Url;
 class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var ClientInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $httpClient;
+
+    /**
      * @var UitpasLabelProvider
      */
     private $uitpasLabelProvider;
@@ -18,17 +23,13 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
     {
         $labelsUrl = Url::fromNative('http://udb-uitpas.dev/labels');
 
-        $httpClient = $this->getMock(ClientInterface::class);
+        $this->httpClient = $this->getMock(ClientInterface::class);
 
-        $httpClient->method('get')
+        $this->httpClient->method('get')
             ->willReturn(new Request('GET', (string)$labelsUrl));
 
-        $labels = file_get_contents(__DIR__ . '/uitpas_labels.json');
-        $httpClient->method('send')
-            ->willReturn(new Response('200', null, $labels));
-
         $this->uitpasLabelProvider = new UitpasLabelProvider(
-            $httpClient,
+            $this->httpClient,
             $labelsUrl
         );
     }
@@ -38,6 +39,10 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function it_can_get_all_uitpas_labels()
     {
+        $labels = file_get_contents(__DIR__ . '/uitpas_labels.json');
+        $this->httpClient->method('send')
+            ->willReturn(new Response('200', null, $labels));
+
         $expectedUitpasLabels = [
             "PASPARTOE" => "Paspartoe",
             "UITPAS" => "UiTPAS",
@@ -47,5 +52,18 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
         $uitpasLabels = $this->uitpasLabelProvider->getAll();
 
         $this->assertEquals($expectedUitpasLabels, $uitpasLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function it_stores_empty_array_when_send_request_fails()
+    {
+        $this->httpClient->method('send')
+            ->willReturn(new Response('400'));
+
+        $uitpasLabels = $this->uitpasLabelProvider->getAll();
+
+        $this->assertEmpty($uitpasLabels);
     }
 }
