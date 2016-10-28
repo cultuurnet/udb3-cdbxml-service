@@ -50,7 +50,7 @@ class UitpasLabelProvider implements LabelProviderInterface
 
     private function initUitpasLabels()
     {
-        $request = $this->httpClient->get((string)$this->labelsUrl);
+        $request = $this->httpClient->get((string) $this->labelsUrl);
         $response = $this->httpClient->send($request);
 
         if ($response->getStatusCode() === 200) {

@@ -26,7 +26,7 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
         $this->httpClient = $this->getMock(ClientInterface::class);
 
         $this->httpClient->method('get')
-            ->willReturn(new Request('GET', (string)$labelsUrl));
+            ->willReturn(new Request('GET', (string) $labelsUrl));
 
         $this->uitpasLabelProvider = new UitpasLabelProvider(
             $this->httpClient,
@@ -46,7 +46,7 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
         $expectedUitpasLabels = [
             "PASPARTOE" => "Paspartoe",
             "UITPAS" => "UiTPAS",
-            "UITPAS_GENT" => "UiTPAS Gent"
+            "UITPAS_GENT" => "UiTPAS Gent",
         ];
 
         $uitpasLabels = $this->uitpasLabelProvider->getAll();
