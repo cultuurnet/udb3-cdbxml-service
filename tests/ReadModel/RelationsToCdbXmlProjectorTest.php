@@ -15,6 +15,7 @@ use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
+use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -95,7 +96,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $shortDescriptionFilter,
             new CurrencyRepository(),
             new NumberFormatRepository(),
-            new EventCdbIdExtractor()
+            new EventCdbIdExtractor(),
+            $this->getMock(LabelFilterInterface::class)
         );
 
         $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);

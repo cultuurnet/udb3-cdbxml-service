@@ -45,6 +45,7 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
+use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
@@ -209,6 +210,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $eventCdbIdExtractor;
 
     /**
+     * @var LabelFilterInterface
+     */
+    private $uitpasLabelFilter;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -220,6 +226,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
+     * @param LabelFilterInterface $uitpasLabelFilter
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -232,7 +239,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         StringFilterInterface $shortDescriptionFilter,
         CurrencyRepositoryInterface $currencyRepository,
         NumberFormatRepositoryInterface $numberFormatRepository,
-        EventCdbIdExtractorInterface $eventCdbIdExtractor
+        EventCdbIdExtractorInterface $eventCdbIdExtractor,
+        LabelFilterInterface $uitpasLabelFilter
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -245,6 +253,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
+        $this->uitpasLabelFilter = $uitpasLabelFilter;
         $this->logger = new NullLogger();
     }
 
@@ -1207,6 +1216,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
+            $organizerKeywords = $actor->getKeywords();
+            $organizerUitpasKeywords = $this->uitpasLabelFilter->filter($organizerKeywords);
+            foreach ($organizerUitpasKeywords as $organizerUitpasKeyword) {
+                $event->addKeyword($organizerUitpasKeyword);
+            }
+
             $event->setOrganiser($organizer);
         } else {
             $warning = 'Could not find organizer with id ' . $organizerUpdated->getOrganizerId();
@@ -1238,6 +1253,26 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $eventCdbXml->getCdbXml()
         );
+
+        // load organizer from documentRepo & add to document
+        $organizerCdbXml = $this->actorDocumentRepository->get($organizerDeleted->getOrganizerId());
+
+        // It can happen that the organizer is not found
+        if ($organizerCdbXml) {
+            $actor = ActorItemFactory::createActorFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $organizerCdbXml->getCdbXml()
+            );
+
+            $organizerKeywords = $actor->getKeywords();
+            $uitpasOrganizerKeywords = $this->uitpasLabelFilter->filter($organizerKeywords);
+            $eventKeywords = $event->getKeywords();
+            foreach ($eventKeywords as $eventKeyword) {
+                if (in_array($eventKeyword, $uitpasOrganizerKeywords)) {
+                    $event->deleteKeyword($eventKeyword);
+                }
+            }
+        }
 
         $event->deleteOrganiser();
 

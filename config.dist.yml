@@ -27,3 +27,5 @@ database:
   password: pwd
   host: 127.0.0.1
 offer_url_regex: https?://culudb-cdbxml\.dev/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)
+uitpas_service:
+  labels_url: http://udb-uitpas.dev/labels

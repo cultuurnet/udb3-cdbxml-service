@@ -20,6 +20,8 @@ use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
+use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
+use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelProvider;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\GeocodingOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
@@ -49,6 +51,7 @@ use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
+use ValueObjects\Web\Url;
 
 date_default_timezone_set('Europe/Brussels');
 
@@ -136,6 +139,13 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
         $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
         $shortDescriptionFilter->addFilter($truncateFilter);
 
+        $guzzleClient = new \Guzzle\Http\Client();
+        $uitpasLabelProvider = new UitpasLabelProvider(
+            $guzzleClient,
+            Url::fromNative($app['uitpas_service']['labels_url'])
+        );
+        $uitpasLabelFilter = new UitpasLabelFilter($uitpasLabelProvider);
+
         $projector = (new OfferToCdbXmlProjector(
             $app[CDBXML_OFFER_REPOSITORY],
             $app[CDBXML_DOCUMENT_FACTORY],
@@ -147,7 +157,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $shortDescriptionFilter,
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
             new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
-            $app['event_cdbid_extractor']
+            $app['event_cdbid_extractor'],
+            $uitpasLabelFilter
         ));
 
         $projector->setLogger($app['logger.projector']);

@@ -16,6 +16,8 @@ use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
+use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
+use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -126,6 +128,10 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
         $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
 
+        $uitpasLabelFilter = $this->getMock(LabelFilterInterface::class);
+        $uitpasLabelFilter->method('filter')
+            ->willReturn([]);
+
         $this->projector = (
         new OfferToCdbXmlProjector(
             $this->repository,
@@ -151,7 +157,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
                     ]
                 )
-            )
+            ),
+            $uitpasLabelFilter
         ));
 
         $this->logger = $this->getMock(LoggerInterface::class);
