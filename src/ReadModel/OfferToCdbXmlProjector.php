@@ -33,12 +33,14 @@ use CultureFeed_Cdb_Data_Url;
 use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
+use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
+use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -202,6 +204,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $numberFormatRepository;
 
     /**
+     * @var EventCdbIdExtractorInterface
+     */
+    private $eventCdbIdExtractor;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -212,6 +219,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param StringFilterInterface $shortDescriptionFilter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
+     * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -223,7 +231,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         StringFilterInterface $longDescriptionFilter,
         StringFilterInterface $shortDescriptionFilter,
         CurrencyRepositoryInterface $currencyRepository,
-        NumberFormatRepositoryInterface $numberFormatRepository
+        NumberFormatRepositoryInterface $numberFormatRepository,
+        EventCdbIdExtractorInterface $eventCdbIdExtractor
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -235,6 +244,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->shortDescriptionFilter = $shortDescriptionFilter;
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
+        $this->eventCdbIdExtractor = $eventCdbIdExtractor;
         $this->logger = new NullLogger();
     }
 
@@ -1702,6 +1712,16 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         if (isset($calendar)) {
             $cdbEvent->setCalendar($calendar);
+
+            $formatter = new CalendarPlainTextFormatter();
+
+            $calendarSummary = $formatter->format($calendar, 'lg');
+            // CDXML does not expect any formatting so breaks are replaced with spaces
+            $calendarSummary = str_replace(PHP_EOL, ' ', $calendarSummary);
+
+            $eventDetails = $cdbEvent->getDetails();
+            $eventDetails->rewind();
+            $eventDetails->current()->setCalendarSummary($calendarSummary);
         }
     }
 
@@ -1958,6 +1978,30 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $namespace,
             $xmlString
         );
+
+        // Set the cdbid attribute on the embedded location if it's empty but
+        // possible to derive from another attribute like eg. externalid.
+        if ($event->getLocation() && empty($event->getLocation()->getCdbid())) {
+            $locationCdbId = $this->eventCdbIdExtractor->getRelatedPlaceCdbId($event);
+
+            if ($locationCdbId) {
+                $location = $event->getLocation();
+                $location->setCdbid($locationCdbId);
+                $event->setLocation($location);
+            }
+        }
+
+        // Set the cdbid attribute on the embedded organiser if it's empty but
+        // possible to derive from another attribute like eg. externalid.
+        if ($event->getOrganiser() && empty($event->getOrganiser()->getCdbid())) {
+            $organiserCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
+
+            if ($organiserCdbId) {
+                $organiser = $event->getOrganiser();
+                $organiser->setCdbid($organiserCdbId);
+                $event->setOrganiser($organiser);
+            }
+        }
 
         // Add metadata like createdby, creationdate, etc to the event.
         $event = $this->metadataCdbItemEnricher
