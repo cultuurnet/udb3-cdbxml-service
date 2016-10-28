@@ -1697,7 +1697,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $endDate = $eventCalendar->getEndDate()->format('Y-m-d');
 
                 $period = new CultureFeed_Cdb_Data_Calendar_Period($startDate, $endDate);
-                if (!empty($weekscheme->getDays())) {
+                if (!empty($weekscheme) && !empty($weekscheme->getDays())) {
                     $period->setWeekScheme($weekscheme);
                 }
                 $calendar->add($period);
