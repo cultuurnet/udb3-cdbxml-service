@@ -36,7 +36,6 @@ use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
-use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
@@ -45,7 +44,7 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
+use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
@@ -210,9 +209,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $eventCdbIdExtractor;
 
     /**
-     * @var LabelFilterInterface
+     * @var LabelApplierInterface
      */
-    private $uitpasLabelFilter;
+    private $uitpasLabelApplier;
 
     /**
      * @param DocumentRepositoryInterface $documentRepository
@@ -226,7 +225,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
-     * @param LabelFilterInterface $uitpasLabelFilter
+     * @param LabelApplierInterface $uitpasLabelApplier
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -240,7 +239,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         CurrencyRepositoryInterface $currencyRepository,
         NumberFormatRepositoryInterface $numberFormatRepository,
         EventCdbIdExtractorInterface $eventCdbIdExtractor,
-        LabelFilterInterface $uitpasLabelFilter
+        LabelApplierInterface $uitpasLabelApplier
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -253,7 +252,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
-        $this->uitpasLabelFilter = $uitpasLabelFilter;
+        $this->uitpasLabelApplier = $uitpasLabelApplier;
         $this->logger = new NullLogger();
     }
 
@@ -1216,11 +1215,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
-            $organizerKeywords = $actor->getKeywords();
-            $organizerUitpasKeywords = $this->uitpasLabelFilter->filter($organizerKeywords);
-            foreach ($organizerUitpasKeywords as $organizerUitpasKeyword) {
-                $event->addKeyword($organizerUitpasKeyword);
-            }
+            $this->uitpasLabelApplier->addLabels($event, $actor);
 
             $event->setOrganiser($organizer);
         } else {
@@ -1264,14 +1259,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $organizerCdbXml->getCdbXml()
             );
 
-            $organizerKeywords = $actor->getKeywords();
-            $uitpasOrganizerKeywords = $this->uitpasLabelFilter->filter($organizerKeywords);
-            $eventKeywords = $event->getKeywords();
-            foreach ($eventKeywords as $eventKeyword) {
-                if (in_array($eventKeyword, $uitpasOrganizerKeywords)) {
-                    $event->deleteKeyword($eventKeyword);
-                }
-            }
+            $this->uitpasLabelApplier->removeLabels($event, $actor);
         }
 
         $event->deleteOrganiser();

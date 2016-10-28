@@ -20,6 +20,7 @@ use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
+use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelApplier;
 use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
 use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelProvider;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
@@ -144,7 +145,10 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $guzzleClient,
             Url::fromNative($app['uitpas_service']['labels_url'])
         );
+
         $uitpasLabelFilter = new UitpasLabelFilter($uitpasLabelProvider);
+
+        $uitpasLabelApplier = new UitpasLabelApplier($uitpasLabelFilter);
 
         $projector = (new OfferToCdbXmlProjector(
             $app[CDBXML_OFFER_REPOSITORY],
@@ -158,7 +162,7 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
             new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
             $app['event_cdbid_extractor'],
-            $uitpasLabelFilter
+            $uitpasLabelApplier
         ));
 
         $projector->setLogger($app['logger.projector']);
