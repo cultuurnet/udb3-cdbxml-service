@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "955e8f1a32a1bf0d2967c3fb40b68629",
-    "content-hash": "3c321d420e39a14fb2f2b36dd892faa6",
+    "hash": "1fa15b40da6e9ac8af7255af5482f560",
+    "content-hash": "3fc0d765c3c9bc7eef3f333afa4ca519",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1123,12 +1123,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "cf9d82633c40884cc8d934ef10f6b30ef8a22a39"
+                "reference": "2818d56248e4217810e4ab3ffad354563da5a8a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/cf9d82633c40884cc8d934ef10f6b30ef8a22a39",
-                "reference": "cf9d82633c40884cc8d934ef10f6b30ef8a22a39",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/2818d56248e4217810e4ab3ffad354563da5a8a3",
+                "reference": "2818d56248e4217810e4ab3ffad354563da5a8a3",
                 "shasum": ""
             },
             "require": {
@@ -1201,7 +1201,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-10-28 07:46:38"
+            "time": "2016-10-28 10:53:32"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2294,7 +2294,7 @@
             ],
             "authors": [
                 {
-                    "name": "KnpLabs",
+                    "name": "Knplabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
