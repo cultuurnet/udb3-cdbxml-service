@@ -9,6 +9,7 @@ interface LabelApplierInterface
      *
      * @param \CultureFeed_Cdb_Item_Event $event
      * @param \CultureFeed_Cdb_Item_Actor $actor
+     * @return \CultureFeed_Cdb_Item_Event $event
      */
     public function addLabels(
         \CultureFeed_Cdb_Item_Event $event,
@@ -20,6 +21,7 @@ interface LabelApplierInterface
      *
      * @param \CultureFeed_Cdb_Item_Event $event
      * @param \CultureFeed_Cdb_Item_Actor $actor
+     * @return \CultureFeed_Cdb_Item_Event $event
      */
     public function removeLabels(
         \CultureFeed_Cdb_Item_Event $event,
@@ -31,6 +33,7 @@ interface LabelApplierInterface
      *
      * @param \CultureFeed_Cdb_Item_Event $event
      * @param $label
+     * @return \CultureFeed_Cdb_Item_Event $event
      */
     public function addLabel(
         \CultureFeed_Cdb_Item_Event $event,
@@ -42,6 +45,7 @@ interface LabelApplierInterface
      *
      * @param \CultureFeed_Cdb_Item_Event $event
      * @param $label
+     * @return \CultureFeed_Cdb_Item_Event $event
      */
     public function removeLabel(
         \CultureFeed_Cdb_Item_Event $event,

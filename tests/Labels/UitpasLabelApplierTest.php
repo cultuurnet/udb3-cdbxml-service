@@ -95,12 +95,12 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
         $this->uitpasLabelFilter->method('filter')
             ->willReturn(['Paspartoe', 'UiTPAS Gent']);
 
-        $this->uitpasLabelApplier->addLabels(
+        $updatedEvent = $this->uitpasLabelApplier->addLabels(
             $this->eventWithoutLabels,
             $this->actorWithLabels
         );
 
-        $this->assertEquals($this->eventWithTwoLabels, $this->eventWithoutLabels);
+        $this->assertEquals($this->eventWithTwoLabels, $updatedEvent);
     }
 
     /**
@@ -111,12 +111,12 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
         $this->uitpasLabelFilter->method('filter')
             ->willReturn(['Paspartoe', 'UiTPAS Gent']);
 
-        $this->uitpasLabelApplier->removeLabels(
+        $updatedEvent = $this->uitpasLabelApplier->removeLabels(
             $this->eventWithTwoLabels,
             $this->actorWithLabels
         );
 
-        $this->assertEquals($this->eventWithoutLabels, $this->eventWithTwoLabels);
+        $this->assertEquals($this->eventWithoutLabels, $updatedEvent);
     }
 
     /**
@@ -127,12 +127,12 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
         $this->uitpasLabelFilter->method('filter')
             ->willReturn(['Paspartoe']);
 
-        $this->uitpasLabelApplier->addLabel(
+        $updatedEvent = $this->uitpasLabelApplier->addLabel(
             $this->eventWithoutLabels,
             "Paspartoe"
         );
 
-        $this->assertEquals($this->eventWithOneLabel, $this->eventWithoutLabels);
+        $this->assertEquals($this->eventWithOneLabel, $updatedEvent);
     }
 
     /**
@@ -143,11 +143,11 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
         $this->uitpasLabelFilter->method('filter')
             ->willReturn(['Paspartoe']);
 
-        $this->uitpasLabelApplier->removeLabel(
+        $updatedEvent = $this->uitpasLabelApplier->removeLabel(
             $this->eventWithOneLabel,
             "Paspartoe"
         );
 
-        $this->assertEquals($this->eventWithoutLabels, $this->eventWithOneLabel);
+        $this->assertEquals($this->eventWithoutLabels, $updatedEvent);
     }
 }

@@ -27,7 +27,7 @@ class UitpasLabelApplier implements LabelApplierInterface
     ) {
         $organizerLabels = $actor->getKeywords();
 
-        $this->internAddLabels($event, $organizerLabels);
+        return $this->internAddLabels($event, $organizerLabels);
     }
 
     /**
@@ -39,7 +39,7 @@ class UitpasLabelApplier implements LabelApplierInterface
     ) {
         $organizerLabels = $actor->getKeywords();
 
-        $this->internRemoveLabels($event, $organizerLabels);
+        return $this->internRemoveLabels($event, $organizerLabels);
     }
 
     /**
@@ -49,7 +49,7 @@ class UitpasLabelApplier implements LabelApplierInterface
         \CultureFeed_Cdb_Item_Event $event,
         $label
     ) {
-        $this->internAddLabels($event, [$label]);
+        return $this->internAddLabels($event, [$label]);
     }
 
     /**
@@ -59,40 +59,50 @@ class UitpasLabelApplier implements LabelApplierInterface
         \CultureFeed_Cdb_Item_Event $event,
         $label
     ) {
-        $this->internRemoveLabels($event, [$label]);
+        return $this->internRemoveLabels($event, [$label]);
     }
 
     /**
      * @param \CultureFeed_Cdb_Item_Event $event
      * @param array $labels
+     * @return \CultureFeed_Cdb_Item_Event
      */
     private function internAddLabels(
         \CultureFeed_Cdb_Item_Event $event,
         array $labels
     ) {
+        $updatedEvent = clone $event;
+
         $uitpasLabels = $this->uitpasLabelFilter->filter($labels);
 
         foreach ($uitpasLabels as $uitpasLabel) {
-            $event->addKeyword($uitpasLabel);
+            $updatedEvent->addKeyword($uitpasLabel);
         }
+
+        return $updatedEvent;
     }
 
     /**
      * @param \CultureFeed_Cdb_Item_Event $event
      * @param array $labels
+     * @return \CultureFeed_Cdb_Item_Event
      */
     private function internRemoveLabels(
         \CultureFeed_Cdb_Item_Event $event,
         array $labels
     ) {
+        $updatedEvent = clone $event;
+
         $uitpasLabels = $this->uitpasLabelFilter->filter($labels);
 
         $eventLabels = $event->getKeywords();
 
         foreach ($eventLabels as $eventLabel) {
             if (in_array($eventLabel, $uitpasLabels)) {
-                $event->deleteKeyword($eventLabel);
+                $updatedEvent->deleteKeyword($eventLabel);
             }
         }
+
+        return $updatedEvent;
     }
 }
