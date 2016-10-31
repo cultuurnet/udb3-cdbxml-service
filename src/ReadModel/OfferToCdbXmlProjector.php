@@ -1215,7 +1215,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
-            $this->uitpasLabelApplier->addLabels($event, $actor);
+            $event = $this->uitpasLabelApplier->addLabels($event, $actor);
 
             $event->setOrganiser($organizer);
         } else {
@@ -1259,7 +1259,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $organizerCdbXml->getCdbXml()
             );
 
-            $this->uitpasLabelApplier->removeLabels($event, $actor);
+            $event = $this->uitpasLabelApplier->removeLabels($event, $actor);
         }
 
         $event->deleteOrganiser();
