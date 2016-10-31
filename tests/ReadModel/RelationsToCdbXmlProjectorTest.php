@@ -328,10 +328,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->uitpasLabelApplier->expects($this->once())
             ->method('addLabel')
-            ->willReturnCallback(function (\CultureFeed_Cdb_Item_Event $event) {
-                $event->addKeyword('foobar');
-                return $event;
-            });
+            ->willReturnCallback(
+                function (\CultureFeed_Cdb_Item_Event $event) {
+                    $event->addKeyword('foobar');
+                    return $event;
+                }
+            );
 
         $this->relationsProjector->handle($domainMessage);
 
@@ -387,10 +389,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->uitpasLabelApplier->expects($this->once())
             ->method('removeLabel')
-            ->willReturnCallback(function (\CultureFeed_Cdb_Item_Event $event) {
-                $event->deleteKeyword('foobar');
-                return $event;
-            });
+            ->willReturnCallback(
+                function (\CultureFeed_Cdb_Item_Event $event) {
+                    $event->deleteKeyword('foobar');
+                    return $event;
+                }
+            );
 
         $this->relationsProjector->handle($domainMessage);
 

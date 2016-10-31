@@ -1047,14 +1047,19 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->uitpasLabelApplier->expects($this->once())
             ->method('addLabels')
-            ->willReturnCallback(function (\CultureFeed_Cdb_Item_Event $event) {
-                return $event;
-            });
+            ->willReturnCallback(
+                function (\CultureFeed_Cdb_Item_Event $event) {
+                    return $event;
+                }
+            );
+
         $this->uitpasLabelApplier->expects($this->once())
             ->method('removeLabels')
-            ->willReturnCallback(function (\CultureFeed_Cdb_Item_Event $event) {
-                return $event;
-            });
+            ->willReturnCallback(
+                function (\CultureFeed_Cdb_Item_Event $event) {
+                    return $event;
+                }
+            );
 
         $test = $this->given(OfferType::EVENT())
             ->apply(
