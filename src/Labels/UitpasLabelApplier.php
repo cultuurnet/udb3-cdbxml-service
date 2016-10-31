@@ -19,37 +19,79 @@ class UitpasLabelApplier implements LabelApplierInterface
     }
 
     /**
-     * @param \CultureFeed_Cdb_Item_Event $event
-     * @param \CultureFeed_Cdb_Item_Actor $actor
+     * @inheritdoc
      */
     public function addLabels(
         \CultureFeed_Cdb_Item_Event $event,
         \CultureFeed_Cdb_Item_Actor $actor
     ) {
-        $organizerKeywords = $actor->getKeywords();
-        $organizerUitpasKeywords = $this->uitpasLabelFilter->filter($organizerKeywords);
+        $organizerLabels = $actor->getKeywords();
 
-        foreach ($organizerUitpasKeywords as $organizerUitpasKeyword) {
-            $event->addKeyword($organizerUitpasKeyword);
-        }
+        $this->internAddLabels($event, $organizerLabels);
     }
 
     /**
-     * @param \CultureFeed_Cdb_Item_Event $event
-     * @param \CultureFeed_Cdb_Item_Actor $actor
+     * @inheritdoc
      */
     public function removeLabels(
         \CultureFeed_Cdb_Item_Event $event,
         \CultureFeed_Cdb_Item_Actor $actor
     ) {
-        $organizerKeywords = $actor->getKeywords();
-        $uitpasOrganizerKeywords = $this->uitpasLabelFilter->filter($organizerKeywords);
+        $organizerLabels = $actor->getKeywords();
 
-        $eventKeywords = $event->getKeywords();
+        $this->internRemoveLabels($event, $organizerLabels);
+    }
 
-        foreach ($eventKeywords as $eventKeyword) {
-            if (in_array($eventKeyword, $uitpasOrganizerKeywords)) {
-                $event->deleteKeyword($eventKeyword);
+    /**
+     * @inheritdoc
+     */
+    public function addLabel(
+        \CultureFeed_Cdb_Item_Event $event,
+        $label
+    ) {
+        $this->internAddLabels($event, [$label]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function removeLabel(
+        \CultureFeed_Cdb_Item_Event $event,
+        $label
+    ) {
+        $this->internRemoveLabels($event, [$label]);
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Event $event
+     * @param array $labels
+     */
+    private function internAddLabels(
+        \CultureFeed_Cdb_Item_Event $event,
+        array $labels
+    ) {
+        $uitpasLabels = $this->uitpasLabelFilter->filter($labels);
+
+        foreach ($uitpasLabels as $uitpasLabel) {
+            $event->addKeyword($uitpasLabel);
+        }
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Event $event
+     * @param array $labels
+     */
+    private function internRemoveLabels(
+        \CultureFeed_Cdb_Item_Event $event,
+        array $labels
+    ) {
+        $uitpasLabels = $this->uitpasLabelFilter->filter($labels);
+
+        $eventLabels = $event->getKeywords();
+
+        foreach ($eventLabels as $eventLabel) {
+            if (in_array($eventLabel, $uitpasLabels)) {
+                $event->deleteKeyword($eventLabel);
             }
         }
     }
