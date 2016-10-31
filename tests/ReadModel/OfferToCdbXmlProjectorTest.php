@@ -17,8 +17,6 @@ use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
-use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
