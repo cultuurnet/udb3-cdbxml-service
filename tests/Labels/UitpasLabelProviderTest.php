@@ -44,11 +44,9 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
         $this->httpClient->method('send')
             ->willReturn(new Response('200', null, $labels));
 
-        $expectedUitpasLabels = LabelCollection::fromStrings([
-            "Paspartoe",
-            "UiTPAS",
-            "UiTPAS Gent",
-        ]);
+        $expectedUitpasLabels = LabelCollection::fromStrings(
+            ["Paspartoe", "UiTPAS", "UiTPAS Gent"]
+        );
 
         $uitpasLabels = $this->uitpasLabelProvider->getAll();
 

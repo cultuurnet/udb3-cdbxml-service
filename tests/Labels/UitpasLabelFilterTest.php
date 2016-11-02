@@ -23,9 +23,7 @@ class UitpasLabelFilterTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->uitpasLabelProvider->method('getAll')
-            ->willReturn(LabelCollection::fromStrings(
-                ['Paspartoe', 'UiTPAS Dender']
-            ));
+            ->willReturn(LabelCollection::fromStrings(['Paspartoe', 'UiTPAS Dender']));
 
         $this->uitpasLabelFilter = new UitpasLabelFilter(
             $this->uitpasLabelProvider
