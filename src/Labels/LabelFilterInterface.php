@@ -2,11 +2,13 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Labels;
 
+use CultuurNet\UDB3\LabelCollection;
+
 interface LabelFilterInterface
 {
     /**
-     * @param string[] $labels
-     * @return string[]
+     * @param LabelCollection $labels
+     * @return LabelCollection
      */
-    public function filter(array $labels);
+    public function filter(LabelCollection $labels);
 }

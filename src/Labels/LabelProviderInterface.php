@@ -2,10 +2,12 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Labels;
 
+use CultuurNet\UDB3\LabelCollection;
+
 interface LabelProviderInterface
 {
     /**
-     * @return array
+     * @return LabelCollection
      */
     public function getAll();
 }

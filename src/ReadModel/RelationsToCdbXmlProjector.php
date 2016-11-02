@@ -16,6 +16,7 @@ use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
@@ -249,7 +250,8 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         $label = $this->getLabelName($domainMessage);
 
         // Only apply UiTPAS labels.
-        if (count($this->uitpasLabelFilter->filter([$label])) === 0) {
+        $labelCollection = LabelCollection::fromStrings([$label]);
+        if (count($this->uitpasLabelFilter->filter($labelCollection)) === 0) {
             return;
         }
 
@@ -266,9 +268,15 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
             $newEvent = clone $event;
 
             if ($labelEvent instanceof LabelAdded) {
-                $newEvent = $this->uitpasLabelApplier->addLabel($newEvent, $label);
+                $newEvent = $this->uitpasLabelApplier->addLabels(
+                    $newEvent,
+                    $labelCollection
+                );
             } else {
-                $newEvent = $this->uitpasLabelApplier->removeLabel($newEvent, $label);
+                $newEvent = $this->uitpasLabelApplier->removeLabels(
+                    $newEvent,
+                    $labelCollection
+                );
             }
 
             $this->saveAndPublishIfChanged($newEvent, $event, $domainMessage->getMetadata());

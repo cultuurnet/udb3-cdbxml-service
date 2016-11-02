@@ -79,6 +79,7 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeD
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\AvailableTo;
@@ -1215,7 +1216,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
-            $event = $this->uitpasLabelApplier->addLabels($event, $actor);
+            $event = $this->uitpasLabelApplier->addLabels(
+                $event,
+                LabelCollection::fromStrings($actor->getKeywords())
+            );
 
             $event->setOrganiser($organizer);
         } else {
@@ -1259,7 +1263,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $organizerCdbXml->getCdbXml()
             );
 
-            $event = $this->uitpasLabelApplier->removeLabels($event, $actor);
+            $event = $this->uitpasLabelApplier->removeLabels(
+                $event,
+                LabelCollection::fromStrings($actor->getKeywords())
+            );
         }
 
         $event->deleteOrganiser();

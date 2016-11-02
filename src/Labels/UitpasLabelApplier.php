@@ -2,6 +2,8 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Labels;
 
+use CultuurNet\UDB3\LabelCollection;
+
 class UitpasLabelApplier implements LabelApplierInterface
 {
     /**
@@ -23,57 +25,11 @@ class UitpasLabelApplier implements LabelApplierInterface
      */
     public function addLabels(
         \CultureFeed_Cdb_Item_Event $event,
-        \CultureFeed_Cdb_Item_Actor $actor
-    ) {
-        $organizerLabels = $actor->getKeywords();
-
-        return $this->internAddLabels($event, $organizerLabels);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function removeLabels(
-        \CultureFeed_Cdb_Item_Event $event,
-        \CultureFeed_Cdb_Item_Actor $actor
-    ) {
-        $organizerLabels = $actor->getKeywords();
-
-        return $this->internRemoveLabels($event, $organizerLabels);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addLabel(
-        \CultureFeed_Cdb_Item_Event $event,
-        $label
-    ) {
-        return $this->internAddLabels($event, [$label]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function removeLabel(
-        \CultureFeed_Cdb_Item_Event $event,
-        $label
-    ) {
-        return $this->internRemoveLabels($event, [$label]);
-    }
-
-    /**
-     * @param \CultureFeed_Cdb_Item_Event $event
-     * @param array $labels
-     * @return \CultureFeed_Cdb_Item_Event
-     */
-    private function internAddLabels(
-        \CultureFeed_Cdb_Item_Event $event,
-        array $labels
+        LabelCollection $labelCollection
     ) {
         $updatedEvent = clone $event;
 
-        $uitpasLabels = $this->uitpasLabelFilter->filter($labels);
+        $uitpasLabels = $this->uitpasLabelFilter->filter($labelCollection);
 
         foreach ($uitpasLabels as $uitpasLabel) {
             $updatedEvent->addKeyword($uitpasLabel);
@@ -83,17 +39,15 @@ class UitpasLabelApplier implements LabelApplierInterface
     }
 
     /**
-     * @param \CultureFeed_Cdb_Item_Event $event
-     * @param array $labels
-     * @return \CultureFeed_Cdb_Item_Event
+     * @inheritdoc
      */
-    private function internRemoveLabels(
+    public function removeLabels(
         \CultureFeed_Cdb_Item_Event $event,
-        array $labels
+        LabelCollection $labelCollection
     ) {
         $updatedEvent = clone $event;
 
-        $uitpasLabels = $this->uitpasLabelFilter->filter($labels);
+        $uitpasLabels = $this->uitpasLabelFilter->filter($labelCollection);
 
         $eventLabels = $event->getKeywords();
 

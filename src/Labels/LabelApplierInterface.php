@@ -2,53 +2,31 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Labels;
 
+use CultuurNet\UDB3\LabelCollection;
+
 interface LabelApplierInterface
 {
     /**
      * Add only the UiTPAS labels from the provided organizer to the provided event.
      *
      * @param \CultureFeed_Cdb_Item_Event $event
-     * @param \CultureFeed_Cdb_Item_Actor $actor
+     * @param LabelCollection $labelCollection
      * @return \CultureFeed_Cdb_Item_Event $event
      */
     public function addLabels(
         \CultureFeed_Cdb_Item_Event $event,
-        \CultureFeed_Cdb_Item_Actor $actor
+        LabelCollection $labelCollection
     );
 
     /**
      * Remove only the UiTPAS labels from the provided organizer to the provided event.
      *
      * @param \CultureFeed_Cdb_Item_Event $event
-     * @param \CultureFeed_Cdb_Item_Actor $actor
+     * @param LabelCollection $labelCollection
      * @return \CultureFeed_Cdb_Item_Event $event
      */
     public function removeLabels(
         \CultureFeed_Cdb_Item_Event $event,
-        \CultureFeed_Cdb_Item_Actor $actor
-    );
-
-    /**
-     * Add the given label to the event, only when UiTPAS label.
-     *
-     * @param \CultureFeed_Cdb_Item_Event $event
-     * @param $label
-     * @return \CultureFeed_Cdb_Item_Event $event
-     */
-    public function addLabel(
-        \CultureFeed_Cdb_Item_Event $event,
-        $label
-    );
-
-    /**
-     * Remove the given label from the event, only when UiTPAS label.
-     *
-     * @param \CultureFeed_Cdb_Item_Event $event
-     * @param $label
-     * @return \CultureFeed_Cdb_Item_Event $event
-     */
-    public function removeLabel(
-        \CultureFeed_Cdb_Item_Event $event,
-        $label
+        LabelCollection $labelCollection
     );
 }

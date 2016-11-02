@@ -327,7 +327,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->willReturn([$labelName]);
 
         $this->uitpasLabelApplier->expects($this->once())
-            ->method('addLabel')
+            ->method('addLabels')
             ->willReturnCallback(
                 function (\CultureFeed_Cdb_Item_Event $event) {
                     $event->addKeyword('foobar');
@@ -388,7 +388,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->willReturn([$labelName]);
 
         $this->uitpasLabelApplier->expects($this->once())
-            ->method('removeLabel')
+            ->method('removeLabels')
             ->willReturnCallback(
                 function (\CultureFeed_Cdb_Item_Event $event) {
                     $event->deleteKeyword('foobar');

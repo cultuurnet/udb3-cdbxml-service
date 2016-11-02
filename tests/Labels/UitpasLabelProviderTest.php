@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Labels;
 
+use CultuurNet\UDB3\LabelCollection;
 use Guzzle\Http\ClientInterface;
 use Guzzle\Http\Message\Request;
 use Guzzle\Http\Message\Response;
@@ -43,11 +44,11 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
         $this->httpClient->method('send')
             ->willReturn(new Response('200', null, $labels));
 
-        $expectedUitpasLabels = [
-            "PASPARTOE" => "Paspartoe",
-            "UITPAS" => "UiTPAS",
-            "UITPAS_GENT" => "UiTPAS Gent",
-        ];
+        $expectedUitpasLabels = LabelCollection::fromStrings([
+            "Paspartoe",
+            "UiTPAS",
+            "UiTPAS Gent",
+        ]);
 
         $uitpasLabels = $this->uitpasLabelProvider->getAll();
 

@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Labels;
 
+use CultuurNet\UDB3\LabelCollection;
 use Guzzle\Http\ClientInterface;
 use ValueObjects\Web\Url;
 
@@ -18,7 +19,7 @@ class UitpasLabelProvider implements LabelProviderInterface
     private $labelsUrl;
 
     /**
-     * @var string[]
+     * @var LabelCollection
      */
     private $uitpasLabels;
 
@@ -37,7 +38,7 @@ class UitpasLabelProvider implements LabelProviderInterface
     }
 
     /**
-     * @return string[]
+     * @inheritdoc
      */
     public function getAll()
     {
@@ -54,9 +55,11 @@ class UitpasLabelProvider implements LabelProviderInterface
         $response = $this->httpClient->send($request);
 
         if ($response->getStatusCode() === 200) {
-            $this->uitpasLabels = json_decode($response->getBody(true), true);
+            $this->uitpasLabels = LabelCollection::fromStrings(
+                json_decode($response->getBody(true), true)
+            );
         } else {
-            $this->uitpasLabels = [];
+            $this->uitpasLabels = new LabelCollection();
         }
     }
 }

@@ -2,6 +2,8 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Labels;
 
+use CultuurNet\UDB3\LabelCollection;
+
 class UitpasLabelFilter implements LabelFilterInterface
 {
     /**
@@ -10,7 +12,7 @@ class UitpasLabelFilter implements LabelFilterInterface
     private $uitpasLabelProvider;
 
     /**
-     * @var string[]
+     * @var LabelCollection
      */
     private $uitpasLabels;
 
@@ -27,8 +29,8 @@ class UitpasLabelFilter implements LabelFilterInterface
     /**
      * @inheritdoc
      */
-    public function filter(array $labels)
+    public function filter(LabelCollection $labels)
     {
-        return array_values(array_intersect($labels, $this->uitpasLabels));
+        return $this->uitpasLabels->intersect($labels);
     }
 }

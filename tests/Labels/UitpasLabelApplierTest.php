@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\Labels;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use CultuurNet\UDB3\LabelCollection;
 
 class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
 {
@@ -97,7 +98,7 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
 
         $updatedEvent = $this->uitpasLabelApplier->addLabels(
             $this->eventWithoutLabels,
-            $this->actorWithLabels
+            LabelCollection::fromStrings($this->actorWithLabels->getKeywords())
         );
 
         $this->assertEquals($this->eventWithTwoLabels, $updatedEvent);
@@ -113,7 +114,7 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
 
         $updatedEvent = $this->uitpasLabelApplier->removeLabels(
             $this->eventWithTwoLabels,
-            $this->actorWithLabels
+            LabelCollection::fromStrings($this->actorWithLabels->getKeywords())
         );
 
         $this->assertEquals($this->eventWithoutLabels, $updatedEvent);
@@ -127,9 +128,9 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
         $this->uitpasLabelFilter->method('filter')
             ->willReturn(['Paspartoe']);
 
-        $updatedEvent = $this->uitpasLabelApplier->addLabel(
+        $updatedEvent = $this->uitpasLabelApplier->addLabels(
             $this->eventWithoutLabels,
-            "Paspartoe"
+            LabelCollection::fromStrings(["Paspartoe"])
         );
 
         $this->assertEquals($this->eventWithOneLabel, $updatedEvent);
@@ -143,9 +144,9 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
         $this->uitpasLabelFilter->method('filter')
             ->willReturn(['Paspartoe']);
 
-        $updatedEvent = $this->uitpasLabelApplier->removeLabel(
+        $updatedEvent = $this->uitpasLabelApplier->removeLabels(
             $this->eventWithOneLabel,
-            "Paspartoe"
+            LabelCollection::fromStrings(["Paspartoe"])
         );
 
         $this->assertEquals($this->eventWithoutLabels, $updatedEvent);
