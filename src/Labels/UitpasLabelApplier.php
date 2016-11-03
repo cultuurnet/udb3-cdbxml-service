@@ -29,7 +29,7 @@ class UitpasLabelApplier implements LabelApplierInterface
     ) {
         $updatedEvent = clone $event;
 
-        $uitpasLabels = $this->uitpasLabelFilter->filter($labelCollection);
+        $uitpasLabels = $this->uitpasLabelFilter->filter($labelCollection)->toStrings();
 
         foreach ($uitpasLabels as $uitpasLabel) {
             $updatedEvent->addKeyword($uitpasLabel);
@@ -47,7 +47,7 @@ class UitpasLabelApplier implements LabelApplierInterface
     ) {
         $updatedEvent = clone $event;
 
-        $uitpasLabels = $this->uitpasLabelFilter->filter($labelCollection);
+        $uitpasLabels = $this->uitpasLabelFilter->filter($labelCollection)->toStrings();
 
         $eventLabels = $event->getKeywords();
 

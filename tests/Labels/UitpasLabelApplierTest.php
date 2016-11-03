@@ -94,7 +94,7 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
     public function it_adds_uitpas_labels_attached_to_an_actor_to_an_event()
     {
         $this->uitpasLabelFilter->method('filter')
-            ->willReturn(['Paspartoe', 'UiTPAS Gent']);
+            ->willReturn(LabelCollection::fromStrings(['Paspartoe', 'UiTPAS Gent']));
 
         $updatedEvent = $this->uitpasLabelApplier->addLabels(
             $this->eventWithoutLabels,
@@ -110,7 +110,7 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
     public function it_removes_uitpas_labels_attached_to_an_actor_from_an_event()
     {
         $this->uitpasLabelFilter->method('filter')
-            ->willReturn(['Paspartoe', 'UiTPAS Gent']);
+            ->willReturn(LabelCollection::fromStrings(['Paspartoe', 'UiTPAS Gent']));
 
         $updatedEvent = $this->uitpasLabelApplier->removeLabels(
             $this->eventWithTwoLabels,
@@ -126,7 +126,7 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
     public function it_adds_an_uitpas_label_to_an_event()
     {
         $this->uitpasLabelFilter->method('filter')
-            ->willReturn(['Paspartoe']);
+            ->willReturn(LabelCollection::fromStrings(['Paspartoe']));
 
         $updatedEvent = $this->uitpasLabelApplier->addLabels(
             $this->eventWithoutLabels,
@@ -142,7 +142,7 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
     public function it_removes_an_uitpas_label_from_an_event()
     {
         $this->uitpasLabelFilter->method('filter')
-            ->willReturn(['Paspartoe']);
+            ->willReturn(LabelCollection::fromStrings(['Paspartoe']));
 
         $updatedEvent = $this->uitpasLabelApplier->removeLabels(
             $this->eventWithOneLabel,
