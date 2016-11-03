@@ -263,6 +263,23 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 ),
                 'event-with-publication-date.xml',
             ],
+            [
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new EventCreated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Title('Griezelfilm of horror'),
+                    new EventType('0.50.6.0.0', 'film'),
+                    $location,
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T00:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T00:00:00+01:00'),
+                        $timestamps
+                    ),
+                    new Theme('1.7.6.0.0', 'Griezelfilm of horror')
+                ),
+                'event-with-available-to-almost-midnight.xml',
+            ],
         ];
     }
 
