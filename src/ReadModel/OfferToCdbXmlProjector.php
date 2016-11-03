@@ -36,7 +36,6 @@ use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
-use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
@@ -45,6 +44,7 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
+use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
@@ -79,6 +79,7 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeD
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\AvailableTo;
@@ -209,6 +210,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $eventCdbIdExtractor;
 
     /**
+     * @var LabelApplierInterface
+     */
+    private $uitpasLabelApplier;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -220,6 +226,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
+     * @param LabelApplierInterface $uitpasLabelApplier
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -232,7 +239,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         StringFilterInterface $shortDescriptionFilter,
         CurrencyRepositoryInterface $currencyRepository,
         NumberFormatRepositoryInterface $numberFormatRepository,
-        EventCdbIdExtractorInterface $eventCdbIdExtractor
+        EventCdbIdExtractorInterface $eventCdbIdExtractor,
+        LabelApplierInterface $uitpasLabelApplier
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -245,6 +253,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
+        $this->uitpasLabelApplier = $uitpasLabelApplier;
         $this->logger = new NullLogger();
     }
 
@@ -1207,6 +1216,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
+            $event = $this->uitpasLabelApplier->addLabels(
+                $event,
+                LabelCollection::fromStrings($actor->getKeywords())
+            );
+
             $event->setOrganiser($organizer);
         } else {
             $warning = 'Could not find organizer with id ' . $organizerUpdated->getOrganizerId();
@@ -1238,6 +1252,22 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $eventCdbXml->getCdbXml()
         );
+
+        // load organizer from documentRepo & add to document
+        $organizerCdbXml = $this->actorDocumentRepository->get($organizerDeleted->getOrganizerId());
+
+        // It can happen that the organizer is not found
+        if ($organizerCdbXml) {
+            $actor = ActorItemFactory::createActorFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $organizerCdbXml->getCdbXml()
+            );
+
+            $event = $this->uitpasLabelApplier->removeLabels(
+                $event,
+                LabelCollection::fromStrings($actor->getKeywords())
+            );
+        }
 
         $event->deleteOrganiser();
 

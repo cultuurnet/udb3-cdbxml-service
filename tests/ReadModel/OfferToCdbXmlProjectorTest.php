@@ -16,6 +16,7 @@ use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
+use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -113,6 +114,11 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $logger;
 
+    /**
+     * @var LabelApplierInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $uitpasLabelApplier;
+
     public function setUp()
     {
         parent::setUp();
@@ -125,6 +131,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $shortDescriptionFilter = new CombinedStringFilter();
         $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
         $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
+
+        $this->uitpasLabelApplier = $this->getMock(LabelApplierInterface::class);
 
         $this->projector = (
         new OfferToCdbXmlProjector(
@@ -151,7 +159,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
                     ]
                 )
-            )
+            ),
+            $this->uitpasLabelApplier
         ));
 
         $this->logger = $this->getMock(LoggerInterface::class);
@@ -1035,6 +1044,22 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor.xml')
         );
         $this->actorRepository->save($organizerCdbxml);
+
+        $this->uitpasLabelApplier->expects($this->once())
+            ->method('addLabels')
+            ->willReturnCallback(
+                function (\CultureFeed_Cdb_Item_Event $event) {
+                    return $event;
+                }
+            );
+
+        $this->uitpasLabelApplier->expects($this->once())
+            ->method('removeLabels')
+            ->willReturnCallback(
+                function (\CultureFeed_Cdb_Item_Event $event) {
+                    return $event;
+                }
+            );
 
         $test = $this->given(OfferType::EVENT())
             ->apply(
