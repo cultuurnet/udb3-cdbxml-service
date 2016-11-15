@@ -864,7 +864,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $priceInfo
                 )
             )
-            ->apply(new Published('404EE8DE-E828-9C07-FE7D12DC4EB24480'))
+            ->apply(
+                new Published(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new \DateTimeImmutable('2016-11-15 19:58')
+                )
+            )
             ->expect('event-with-free-entrance.xml');
 
         $this->execute($test);
