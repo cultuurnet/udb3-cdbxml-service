@@ -36,7 +36,6 @@ use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
-use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
@@ -45,6 +44,7 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
+use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
@@ -79,8 +79,10 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeD
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
+use CultuurNet\UDB3\Offer\AvailableTo;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
@@ -208,6 +210,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $eventCdbIdExtractor;
 
     /**
+     * @var LabelApplierInterface
+     */
+    private $uitpasLabelApplier;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -219,6 +226,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
+     * @param LabelApplierInterface $uitpasLabelApplier
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -231,7 +239,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         StringFilterInterface $shortDescriptionFilter,
         CurrencyRepositoryInterface $currencyRepository,
         NumberFormatRepositoryInterface $numberFormatRepository,
-        EventCdbIdExtractorInterface $eventCdbIdExtractor
+        EventCdbIdExtractorInterface $eventCdbIdExtractor,
+        LabelApplierInterface $uitpasLabelApplier
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -244,6 +253,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
+        $this->uitpasLabelApplier = $uitpasLabelApplier;
         $this->logger = new NullLogger();
     }
 
@@ -516,6 +526,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $actor->setWeekScheme($weekscheme);
         }
 
+        $this->setItemAvailableToFromCalendar(
+            $placeMajorInfoUpdated->getCalendar(),
+            $actor
+        );
+
         // set eventtype and theme
         $this->updateCategories(
             $actor,
@@ -562,6 +577,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->setLocation($eventMajorInfoUpdated->getLocation(), $event);
         $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
 
+        $this->setItemAvailableToFromCalendar(
+            $eventMajorInfoUpdated->getCalendar(),
+            $event
+        );
+
         $this->updateCategories(
             $event,
             $eventMajorInfoUpdated->getEventType(),
@@ -604,6 +624,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set location and calendar info.
         $this->setLocation($eventCreated->getLocation(), $event);
         $this->setCalendar($eventCreated->getCalendar(), $event);
+
+        $this->setItemAvailableToFromCalendar(
+            $eventCreated->getCalendar(),
+            $event
+        );
 
         // Set event type and theme.
         $event->setCategories(new CultureFeed_Cdb_Data_CategoryList());
@@ -706,6 +731,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             )
         );
         $actor->setCategories($categoryList);
+
+        $this->setItemAvailableToFromCalendar(
+            $placeCreated->getCalendar(),
+            $actor
+        );
 
         // Set availablefrom if publication date is set.
         $this->setItemAvailableFrom($placeCreated, $actor);
@@ -1186,6 +1216,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
+            $event = $this->uitpasLabelApplier->addLabels(
+                $event,
+                LabelCollection::fromStrings($actor->getKeywords())
+            );
+
             $event->setOrganiser($organizer);
         } else {
             $warning = 'Could not find organizer with id ' . $organizerUpdated->getOrganizerId();
@@ -1217,6 +1252,22 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $eventCdbXml->getCdbXml()
         );
+
+        // load organizer from documentRepo & add to document
+        $organizerCdbXml = $this->actorDocumentRepository->get($organizerDeleted->getOrganizerId());
+
+        // It can happen that the organizer is not found
+        if ($organizerCdbXml) {
+            $actor = ActorItemFactory::createActorFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $organizerCdbXml->getCdbXml()
+            );
+
+            $event = $this->uitpasLabelApplier->removeLabels(
+                $event,
+                LabelCollection::fromStrings($actor->getKeywords())
+            );
+        }
 
         $event->deleteOrganiser();
 
@@ -1512,6 +1563,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $offer->setWfStatus($status->getValue());
 
+        if ($event instanceof AbstractPublished) {
+            /** @var AbstractPublished $event */
+            $availableFrom = $this->formatAvailable($event->getPublicationDate());
+            $offer->setAvailableFrom($availableFrom);
+        }
+
         $offer = $this->metadataCdbItemEnricher
             ->enrich($offer, $metadata);
 
@@ -1670,7 +1727,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $endDate = $eventCalendar->getEndDate()->format('Y-m-d');
 
                 $period = new CultureFeed_Cdb_Data_Calendar_Period($startDate, $endDate);
-                if (!empty($weekscheme->getDays())) {
+                if (!empty($weekscheme) && !empty($weekscheme->getDays())) {
                     $period->setWeekScheme($weekscheme);
                 }
                 $calendar->add($period);
@@ -2000,12 +2057,37 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
 
         if (!is_null($offerCreated->getPublicationDate())) {
-            $formatted = $this->dateFormatter->format(
-                $offerCreated->getPublicationDate()->getTimestamp()
+            $formatted = $this->formatAvailable(
+                $offerCreated->getPublicationDate()
             );
 
             $item->setAvailableFrom($formatted);
         }
+    }
+
+    /**
+     * @param CalendarInterface $calendar
+     * @param \CultureFeed_Cdb_Item_Base $item
+     */
+    private function setItemAvailableToFromCalendar(
+        CalendarInterface $calendar,
+        \CultureFeed_Cdb_Item_Base $item
+    ) {
+        $availableTo = AvailableTo::createFromCalendar($calendar);
+        $formattedAvailableTo = $this->formatAvailable(
+            $availableTo->getAvailableTo()
+        );
+
+        $item->setAvailableTo($formattedAvailableTo);
+    }
+
+    /**
+     * @param DateTimeInterface $available
+     * @return string
+     */
+    private function formatAvailable(\DateTimeInterface $available)
+    {
+        return $this->dateFormatter->format($available->getTimestamp());
     }
 
     /**

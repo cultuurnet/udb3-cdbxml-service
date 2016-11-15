@@ -22,7 +22,8 @@
         "doctrine/dbal": "^2.4",
         "doctrine/migrations": "~1.0",
         "willdurand/geocoder": "~2.8",
-        "commerceguys/intl": "^0.7.1"
+        "commerceguys/intl": "^0.7.1",
+        "guzzle/guzzle": "^3.9"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",

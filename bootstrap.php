@@ -20,6 +20,10 @@ use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
+use CultuurNet\UDB3\CdbXmlService\EventBusRelay;
+use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelApplier;
+use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
+use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelProvider;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\GeocodingOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
@@ -49,6 +53,7 @@ use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
+use ValueObjects\Web\Url;
 
 date_default_timezone_set('Europe/Brussels');
 
@@ -66,7 +71,7 @@ $app->register(new YamlConfigServiceProvider($appConfigLocation . '/config.yml')
 // Incoming event-stream from UDB3.
 $app['event_bus.udb3-core'] = $app->share(
     function (Application $app) {
-        $bus =  new SimpleEventBus();
+        $bus =  new UDB3SimpleEventBus();
 
         $bus->subscribe($app['labels_relations_projector']);
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
@@ -77,6 +82,10 @@ $app['event_bus.udb3-core'] = $app->share(
         $bus->subscribe($app['flanders_region_actor_cdbxml_projector']);
         $bus->subscribe($app['flanders_region_offer_cdbxml_projector']);
         $bus->subscribe($app['geocoding_offer_cdbxml_projector']);
+
+        $bus->beforeFirstPublication(function (EventBusInterface $bus) use ($app) {
+            $bus->subscribe($app['organizer_event_bus_relay']);
+        });
 
         return $bus;
     }
@@ -97,6 +106,21 @@ $app['event_bus.udb3-core.relations'] = $app->share(
     }
 );
 
+$app['organizer_event_bus_relay'] = $app->share(
+    function (Application $app) {
+        $eventBusRelay = new EventBusRelay(
+            $app['event_bus.udb3-core.relations'],
+            [
+                \CultuurNet\UDB3\Organizer\Events\LabelAdded::class,
+                \CultuurNet\UDB3\Organizer\Events\LabelRemoved::class
+            ]
+        );
+
+        $eventBusRelay->setLogger($app['logger.projector']);
+
+        return $eventBusRelay;
+    }
+);
 
 // Outgoing event-stream to UDB2.
 $app['event_bus.udb2'] = $app->share(
@@ -124,6 +148,23 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
     }
 );
 
+$app['uitpas_label_filter'] = $app->share(
+    function (Application $app) {
+        $uitpasLabelProvider = new UitpasLabelProvider(
+            new \Guzzle\Http\Client(),
+            Url::fromNative($app['config']['uitpas_service']['labels_url'])
+        );
+
+        return new UitpasLabelFilter($uitpasLabelProvider);
+    }
+);
+
+$app['uitpas_label_applier'] = $app->share(
+    function (Application $app) {
+        return new UitpasLabelApplier($app['uitpas_label_filter']);
+    }
+);
+
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $longDescriptionFilter = new NewlineToBreakTagStringFilter();
@@ -147,7 +188,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $shortDescriptionFilter,
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
             new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
-            $app['event_cdbid_extractor']
+            $app['event_cdbid_extractor'],
+            $app['uitpas_label_applier']
         ));
 
         $projector->setLogger($app['logger.projector']);
@@ -195,8 +237,12 @@ $app['relations_to_cdbxml_projector'] = $app->share(
             $app['metadata_cdb_item_enricher'],
             $app['cdbxml_actor_repository'],
             $app['offer_relations_service'],
-            $app['iri_offer_identifier_factory']
+            $app['iri_offer_identifier_factory'],
+            $app['uitpas_label_filter'],
+            $app['uitpas_label_applier']
         ));
+
+        $projector->setLogger($app['logger.projector']);
 
         return $projector;
     }
