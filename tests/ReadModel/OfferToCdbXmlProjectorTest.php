@@ -41,6 +41,7 @@ use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
+use CultuurNet\UDB3\Event\Events\Moderation\Published;
 use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
@@ -847,6 +848,38 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect('event-with-price-info-and-no-tariffs.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     *
+     * @group issue-III-1618
+     */
+    public function it_does_not_loose_free_entrance_priceinfo_on_further_modifications()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(0.0),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->apply(
+                new Published(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new \DateTimeImmutable('2016-11-15 19:58')
+                )
+            )
+            ->expect('event-with-free-entrance.xml');
 
         $this->execute($test);
     }
