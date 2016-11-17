@@ -304,7 +304,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      */
     private function applyLabelEvent(AbstractLabelEvent $labelEvent)
     {
-        $labelName = (string)$labelEvent->getLabel();
+        $labelName = (string) $labelEvent->getLabel();
 
         $document = $this->documentRepository->get($labelEvent->getOrganizerId());
         $organizer = ActorItemFactory::createActorFromCdbXml(
