@@ -282,38 +282,29 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
 
     /**
      * @param LabelAdded $labelAdded
-     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyLabelAdded(
-        LabelAdded $labelAdded,
-        Metadata $metadata
-    ) {
-        return $this->applyLabelEvent($labelAdded, $metadata);
+    private function applyLabelAdded(LabelAdded $labelAdded)
+    {
+        return $this->applyLabelEvent($labelAdded);
     }
 
     /**
      * @param LabelRemoved $labelRemoved
-     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyLabelRemoved(
-        LabelRemoved $labelRemoved,
-        Metadata $metadata
-    ) {
-        return $this->applyLabelEvent($labelRemoved, $metadata);
+    private function applyLabelRemoved(LabelRemoved $labelRemoved)
+    {
+        return $this->applyLabelEvent($labelRemoved);
     }
 
     /**
      * @param AbstractLabelEvent $labelEvent
-     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyLabelEvent(
-        AbstractLabelEvent $labelEvent,
-        Metadata $metadata
-    ) {
-        $labelName = $this->getLabelName($metadata);
+    private function applyLabelEvent(AbstractLabelEvent $labelEvent)
+    {
+        $labelName = (string)$labelEvent->getLabel();
 
         $document = $this->documentRepository->get($labelEvent->getOrganizerId());
         $organizer = ActorItemFactory::createActorFromCdbXml(
@@ -373,17 +364,5 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             ->enrich($actor, $metadata);
 
         return $actor;
-    }
-
-    /**
-     * @param Metadata $metadata
-     * @return string|null
-     */
-    private function getLabelName(Metadata $metadata)
-    {
-        $metaDataAsArray = $metadata->serialize();
-
-        return isset($metaDataAsArray['labelName']) ?
-            $metaDataAsArray['labelName'] : null;
     }
 }

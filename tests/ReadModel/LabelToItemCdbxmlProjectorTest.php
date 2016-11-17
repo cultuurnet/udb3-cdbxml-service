@@ -9,6 +9,7 @@ use CultuurNet\UDB3\Label\Events\MadeInvisible;
 use CultuurNet\UDB3\Label\Events\MadeVisible;
 use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\OfferLabelRelation;
 use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\ReadRepositoryInterface;
+use CultuurNet\UDB3\Label\ValueObjects\LabelName;
 use CultuurNet\UDB3\Offer\OfferType;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
@@ -61,12 +62,12 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 ]
             );
 
-        $madeVisible = new MadeVisible($labelId);
+        $madeVisible = new MadeVisible($labelId, new LabelName('foobar'));
 
         $domainMessage = $this->createDomainMessage(
             (string) $labelId,
             $madeVisible,
-            new Metadata(['labelName' => 'foobar'])
+            new Metadata()
         );
 
         $placeCdbXmlDocument = new CdbXmlDocument(
@@ -105,12 +106,12 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 ]
             );
 
-        $madeInvisible = new MadeInvisible($labelId);
+        $madeInvisible = new MadeInvisible($labelId, new LabelName('foobar'));
 
         $domainMessage = $this->createDomainMessage(
             (string) $labelId,
             $madeInvisible,
-            new Metadata(['labelName' => 'foobar'])
+            new Metadata()
         );
 
         $placeCdbXmlDocument = new CdbXmlDocument(
@@ -149,12 +150,12 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 ]
             );
 
-        $madeVisible = new MadeVisible($labelId);
+        $madeVisible = new MadeVisible($labelId, new LabelName('foobar'));
 
         $domainMessage = $this->createDomainMessage(
             (string) $labelId,
             $madeVisible,
-            new Metadata(['labelName' => 'foobar'])
+            new Metadata()
         );
 
         $eventCdbXmlDocument = new CdbXmlDocument(
@@ -193,12 +194,12 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                 ]
             );
 
-        $madeInvisible = new MadeInvisible($labelId);
+        $madeInvisible = new MadeInvisible($labelId, new LabelName('foobar'));
 
         $domainMessage = $this->createDomainMessage(
             (string) $labelId,
             $madeInvisible,
-            new Metadata(['labelName' => 'foobar'])
+            new Metadata()
         );
 
         $eventCdbXmlDocument = new CdbXmlDocument(

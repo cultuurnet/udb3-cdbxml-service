@@ -23,6 +23,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
@@ -302,15 +303,14 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
         $this->actorRepository->save($organizerCdbxml);
 
-        $labelUuid = new Uuid();
         $labelName = 'foobar';
 
-        $labelAdded = new LabelAdded($organizerId, $labelUuid);
+        $labelAdded = new LabelAdded($organizerId, new Label($labelName));
 
         $domainMessage = $this->createDomainMessage(
             $organizerId,
             $labelAdded,
-            new Metadata(['labelName' => $labelName])
+            new Metadata()
         );
 
         $this->offerRelationsService
@@ -363,15 +363,14 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
         $this->actorRepository->save($organizerCdbxml);
 
-        $labelUuid = new Uuid();
         $labelName = 'foobar';
 
-        $labelRemoved = new LabelRemoved($organizerId, $labelUuid);
+        $labelRemoved = new LabelRemoved($organizerId, new Label($labelName));
 
         $domainMessage = $this->createDomainMessage(
             $organizerId,
             $labelRemoved,
-            new Metadata(['labelName' => $labelName])
+            new Metadata()
         );
 
         $this->offerRelationsService
