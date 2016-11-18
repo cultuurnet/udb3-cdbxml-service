@@ -38,13 +38,13 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepos
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
+use CultuurNet\UDB3\Label\LabelEventRelationTypeResolver;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
 use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
-use CultuurNet\UDB3\Label\LabelEventOfferTypeResolver;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
@@ -678,7 +678,7 @@ $app['labels_relations_repository'] = $app->share(
 
 $app[OFFER_LABEL_RELATION_REPOSITORY] = $app->share(
   function (Application $app) {
-      return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\ReadRepository(
+      return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\DBALReadRepository(
           $app['dbal_connection'],
           new StringLiteral('labels_relations')
       );
@@ -706,7 +706,7 @@ $app['labels_relations_projector'] = $app->share(
     function ($app) {
         return new \CultuurNet\UDB3\Label\ReadModels\Relations\Projector(
             $app['labels_relations_repository'],
-            new LabelEventOfferTypeResolver()
+            new LabelEventRelationTypeResolver()
         );
     }
 );
