@@ -7,10 +7,10 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\Label\Events\MadeInvisible;
 use CultuurNet\UDB3\Label\Events\MadeVisible;
-use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\OfferLabelRelation;
+use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\LabelRelation;
 use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\ReadRepositoryInterface;
 use CultuurNet\UDB3\Label\ValueObjects\LabelName;
-use CultuurNet\UDB3\Offer\OfferType;
+use CultuurNet\UDB3\Label\ValueObjects\RelationType;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
 
@@ -48,15 +48,16 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_should_update_the_projection_of_places_which_have_a_label_made_visible()
     {
         $labelId = new UUID();
+        $labelName = new LabelName('foobar');
         $placeId = new StringLiteral('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6');
 
         $this->relationRepository
-            ->method('getOfferLabelRelations')
+            ->method('getLabelRelations')
             ->willReturn(
                 [
-                    new OfferLabelRelation(
-                        $labelId,
-                        OfferType::PLACE(),
+                    new LabelRelation(
+                        $labelName,
+                        RelationType::PLACE(),
                         $placeId
                     ),
                 ]
@@ -92,15 +93,16 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_should_update_the_projection_of_places_which_have_a_label_made_invisible()
     {
         $labelId = new UUID();
+        $labelName = new LabelName('foobar');
         $placeId = new StringLiteral('C4ACF936-1D5F-48E8-B2EC-863B313CBDE6');
 
         $this->relationRepository
-            ->method('getOfferLabelRelations')
+            ->method('getLabelRelations')
             ->willReturn(
                 [
-                    new OfferLabelRelation(
-                        $labelId,
-                        OfferType::PLACE(),
+                    new LabelRelation(
+                        $labelName,
+                        RelationType::PLACE(),
                         $placeId
                     ),
                 ]
@@ -136,15 +138,16 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_should_update_the_projection_of_events_which_have_a_label_made_visible()
     {
         $labelId = new UUID();
+        $labelName = new LabelName('foobar');
         $eventId = new StringLiteral('404EE8DE-E828-9C07-FE7D12DC4EB24480');
 
         $this->relationRepository
-            ->method('getOfferLabelRelations')
+            ->method('getLabelRelations')
             ->willReturn(
                 [
-                    new OfferLabelRelation(
-                        $labelId,
-                        OfferType::EVENT(),
+                    new LabelRelation(
+                        $labelName,
+                        RelationType::EVENT(),
                         $eventId
                     ),
                 ]
@@ -180,15 +183,16 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_should_update_the_projection_of_events_which_have_a_label_made_invisible()
     {
         $labelId = new UUID();
+        $labelName = new LabelName('foobar');
         $eventId = new StringLiteral('404EE8DE-E828-9C07-FE7D12DC4EB24480');
 
         $this->relationRepository
-            ->method('getOfferLabelRelations')
+            ->method('getLabelRelations')
             ->willReturn(
                 [
-                    new OfferLabelRelation(
-                        $labelId,
-                        OfferType::EVENT(),
+                    new LabelRelation(
+                        $labelName,
+                        RelationType::EVENT(),
                         $eventId
                     ),
                 ]

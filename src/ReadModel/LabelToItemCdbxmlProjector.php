@@ -13,7 +13,7 @@ use CultuurNet\UDB3\Label\Events\AbstractEvent;
 use CultuurNet\UDB3\Label\Events\MadeInvisible;
 use CultuurNet\UDB3\Label\Events\MadeVisible;
 use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\ReadRepositoryInterface;
-use CultuurNet\UDB3\Offer\OfferType;
+use CultuurNet\UDB3\Label\ValueObjects\RelationType;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -110,27 +110,27 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
     private function applyVisibility(AbstractEvent $labelEvent, $isVisible)
     {
         $labelName = $labelEvent->getName()->toNative();
-        
-        $offerLabelRelations = $this->relationRepository->getOfferLabelRelations($labelEvent->getUuid());
 
-        foreach ($offerLabelRelations as $offerRelation) {
-            $offerDocument = $this->cdbxmlRepository->get($offerRelation->getOfferId());
+        $labelRelations = $this->relationRepository->getLabelRelations($labelEvent->getName());
 
-            if ($offerRelation->getOfferType() === OfferType::EVENT()) {
+        foreach ($labelRelations as $labelRelation) {
+            $relationDocument = $this->cdbxmlRepository->get($labelRelation->getRelationId());
+
+            if ($labelRelation->getRelationType() === RelationType::EVENT()) {
                 $cdbXmlItem = EventItemFactory::createEventFromCdbXml(
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                    $offerDocument->getCdbXml()
+                    $relationDocument->getCdbXml()
                 );
-            } elseif ($offerRelation->getOfferType() === OfferType::PLACE()) {
+            } elseif ($labelRelation->getRelationType() === RelationType::PLACE()) {
                 $cdbXmlItem = ActorItemFactory::createActorFromCdbXml(
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                    $offerDocument->getCdbXml()
+                    $relationDocument->getCdbXml()
                 );
             } else {
                 $this->logger->info(
                     'Can not update visibility for label: ' . $labelName
-                    . ' The item with id: ' . $offerRelation->getOfferId()
-                    . ', has an unsupported type: ' . $offerRelation->getOfferId()
+                    . ' The item with id: ' . $labelRelation->getOfferId()
+                    . ', has an unsupported type: ' . $labelRelation->getOfferId()
                 );
             }
 
