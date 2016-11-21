@@ -129,8 +129,8 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
             } else {
                 $this->logger->info(
                     'Can not update visibility for label: ' . $labelName
-                    . ' The item with id: ' . $labelRelation->getOfferId()
-                    . ', has an unsupported type: ' . $labelRelation->getOfferId()
+                    . ' The item with id: ' . $labelRelation->getRelationId()->toNative()
+                    . ', has an unsupported type: ' . $labelRelation->getRelationType()->toNative()
                 );
             }
 
