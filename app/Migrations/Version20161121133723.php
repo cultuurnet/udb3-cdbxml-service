@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\Silex\Migrations;
+namespace CultuurNet\UDB3\CdbXmlService\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20161118143455 extends AbstractMigration
+class Version20161121133723 extends AbstractMigration
 {
     /**
      * @param Schema $schema
