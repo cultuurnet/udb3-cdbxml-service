@@ -116,40 +116,44 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
         foreach ($labelRelations as $labelRelation) {
             $relationDocument = $this->cdbxmlRepository->get($labelRelation->getRelationId());
 
-            if ($labelRelation->getRelationType() === RelationType::EVENT()) {
-                $cdbXmlItem = EventItemFactory::createEventFromCdbXml(
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                    $relationDocument->getCdbXml()
-                );
-            } elseif ($labelRelation->getRelationType() === RelationType::PLACE()) {
-                $cdbXmlItem = ActorItemFactory::createActorFromCdbXml(
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                    $relationDocument->getCdbXml()
-                );
-            } else {
-                $this->logger->info(
-                    'Can not update visibility for label: ' . $labelName
-                    . ' The item with id: ' . $labelRelation->getRelationId()->toNative()
-                    . ', has an unsupported type: ' . $labelRelation->getRelationType()->toNative()
-                );
-            }
-
-            if (isset($cdbXmlItem)) {
-                $keywords = $cdbXmlItem->getKeywords(true);
-
-                /** @var \CultureFeed_Cdb_Data_Keyword $keyword */
-                foreach ($keywords as $keyword) {
-                    $keywordLabel = new Label($keyword->getValue());
-                    $visibleLabel = new Label($labelName);
-                    if ($keywordLabel->equals($visibleLabel)) {
-                        $keyword->setVisibility($isVisible);
-                    }
+            if ($relationDocument) {
+                if ($labelRelation->getRelationType() === RelationType::EVENT()) {
+                    $cdbXmlItem = EventItemFactory::createEventFromCdbXml(
+                        'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                        $relationDocument->getCdbXml()
+                    );
+                } elseif ($labelRelation->getRelationType() === RelationType::PLACE() ||
+                    $labelRelation->getRelationType() === RelationType::ORGANIZER()
+                ) {
+                    $cdbXmlItem = ActorItemFactory::createActorFromCdbXml(
+                        'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                        $relationDocument->getCdbXml()
+                    );
+                } else {
+                    $this->logger->info(
+                        'Can not update visibility for label: ' . $labelName
+                        . ' The item with id: ' . $labelRelation->getRelationId()->toNative()
+                        . ', has an unsupported type: ' . $labelRelation->getRelationType()->toNative()
+                    );
                 }
 
-                $cdbXmlDocument = $this->cdbXmlDocumentFactory
-                    ->fromCulturefeedCdbItem($cdbXmlItem);
+                if (isset($cdbXmlItem)) {
+                    $keywords = $cdbXmlItem->getKeywords(true);
 
-                $this->cdbxmlRepository->save($cdbXmlDocument);
+                    /** @var \CultureFeed_Cdb_Data_Keyword $keyword */
+                    foreach ($keywords as $keyword) {
+                        $keywordLabel = new Label($keyword->getValue());
+                        $visibleLabel = new Label($labelName);
+                        if ($keywordLabel->equals($visibleLabel)) {
+                            $keyword->setVisibility($isVisible);
+                        }
+                    }
+
+                    $cdbXmlDocument = $this->cdbXmlDocumentFactory
+                        ->fromCulturefeedCdbItem($cdbXmlItem);
+
+                    $this->cdbxmlRepository->save($cdbXmlDocument);
+                }
             }
         }
     }
