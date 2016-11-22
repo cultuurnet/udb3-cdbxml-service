@@ -76,7 +76,8 @@ $app['event_bus.udb3-core'] = $app->share(
         $bus->subscribe($app['labels_relations_projector']);
         $bus->subscribe($app['organizer_to_actor_cdbxml_projector']);
         $bus->subscribe($app['offer_to_event_cdbxml_projector']);
-        $bus->subscribe($app['label_to_item_cdbxml_projector']);
+        $bus->subscribe($app['label_to_offer_cdbxml_projector']);
+        $bus->subscribe($app['label_to_organizer_cdbxml_projector']);
         $bus->subscribe($app['event_relations_projector']);
         $bus->subscribe($app['place_relations_projector']);
         $bus->subscribe($app['flanders_region_actor_cdbxml_projector']);
@@ -198,10 +199,24 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
     }
 );
 
-$app['label_to_item_cdbxml_projector'] = $app->share(
+$app['label_to_offer_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $projector = (new \CultuurNet\UDB3\CdbXmlService\ReadModel\LabelToItemCdbxmlProjector(
             $app[CDBXML_OFFER_REPOSITORY],
+            $app[OFFER_LABEL_RELATION_REPOSITORY],
+            $app[CDBXML_DOCUMENT_FACTORY]
+        ));
+
+        $projector->setLogger($app['logger.projector']);
+
+        return $projector;
+    }
+);
+
+$app['label_to_organizer_cdbxml_projector'] = $app->share(
+    function (Application $app) {
+        $projector = (new \CultuurNet\UDB3\CdbXmlService\ReadModel\LabelToItemCdbxmlProjector(
+            $app['cdbxml_actor_repository'],
             $app[OFFER_LABEL_RELATION_REPOSITORY],
             $app[CDBXML_DOCUMENT_FACTORY]
         ));
