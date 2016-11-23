@@ -32,6 +32,10 @@ Feature: projection of short and long description in CDBXML.
 
   Scenario: project description as long description in CDBXML.
     Given an event
+    And the sameAs value of this event equals:
+    """
+    http://www.uitinvlaanderen.be/agenda/e/een-piano-in-de-tu-n-joodse-rituelen-en-gebruiken/3aee552e-2071-46a1-beff-d73b31718ea6
+    """
     When I changed the description to
     """
     Ook in 2015 houden we weer een feestje in de buurt van de Pieter Coutereelstraat. Deze keer op zaterdag
@@ -76,7 +80,11 @@ Feature: projection of short and long description in CDBXML.
   @issue-III-1126
   Scenario: split description to a short description of max. 400 characters without html for CDBXML and a long description.
     Given an event in UDB3
-    And this event has the following description:
+    And the sameAs value of this event equals:
+    """
+    http://www.uitinvlaanderen.be/agenda/e/een-piano-in-de-tu-n-joodse-rituelen-en-gebruiken/3aee552e-2071-46a1-beff-d73b31718ea6
+    """
+    When the description of this event is updated to:
 	"""
     Korte beschrijving - Lorem ipsum dolor sit amet, consectetur
     adipiscing elit: Donec non velit eu eros eleifend mattis. Mauris
@@ -106,10 +114,8 @@ Feature: projection of short and long description in CDBXML.
     hac habitasse platea dictumst. Praesent tempus faucibus enim nec
     hendrerit. Nullam non purus vel lacus dignissim cursus eu ac est.
     Nulla tellus mauris, maximus sed faucibus non, egestas quis eros.
-    Ut massa purus, luctus non ex tempor, suscipit efficitur mi.\n
-    <p class="uiv-source">Bron: <a href="http://www.uitinvlaanderen.be/agenda/e/een-piano-in-de-tu-n-joodse-rituelen-en-gebruiken/3aee552e-2071-46a1-beff-d73b31718ea6">UiTinVlaanderen.be</a></p>
+    Ut massa purus, luctus non ex tempor, suscipit efficitur mi.
     """
-    When this event is projected in CDBXML
     Then the short description of this event in CDBXML equals:
     """
  	Korte beschrijving - Lorem ipsum dolor sit amet, consectetur
