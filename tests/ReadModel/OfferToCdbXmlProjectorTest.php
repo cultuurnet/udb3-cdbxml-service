@@ -35,7 +35,7 @@ use CultuurNet\UDB3\Event\Events\ImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
-use CultuurNet\UDB3\Event\Events\LabelDeleted;
+use CultuurNet\UDB3\Event\Events\LabelRemoved;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
@@ -738,14 +738,14 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             )
             ->expect($cdbXmlType . '-with-keyword-visible-false.xml')
             ->apply(
-                new LabelDeleted(
+                new LabelRemoved(
                     $id,
                     new Label('foobar')
                 )
             )
             ->expect($cdbXmlType . '.xml')
             ->apply(
-                new LabelDeleted(
+                new LabelRemoved(
                     $id,
                     new Label('foobar')
                 )

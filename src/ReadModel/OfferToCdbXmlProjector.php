@@ -60,7 +60,7 @@ use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
-use CultuurNet\UDB3\Event\Events\LabelDeleted as EventLabelDeleted;
+use CultuurNet\UDB3\Event\Events\LabelRemoved as EventLabelRemoved;
 use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
@@ -89,7 +89,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\Events\AbstractLabelAdded;
-use CultuurNet\UDB3\Offer\Events\AbstractLabelDeleted;
+use CultuurNet\UDB3\Offer\Events\AbstractLabelRemoved;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated;
@@ -112,7 +112,7 @@ use CultuurNet\UDB3\Place\Events\ImageAdded as PlaceImageAdded;
 use CultuurNet\UDB3\Place\Events\ImageRemoved as PlaceImageRemoved;
 use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
 use CultuurNet\UDB3\Place\Events\LabelAdded as PlaceLabelAdded;
-use CultuurNet\UDB3\Place\Events\LabelDeleted as PlaceLabelDeleted;
+use CultuurNet\UDB3\Place\Events\LabelRemoved as PlaceLabelRemoved;
 use CultuurNet\UDB3\Place\Events\MainImageSelected as PlaceMainImageSelected;
 use CultuurNet\UDB3\Place\Events\Moderation\Published as PlacePublished;
 use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
@@ -279,8 +279,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceDescriptionTranslated::class => 'applyDescriptionTranslated',
             EventLabelAdded::class => 'applyLabelAdded',
             PlaceLabelAdded::class => 'applyLabelAdded',
-            EventLabelDeleted::class => 'applyLabelDeleted',
-            PlaceLabelDeleted::class => 'applyLabelDeleted',
+            EventLabelRemoved::class => 'applyLabelRemoved',
+            PlaceLabelRemoved::class => 'applyLabelRemoved',
             EventImageAdded::class => 'applyImageAdded',
             PlaceImageAdded::class => 'applyImageAdded',
             EventImageUpdated::class => 'applyImageUpdated',
@@ -1157,20 +1157,20 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param AbstractLabelDeleted $labelDeleted
+     * @param AbstractLabelRemoved $labelRemoved
      * @param Metadata $metadata
      * @return CdbXmlDocument
      * @throws \Exception
      */
-    public function applyLabelDeleted(
-        AbstractLabelDeleted $labelDeleted,
+    public function applyLabelRemoved(
+        AbstractLabelRemoved $labelRemoved,
         Metadata $metadata
     ) {
-        $cdbXmlDocument = $this->getCdbXmlDocument($labelDeleted->getItemId());
+        $cdbXmlDocument = $this->getCdbXmlDocument($labelRemoved->getItemId());
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $keywords = $offer->getKeywords();
-        $keyword = $labelDeleted->getLabel()->__toString();
+        $keyword = $labelRemoved->getLabel()->__toString();
 
         if (in_array($keyword, $keywords)) {
             $offer->deleteKeyword($keyword);

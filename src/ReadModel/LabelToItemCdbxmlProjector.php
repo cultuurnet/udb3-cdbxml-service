@@ -13,7 +13,7 @@ use CultuurNet\UDB3\Label\Events\AbstractEvent;
 use CultuurNet\UDB3\Label\Events\MadeInvisible;
 use CultuurNet\UDB3\Label\Events\MadeVisible;
 use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\ReadRepositoryInterface;
-use CultuurNet\UDB3\Offer\OfferType;
+use CultuurNet\UDB3\Label\ValueObjects\RelationType;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -93,46 +93,47 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
         }
     }
 
-    public function applyMadeVisible(MadeVisible $madeVisible, DomainMessage $domainMessage)
+    public function applyMadeVisible(MadeVisible $madeVisible)
     {
-        $this->applyVisibility($madeVisible, $domainMessage, true);
+        $this->applyVisibility($madeVisible, true);
     }
 
-    public function applyMadeInvisible(MadeInvisible $madeVisible, DomainMessage $domainMessage)
+    public function applyMadeInvisible(MadeInvisible $madeVisible)
     {
-        $this->applyVisibility($madeVisible, $domainMessage, false);
+        $this->applyVisibility($madeVisible, false);
     }
 
     /**
      * @param AbstractEvent $labelEvent
-     * @param DomainMessage $domainMessage
      * @param boolean $isVisible
      */
-    private function applyVisibility(AbstractEvent $labelEvent, DomainMessage $domainMessage, $isVisible)
+    private function applyVisibility(AbstractEvent $labelEvent, $isVisible)
     {
-        $labelName = $this->getLabelName($domainMessage);
+        $labelName = $labelEvent->getName()->toNative();
 
-        if ($labelName) {
-            $offerLabelRelations = $this->relationRepository->getOfferLabelRelations($labelEvent->getUuid());
+        $labelRelations = $this->relationRepository->getLabelRelations($labelEvent->getName());
 
-            foreach ($offerLabelRelations as $offerRelation) {
-                $offerDocument = $this->cdbxmlRepository->get($offerRelation->getOfferId());
+        foreach ($labelRelations as $labelRelation) {
+            $relationDocument = $this->cdbxmlRepository->get($labelRelation->getRelationId());
 
-                if ($offerRelation->getOfferType() === OfferType::EVENT()) {
+            if ($relationDocument) {
+                if ($labelRelation->getRelationType() === RelationType::EVENT()) {
                     $cdbXmlItem = EventItemFactory::createEventFromCdbXml(
                         'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                        $offerDocument->getCdbXml()
+                        $relationDocument->getCdbXml()
                     );
-                } elseif ($offerRelation->getOfferType() === OfferType::PLACE()) {
+                } elseif ($labelRelation->getRelationType() === RelationType::PLACE() ||
+                    $labelRelation->getRelationType() === RelationType::ORGANIZER()
+                ) {
                     $cdbXmlItem = ActorItemFactory::createActorFromCdbXml(
                         'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                        $offerDocument->getCdbXml()
+                        $relationDocument->getCdbXml()
                     );
                 } else {
                     $this->logger->info(
                         'Can not update visibility for label: ' . $labelName
-                        . ' The item with id: ' . $offerRelation->getOfferId()
-                        . ', has an unsupported type: ' . $offerRelation->getOfferId()
+                        . ' The item with id: ' . $labelRelation->getRelationId()->toNative()
+                        . ', has an unsupported type: ' . $labelRelation->getRelationType()->toNative()
                     );
                 }
 
@@ -154,23 +155,6 @@ class LabelToItemCdbxmlProjector implements EventListenerInterface, LoggerAwareI
                     $this->cdbxmlRepository->save($cdbXmlDocument);
                 }
             }
-        } else {
-            $this->logger->info(
-                'Could not update visibility for label: ' . $labelEvent->getUuid() .
-                ' because metadata has no label name!'
-            );
         }
-    }
-
-    /**
-     * @param DomainMessage $domainMessage
-     * @return string|null
-     */
-    private function getLabelName(DomainMessage $domainMessage)
-    {
-        $metaDataAsArray = $domainMessage->getMetadata()->serialize();
-
-        return isset($metaDataAsArray['labelName']) ?
-            $metaDataAsArray['labelName'] : null;
     }
 }
