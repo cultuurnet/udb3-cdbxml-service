@@ -289,6 +289,31 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_handles_invisible_label_added()
+    {
+        $organizerId = 'ORG-123';
+        $labelAdded = new LabelAdded($organizerId, new Label('2dotstwice', false));
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded);
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label-invisible.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_handles_label_removed()
     {
         $organizerId = 'ORG-123';
@@ -299,6 +324,31 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $document = new CdbXmlDocument(
             $organizerId,
             $this->loadCdbXmlFromFile('actor-with-contact-info-and-label.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_invisible_label_removed()
+    {
+        $organizerId = 'ORG-123';
+        $labelRemoved = new LabelRemoved($organizerId, new Label('2dotstwice', false));
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved);
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label-invisible.xml')
         );
         $this->repository->save($document);
 

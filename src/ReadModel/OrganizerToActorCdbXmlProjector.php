@@ -314,9 +314,19 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
 
         if ($organizer && $labelName) {
             if ($labelEvent instanceof LabelAdded) {
-                $organizer->addKeyword($labelName);
+                $organizer->addKeyword(
+                    new \CultureFeed_Cdb_Data_Keyword(
+                        $labelName,
+                        $labelEvent->getLabel()->isVisible()
+                    )
+                );
             } else {
-                $organizer->deleteKeyword($labelName);
+                $organizer->deleteKeyword(
+                    new \CultureFeed_Cdb_Data_Keyword(
+                        $labelName,
+                        $labelEvent->getLabel()->isVisible()
+                    )
+                );
             }
         }
 
