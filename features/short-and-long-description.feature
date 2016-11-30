@@ -4,8 +4,7 @@ Feature: projection of short and long description in CDBXML.
     Given an event
     When I changed the description to
     """
-    Ook in 2015 houden we weer een feestje in de buurt van de Pieter Coutereelstraat. Deze keer op zaterdag
-    15 augustus. Op het programma:\n
+    Ook in 2015 houden we weer een feestje in de buurt van de Pieter Coutereelstraat. Deze keer op zaterdag 15 augustus. Op het programma:\n
     LIVE MUZIEK (vanaf 16:00 uur)\n
     -----------------------------------------------------\n
     * Les Talons Gitans\n
@@ -25,7 +24,7 @@ Feature: projection of short and long description in CDBXML.
 
     Then the short description in CDBXML should be
     """
-    Ook in 2015 houden we weer een feestje in de buurt van de Pieter Coutereelstraat. Deze keer op zaterdag 15 augustus. Op het programma: LIVE MUZIEK (vanaf 16:00 uur) ----------------------------------------------------- * Les Talons Gitans * Bourdon Willie * Carl Durant The Lost Kings * Cherchez La Femme * One Man Brawl * De Zingende Apen DOORLOPEND (vanaf 12:00 uur) --------------------------- ...
+    Ook in 2015 houden we weer een feestje in de buurt van de Pieter Coutereelstraat. Deze keer op zaterdag 15 augustus. Op het programma: LIVE MUZIEK (vanaf 16:00 uur) ----------------------------------------------------- * Les Talons Gitans * Bourdon Willie * Carl Durant & The Lost Kings * Cherchez La Femme * One Man Brawl * De Zingende Apen DOORLOPEND (vanaf 12:00 uur) --------------------------- ...
     """
     # korte beschrijving afkappen zodat deze max 396 karakters bevat: + ' ...' (= max 400)
     # op laatste leesteken[.|?|!] voor de limiet of laatste spatie voor de limiet?
