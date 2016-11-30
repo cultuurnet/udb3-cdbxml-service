@@ -11,6 +11,7 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
+use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Organizer\Events\AddressUpdated;
 use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
@@ -22,6 +23,7 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
+use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
@@ -265,13 +267,9 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function it_handles_label_added()
     {
         $organizerId = 'ORG-123';
-        $labelId = new UUID();
-        $labelAdded = new LabelAdded($organizerId, $labelId);
+        $labelAdded = new LabelAdded($organizerId, new Label('2dotstwice'));
 
         $domainMessage = $this->createDomainMessage($organizerId, $labelAdded);
-        $domainMessage = $domainMessage->andMetadata(
-            new Metadata(['labelName' => '2dotstwice'])
-        );
 
         $document = new CdbXmlDocument(
             $organizerId,
@@ -291,20 +289,66 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_handles_invisible_label_added()
+    {
+        $organizerId = 'ORG-123';
+        $labelAdded = new LabelAdded($organizerId, new Label('2dotstwice', false));
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded);
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label-invisible.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_handles_label_removed()
     {
         $organizerId = 'ORG-123';
-        $labelId = new UUID();
-        $labelRemoved = new LabelRemoved($organizerId, $labelId);
+        $labelRemoved = new LabelRemoved($organizerId, new Label('2dotstwice'));
 
         $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved);
-        $domainMessage = $domainMessage->andMetadata(
-            new Metadata(['labelName' => '2dotstwice'])
-        );
 
         $document = new CdbXmlDocument(
             $organizerId,
             $this->loadCdbXmlFromFile('actor-with-contact-info-and-label.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_invisible_label_removed()
+    {
+        $organizerId = 'ORG-123';
+        $labelRemoved = new LabelRemoved($organizerId, new Label('2dotstwice', false));
+
+        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved);
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-contact-info-and-label-invisible.xml')
         );
         $this->repository->save($document);
 
