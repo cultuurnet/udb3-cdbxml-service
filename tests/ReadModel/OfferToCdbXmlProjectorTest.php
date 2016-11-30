@@ -136,6 +136,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $truncate = new TruncateStringFilter(400);
         $truncate->addEllipsis();
         $truncate->spaceBeforeEllipsis();
+        $truncate->turnOnWordSafe(1);
         $shortDescriptionFilter->addFilter($truncate);
 
         $longDescriptionFilter = new NewlineToBreakTagStringFilter();
@@ -683,7 +684,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $genericOfferData = $this->genericOfferTestDataProvider();
 
         $descriptionUpdates = [
-            //['description-1'],
+            ['description-1'],
             ['description-2'],
             //['description-3'],
         ];
