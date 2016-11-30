@@ -686,7 +686,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $descriptionUpdates = [
             ['description-1'],
             ['description-2'],
-            //['description-3'],
+            ['description-3'],
         ];
 
         $fullTestData = [];
