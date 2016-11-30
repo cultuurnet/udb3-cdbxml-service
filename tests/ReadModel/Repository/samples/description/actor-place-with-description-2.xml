@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <actor availableto="2100-01-01T01:00:00" cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft" asset="true">
+    <actordetails>
+      <actordetail lang="nl">
+        <longdescription>Ook in 2015 houden we weer een feestje in de buurt van de Pieter Coutereelstraat. Deze keer op zaterdag 15 augustus. Op het programma:&lt;br&gt;LIVE MUZIEK (vanaf 16:00 uur)&lt;br&gt;-----------------------------------------------------&lt;br&gt;* Les Talons Gitans&lt;br&gt;* Bourdon Willie&lt;br&gt;* Carl Durant &amp;amp; The Lost Kings&lt;br&gt;* Cherchez La Femme&lt;br&gt;* One Man Brawl&lt;br&gt;* De Zingende Apen&lt;br&gt;&lt;br&gt;DOORLOPEND (vanaf 12:00 uur)&lt;br&gt;-----------------------------------------------------&lt;br&gt;* springkasteel, rad van fortuin kinderanimatie, muziekworkshop,...&lt;br&gt;* lekkere hapjes en frisse drankjes aan democratische prijzen&lt;br&gt;* pop-up verrassingsbar met diverse aanbiedingen&lt;br&gt;* Repair Café met infomarkt voor een duurzame buurt</longdescription>
+        <shortdescription>Ook in 2015 houden we weer een feestje in de buurt van de Pieter Coutereelstraat. Deze keer op zaterdag 15 augustus. Op het programma: LIVE MUZIEK (vanaf 16:00 uur) ----------------------------------------------------- * Les Talons Gitans * Bourdon Willie * Carl Durant &amp; The Lost Kings * Cherchez La Femme * One Man Brawl * De Zingende Apen DOORLOPEND (vanaf 12:00 uur) ------------------------- ...</shortdescription>
+        <title>My Place</title>
+      </actordetail>
+    </actordetails>
+    <categories>
+      <category catid="8.15.0.0.0" type="actortype">Locatie</category>
+    </categories>
+    <contactinfo>
+      <address>
+        <physical>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
+        </physical>
+      </address>
+    </contactinfo>
+  </actor>
+</cdbxml>
