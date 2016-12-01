@@ -1030,6 +1030,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      */
     private function generateUivSourceUrl($offerId, $title)
     {
+        if (!$title) {
+            $title = 'untitled';
+        }
+
         $eventSlug = $this->slugger->slug($title);
 
         return 'http://www.uitinvlaanderen.be/agenda/e/' . $eventSlug . '/' . $offerId;
