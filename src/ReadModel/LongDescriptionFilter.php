@@ -10,4 +10,4 @@ class LongDescriptionFilter extends NewlineToBreakTagStringFilter
     {
         $this->closeTag(false);
     }
-}``
+}
