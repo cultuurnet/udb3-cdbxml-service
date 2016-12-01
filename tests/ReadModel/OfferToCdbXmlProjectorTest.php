@@ -130,18 +130,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
-        $shortDescriptionFilter = new CombinedStringFilter();
-        $shortDescriptionFilter->addFilter(new StripHtmlStringFilter());
-        $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
-        $truncate = new TruncateStringFilter(400);
-        $truncate->addEllipsis();
-        $truncate->spaceBeforeEllipsis();
-        $truncate->turnOnWordSafe(1);
-        $shortDescriptionFilter->addFilter($truncate);
-
-        $longDescriptionFilter = new NewlineToBreakTagStringFilter();
-        $longDescriptionFilter->closeTag(false);
-
         $this->uitpasLabelApplier = $this->getMock(LabelApplierInterface::class);
 
         $this->projector = (
@@ -154,8 +142,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             new CdbXmlDateFormatter(),
             new AddressFactory(),
-            $longDescriptionFilter,
-            $shortDescriptionFilter,
+            new LongDescriptionFilter(),
+            new ShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(

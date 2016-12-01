@@ -17,42 +17,40 @@ use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\Address\DefaultAddressFormatter;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
-use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
+use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\EventBusRelay;
 use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelApplier;
 use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
 use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelProvider;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\GeocodingOfferCdbXmlProjector;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
-use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOfferCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionRelationsCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\GeocodingOfferCdbXmlProjector;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\LongDescriptionFilter;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
-use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
+use CultuurNet\UDB3\CdbXmlService\ReadModel\ShortDescriptionFilter;
+use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\Label\LabelEventRelationTypeResolver;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
-use CultuurNet\UDB3\Iri\CallableIriGenerator;
-use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
-use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
-use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
-use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
 use Silex\Application;
 use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
-use ValueObjects\String\String as StringLiteral;
 use ValueObjects\String\String;
+use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
 
 date_default_timezone_set('Europe/Brussels');
@@ -168,16 +166,6 @@ $app['uitpas_label_applier'] = $app->share(
 
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
-        $longDescriptionFilter = new NewlineToBreakTagStringFilter();
-
-        $truncateFilter = new TruncateStringFilter(400);
-        $truncateFilter->addEllipsis();
-        $truncateFilter->turnOnWordSafe();
-
-        $shortDescriptionFilter = new CombinedStringFilter();
-        $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
-        $shortDescriptionFilter->addFilter($truncateFilter);
-
         $projector = (new OfferToCdbXmlProjector(
             $app[CDBXML_OFFER_REPOSITORY],
             $app[CDBXML_DOCUMENT_FACTORY],
@@ -185,8 +173,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_date_formatter'],
             $app['address_factory'],
-            $longDescriptionFilter,
-            $shortDescriptionFilter,
+            new LongDescriptionFilter(),
+            new ShortDescriptionFilter(),
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
             new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
             $app['event_cdbid_extractor'],
