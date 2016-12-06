@@ -680,11 +680,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $fullTestData = [];
 
         foreach ($genericOfferData as $genericOffer) {
-            foreach ($descriptionUpdates as $descriptionUpdate)
-            $fullTestData[] = array_merge(
-                $genericOffer,
-                $descriptionUpdate
-            );
+            foreach ($descriptionUpdates as $descriptionUpdate) {
+                $fullTestData[] = array_merge(
+                    $genericOffer,
+                    $descriptionUpdate
+                );
+            }
         }
 
         return $fullTestData;
