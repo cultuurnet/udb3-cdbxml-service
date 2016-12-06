@@ -153,6 +153,16 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         foreach ($eventIds as $eventId) {
             $eventCdbXml = $this->documentRepository->get($eventId);
 
+            if (!$eventCdbXml) {
+                $this->logger->alert(
+                    'Unable to load cdbxml of event with id {event_id}',
+                    [
+                        'event_id' => $eventId,
+                    ]
+                );
+                continue;
+            }
+
             $event = EventItemFactory::createEventFromCdbXml(
                 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
                 $eventCdbXml->getCdbXml()

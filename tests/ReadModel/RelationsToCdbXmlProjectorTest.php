@@ -31,15 +31,11 @@ use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
 use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
-use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
-use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
-use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
-use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use Psr\Log\LoggerInterface;
 use ValueObjects\Geography\Country;
-use ValueObjects\Identity\UUID;
 use ValueObjects\Web\Url;
 use ValueObjects\String\String as StringLiteral;
 
@@ -202,11 +198,84 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('event-with-organizer-2.xml')
         );
 
-        //$this->expectCdbXmlDocumentToBePublished($expectedCdbXmlDocument, $domainMessage);
         $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedSecondCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_logs_an_alert_when_event_was_not_found_based_on_organizer_relation()
+    {
+        // Add a first event.
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $this->createEvent($id);
+
+        // But don't add a second event to force logging an alert
+        $secondId = 'EVENT-ABC-123';
+
+        $logger = $this->getMock(LoggerInterface::class);
+        $this->relationsProjector->setLogger($logger);
+        $logger->expects($this->once())
+            ->method('alert')
+            ->with(
+                'Unable to load cdbxml of event with id {event_id}',
+                [
+                    'event_id' => $secondId,
+                ]
+            );
+
+        // create an organizer.
+        $organizerId = 'ORG-123';
+        $organizerCdbxml = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor.xml')
+        );
+        $this->actorRepository->save($organizerCdbxml);
+
+        $this->offerRelationsService
+            ->expects($this->once())
+            ->method('getByOrganizer')
+            ->with($organizerId)
+            ->willReturn(
+                [
+                    $id,
+                    $secondId,
+                ]
+            );
+
+        $organizerProjectedToCdbXml = new OrganizerProjectedToCdbXml(
+            $organizerId
+        );
+
+        $organizerMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710907',
+                'id' => 'http://foo.be/item/' . $organizerId,
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $organizerProjectedToCdbXml, $organizerMetadata);
+        $this->relationsProjector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-organizer-1.xml')
+        );
+
+        $expectedSecondCdbXmlDocument = new CdbXmlDocument(
+            $secondId,
+            $this->loadCdbXmlFromFile('event-with-organizer-2.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**
