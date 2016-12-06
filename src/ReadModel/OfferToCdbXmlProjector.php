@@ -47,6 +47,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
+use CultuurNet\UDB3\CulturefeedSlugger;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\CollaborationDataAdded;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
@@ -126,6 +127,7 @@ use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
+use CultuurNet\UDB3\SluggerInterface;
 use CultuurNet\UDB3\StringFilter\StringFilterInterface;
 use CultuurNet\UDB3\Theme;
 use DateTime;
@@ -215,6 +217,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $uitpasLabelApplier;
 
     /**
+     * @var SluggerInterface
+     */
+    private $slugger;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -254,6 +261,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
         $this->uitpasLabelApplier = $uitpasLabelApplier;
+        $this->slugger = new CulturefeedSlugger();
         $this->logger = new NullLogger();
     }
 
@@ -976,29 +984,33 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $cdbXmlDocument = $this->getCdbXmlDocument($descriptionUpdated->getItemId());
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $description = $descriptionUpdated->getDescription();
-
         $details = $offer->getDetails();
         $detailNl = $details->getDetailByLanguage('nl');
 
-        if (!empty($detailNl)) {
-            $detailNl->setLongDescription(
-                $this->longDescriptionFilter->filter($description)
-            );
-            $detailNl->setShortDescription(
-                $this->shortDescriptionFilter->filter($description)
-            );
-        } else {
-            $detail = $this->createOfferItemCdbDetail($offer);
-            $detail->setLanguage('nl');
-            $detail->setLongDescription(
-                $this->longDescriptionFilter->filter($description)
-            );
-            $detail->setShortDescription(
-                $this->shortDescriptionFilter->filter($description)
-            );
-            $details->add($detail);
+        if (empty($detailNl)) {
+            $detailNl = $this->createOfferItemCdbDetail($offer);
+            $detailNl->setLanguage('nl');
+
+            $details->add($detailNl);
         }
+
+        $description = $descriptionUpdated->getDescription();
+
+        $shortDescription = $this->shortDescriptionFilter->filter($description);
+        $longDescription = $this->longDescriptionFilter->filter($description);
+
+        if ($offer instanceof CultureFeed_Cdb_Item_Event) {
+            $uivSourceUrl = $this->generateUivSourceUrl(
+                $descriptionUpdated->getItemId(),
+                $detailNl->getTitle()
+            );
+
+            $longDescription .=
+                "<p class=\"uiv-source\">Bron: <a href=\"{$uivSourceUrl}\">UiTinVlaanderen.be</a></p>";
+        }
+
+        $detailNl->setLongDescription($longDescription);
+        $detailNl->setShortDescription($shortDescription);
 
         $offer->setDetails($details);
 
@@ -1009,6 +1021,22 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($offer);
+    }
+
+    /**
+     * @param string $offerId
+     * @param string $title
+     * @return string
+     */
+    private function generateUivSourceUrl($offerId, $title)
+    {
+        if (!$title) {
+            $title = 'untitled';
+        }
+
+        $eventSlug = $this->slugger->slug($title);
+
+        return 'http://www.uitinvlaanderen.be/agenda/e/' . $eventSlug . '/' . $offerId;
     }
 
     /**

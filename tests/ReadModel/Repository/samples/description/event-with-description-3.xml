@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <event availableto="2014-02-20T16:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
+    <categories>
+      <category catid="0.50.6.0.0" type="eventtype">film</category>
+      <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
+    </categories>
+    <calendar>
+      <timestamps>
+        <timestamp>
+          <date>2014-01-31</date>
+          <timestart>12:00:00</timestart>
+          <timeend>15:00:00</timeend>
+        </timestamp>
+        <timestamp>
+          <date>2014-02-20</date>
+          <timestart>12:00:00</timestart>
+          <timeend>15:00:00</timeend>
+        </timestamp>
+      </timestamps>
+    </calendar>
+    <contactinfo>
+      <address>
+        <physical>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
+        </physical>
+      </address>
+    </contactinfo>
+    <eventdetails>
+      <eventdetail lang="nl">
+        <longdescription>Korte beschrijving - Lorem ipsum dolor sit amet, consectetur adipiscing elit: Donec non velit eu eros eleifend mattis. Mauris tristique scelerisque consectetur. Morbi a congue purus, quis tempor arcu. Nam bibendum risus vel nulla feugiat finibus. Aenean vestibulum nisi vel nisl elementum, quis faucibus ex dictum nullam.&lt;br&gt;&lt;br&gt;Lange Beschrijving - Donec porta molestie arcu, ut tempor odio. Cras mauris nisl, rhoncus et tortor id, lobortis ornare libero. Vivamus tellus eros, semper sit amet gravida ac, pellentesque a tortor. Etiam sollicitudin mauris vitae purus pellentesque, sit amet elementum lacus suscipit. Duis id felis sed justo placerat facilisis convallis id purus. Praesent fermentum, odio vel varius scelerisque, arcu tortor sagittis nisi, et egestas turpis sem vitae orci. Maecenas hendrerit nulla ultrices nulla porttitor, nec tincidunt odio cursus.&lt;br&gt;&lt;br&gt;Curabitur et diam nisi. In hac habitasse platea dictumst. Aliquam suscipit, arcu nec lobortis ultricies, arcu nibh varius tortor, sit amet rhoncus mauris ante id augue. Nullam est justo, sodales vitae nunc eget, mattis laoreet arcu. Curabitur pharetra hendrerit turpis, in placerat elit accumsan eu. Curabitur vulputate lacus in leo scelerisque condimentum. Sed sodales justo sit amet porta scelerisque. Sed metus urna, tempor ut pellentesque ut, fermentum in ligula. Pellentesque ullamcorper, nisi non tempus congue, massa ligula vestibulum nulla, sit amet cursus ligula felis et purus. Suspendisse eleifend ante nibh, eget aliquam neque suscipit ac. In hac habitasse platea dictumst. Praesent tempus faucibus enim nec hendrerit. Nullam non purus vel lacus dignissim cursus eu ac est. Nulla tellus mauris, maximus sed faucibus non, egestas quis eros. Ut massa purus, luctus non ex tempor, suscipit efficitur mi.&lt;p class="uiv-source"&gt;Bron: &lt;a href="http://www.uitinvlaanderen.be/agenda/e/griezelfilm-of-horror/404EE8DE-E828-9C07-FE7D12DC4EB24480"&gt;UiTinVlaanderen.be&lt;/a&gt;&lt;/p&gt;</longdescription>
+        <shortdescription>Korte beschrijving - Lorem ipsum dolor sit amet, consectetur adipiscing elit: Donec non velit eu eros eleifend mattis. Mauris tristique scelerisque consectetur. Morbi a congue purus, quis tempor arcu. Nam bibendum risus vel nulla feugiat finibus. Aenean vestibulum nisi vel nisl elementum, quis faucibus ex dictum nullam. Lange Beschrijving - Donec porta molestie arcu, ut tempor odio. Cras ...</shortdescription>
+        <title>Griezelfilm of horror</title>
+      </eventdetail>
+    </eventdetails>
+    <location>
+      <address>
+        <physical>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
+        </physical>
+      </address>
+      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</label>
+    </location>
+  </event>
+</cdbxml>

@@ -81,6 +81,7 @@ use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
 use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
+use CultuurNet\UDB3\StringFilter\StripHtmlStringFilter;
 use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
@@ -129,10 +130,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
-        $shortDescriptionFilter = new CombinedStringFilter();
-        $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
-        $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
-
         $this->uitpasLabelApplier = $this->getMock(LabelApplierInterface::class);
 
         $this->projector = (
@@ -145,8 +142,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             new CdbXmlDateFormatter(),
             new AddressFactory(),
-            new NewlineToBreakTagStringFilter(),
-            $shortDescriptionFilter,
+            new LongDescriptionFilter(),
+            new ShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(
@@ -670,34 +667,61 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->execute($test);
     }
 
+    public function descriptionUpdatesProvider()
+    {
+        $genericOfferData = $this->genericOfferTestDataProvider();
+
+        $descriptionUpdates = [
+            ['description-1'],
+            ['description-2'],
+            ['description-3'],
+        ];
+
+        $fullTestData = [];
+
+        foreach ($genericOfferData as $genericOffer) {
+            foreach ($descriptionUpdates as $descriptionUpdate) {
+                $fullTestData[] = array_merge(
+                    $genericOffer,
+                    $descriptionUpdate
+                );
+            }
+        }
+
+        return $fullTestData;
+    }
+
     /**
      * @test
-     * @dataProvider genericOfferTestDataProvider
+     * @dataProvider descriptionUpdatesProvider
      *
      * @param OfferType $offerType
      * @param $id
      * @param $cdbXmlType
+     * @param $exampleId
+     *
+     * @group issue-III-1126
      */
     public function it_projects_description_updates(
         OfferType $offerType,
         $id,
-        $cdbXmlType
+        $cdbXmlType,
+        $exampleId
     ) {
         $test = $this->given($offerType)
             ->apply(
                 new DescriptionUpdated(
                     $id,
-                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    'Initial description'
                 )
             )
-            ->expect($cdbXmlType . '-with-description.xml')
             ->apply(
                 new DescriptionUpdated(
                     $id,
-                    'Description updated'
+                    file_get_contents(__DIR__ .'/Repository/samples/description/' . $exampleId . '.txt')
                 )
             )
-            ->expect($cdbXmlType . '-with-description-updated.xml');
+            ->expect('description/' . $cdbXmlType . '-with-' . $exampleId . '.xml');
 
         $this->execute($test);
     }

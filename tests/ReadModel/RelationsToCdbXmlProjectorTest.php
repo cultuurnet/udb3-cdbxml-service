@@ -94,10 +94,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
-        $shortDescriptionFilter = new CombinedStringFilter();
-        $shortDescriptionFilter->addFilter(new NewlineToSpaceStringFilter());
-        $shortDescriptionFilter->addFilter(new TruncateStringFilter(400));
-
         $this->projector = new OfferToCdbXmlProjector(
             $this->repository,
             new CdbXmlDocumentFactory('3.3'),
@@ -107,8 +103,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             new CdbXmlDateFormatter(),
             new AddressFactory(),
-            new NewlineToBreakTagStringFilter(),
-            $shortDescriptionFilter,
+            new LongDescriptionFilter(),
+            new ShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(),
