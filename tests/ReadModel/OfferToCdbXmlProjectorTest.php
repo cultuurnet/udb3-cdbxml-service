@@ -20,10 +20,8 @@ use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
-use CultuurNet\UDB3\CollaborationData;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated;
-use CultuurNet\UDB3\Event\Events\CollaborationDataAdded;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated;
@@ -49,8 +47,6 @@ use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
-use CultuurNet\UDB3\Event\Events\TranslationApplied;
-use CultuurNet\UDB3\Event\Events\TranslationDeleted;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
@@ -1402,97 +1398,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->expect('place-with-major-info-updated.xml');
 
         $this->execute($test);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_event_collaboration_data_added()
-    {
-        $test = $this->given(OfferType::EVENT())
-            ->apply(
-                new CollaborationDataAdded(
-                    String::fromNative($this->getEventId()),
-                    new Language("nl"),
-                    CollaborationData::deserialize(
-                        [
-                            'copyright' => 'Kristof Coomans',
-                            'text' => "this is the text 2",
-                            'keyword' => "foo",
-                            'article' => "bar",
-                            'plainText' => 'whatever',
-                            'title' =>  'title',
-                            'subBrand' => 'e36c2db19aeb6d2760ce0500d393e83c',
-                        ]
-                    )
-                )
-            )
-            ->expect('event-with-collaboration-data.xml');
-
-        $this->execute($test);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_old_event_translations()
-    {
-        $test = $this->given(OfferType::EVENT())
-            ->apply(
-                new TranslationApplied(
-                    new StringLiteral($this->getEventId()),
-                    new Language('en'),
-                    new StringLiteral('Horror movie'),
-                    new StringLiteral('This is a short description.'),
-                    new StringLiteral('This is a long, long, long, very long description.')
-                )
-            )
-            ->expect('event-with-translation-applied-en-added.xml')
-            ->apply(
-                new TranslationApplied(
-                    new StringLiteral($this->getEventId()),
-                    new Language('en'),
-                    new StringLiteral('Horror film'),
-                    new StringLiteral('This is a short description updated.'),
-                    new StringLiteral('This is a long, long, long, very long description updated.')
-                )
-            )
-            ->expect('event-with-translation-applied-en-updated.xml')
-            ->apply(
-                new TranslationDeleted(
-                    new StringLiteral($this->getEventId()),
-                    new Language('en')
-                )
-            )
-            ->expect('event.xml');
-
-        $this->execute($test);
-    }
-
-    /**
-     * @test
-     */
-    public function it_logs_an_error_when_translation_applied_on_missing_document()
-    {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING';
-
-        $translationApplied = new TranslationApplied(
-            new StringLiteral($id),
-            new Language('en'),
-            new StringLiteral('Horror movie'),
-            new StringLiteral('This is a short description.'),
-            new StringLiteral('This is a long, long, long, very long description.')
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $translationApplied, $this->metadata);
-
-        $message = 'Handle error for uuid=404EE8DE-E828-9C07-FE7D12DC4EB24480_MISSING for type CultuurNet.UDB3.Event.Events.TranslationApplied recorded on ';
-        $message .= $domainMessage->getRecordedOn()->toString();
-
-        $this->logger->expects($this->once())->method('error')
-            ->with($message);
-
-        $this->projector->handle($domainMessage);
     }
 
     /**

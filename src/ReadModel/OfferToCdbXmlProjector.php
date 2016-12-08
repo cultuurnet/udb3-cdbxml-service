@@ -49,7 +49,6 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterfa
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\CulturefeedSlugger;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
-use CultuurNet\UDB3\Event\Events\CollaborationDataAdded;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
@@ -73,8 +72,6 @@ use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
-use CultuurNet\UDB3\Event\Events\TranslationApplied;
-use CultuurNet\UDB3\Event\Events\TranslationDeleted;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
@@ -310,9 +307,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
-            TranslationApplied::class => 'applyTranslationApplied',
-            TranslationDeleted::class => 'applyTranslationDeleted',
-            CollaborationDataAdded::class => 'applyCollaborationDataAdded',
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
             LabelsMerged::class => 'applyLabelsMerged',
@@ -409,57 +403,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
           ->fromCulturefeedCdbItem($actor);
-    }
-
-    /**
-     * @param CollaborationDataAdded $collaborationDataAdded
-     * @param Metadata $metadata
-     * @return CdbXmlDocument
-     */
-    public function applyCollaborationDataAdded(
-        CollaborationDataAdded $collaborationDataAdded,
-        Metadata $metadata
-    ) {
-        $eventCdbXml = $this->getCdbXmlDocument(
-            $collaborationDataAdded->getEventId()
-        );
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        // add collaboration data to event details under the right language
-        $detail = $event->getDetails()->getDetailByLanguage(
-            $collaborationDataAdded->getLanguage()
-        );
-        // if no media attached, add everything
-        $media = $detail->getMedia();
-        $collaborationData = $collaborationDataAdded->getCollaborationData();
-
-        $file = new \CultureFeed_Cdb_Data_File();
-        $file->setCopyright($collaborationData->getCopyright());
-
-        $description = new \stdClass();
-        $description->text = (string) $collaborationData->getText();
-        $description->keyword = (string) $collaborationData->getKeyword();
-        $description->article = (string) $collaborationData->getArticle();
-
-        $file->setDescription(json_encode($description));
-        $file->setPlainText($collaborationData->getPlainText());
-        $file->setTitle($collaborationData->getTitle());
-        $file->setSubBrand($collaborationData->getSubBrand());
-        $file->setMediaType(\CultureFeed_Cdb_Data_File::MEDIA_TYPE_COLLABORATION);
-
-        $media->add($file);
-
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
-
-        // Return a new CdbXmlDocument.
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
     }
 
     /**
@@ -786,98 +729,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
-    }
-
-    /**
-     * @param TranslationApplied $translationApplied
-     * @param Metadata $metadata
-     * @return CdbXmlDocument
-     */
-    public function applyTranslationApplied(
-        TranslationApplied $translationApplied,
-        Metadata $metadata
-    ) {
-        $cdbXmlDocument = $this->getCdbXmlDocument($translationApplied->getEventId());
-        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
-
-        $languageCode = $translationApplied->getLanguage()->getCode();
-        $title = $translationApplied->getTitle()->toNative();
-        $longDescription = $this->longDescriptionFilter->filter(
-            $translationApplied->getLongDescription()->toNative()
-        );
-        $shortDescription = $this->shortDescriptionFilter->filter(
-            $translationApplied->getShortDescription()->toNative()
-        );
-
-        $details = $offer->getDetails();
-        $detail = $details->getDetailByLanguage($languageCode);
-
-        if (!empty($detail)) {
-            $detail->setTitle($title);
-            $detail->setLongDescription($longDescription);
-            $detail->setShortDescription($shortDescription);
-        } else {
-            $detail = $this->createOfferItemCdbDetail($offer);
-            $detail->setLanguage($languageCode);
-
-            $detail->setTitle($title);
-            $detail->setLongDescription($longDescription);
-            $detail->setShortDescription($shortDescription);
-
-            $details->add($detail);
-        }
-
-        $offer->setDetails($details);
-
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $offer = $this->metadataCdbItemEnricher
-            ->enrich($offer, $metadata);
-
-        // Return a new CdbXmlDocument.
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($offer);
-    }
-
-    /**
-     * @param TranslationDeleted $translationDeleted
-     * @param Metadata $metadata
-     * @return CdbXmlDocument
-     */
-    public function applyTranslationDeleted(
-        TranslationDeleted $translationDeleted,
-        Metadata $metadata
-    ) {
-        $eventCdbXml = $this->getCdbXmlDocument($translationDeleted->getEventId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        $languageCode = $translationDeleted->getLanguage()->getCode();
-
-        $details = $event->getDetails();
-        $detail = $details->getDetailByLanguage($languageCode);
-
-        if (!empty($detail)) {
-            $newDetails = new CultureFeed_Cdb_Data_EventDetailList();
-
-            foreach ($details as $detail) {
-                if ($detail->getLanguage() != $languageCode) {
-                    $newDetails->add($detail);
-                }
-            }
-
-            $event->setDetails($newDetails);
-
-            // Add metadata like createdby, creationdate, etc to the actor.
-            $event = $this->metadataCdbItemEnricher
-                ->enrich($event, $metadata);
-        }
-
-        // Return a new CdbXmlDocument.
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
     }
 
     /**
