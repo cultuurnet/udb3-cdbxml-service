@@ -163,3 +163,35 @@ Feature: projection of short and long description in CDBXML.
     # beschrijving niet genest in p-tags
     # \n omgezet naar <br>
     # lange beschrijving is volledige beschrijving van UDB3
+
+  @issue-III-1682
+  Scenario: strip description with html-tags to a short description of max. 400 characters for CDBXML without HTML-tags
+  and a long description with html-tags.
+    Given an event in UDB3
+    When the description of this event is updated to:
+    """
+    <p>Tijd om deze wonderlijke familie voor te stellen : hun geschiedenis, evolutie, levenscyclus en
+    verleidingsstrategie…\nEen Powerpointpresentatie staat garant voor een leerrijke avond, als tweede luik, na de
+    Alpenflora van vorig jaar.</p><p>Voor iedereen bevattelijk, toegankelijk… en zeker genietbaar!&nbsp;Na deze
+    vertoning zal u helemaal anders rondkijken in uw omgeving en overal orchideeën zoeken!</p><p>Deelname: 5,00 euro te
+    betalen aan de ingang, kopies en drankje inbegrepen.&nbsp; Graag toch een mailtje voor uw aanwezigheid op de avond
+    voor praktische regeling:&nbsp; <a href=\"mailto:dirkjph.dubois@gmail.com\">dirkjph.dubois@gmail.com</a> of
+    <a href=\"mailto:dheyne.erika@scarlet.be\">dheyne.erika@scarlet.be</a></p>
+    """
+    Then the short description of this event in CDBXML equals:
+    """
+    Tijd om deze wonderlijke familie voor te stellen : hun geschiedenis, evolutie, levenscyclus en verleidingsstrategie…
+     Een Powerpointpresentatie staat garant voor een leerrijke avond, als tweede luik, na de Alpenflora van vorig jaar.
+     Voor iedereen bevattelijk, toegankelijk… en zeker genietbaar!&nbsp;Na deze vertoning zal u helemaal anders
+     rondkijken in uw omgeving en overal orchideeën...
+    """
+    And the long description of this event in CDBXML equals:
+    """
+    <p>Tijd om deze wonderlijke familie voor te stellen : hun geschiedenis, evolutie, levenscyclus en
+    verleidingsstrategie…\nEen Powerpointpresentatie staat garant voor een leerrijke avond, als tweede luik, na de
+    Alpenflora van vorig jaar.</p><p>Voor iedereen bevattelijk, toegankelijk… en zeker genietbaar!&nbsp;Na deze
+    vertoning zal u helemaal anders rondkijken in uw omgeving en overal orchideeën zoeken!</p><p>Deelname: 5,00 euro te
+    betalen aan de ingang, kopies en drankje inbegrepen.&nbsp; Graag toch een mailtje voor uw aanwezigheid op de avond
+    voor praktische regeling:&nbsp; <a href=\"mailto:dirkjph.dubois@gmail.com\">dirkjph.dubois@gmail.com</a> of
+    <a href=\"mailto:dheyne.erika@scarlet.be\">dheyne.erika@scarlet.be</a></p>
+    """
