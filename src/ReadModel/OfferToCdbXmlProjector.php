@@ -2218,7 +2218,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     {
         $fileUri = $this->uriNormalizer->__invoke(Http::createFromString($file->getHLink())->withScheme('http'));
 
-        $namespace = BaseUuid::uuid5('00000000-0000-0000-0000-000000000000', $fileUri->getHost());
+        $namespace = BaseUuid::uuid5(BaseUuid::NAMESPACE_DNS, $fileUri->getHost());
         return UUID::fromNative((string) BaseUuid::uuid5($namespace, (string) $fileUri));
     }
 }

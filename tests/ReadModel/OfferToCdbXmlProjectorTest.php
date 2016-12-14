@@ -1090,7 +1090,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
 
         $udb2Image = new Image(
-            new UUID('9663f98d-03ec-539a-8d65-4c176ebc61f5'),
+            new UUID('bb9dce43-6a6f-5003-bfde-b4a71342a47a'),
             new MIMEType('image/png'),
             new StringLiteral('title'),
             new StringLiteral('John Doe'),
