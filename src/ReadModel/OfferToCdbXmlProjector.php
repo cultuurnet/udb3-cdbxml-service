@@ -61,7 +61,6 @@ use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelRemoved as EventLabelRemoved;
-use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
@@ -129,12 +128,16 @@ use CultuurNet\UDB3\StringFilter\StringFilterInterface;
 use CultuurNet\UDB3\Theme;
 use DateTime;
 use DateTimeInterface;
+use League\Uri\Modifiers\AbstractUriModifier;
+use League\Uri\Modifiers\Normalize;
+use League\Uri\Schemes\Http;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use ValueObjects\Identity\UUID;
 use ValueObjects\String\String as StringLiteral;
+use Rhumsaa\Uuid\Uuid as BaseUuid;
 
 /**
  * Class OfferToCdbXmlProjector
@@ -219,6 +222,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $slugger;
 
     /**
+     * @var AbstractUriModifier
+     */
+    protected $uriNormalizer;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -260,6 +268,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->uitpasLabelApplier = $uitpasLabelApplier;
         $this->slugger = new CulturefeedSlugger();
         $this->logger = new NullLogger();
+        $this->uriNormalizer = new Normalize();
     }
 
     /**
@@ -2192,7 +2201,24 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         UUID $mediaObjectId
     ) {
         // Matching against the CDBID in the name of the image because
-        // that's the only reference in UDB2 we have.
-        return !!strpos($file->getHLink(), (string) $mediaObjectId);
+        // that's the only UDB3 reference in UDB2 we have.
+        $matchesUDB3Image = !!strpos($file->getHLink(), (string) $mediaObjectId);
+
+        $matchesUDB2Image = $mediaObjectId->sameValueAs($this->identifyFile($file));
+
+        return $matchesUDB3Image || $matchesUDB2Image;
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Data_File $file
+     *
+     * @return UUID
+     */
+    private function identifyFile(CultureFeed_Cdb_Data_File $file)
+    {
+        $fileUri = $this->uriNormalizer->__invoke(Http::createFromString($file->getHLink())->withScheme('http'));
+
+        $namespace = BaseUuid::uuid5(BaseUuid::NAMESPACE_DNS, $fileUri->getHost());
+        return UUID::fromNative((string) BaseUuid::uuid5($namespace, (string) $fileUri));
     }
 }

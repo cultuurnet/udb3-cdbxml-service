@@ -34,7 +34,6 @@ use CultuurNet\UDB3\Event\Events\ImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelRemoved;
-use CultuurNet\UDB3\Event\Events\LabelsMerged;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
@@ -52,7 +51,6 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
-use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
@@ -74,11 +72,6 @@ use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
-use CultuurNet\UDB3\StringFilter\CombinedStringFilter;
-use CultuurNet\UDB3\StringFilter\NewlineToBreakTagStringFilter;
-use CultuurNet\UDB3\StringFilter\NewlineToSpaceStringFilter;
-use CultuurNet\UDB3\StringFilter\StripHtmlStringFilter;
-use CultuurNet\UDB3\StringFilter\TruncateStringFilter;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
@@ -87,7 +80,6 @@ use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
 use ValueObjects\Money\Currency;
 use ValueObjects\String\String as StringLiteral;
-use ValueObjects\String\String;
 use ValueObjects\Web\Url;
 
 class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
@@ -1088,6 +1080,38 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_select_an_udb2_image_as_main_by_uuid()
+    {
+        $id = $this->getEventId();
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-with-udb2-images.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $udb2Image = new Image(
+            new UUID('bb9dce43-6a6f-5003-bfde-b4a71342a47a'),
+            new MIMEType('image/png'),
+            new StringLiteral('title'),
+            new StringLiteral('John Doe'),
+            Url::fromNative('http://udb.twee/media/img_001.png')
+        );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                $eventImportedFromUdb2
+            )
+            ->apply(
+                new MainImageSelected($id, $udb2Image)
+            )
+            ->expect('event-with-new-udb2-main-image.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_organizer_events()
     {
         // Create an organizer.
@@ -1178,35 +1202,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     ]
                 )
             )->expect('place-with-updated-facilities.xml');
-
-        $this->execute($test);
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_labels_merged_events()
-    {
-        $test = $this->given(OfferType::EVENT())
-            ->apply(
-                new EventUpdatedFromUDB2(
-                    $this->getEventId(),
-                    $this->loadCdbXmlFromFile('event-with-keyword.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                )
-            )->apply(
-                new LabelsMerged(
-                    new StringLiteral($this->getEventId()),
-                    new LabelCollection(
-                        [
-                            new Label('foob'),
-                            // foobar is already added to the document but we add it to make sure we don't end up with doubles.
-                            new Label('foobar'),
-                            new Label('barb', false),
-                        ]
-                    )
-                )
-            )->expect('event-with-merged-labels-as-keywords.xml');
 
         $this->execute($test);
     }
