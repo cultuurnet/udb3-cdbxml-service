@@ -54,6 +54,8 @@ use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
+use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
+use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\OfferType;
@@ -942,8 +944,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $image = new Image(
             new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
             new MIMEType('image/png'),
-            new StringLiteral('title'),
-            new StringLiteral('John Doe'),
+            new Description('title'),
+            new CopyrightHolder('John Doe'),
             Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
         );
 
@@ -985,16 +987,16 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $firstImage = new Image(
             new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
             new MIMEType('image/png'),
-            new StringLiteral('title'),
-            new StringLiteral('John Doe'),
+            new Description('title'),
+            new CopyrightHolder('John Doe'),
             Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
         );
 
         $secondImage = new Image(
             new UUID('9554d6f6-bed1-4303-8d42-3fcec4601e0e'),
             new MIMEType('image/jpg'),
-            new StringLiteral('Beep Boop'),
-            new StringLiteral('Noo Idee'),
+            new Description('Beep Boop'),
+            new CopyrightHolder('Noo Idee'),
             Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
         );
 
@@ -1028,8 +1030,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $originalMainImage = new Image(
             new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
             new MIMEType('image/png'),
-            new StringLiteral('title'),
-            new StringLiteral('John Doe'),
+            new Description('title'),
+            new CopyrightHolder('John Doe'),
             Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
         );
 
@@ -1060,8 +1062,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $udb3Image = new Image(
             new UUID('c0c96570-3b3c-4d3f-9d82-c26b290e6c12'),
             new MIMEType('image/png'),
-            new StringLiteral('My best selfie.'),
-            new StringLiteral('Duck Face'),
+            new Description('My best selfie.'),
+            new CopyrightHolder('Duck Face'),
             Url::fromNative('http://foo.bar/media/c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png')
         );
 
@@ -1092,8 +1094,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $udb2Image = new Image(
             new UUID('bb9dce43-6a6f-5003-bfde-b4a71342a47a'),
             new MIMEType('image/png'),
-            new StringLiteral('title'),
-            new StringLiteral('John Doe'),
+            new Description('title'),
+            new CopyrightHolder('John Doe'),
             Url::fromNative('http://udb.twee/media/img_001.png')
         );
 
