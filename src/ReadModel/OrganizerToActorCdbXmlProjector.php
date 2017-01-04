@@ -285,27 +285,30 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
 
     /**
      * @param LabelAdded $labelAdded
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyLabelAdded(LabelAdded $labelAdded)
+    private function applyLabelAdded(LabelAdded $labelAdded, Metadata $metadata)
     {
-        return $this->applyLabelEvent($labelAdded);
+        return $this->applyLabelEvent($labelAdded, $metadata);
     }
 
     /**
      * @param LabelRemoved $labelRemoved
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyLabelRemoved(LabelRemoved $labelRemoved)
+    private function applyLabelRemoved(LabelRemoved $labelRemoved, Metadata $metadata)
     {
-        return $this->applyLabelEvent($labelRemoved);
+        return $this->applyLabelEvent($labelRemoved, $metadata);
     }
 
     /**
      * @param AbstractLabelEvent $labelEvent
+     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
-    private function applyLabelEvent(AbstractLabelEvent $labelEvent)
+    private function applyLabelEvent(AbstractLabelEvent $labelEvent, Metadata $metadata)
     {
         $labelName = (string) $labelEvent->getLabel();
 
@@ -332,6 +335,9 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
                 );
             }
         }
+
+        $organizer = $this->metadataCdbItemEnricher
+            ->enrich($organizer, $metadata);
 
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($organizer);
