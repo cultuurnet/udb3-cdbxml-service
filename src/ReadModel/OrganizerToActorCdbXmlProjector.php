@@ -276,6 +276,9 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             $actorImportedFromUdb2->getCdbXml()
         );
 
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
     }
