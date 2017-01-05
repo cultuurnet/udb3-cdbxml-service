@@ -224,7 +224,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
         );
 
-        $domainMessage = $this->createDomainMessage($id, $event);
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -249,7 +249,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
         );
 
-        $domainMessage = $this->createDomainMessage($id, $event);
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
@@ -269,7 +269,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $organizerId = 'ORG-123';
         $labelAdded = new LabelAdded($organizerId, new Label('2dotstwice'));
 
-        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded);
+        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded, $this->metadata);
 
         $document = new CdbXmlDocument(
             $organizerId,
@@ -294,7 +294,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $organizerId = 'ORG-123';
         $labelAdded = new LabelAdded($organizerId, new Label('2dotstwice', false));
 
-        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded);
+        $domainMessage = $this->createDomainMessage($organizerId, $labelAdded, $this->metadata);
 
         $document = new CdbXmlDocument(
             $organizerId,
@@ -319,7 +319,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $organizerId = 'ORG-123';
         $labelRemoved = new LabelRemoved($organizerId, new Label('2dotstwice'));
 
-        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved);
+        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved, $this->metadata);
 
         $document = new CdbXmlDocument(
             $organizerId,
@@ -344,7 +344,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $organizerId = 'ORG-123';
         $labelRemoved = new LabelRemoved($organizerId, new Label('2dotstwice', false));
 
-        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved);
+        $domainMessage = $this->createDomainMessage($organizerId, $labelRemoved, $this->metadata);
 
         $document = new CdbXmlDocument(
             $organizerId,
