@@ -1458,6 +1458,16 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $event->setPrivate(true);
         };
 
+        if($audienceType->is(AudienceType::EDUCATION())) {
+            $event->setPrivate(true);
+            $targetAudience = new CultureFeed_Cdb_Data_Category(
+                'targetaudience',
+                '2.1.3.0.0',
+                'Scholen'
+            );
+            $event->getCategories()->add($targetAudience);
+        };
+
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);

@@ -1545,6 +1545,42 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->execute($test);
     }
 
+    /**
+     * @test
+     */
+    public function it_should_make_an_event_private_when_audience_type_is_set_to_education()
+    {
+        $audienceUpdatedEvent = new AudienceUpdated(
+            $this->getEventId(),
+            new Audience(AudienceType::EDUCATION())
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($audienceUpdatedEvent)
+            ->expect('event-with-education-target-audience.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_add_target_audience_category_Scholen_when_an_event_audience_type_is_set_to_education()
+    {
+        $audienceUpdatedEvent = new AudienceUpdated(
+            $this->getEventId(),
+            new Audience(AudienceType::EDUCATION())
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($audienceUpdatedEvent)
+            ->expect('event-with-education-target-audience.xml');
+
+        $this->execute($test);
+    }
+
     public function rejectionEventsDataProvider()
     {
         return [
