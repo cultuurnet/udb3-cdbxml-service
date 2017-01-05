@@ -613,6 +613,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $event->setWfStatus(WorkflowStatus::DRAFT()->toNative());
 
+        $event->setPrivate(false);
+
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
           ->enrich($event, $metadata);
