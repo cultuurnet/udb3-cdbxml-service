@@ -1496,7 +1496,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 CultureFeed_Cdb_Data_CategoryList $categories,
                 CultureFeed_Cdb_Data_Category $category
             ) use ($categoryId) {
-                if($category->getId() !== $categoryId) {
+                if ($category->getId() !== $categoryId) {
                     $categories->add($category);
                 }
 

@@ -1607,32 +1607,32 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             "update event from audienceType 'everyone' to audienceType 'members'" => [
                 'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
                 'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
-                'result' => 'event-private.xml'
+                'result' => 'event-private.xml',
             ],
             "update event from audienceType 'everyone' to audienceType 'education'" => [
                 'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
                 'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
-                'result' => 'event-with-education-target-audience.xml'
+                'result' => 'event-with-education-target-audience.xml',
             ],
             "update event from audienceType 'members' to audienceType 'everyone'" => [
                 'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
                 'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
-                'result' => 'event.xml'
+                'result' => 'event.xml',
             ],
             "update event from audienceType 'members' to audienceType 'education'" => [
                 'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
                 'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
-                'result' => 'event-with-education-target-audience.xml'
+                'result' => 'event-with-education-target-audience.xml',
             ],
             "update event from audienceType 'education' to audienceType 'everyone'" => [
                 'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
                 'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
-                'result' => 'event.xml'
+                'result' => 'event.xml',
             ],
             "update event from audienceType 'education' to audienceType 'members'" => [
                 'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
                 'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
-                'result' => 'event-private.xml'
+                'result' => 'event-private.xml',
             ],
         ];
     }
