@@ -338,7 +338,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event.xml')
+            $this->loadCdbXmlFromFile('event-imported.xml')
         );
 
         $this->projector->handle($domainMessage);
@@ -365,7 +365,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
                 )
             )
-            ->expect('event.xml');
+            ->expect('event-imported.xml');
 
         $this->execute($test);
     }
