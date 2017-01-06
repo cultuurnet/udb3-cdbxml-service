@@ -48,6 +48,7 @@ use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\CulturefeedSlugger;
+use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
@@ -75,6 +76,7 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeU
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
@@ -332,6 +334,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceFlaggedAsDuplicate::class => 'applyRejected',
             EventFlaggedAsInappropriate::class => 'applyRejected',
             PlaceFlaggedAsInappropriate::class => 'applyRejected',
+            AudienceUpdated::class => 'applyAudienceUpdated',
         ];
 
         $this->logger->info('found message ' . $payloadClassName . ' in OfferToCdbXmlProjector');
@@ -612,6 +615,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->setItemAvailableFrom($eventCreated, $event);
 
         $event->setWfStatus(WorkflowStatus::DRAFT()->toNative());
+
+        $event->setPrivate(false);
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -1436,6 +1441,69 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         Metadata $metadata
     ) {
         return $this->setWorkflowStatus($rejectionEvent, $metadata, WorkflowStatus::REJECTED());
+    }
+
+    /**
+     * @param AudienceUpdated $audienceUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyAudienceUpdated(AudienceUpdated $audienceUpdated, Metadata $metadata)
+    {
+        $cdbXmlDocument = $this->documentRepository->get($audienceUpdated->getItemId());
+        $event = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+        $audienceType = $audienceUpdated->getAudience()->getAudienceType();
+
+        switch ($audienceType->getValue()) {
+            case AudienceType::EVERYONE:
+                $event->setPrivate(false);
+                $event->setCategories($this->withoutCategory($event->getCategories(), '2.1.3.0.0'));
+                break;
+            case AudienceType::MEMBERS:
+                $event->setPrivate(true);
+                $event->setCategories($this->withoutCategory($event->getCategories(), '2.1.3.0.0'));
+                break;
+            case AudienceType::EDUCATION:
+                $event->setPrivate(true);
+                $targetAudience = new CultureFeed_Cdb_Data_Category(
+                    'targetaudience',
+                    '2.1.3.0.0',
+                    'Scholen'
+                );
+                $event->getCategories()->add($targetAudience);
+                break;
+        }
+
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Data_CategoryList $categories
+     * @param string $categoryId
+     * @return CultureFeed_Cdb_Data_CategoryList
+     */
+    private function withoutCategory(CultureFeed_Cdb_Data_CategoryList $categories, $categoryId)
+    {
+        return array_reduce(
+            iterator_to_array($categories),
+            function (
+                CultureFeed_Cdb_Data_CategoryList $categories,
+                CultureFeed_Cdb_Data_Category $category
+            ) use ($categoryId) {
+                if ($category->getId() !== $categoryId) {
+                    $categories->add($category);
+                }
+
+                return $categories;
+            },
+            new CultureFeed_Cdb_Data_CategoryList()
+        );
     }
 
     /**

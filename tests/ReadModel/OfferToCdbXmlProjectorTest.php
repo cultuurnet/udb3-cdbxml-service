@@ -21,6 +21,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
+use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
@@ -49,6 +50,8 @@ use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Event\ValueObjects\Audience;
+use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
@@ -58,6 +61,7 @@ use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
+use CultuurNet\UDB3\Offer\Offer;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -336,7 +340,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile('event.xml')
+            $this->loadCdbXmlFromFile('event-imported.xml')
         );
 
         $this->projector->handle($domainMessage);
@@ -363,7 +367,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
                 )
             )
-            ->expect('event.xml');
+            ->expect('event-imported.xml');
 
         $this->execute($test);
     }
@@ -1523,6 +1527,114 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->projector->handle($domainMessage);
 
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_make_an_event_private_when_audience_type_is_set_to_members()
+    {
+        $audienceUpdatedEvent = new AudienceUpdated(
+            $this->getEventId(),
+            new Audience(AudienceType::MEMBERS())
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($audienceUpdatedEvent)
+            ->expect('event-private.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_make_an_event_private_when_audience_type_is_set_to_education()
+    {
+        $audienceUpdatedEvent = new AudienceUpdated(
+            $this->getEventId(),
+            new Audience(AudienceType::EDUCATION())
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($audienceUpdatedEvent)
+            ->expect('event-with-education-target-audience.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_add_target_audience_category_Scholen_when_an_event_audience_type_is_set_to_education()
+    {
+        $audienceUpdatedEvent = new AudienceUpdated(
+            $this->getEventId(),
+            new Audience(AudienceType::EDUCATION())
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($audienceUpdatedEvent)
+            ->expect('event-with-education-target-audience.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     * @dataProvider switchingAudienceTypeDataProvider
+     */
+    public function it_should_switch_between_audience_types(
+        AudienceUpdated $fromAudienceUpdated,
+        AudienceUpdated $toAudienceUpdated,
+        $result
+    ) {
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($fromAudienceUpdated)
+            ->apply($toAudienceUpdated)
+            ->expect($result);
+
+        $this->execute($test);
+    }
+
+    public function switchingAudienceTypeDataProvider()
+    {
+        return [
+            "update event from audienceType 'everyone' to audienceType 'members'" => [
+                'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
+                'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
+                'result' => 'event-private.xml',
+            ],
+            "update event from audienceType 'everyone' to audienceType 'education'" => [
+                'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
+                'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
+                'result' => 'event-with-education-target-audience.xml',
+            ],
+            "update event from audienceType 'members' to audienceType 'everyone'" => [
+                'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
+                'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
+                'result' => 'event.xml',
+            ],
+            "update event from audienceType 'members' to audienceType 'education'" => [
+                'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
+                'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
+                'result' => 'event-with-education-target-audience.xml',
+            ],
+            "update event from audienceType 'education' to audienceType 'everyone'" => [
+                'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
+                'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EVERYONE())),
+                'result' => 'event.xml',
+            ],
+            "update event from audienceType 'education' to audienceType 'members'" => [
+                'from' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::EDUCATION())),
+                'to' => new AudienceUpdated($this->getEventId(), new Audience(AudienceType::MEMBERS())),
+                'result' => 'event-private.xml',
+            ],
+        ];
     }
 
     public function rejectionEventsDataProvider()
