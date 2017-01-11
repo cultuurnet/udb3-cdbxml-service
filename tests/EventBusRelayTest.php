@@ -33,7 +33,7 @@ class EventBusRelayTest extends \PHPUnit_Framework_TestCase
     {
         $this->uuid = new UUID();
 
-        $this->eventBus = $this->getMock(EventBusInterface::class);
+        $this->eventBus = $this->createMock(EventBusInterface::class);
 
         $this->eventBusRelay = new EventBusRelay(
             $this->eventBus,

@@ -27,8 +27,8 @@ class OfferRelationsServiceTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->eventRelationsRepository = $this->getMock(EventRelationsRepositoryInterface::class);
-        $this->placeRelationsRepository = $this->getMock(PlaceRelationsRepositoryInterface::class);
+        $this->eventRelationsRepository = $this->createMock(EventRelationsRepositoryInterface::class);
+        $this->placeRelationsRepository = $this->createMock(PlaceRelationsRepositoryInterface::class);
 
         $this->offerRelationsService = new OfferRelationsService(
             $this->eventRelationsRepository,

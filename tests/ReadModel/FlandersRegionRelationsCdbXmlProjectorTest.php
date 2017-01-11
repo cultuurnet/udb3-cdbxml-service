@@ -64,8 +64,8 @@ class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestC
         $this->repository = new CacheDocumentRepository($this->cache);
         $xml = file_get_contents(__DIR__ . '/Repository/samples/flanders_region/term.xml');
         $this->categories = new FlandersRegionCategoryService($xml);
-        $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
-        $this->iriOfferIdentifierFactory = $this->getMock(IriOfferIdentifierFactoryInterface::class);
+        $this->offerRelationsService = $this->createMock(OfferRelationsServiceInterface::class);
+        $this->iriOfferIdentifierFactory = $this->createMock(IriOfferIdentifierFactoryInterface::class);
 
         $this->projector = new FlandersRegionRelationsCdbXmlProjector(
             $this->repository,
@@ -75,7 +75,7 @@ class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestC
             $this->iriOfferIdentifierFactory
         );
 
-        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
 
         $eventId1 = 'event_1_id';

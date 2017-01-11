@@ -104,16 +104,16 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(),
-            $this->getMock(LabelApplierInterface::class)
+            $this->createMock(LabelApplierInterface::class)
         );
 
-        $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
+        $this->offerRelationsService = $this->createMock(OfferRelationsServiceInterface::class);
 
-        $this->iriOfferIdentifierFactory = $this->getMock(IriOfferIdentifierFactoryInterface::class);
+        $this->iriOfferIdentifierFactory = $this->createMock(IriOfferIdentifierFactoryInterface::class);
 
-        $this->uitpasLabelFilter = $this->getMock(LabelFilterInterface::class);
+        $this->uitpasLabelFilter = $this->createMock(LabelFilterInterface::class);
 
-        $this->uitpasLabelApplier = $this->getMock(LabelApplierInterface::class);
+        $this->uitpasLabelApplier = $this->createMock(LabelApplierInterface::class);
 
         $this->relationsProjector = new RelationsToCdbXmlProjector(
             $this->repository,
@@ -216,7 +216,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         // But don't add a second event to force logging an alert
         $secondId = 'EVENT-ABC-123';
 
-        $logger = $this->getMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
         $this->relationsProjector->setLogger($logger);
         $logger->expects($this->once())
             ->method('alert')

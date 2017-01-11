@@ -21,7 +21,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->repository = $this->getMock(DocumentRepositoryInterface::class);
+        $this->repository = $this->createMock(DocumentRepositoryInterface::class);
         $this->controller = new CdbXmlDocumentController($this->repository);
     }
 

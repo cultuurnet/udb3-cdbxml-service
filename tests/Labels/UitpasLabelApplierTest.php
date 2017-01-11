@@ -41,7 +41,7 @@ class UitpasLabelApplierTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->uitpasLabelFilter = $this->getMock(LabelFilterInterface::class);
+        $this->uitpasLabelFilter = $this->createMock(LabelFilterInterface::class);
 
         $this->uitpasLabelApplier = new UitpasLabelApplier(
             $this->uitpasLabelFilter

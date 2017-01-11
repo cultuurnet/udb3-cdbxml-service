@@ -49,7 +49,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->eventBus = $this->getMock(EventBusInterface::class);
+        $this->eventBus = $this->createMock(EventBusInterface::class);
 
         $this->regex = 'https?://foo\.bar/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)';
         $this->iriOfferIdentifierFactory = new IriOfferIdentifierFactory(

@@ -38,8 +38,8 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->eventBus = $this->getMock(EventBusInterface::class);
-        $this->organizerRepository = $this->getMock(DocumentRepositoryInterface::class);
+        $this->eventBus = $this->createMock(EventBusInterface::class);
+        $this->organizerRepository = $this->createMock(DocumentRepositoryInterface::class);
 
         $this->actorItemFactory = new ActorItemFactory(
             \CultureFeed_Cdb_Xml::namespaceUriForVersion('3.3')

@@ -311,7 +311,7 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
             );
         }
 
-        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
     }
 }
