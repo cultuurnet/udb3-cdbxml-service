@@ -121,7 +121,6 @@ use CultuurNet\UDB3\Place\Events\Moderation\FlaggedAsInappropriate as PlaceFlagg
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
-use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
 use CultuurNet\UDB3\Place\Events\TitleTranslated as PlaceTitleTranslated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
@@ -320,10 +319,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
-            LabelsMerged::class => 'applyLabelsMerged',
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
             PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
-            PlaceImportedFromUDB2Event::class => 'applyPlaceImportedFromUdb2Event',
             EventPublished::class => 'applyPublished',
             PlacePublished::class => 'applyPublished',
             EventApproved::class => 'applyApproved',
@@ -390,31 +387,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             ->fromCulturefeedCdbItem($actor);
 
         return $cdbxmlDocument;
-    }
-
-    /**
-     * @param PlaceImportedFromUDB2Event $placeImportedFromUDB2Event
-     * @param Metadata $metadata
-     * @return CdbXmlDocument
-     */
-    public function applyPlaceImportedFromUdb2Event(
-        PlaceImportedFromUDB2Event $placeImportedFromUDB2Event,
-        Metadata $metadata
-    ) {
-        $event = EventItemFactory::createEventFromCdbXml(
-            $placeImportedFromUDB2Event->getCdbXmlNamespaceUri(),
-            $placeImportedFromUDB2Event->getCdbXml()
-        );
-
-        $actor = \CultureFeed_Cdb_Item_ActorFactory::fromEvent($event);
-
-        // Add metadata to add external url.
-        $actor = $this->metadataCdbItemEnricher
-          ->enrich($actor, $metadata);
-
-        // Return a new CdbXmlDocument.
-        return $this->cdbXmlDocumentFactory
-          ->fromCulturefeedCdbItem($actor);
     }
 
     /**
@@ -1273,39 +1245,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($place);
-    }
-
-
-    /**
-     * @param LabelsMerged $labelsMerged
-     * @param Metadata $metadata
-     * @return CdbXmlDocument
-     */
-    public function applyLabelsMerged(
-        LabelsMerged $labelsMerged,
-        Metadata $metadata
-    ) {
-        $eventCdbXml = $this->getCdbXmlDocument((string) $labelsMerged->getEventId());
-
-        $event = EventItemFactory::createEventFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $eventCdbXml->getCdbXml()
-        );
-
-        foreach ($labelsMerged->getLabels()->asArray() as $mergedLabel) {
-            $keyword = new CultureFeed_Cdb_Data_Keyword(
-                (string) $mergedLabel,
-                $mergedLabel->isVisible()
-            );
-            $event->addKeyword($keyword);
-        }
-
-        $event = $this->metadataCdbItemEnricher
-            ->enrich($event, $metadata);
-
-        // Return a new CdbXmlDocument.
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($event);
     }
 
     /**
