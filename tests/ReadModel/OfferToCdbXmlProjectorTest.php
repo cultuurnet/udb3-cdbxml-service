@@ -61,14 +61,12 @@ use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
-use CultuurNet\UDB3\Offer\Offer;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
-use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 use CultuurNet\UDB3\Place\Events\PlaceUpdatedFromUDB2;
 use CultuurNet\UDB3\Place\Events\Moderation\Approved as PlaceApproved;
 use CultuurNet\UDB3\Place\Events\Moderation\Rejected as PlaceRejected;
@@ -546,35 +544,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 'place-actor-generated.xml',
             ],
         ];
-    }
-
-    /**
-     * @test
-     */
-    public function it_projects_places_imported_from_udb2_events()
-    {
-        $id = '34973B89-BDA3-4A79-96C7-78ACC022907D';
-
-        $placeImportedFromUdb2Event = new PlaceImportedFromUDB2Event(
-            $id,
-            $this->loadCdbXmlFromFile('place-event-namespaced.xml'),
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-        );
-
-        $domainMessage = $this->createDomainMessage(
-            $id,
-            $placeImportedFromUdb2Event,
-            $this->metadata
-        );
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('place-event-namespaced-to-actor.xml')
-        );
-
-        $this->projector->handle($domainMessage);
-
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**
@@ -1447,6 +1416,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      * @dataProvider rejectionEventsDataProvider
+     * @param OfferType $offerType
+     * @param AbstractEvent $event
+     * @param string $expectedDocument
      */
     public function it_should_updated_the_workflow_status_when_an_offer_is_rejected(
         OfferType $offerType,
@@ -1586,6 +1558,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      * @dataProvider switchingAudienceTypeDataProvider
+     * @param AudienceUpdated $fromAudienceUpdated
+     * @param AudienceUpdated $toAudienceUpdated
+     * @param string $result
      */
     public function it_should_switch_between_audience_types(
         AudienceUpdated $fromAudienceUpdated,
@@ -1601,6 +1576,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->execute($test);
     }
 
+    /**
+     * @return array
+     */
     public function switchingAudienceTypeDataProvider()
     {
         return [
@@ -1637,6 +1615,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rejectionEventsDataProvider()
     {
         return [
@@ -1746,6 +1727,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @param OfferType $offerType
      * @return string
+     * @uses createPlace, createEvent
      */
     private function createOffer(OfferType $offerType)
     {
