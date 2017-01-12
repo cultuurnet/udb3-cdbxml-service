@@ -61,7 +61,6 @@ use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
-use CultuurNet\UDB3\Offer\Offer;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -1417,6 +1416,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      * @dataProvider rejectionEventsDataProvider
+     * @param OfferType $offerType
+     * @param AbstractEvent $event
+     * @param string $expectedDocument
      */
     public function it_should_updated_the_workflow_status_when_an_offer_is_rejected(
         OfferType $offerType,
@@ -1556,6 +1558,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      * @dataProvider switchingAudienceTypeDataProvider
+     * @param AudienceUpdated $fromAudienceUpdated
+     * @param AudienceUpdated $toAudienceUpdated
+     * @param string $result
      */
     public function it_should_switch_between_audience_types(
         AudienceUpdated $fromAudienceUpdated,
@@ -1571,6 +1576,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->execute($test);
     }
 
+    /**
+     * @return array
+     */
     public function switchingAudienceTypeDataProvider()
     {
         return [
@@ -1607,6 +1615,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rejectionEventsDataProvider()
     {
         return [
@@ -1800,35 +1811,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private function getPlaceId()
     {
         return 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
-    }
-
-    /**
-     * Helper function to create a place.
-     *
-     * @return string
-     */
-    private function createPlace()
-    {
-        $id = $this->getPlaceId();
-
-        $place = new PlaceCreated(
-            $id,
-            new Title('My Place'),
-            new EventType('0.50.4.0.0', 'concert'),
-            $address = new Address(
-                new Street('Bondgenotenlaan 1'),
-                new PostalCode('3000'),
-                new Locality('Leuven'),
-                Country::fromNative('BE')
-            ),
-            new Calendar(CalendarType::PERMANENT())
-        );
-
-        $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
-
-        $this->projector->handle($domainMessage);
-
-        return $id;
     }
 
     /**
