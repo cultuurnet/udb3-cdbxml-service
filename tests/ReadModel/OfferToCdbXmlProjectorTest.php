@@ -1727,6 +1727,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @param OfferType $offerType
      * @return string
+     * @uses createPlace, createEvent
      */
     private function createOffer(OfferType $offerType)
     {
@@ -1811,6 +1812,35 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private function getPlaceId()
     {
         return 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
+    }
+
+    /**
+     * Helper function to create a place.
+     *
+     * @return string
+     */
+    private function createPlace()
+    {
+        $id = $this->getPlaceId();
+
+        $place = new PlaceCreated(
+            $id,
+            new Title('My Place'),
+            new EventType('0.50.4.0.0', 'concert'),
+            $address = new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            ),
+            new Calendar(CalendarType::PERMANENT())
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        return $id;
     }
 
     /**
