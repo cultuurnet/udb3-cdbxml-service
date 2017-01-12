@@ -1527,16 +1527,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $weekscheme = null;
 
         if (!empty($openingHours)) {
-            // CDB2 requires an entry for every day.
-            $requiredDays = array(
-              'monday',
-              'tuesday',
-              'wednesday',
-              'thursday',
-              'friday',
-              'saturday',
-              'sunday',
-            );
             $weekscheme = new CultureFeed_Cdb_Data_Calendar_Weekscheme();
 
             // Multiple opening times can happen on same day. Store them in array.
