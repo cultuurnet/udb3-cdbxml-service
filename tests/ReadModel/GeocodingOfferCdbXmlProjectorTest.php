@@ -263,12 +263,6 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             Country::fromNative('BE')
         );
 
-        $location = new Location(
-            UUID::generateAsString(),
-            new StringLiteral('Bibberburcht'),
-            $address
-        );
-
         $addressSummary = 'Bondgenotenlaan 1, 3000 Leuven, BE';
 
         $coordinates = new Coordinates(
