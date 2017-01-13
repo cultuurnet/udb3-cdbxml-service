@@ -61,7 +61,6 @@ use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
-use CultuurNet\UDB3\Offer\Offer;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -1447,6 +1446,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      * @dataProvider rejectionEventsDataProvider
+     * @param OfferType $offerType
+     * @param AbstractEvent $event
+     * @param string $expectedDocument
      */
     public function it_should_updated_the_workflow_status_when_an_offer_is_rejected(
         OfferType $offerType,
@@ -1586,6 +1588,9 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      * @dataProvider switchingAudienceTypeDataProvider
+     * @param AudienceUpdated $fromAudienceUpdated
+     * @param AudienceUpdated $toAudienceUpdated
+     * @param string $result
      */
     public function it_should_switch_between_audience_types(
         AudienceUpdated $fromAudienceUpdated,
@@ -1746,6 +1751,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @param OfferType $offerType
      * @return string
+     * @uses createPlace, createEvent
      */
     private function createOffer(OfferType $offerType)
     {
