@@ -69,9 +69,9 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
     {
         $this->cdbXmlDocumentRepository = new CacheDocumentRepository(new ArrayCache());
         $this->cdbXmlDocumentFactory = new CdbXmlDocumentFactory('3.3');
-        $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
+        $this->offerRelationsService = $this->createMock(OfferRelationsServiceInterface::class);
         $this->addressFormatter = new DefaultAddressFormatter();
-        $this->geocodingService = $this->getMock(GeocodingServiceInterface::class);
+        $this->geocodingService = $this->createMock(GeocodingServiceInterface::class);
 
         $this->projector = new GeocodingOfferCdbXmlProjector(
             $this->cdbXmlDocumentRepository,
@@ -261,12 +261,6 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
             new PostalCode('3000'),
             new Locality('Leuven'),
             Country::fromNative('BE')
-        );
-
-        $location = new Location(
-            UUID::generateAsString(),
-            new StringLiteral('Bibberburcht'),
-            $address
         );
 
         $addressSummary = 'Bondgenotenlaan 1, 3000 Leuven, BE';

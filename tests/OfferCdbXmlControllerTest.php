@@ -21,7 +21,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->repository = $this->getMock(DocumentRepositoryInterface::class);
+        $this->repository = $this->createMock(DocumentRepositoryInterface::class);
         $this->controller = new CdbXmlDocumentController($this->repository);
     }
 
@@ -30,7 +30,7 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_should_return_an_xml_response_when_a_cdbxml_is_found()
     {
-        $offerXml = '<?xml version="1.0"?><_/>';
+        $offerXml = '<?xml version="1.0"?></>';
         $cdbid = '2AF0FB32-BBF5-4E27-9D47-F0BBEAE340D9';
 
         $this->repository

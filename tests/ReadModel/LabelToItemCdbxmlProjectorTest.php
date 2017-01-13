@@ -30,7 +30,7 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
     {
         parent::setUp();
         $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');
-        $this->relationRepository = $this->getMock(ReadRepositoryInterface::class);
+        $this->relationRepository = $this->createMock(ReadRepositoryInterface::class);
 
         date_default_timezone_set('Europe/Brussels');
 

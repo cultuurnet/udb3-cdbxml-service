@@ -122,7 +122,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
 
-        $this->uitpasLabelApplier = $this->getMock(LabelApplierInterface::class);
+        $this->uitpasLabelApplier = $this->createMock(LabelApplierInterface::class);
 
         $this->projector = (
         new OfferToCdbXmlProjector(
@@ -153,7 +153,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->uitpasLabelApplier
         ));
 
-        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
 
         $this->metadata = $this->getDefaultMetadata();

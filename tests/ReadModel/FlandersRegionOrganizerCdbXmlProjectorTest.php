@@ -39,11 +39,6 @@ class FlandersRegionOrganizerCdbXmlProjectorTest extends PHPUnit_Framework_TestC
     private $logger;
 
     /**
-     * @var string
-     */
-    private $organizerId;
-
-    /**
      * @var FlandersRegionOrganizerCdbXmlProjector
      */
     private $projector;
@@ -66,7 +61,7 @@ class FlandersRegionOrganizerCdbXmlProjectorTest extends PHPUnit_Framework_TestC
             $this->categories
         );
 
-        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->projector->setLogger($this->logger);
     }
 

@@ -2,9 +2,6 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument;
 
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
-
 class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**

@@ -11,18 +11,11 @@ use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\Events\EventProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
-use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
-use CultuurNet\UDB3\Event\Events\TitleTranslated;
-use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
-use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
-use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use ValueObjects\Identity\UUID;
-use ValueObjects\String\String as StringLiteral;
 
 class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
 {
@@ -49,7 +42,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->eventBus = $this->getMock(EventBusInterface::class);
+        $this->eventBus = $this->createMock(EventBusInterface::class);
 
         $this->regex = 'https?://foo\.bar/(?<offertype>[event|place]+)/(?<offerid>[a-zA-Z0-9\-]+)';
         $this->iriOfferIdentifierFactory = new IriOfferIdentifierFactory(
@@ -59,20 +52,6 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         $this->publisher = new EventBusCdbXmlPublisher(
             $this->eventBus,
             $this->iriOfferIdentifierFactory
-        );
-    }
-
-    private function randomLocation()
-    {
-        return new Location(
-            UUID::generateAsString(),
-            new StringLiteral('Bibberburcht'),
-            new Address(
-                new Street('Bondgenotenlaan 1'),
-                new PostalCode('3000'),
-                new Locality('Leuven'),
-                Country::fromNative('BE')
-            )
         );
     }
 

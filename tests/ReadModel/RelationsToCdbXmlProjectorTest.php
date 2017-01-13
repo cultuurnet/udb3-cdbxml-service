@@ -104,16 +104,16 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(),
-            $this->getMock(LabelApplierInterface::class)
+            $this->createMock(LabelApplierInterface::class)
         );
 
-        $this->offerRelationsService = $this->getMock(OfferRelationsServiceInterface::class);
+        $this->offerRelationsService = $this->createMock(OfferRelationsServiceInterface::class);
 
-        $this->iriOfferIdentifierFactory = $this->getMock(IriOfferIdentifierFactoryInterface::class);
+        $this->iriOfferIdentifierFactory = $this->createMock(IriOfferIdentifierFactoryInterface::class);
 
-        $this->uitpasLabelFilter = $this->getMock(LabelFilterInterface::class);
+        $this->uitpasLabelFilter = $this->createMock(LabelFilterInterface::class);
 
-        $this->uitpasLabelApplier = $this->getMock(LabelApplierInterface::class);
+        $this->uitpasLabelApplier = $this->createMock(LabelApplierInterface::class);
 
         $this->relationsProjector = new RelationsToCdbXmlProjector(
             $this->repository,
@@ -216,7 +216,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         // But don't add a second event to force logging an alert
         $secondId = 'EVENT-ABC-123';
 
-        $logger = $this->getMock(LoggerInterface::class);
+        /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject $logger */
+        $logger = $this->createMock(LoggerInterface::class);
         $this->relationsProjector->setLogger($logger);
         $logger->expects($this->once())
             ->method('alert')
@@ -266,11 +267,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('event-with-organizer-1.xml')
-        );
-
-        $expectedSecondCdbXmlDocument = new CdbXmlDocument(
-            $secondId,
-            $this->loadCdbXmlFromFile('event-with-organizer-2.xml')
         );
 
         $this->projector->handle($domainMessage);
@@ -555,6 +551,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * Helper function to create a place.
+     * @param string $id
      */
     public function createPlace($id = '34973B89-BDA3-4A79-96C7-78ACC022907D')
     {

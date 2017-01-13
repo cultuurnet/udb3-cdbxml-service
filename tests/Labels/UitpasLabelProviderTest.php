@@ -24,7 +24,7 @@ class UitpasLabelProviderTest extends \PHPUnit_Framework_TestCase
     {
         $labelsUrl = Url::fromNative('http://udb-uitpas.dev/labels');
 
-        $this->httpClient = $this->getMock(ClientInterface::class);
+        $this->httpClient = $this->createMock(ClientInterface::class);
 
         $this->httpClient->method('get')
             ->willReturn(new Request('GET', (string) $labelsUrl));

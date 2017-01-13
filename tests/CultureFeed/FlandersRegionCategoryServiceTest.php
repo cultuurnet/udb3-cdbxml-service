@@ -3,7 +3,6 @@
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
 use CultureFeed_Cdb_Data_Category;
-use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use PHPUnit_Framework_TestCase;
 
 class FlandersRegionCategoryServiceTest extends PHPUnit_Framework_TestCase
