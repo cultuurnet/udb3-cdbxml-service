@@ -8,7 +8,6 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2;
-use CultuurNet\UDB3\Place\Events\PlaceImportedFromUDB2Event;
 
 class NewEventPublicationTest extends AbstractSpecificationTest
 {
@@ -40,7 +39,6 @@ class NewEventPublicationTest extends AbstractSpecificationTest
             [$this->createDomainMessageForEventClass(EventImportedFromUDB2::class)],
             [$this->createDomainMessageForEventClass(PlaceCreated::class)],
             [$this->createDomainMessageForEventClass(PlaceImportedFromUDB2::class)],
-            [$this->createDomainMessageForEventClass(PlaceImportedFromUDB2Event::class)],
         ];
     }
 }
