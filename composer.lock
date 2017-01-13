@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c407c5f7a7df6c323619487981f2d7a6",
+    "content-hash": "bf8b4e6592d056e6b26d40f79d11037b",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -535,16 +535,16 @@
         },
         {
             "name": "cultuurnet/cdb",
-            "version": "2.2.x-dev",
+            "version": "dev-feature/III-1650",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "985609149aa2820d2e5d149a993c9b7d2f108035"
+                "reference": "388bd56a105279015a6814089366f5ef036caecb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/985609149aa2820d2e5d149a993c9b7d2f108035",
-                "reference": "985609149aa2820d2e5d149a993c9b7d2f108035",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/388bd56a105279015a6814089366f5ef036caecb",
+                "reference": "388bd56a105279015a6814089366f5ef036caecb",
                 "shasum": ""
             },
             "require-dev": {
@@ -566,7 +566,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2016-11-16 08:49:37"
+            "time": "2017-01-13 16:08:32"
         },
         {
             "name": "cultuurnet/clock",
@@ -1041,12 +1041,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-jwt.git",
-                "reference": "7e435b1b2df671a3abffa87fcc29cae62046ad4a"
+                "reference": "951a1078e40f6a0463f1f20cee656cc4bcbd4f96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/7e435b1b2df671a3abffa87fcc29cae62046ad4a",
-                "reference": "7e435b1b2df671a3abffa87fcc29cae62046ad4a",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/951a1078e40f6a0463f1f20cee656cc4bcbd4f96",
+                "reference": "951a1078e40f6a0463f1f20cee656cc4bcbd4f96",
                 "shasum": ""
             },
             "require": {
@@ -1056,7 +1056,7 @@
             },
             "require-dev": {
                 "phing/phing": "~2.11",
-                "phpunit/phpunit": "~4.8",
+                "phpunit/phpunit": "~5.7",
                 "satooshi/php-coveralls": "~0.7",
                 "squizlabs/php_codesniffer": "~2.3"
             },
@@ -1082,7 +1082,7 @@
                 }
             ],
             "description": "Provides JWT service classes",
-            "time": "2016-08-05 14:13:29"
+            "time": "2017-01-13 14:19:32"
         },
         {
             "name": "danielstjules/stringy",
@@ -1398,16 +1398,16 @@
         },
         {
             "name": "doctrine/common",
-            "version": "v2.7.1",
+            "version": "v2.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/common.git",
-                "reference": "5954c297e9d93ff84554906c2fbbc2a133c43941"
+                "reference": "930297026c8009a567ac051fd545bf6124150347"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/common/zipball/5954c297e9d93ff84554906c2fbbc2a133c43941",
-                "reference": "5954c297e9d93ff84554906c2fbbc2a133c43941",
+                "url": "https://api.github.com/repos/doctrine/common/zipball/930297026c8009a567ac051fd545bf6124150347",
+                "reference": "930297026c8009a567ac051fd545bf6124150347",
                 "shasum": ""
             },
             "require": {
@@ -1467,7 +1467,7 @@
                 "persistence",
                 "spl"
             ],
-            "time": "2016-12-03T08:15:01+00:00"
+            "time": "2017-01-13T14:02:13+00:00"
         },
         {
             "name": "doctrine/dbal",
@@ -2133,7 +2133,7 @@
             ],
             "authors": [
                 {
-                    "name": "Knplabs",
+                    "name": "KnpLabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -4490,225 +4490,6 @@
     ],
     "packages-dev": [
         {
-            "name": "cultuurnet/entry",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cultuurnet/Entry.git",
-                "reference": "790a7a27f242afe1cc12a95c64eac81cbf402ebc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Entry/zipball/790a7a27f242afe1cc12a95c64eac81cbf402ebc",
-                "reference": "790a7a27f242afe1cc12a95c64eac81cbf402ebc",
-                "shasum": ""
-            },
-            "require": {
-                "cultuurnet/auth": "~1.2",
-                "cultuurnet/cdb": "~2",
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "guzzle/plugin-mock": "~3.9.2",
-                "phing/phing": "~2.11",
-                "phpunit/phpunit": "~4.8",
-                "satooshi/php-coveralls": "~0.7",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "CultuurNet\\Entry\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Kristof Coomans",
-                    "email": "kristof@2dotstwice.be"
-                }
-            ],
-            "description": "PHP library to access CultuurNet's Entry API",
-            "time": "2016-01-05 16:01:34"
-        },
-        {
-            "name": "cultuurnet/symfony-security-oauth",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cultuurnet/symfony-security-oauth.git",
-                "reference": "0997314f6ba99205f56e467b739cf7146304684f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/symfony-security-oauth/zipball/0997314f6ba99205f56e467b739cf7146304684f",
-                "reference": "0997314f6ba99205f56e467b739cf7146304684f",
-                "shasum": ""
-            },
-            "require": {
-                "cultuurnet/clock": "~0.1",
-                "symfony/security": "~2.7.3"
-            },
-            "require-dev": {
-                "phing/phing": "~2.11",
-                "phpunit/php-token-stream": "1.4.6",
-                "phpunit/phpunit": "~4.8",
-                "satooshi/php-coveralls": "~0.7",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "CultuurNet\\SymfonySecurityOAuth\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Kristof Coomans",
-                    "email": "kristof@2dotstwice.be"
-                },
-                {
-                    "name": "Nicolas Leroy",
-                    "email": "nicolas.leroy@gmail.com"
-                },
-                {
-                    "name": "Jonas Verhaeghe",
-                    "email": "Jonas@cultuurnet.be"
-                }
-            ],
-            "description": "Brief description of this PHP library",
-            "time": "2015-11-03 14:45:16"
-        },
-        {
-            "name": "cultuurnet/symfony-security-oauth-uitid",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cultuurnet/symfony-security-oauth-uitid.git",
-                "reference": "0e946a12d84e26cf32358a3a34ba2ea7cf537406"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/symfony-security-oauth-uitid/zipball/0e946a12d84e26cf32358a3a34ba2ea7cf537406",
-                "reference": "0e946a12d84e26cf32358a3a34ba2ea7cf537406",
-                "shasum": ""
-            },
-            "require": {
-                "cultuurnet/symfony-security-oauth": "~0.1",
-                "cultuurnet/uitid-credentials": "~0.1"
-            },
-            "require-dev": {
-                "phing/phing": "~2.11",
-                "phpunit/phpunit": "~4.7",
-                "satooshi/php-coveralls": "~0.7",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "CultuurNet\\SymfonySecurityOAuthUitid\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Kristof Coomans",
-                    "email": "kristof@2dotstwice.be"
-                },
-                {
-                    "name": "Nicolas Leroy",
-                    "email": "nicolas.leroy@gmail.com"
-                },
-                {
-                    "name": "Jonas Verhaeghe",
-                    "email": "Jonas@cultuurnet.be"
-                }
-            ],
-            "description": "The UiTiD implementation for the SymfonySecurityOAuth component",
-            "time": "2015-10-12 13:31:17"
-        },
-        {
-            "name": "cultuurnet/uitid-credentials",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cultuurnet/uitid-credentials.git",
-                "reference": "6daab13bfb67d1eb0ceddf9b32474c05a6698a48"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/uitid-credentials/zipball/6daab13bfb67d1eb0ceddf9b32474c05a6698a48",
-                "reference": "6daab13bfb67d1eb0ceddf9b32474c05a6698a48",
-                "shasum": ""
-            },
-            "require": {
-                "cultuurnet/auth": "~1.2"
-            },
-            "require-dev": {
-                "guzzle/plugin-mock": "dev-master",
-                "phing/phing": "~2.11",
-                "phpunit/phpunit": "~4.7",
-                "satooshi/php-coveralls": "~0.7",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "CultuurNet\\UitidCredentials\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Kristof Coomans",
-                    "email": "kristof@2dotstwice.be"
-                },
-                {
-                    "name": "Nicolas Leroy",
-                    "email": "nicolas.leroy@gmail.com"
-                },
-                {
-                    "name": "Jonas Verhaeghe",
-                    "email": "Jonas@cultuurnet.be"
-                }
-            ],
-            "description": "Brief description of this PHP library",
-            "time": "2016-05-18 16:28:40"
-        },
-        {
             "name": "doctrine/instantiator",
             "version": "1.0.5",
             "source": {
@@ -5536,45 +5317,6 @@
                 "xunit"
             ],
             "time": "2016-12-08T20:27:08+00:00"
-        },
-        {
-            "name": "rase/socket.io-emitter",
-            "version": "0.6.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rase-/socket.io-php-emitter.git",
-                "reference": "b7700205f43bd0047bb1ce2b32ee476c41780a06"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rase-/socket.io-php-emitter/zipball/b7700205f43bd0047bb1ce2b32ee476c41780a06",
-                "reference": "b7700205f43bd0047bb1ce2b32ee476c41780a06",
-                "shasum": ""
-            },
-            "require": {
-                "ext-redis": "*",
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "SocketIO\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "A PHP implementation of socket.io-emitter",
-            "homepage": "https://github.com/rase-/socket.io-php-emitter",
-            "keywords": [
-                "Socket.io",
-                "emit"
-            ],
-            "time": "2014-10-10T10:37:20+00:00"
         },
         {
             "name": "satooshi/php-coveralls",
@@ -6429,9 +6171,18 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "2.2",
+            "alias_normalized": "2.2.0.0",
+            "version": "dev-feature/III-1650",
+            "package": "cultuurnet/cdb"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/cdb": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
