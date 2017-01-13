@@ -12,12 +12,14 @@ abstract class AbstractSpecificationTest extends \PHPUnit_Framework_TestCase
     protected function createDomainMessageForEventClass($eventClass)
     {
         $mockBuilder = $this->getMockBuilder($eventClass);
+        $mockBuilder->disableOriginalConstructor();
+        $mockBuilder->disableProxyingToOriginalMethods();
 
         return new DomainMessage(
             UUID::generateAsString(),
             0,
             new Metadata([]),
-            $mockBuilder->disableOriginalConstructor()->disableProxyingToOriginalMethods()->getMock(),
+            $mockBuilder->getMock(),
             DateTime::now()
         );
     }
