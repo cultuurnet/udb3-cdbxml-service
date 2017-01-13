@@ -37,7 +37,7 @@ use CultuurNet\UDB3\Title;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Web\Url;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 
 class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
