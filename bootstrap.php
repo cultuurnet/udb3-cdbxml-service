@@ -50,8 +50,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 use Silex\Application;
 use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
-use ValueObjects\String\String;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 use ValueObjects\Web\Url;
 
 date_default_timezone_set('Europe/Brussels');
@@ -577,7 +576,7 @@ $app['deserializer_locator'] = $app->share(
 
         foreach ($maps as $payloadClass => $contentType) {
             $deserializerLocator->registerDeserializer(
-                new String($contentType),
+                new StringLiteral($contentType),
                 new DomainMessageJSONDeserializer($payloadClass)
             );
         }
