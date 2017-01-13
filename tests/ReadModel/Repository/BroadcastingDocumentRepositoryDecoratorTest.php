@@ -4,7 +4,6 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\CdbXmlDocumentSpecificationInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferDocumentMetadataFactory;
 
 class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_TestCase

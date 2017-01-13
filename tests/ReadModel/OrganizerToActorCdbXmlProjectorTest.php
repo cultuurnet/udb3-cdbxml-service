@@ -22,8 +22,6 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use ValueObjects\Geography\Country;
-use ValueObjects\Identity\UUID;
-use ValueObjects\String\String as StringLiteral;
 use ValueObjects\Web\Url;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
