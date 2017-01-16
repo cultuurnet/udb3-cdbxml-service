@@ -373,6 +373,24 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_projects_event_updated_from_udb2_and_major_info_updated()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-namespaced-with-categories.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->expect('event-imported-with-categories.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
     public function it_adds_place_and_organizer_cdbid_based_on_external_id_for_events_imported_from_udb2()
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
