@@ -1034,12 +1034,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $cdbXmlDocument = $this->getCdbXmlDocument($labelRemoved->getItemId());
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $keywords = $offer->getKeywords();
+        $originalKeywords = $offer->getKeywords();
         $keyword = $labelRemoved->getLabel()->__toString();
+        $offer->deleteKeyword($keyword);
+        $removedKeywords = array_diff($originalKeywords, $offer->getKeywords());
 
-        if (in_array($keyword, $keywords)) {
-            $offer->deleteKeyword($keyword);
-
+        if (!empty($removedKeywords)) {
             // Change the lastupdated attribute.
             $offer = $this->metadataCdbItemEnricher
                 ->enrich($offer, $metadata);
