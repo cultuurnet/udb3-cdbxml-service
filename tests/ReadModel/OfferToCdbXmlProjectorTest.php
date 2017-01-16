@@ -399,7 +399,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         )
                     ),
                     new Calendar(CalendarType::PERMANENT()),
-                    null
+                    new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
             )
             ->expect('event-with-categories-and-major-info-update.xml');
