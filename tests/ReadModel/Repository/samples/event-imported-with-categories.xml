@@ -15,18 +15,9 @@
       <category catid="2.1.14.0.0" type="targetaudience">Leerlingen</category>
     </categories>
     <calendar>
-      <timestamps>
-        <timestamp>
-          <date>2014-01-31</date>
-          <timestart>12:00:00</timestart>
-          <timeend>15:00:00</timeend>
-        </timestamp>
-        <timestamp>
-          <date>2014-02-20</date>
-          <timestart>12:00:00</timestart>
-          <timeend>15:00:00</timeend>
-        </timestamp>
-      </timestamps>
+      <permanentopeningtimes>
+        <permanent/>
+      </permanentopeningtimes>
     </calendar>
     <contactinfo>
       <address>

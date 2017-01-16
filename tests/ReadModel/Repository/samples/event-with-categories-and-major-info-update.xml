@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cdb:cdbxml xmlns:cdb="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL">
-    <cdb:event availableto="2014-02-20T16:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
+    <cdb:event availableto="2100-01-01T01:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
         <cdb:categories>
             <cdb:category catid="0.50.6.0.0" type="eventtype">film</cdb:category>
             <cdb:category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</cdb:category>
@@ -15,18 +15,9 @@
             <cdb:category catid="2.1.14.0.0" type="targetaudience">Leerlingen</cdb:category>
         </cdb:categories>
         <cdb:calendar>
-            <cdb:timestamps>
-                <cdb:timestamp>
-                    <cdb:date>2014-01-31</cdb:date>
-                    <cdb:timestart>12:00:00</cdb:timestart>
-                    <cdb:timeend>15:00:00</cdb:timeend>
-                </cdb:timestamp>
-                <cdb:timestamp>
-                    <cdb:date>2014-02-20</cdb:date>
-                    <cdb:timestart>12:00:00</cdb:timestart>
-                    <cdb:timeend>15:00:00</cdb:timeend>
-                </cdb:timestamp>
-            </cdb:timestamps>
+            <cdb:permanentopeningtimes>
+                <cdb:permanent/>
+            </cdb:permanentopeningtimes>
         </cdb:calendar>
         <cdb:contactinfo>
             <cdb:address>

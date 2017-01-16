@@ -379,11 +379,30 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new EventUpdatedFromUDB2(
                     $this->getEventId(),
-                    $this->loadCdbXmlFromFile('event-namespaced-with-categories.xml'),
+                    $this->loadCdbXmlFromFile('event-imported-with-categories.xml'),
                     'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
                 )
             )
-            ->expect('event-imported-with-categories.xml');
+            ->apply(
+                new MajorInfoUpdated(
+                    $this->getEventId(),
+                    new Title("Griezelfilm of horror"),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    new Location(
+                        $this->getPlaceId(),
+                        new StringLiteral('Bibberburcht'),
+                        new Address(
+                            new Street('Bondgenotenlaan 1'),
+                            new PostalCode('3000'),
+                            new Locality('Leuven'),
+                            Country::fromNative('BE')
+                        )
+                    ),
+                    new Calendar(CalendarType::PERMANENT()),
+                    null
+                )
+            )
+            ->expect('event-with-categories-and-major-info-update.xml');
 
         $this->execute($test);
     }
