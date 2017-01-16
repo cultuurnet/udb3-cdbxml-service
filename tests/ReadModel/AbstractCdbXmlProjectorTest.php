@@ -28,7 +28,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 
 class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {

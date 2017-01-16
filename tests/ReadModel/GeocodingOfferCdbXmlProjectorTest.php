@@ -31,7 +31,7 @@ use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 
 class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
 {

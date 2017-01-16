@@ -32,7 +32,7 @@ use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 
 class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
 {
