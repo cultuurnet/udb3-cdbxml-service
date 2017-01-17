@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <event availableto="2100-01-01T01:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
+    <categories>
+      <category catid="6.2.0.0.0" type="publicscope">Regionaal</category>
+      <category catid="2.2.2.0.0" type="targetaudience">Kinderen vanaf 6 jaar (6+)</category>
+      <category catid="2.1.3.0.0" type="targetaudience">Scholen</category>
+      <category catid="14.3.0.0.0" type="educationfield">Kunst en cultuur</category>
+      <category catid="reg.354" type="flanderstouristregion">Antwerpse Kempen</category>
+      <category catid="12.2.2.0.0" type="educationlevel">Gewoon lager onderwijs - tweede graad</category>
+      <category catid="reg.598" type="flandersregion">2820 Bonheiden</category>
+      <category catid="umv.6" type="umv">Toneel, muziek en dans</category>
+      <category catid="2.1.14.0.0" type="targetaudience">Leerlingen</category>
+      <category catid="0.50.4.0.0" type="eventtype">concert</category>
+    </categories>
+    <calendar>
+      <permanentopeningtimes>
+        <permanent/>
+      </permanentopeningtimes>
+    </calendar>
+    <contactinfo>
+      <address>
+        <physical>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
+        </physical>
+      </address>
+    </contactinfo>
+    <eventdetails>
+      <eventdetail lang="nl">
+        <title>Griezelfilm of horror</title>
+      </eventdetail>
+    </eventdetails>
+    <location>
+      <address>
+        <physical>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
+        </physical>
+      </address>
+      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</label>
+    </location>
+  </event>
+</cdbxml>

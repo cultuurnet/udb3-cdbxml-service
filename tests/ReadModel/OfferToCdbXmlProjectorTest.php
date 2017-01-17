@@ -373,6 +373,80 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_projects_event_updated_from_udb2_and_major_info_updated_without_theme()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-imported-with-categories.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->apply(
+                new MajorInfoUpdated(
+                    $this->getEventId(),
+                    new Title("Griezelfilm of horror"),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    new Location(
+                        $this->getPlaceId(),
+                        new StringLiteral('Bibberburcht'),
+                        new Address(
+                            new Street('Bondgenotenlaan 1'),
+                            new PostalCode('3000'),
+                            new Locality('Leuven'),
+                            Country::fromNative('BE')
+                        )
+                    ),
+                    new Calendar(CalendarType::PERMANENT()),
+                    null
+                )
+            )
+            ->expect('event-with-categories-and-major-info-update-without-theme.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_updated_from_udb2_and_major_info_updated_wit_theme()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-imported-with-categories.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->apply(
+                new MajorInfoUpdated(
+                    $this->getEventId(),
+                    new Title("Griezelfilm of horror"),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    new Location(
+                        $this->getPlaceId(),
+                        new StringLiteral('Bibberburcht'),
+                        new Address(
+                            new Street('Bondgenotenlaan 1'),
+                            new PostalCode('3000'),
+                            new Locality('Leuven'),
+                            Country::fromNative('BE')
+                        )
+                    ),
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.8.2.0.0', 'Jazz en blues')
+                )
+            )
+            ->expect('event-with-categories-and-major-info-update.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
     public function it_adds_place_and_organizer_cdbid_based_on_external_id_for_events_imported_from_udb2()
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';

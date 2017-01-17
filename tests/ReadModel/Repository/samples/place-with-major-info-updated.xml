@@ -8,6 +8,7 @@
     </actordetails>
     <categories>
       <category catid="8.15.0.0.0" type="actortype">Locatie</category>
+      <category catid="8.4.0.0.0" type="eventtype">Galerie</category>
       <category catid="1.0.1.0.0" type="theme">Schilderkunst</category>
     </categories>
     <contactinfo>

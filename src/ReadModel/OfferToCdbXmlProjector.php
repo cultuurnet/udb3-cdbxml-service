@@ -44,6 +44,10 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategoryListFilter;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\AnyOff;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
@@ -1844,31 +1848,24 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         EventType $eventType,
         Theme $theme = null
     ) {
-        // Set event type and theme.
-        $updatedTheme = false;
-        foreach ($item->getCategories() as $key => $category) {
-            if ($category->getType() == 'eventtype') {
-                $category->setId($eventType->getId());
-                $category->setName($eventType->getLabel());
-            }
+        $filter = new CategoryListFilter(
+            new Not(
+                new AnyOff(new Type('eventtype'), new Type('theme'))
+            )
+        );
 
-            // update the theme
-            if ($theme && $category->getType() == 'theme') {
-                $category->setId($theme->getId());
-                $category->setName($theme->getLabel());
-                $updatedTheme = true;
-            }
+        $categories = $filter->filter($item->getCategories());
 
-            // remove the theme if exists
-            if (!$theme && $category->getType() == 'theme') {
-                $item->getCategories()->delete($key);
-                $updatedTheme = true;
-            }
-        }
+        $categories->add(
+            new CultureFeed_Cdb_Data_Category(
+                'eventtype',
+                $eventType->getId(),
+                $eventType->getLabel()
+            )
+        );
 
-        // add new theme if it didn't exist
-        if (!$updatedTheme && $theme) {
-            $item->getCategories()->add(
+        if ($theme) {
+            $categories->add(
                 new CultureFeed_Cdb_Data_Category(
                     'theme',
                     $theme->getId(),
@@ -1876,6 +1873,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 )
             );
         }
+
+        $item->setCategories($categories);
     }
 
     /**

@@ -5,7 +5,8 @@ namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 use CultureFeed_Cdb_Data_Address_PhysicalAddress;
 use CultureFeed_Cdb_Data_Category;
 use CultureFeed_Cdb_Item_Base;
-use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryServiceInterface;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
 use SimpleXMLElement;
 
 class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInterface
@@ -56,23 +57,20 @@ class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInte
      * @param CultureFeed_Cdb_Item_Base $item
      * @param CultureFeed_Cdb_Data_Category|null $newCategory
      */
-    public function updateFlandersRegionCategories(CultureFeed_Cdb_Item_Base $item, CultureFeed_Cdb_Data_Category $newCategory = null)
-    {
-        $updated = false;
-        foreach ($item->getCategories() as $key => $category) {
-            if ($category->getType() == CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION) {
-                if ($newCategory && !$updated) {
-                    $category->setId($newCategory->getId());
-                    $category->setName($newCategory->getName());
-                    $updated = true;
-                } else {
-                    $item->getCategories()->delete($key);
-                }
-            }
+    public function updateFlandersRegionCategories(
+        CultureFeed_Cdb_Item_Base $item,
+        CultureFeed_Cdb_Data_Category $newCategory = null
+    ) {
+        $filter = new CategoryListFilter(
+            new Not(new Type('flandersregion'))
+        );
+
+        $categories = $filter->filter($item->getCategories());
+
+        if ($newCategory) {
+            $categories->add($newCategory);
         }
 
-        if (!$updated && $newCategory) {
-            $item->getCategories()->add($newCategory);
-        }
+        $item->setCategories($categories);
     }
 }
