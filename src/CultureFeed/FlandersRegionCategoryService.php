@@ -5,7 +5,6 @@ namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 use CultureFeed_Cdb_Data_Address_PhysicalAddress;
 use CultureFeed_Cdb_Data_Category;
 use CultureFeed_Cdb_Item_Base;
-use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryServiceInterface;
 use SimpleXMLElement;
 
 class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInterface
@@ -56,23 +55,29 @@ class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInte
      * @param CultureFeed_Cdb_Item_Base $item
      * @param CultureFeed_Cdb_Data_Category|null $newCategory
      */
-    public function updateFlandersRegionCategories(CultureFeed_Cdb_Item_Base $item, CultureFeed_Cdb_Data_Category $newCategory = null)
-    {
-        $updated = false;
-        foreach ($item->getCategories() as $key => $category) {
+    public function updateFlandersRegionCategories(
+        CultureFeed_Cdb_Item_Base $item,
+        CultureFeed_Cdb_Data_Category $newCategory = null
+    ) {
+        $oldCategories = $item->getCategories();
+        $newCategories = new \CultureFeed_Cdb_Data_CategoryList();
+        $themeMissing = true;
+
+        foreach ($oldCategories as $index => $category) {
             if ($category->getType() == CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION) {
-                if ($newCategory && !$updated) {
-                    $category->setId($newCategory->getId());
-                    $category->setName($newCategory->getName());
-                    $updated = true;
-                } else {
-                    $item->getCategories()->delete($key);
+                $themeMissing = false;
+                if ($newCategory) {
+                    $newCategories->add($newCategory);
                 }
+            } else {
+                $newCategories->add($category);
             }
         }
 
-        if (!$updated && $newCategory) {
-            $item->getCategories()->add($newCategory);
+        if ($themeMissing && $newCategory) {
+            $newCategories->add($newCategory);
         }
+
+        $item->setCategories($newCategories);
     }
 }

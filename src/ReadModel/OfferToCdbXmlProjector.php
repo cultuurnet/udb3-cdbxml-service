@@ -1844,38 +1844,43 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         EventType $eventType,
         Theme $theme = null
     ) {
-        // Set event type and theme.
-        $updatedTheme = false;
-        foreach ($item->getCategories() as $key => $category) {
+        $newCategories = new CultureFeed_Cdb_Data_CategoryList();
+        $oldCategories = $item->getCategories();
+        $themeMissing = true;
+
+        foreach ($oldCategories as $index => $category) {
             if ($category->getType() == 'eventtype') {
-                $category->setId($eventType->getId());
-                $category->setName($eventType->getLabel());
-            }
-
-            // update the theme
-            if ($theme && $category->getType() == 'theme') {
-                $category->setId($theme->getId());
-                $category->setName($theme->getLabel());
-                $updatedTheme = true;
-            }
-
-            // remove the theme if exists
-            if (!$theme && $category->getType() == 'theme') {
-                $item->getCategories()->delete($key);
-                $updatedTheme = true;
+                $newCategory = new CultureFeed_Cdb_Data_Category(
+                    'eventtype',
+                    $eventType->getId(),
+                    $eventType->getLabel()
+                );
+                $newCategories->add($newCategory);
+            } else if ($category->getType() == 'theme') {
+                $themeMissing = false;
+                if ($theme) {
+                    $newCategory = new CultureFeed_Cdb_Data_Category(
+                        'theme',
+                        $theme->getId(),
+                        $theme->getLabel()
+                    );
+                    $newCategories->add($newCategory);
+                }
+            } else {
+                $newCategories->add($category);
             }
         }
 
-        // add new theme if it didn't exist
-        if (!$updatedTheme && $theme) {
-            $item->getCategories()->add(
-                new CultureFeed_Cdb_Data_Category(
-                    'theme',
-                    $theme->getId(),
-                    $theme->getLabel()
-                )
+        if ($themeMissing && $theme) {
+            $newCategory = new CultureFeed_Cdb_Data_Category(
+                'theme',
+                $theme->getId(),
+                $theme->getLabel()
             );
+            $newCategories->add($newCategory);
         }
+
+        $item->setCategories($newCategories);
     }
 
     /**
