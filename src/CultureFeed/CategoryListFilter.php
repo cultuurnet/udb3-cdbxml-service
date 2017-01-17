@@ -26,14 +26,14 @@ class CategoryListFilter
      */
     public function filter(CultureFeed_Cdb_Data_CategoryList $categories)
     {
-        $newCategories = new CultureFeed_Cdb_Data_CategoryList();
+        $matchingCategories = new CultureFeed_Cdb_Data_CategoryList();
 
         foreach ($categories as $category) {
             if ($this->spec->matches($category)) {
-                $newCategories->add($category);
+                $matchingCategories->add($category);
             }
         }
 
-        return $newCategories;
+        return $matchingCategories;
     }
 }
