@@ -19,6 +19,9 @@ class Type implements CategorySpecificationInterface
         $this->type = $type;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function matches(CultureFeed_Cdb_Data_Category $category)
     {
         return $category->getType() == $this->type;

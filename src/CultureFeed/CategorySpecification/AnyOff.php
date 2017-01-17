@@ -26,6 +26,9 @@ class AnyOff implements CategorySpecificationInterface
         $this->wrapped = $args;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function matches(CultureFeed_Cdb_Data_Category $category)
     {
         foreach ($this->wrapped as $wrapped) {

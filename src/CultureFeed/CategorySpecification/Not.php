@@ -1,7 +1,4 @@
 <?php
-/**
- * @file
- */
 
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification;
 
@@ -14,11 +11,18 @@ class Not implements CategorySpecificationInterface
      */
     private $wrapped;
 
+    /**
+     * Not constructor.
+     * @param CategorySpecificationInterface $wrapped
+     */
     public function __construct(CategorySpecificationInterface $wrapped)
     {
         $this->wrapped = $wrapped;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function matches(CultureFeed_Cdb_Data_Category $category)
     {
         return !$this->wrapped->matches($category);
