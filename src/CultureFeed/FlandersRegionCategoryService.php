@@ -4,7 +4,6 @@ namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
 use CultureFeed_Cdb_Data_Address_PhysicalAddress;
 use CultureFeed_Cdb_Data_Category;
-use CultureFeed_Cdb_Data_CategoryList;
 use CultureFeed_Cdb_Item_Base;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
