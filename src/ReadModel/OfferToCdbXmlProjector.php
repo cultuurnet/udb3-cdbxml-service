@@ -1687,21 +1687,24 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     ) {
         // Add the booking Period.
         if ($cdbItem instanceof CultureFeed_Cdb_Item_Event) {
-            $bookingPeriod = $cdbItem->getBookingPeriod();
-            if (empty($bookingPeriod)) {
-                $bookingPeriod = new CultureFeed_Cdb_Data_Calendar_BookingPeriod(
-                    null,
-                    null
-                );
-            }
+            $startDate = null;
+            $endDate = null;
 
             if ($bookingInfo->getAvailabilityStarts()) {
                 $startDate = new DateTime($bookingInfo->getAvailabilityStarts());
-                $bookingPeriod->setDateFrom($startDate->getTimestamp());
+                $startDate = $startDate->getTimestamp();
             }
             if ($bookingInfo->getAvailabilityEnds()) {
                 $endDate = new DateTime($bookingInfo->getAvailabilityEnds());
-                $bookingPeriod->setDateTill($endDate->getTimestamp());
+                $endDate = $endDate->getTimestamp();
+            }
+
+            $bookingPeriod = null;
+            if (null !== $startDate || null !== $endDate) {
+                $bookingPeriod = new CultureFeed_Cdb_Data_Calendar_BookingPeriod(
+                    $startDate,
+                    $endDate
+                );
             }
 
             $cdbItem->setBookingPeriod($bookingPeriod);
