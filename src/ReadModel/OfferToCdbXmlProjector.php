@@ -44,6 +44,10 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategoryListFilter;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\AnyOff;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
@@ -1844,43 +1848,33 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         EventType $eventType,
         Theme $theme = null
     ) {
-        $newCategories = new CultureFeed_Cdb_Data_CategoryList();
-        $oldCategories = $item->getCategories();
-        $themeMissing = true;
+        $filter = new CategoryListFilter(
+            new Not(
+                new AnyOff(new Type('eventtype'), new Type('theme'))
+            )
+        );
 
-        foreach ($oldCategories as $index => $category) {
-            if ($category->getType() == 'eventtype') {
-                $newCategory = new CultureFeed_Cdb_Data_Category(
-                    'eventtype',
-                    $eventType->getId(),
-                    $eventType->getLabel()
-                );
-                $newCategories->add($newCategory);
-            } else if ($category->getType() == 'theme') {
-                $themeMissing = false;
-                if ($theme) {
-                    $newCategory = new CultureFeed_Cdb_Data_Category(
-                        'theme',
-                        $theme->getId(),
-                        $theme->getLabel()
-                    );
-                    $newCategories->add($newCategory);
-                }
-            } else {
-                $newCategories->add($category);
-            }
-        }
+        $categories = $filter->filter($item->getCategories());
 
-        if ($themeMissing && $theme) {
-            $newCategory = new CultureFeed_Cdb_Data_Category(
-                'theme',
-                $theme->getId(),
-                $theme->getLabel()
+        $categories->add(
+            new CultureFeed_Cdb_Data_Category(
+                'eventtype',
+                $eventType->getId(),
+                $eventType->getLabel()
+            )
+        );
+
+        if ($theme) {
+            $categories->add(
+                new CultureFeed_Cdb_Data_Category(
+                    'theme',
+                    $theme->getId(),
+                    $theme->getLabel()
+                )
             );
-            $newCategories->add($newCategory);
         }
 
-        $item->setCategories($newCategories);
+        $item->setCategories($categories);
     }
 
     /**
