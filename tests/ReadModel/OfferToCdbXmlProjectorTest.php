@@ -851,6 +851,54 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
+     * @group issue-III-1778
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param $id
+     * @param $cdbXmlType
+     */
+    public function it_removes_bookingperiod_when_booking_availability_is_removed(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
+        $test = $this->given($offerType)
+            ->apply(
+                new BookingInfoUpdated(
+                    $id,
+                    new BookingInfo(
+                        'http://tickets.example.com',
+                        'Tickets on Example.com',
+                        '+32 666 666',
+                        'tickets@example.com',
+                        '2014-01-31T12:00:00',
+                        '2014-02-20T15:00:00',
+                        'booking name'
+                    )
+                )
+            )
+            ->apply(
+                new BookingInfoUpdated(
+                    $id,
+                    new BookingInfo(
+                        'http://tickets.example.com',
+                        'Tickets on Example.com',
+                        '+32 666 666',
+                        'tickets@example.com',
+                        '',
+                        '',
+                        'booking name'
+                    )
+                )
+            )
+            ->expect($cdbXmlType . '-booking-info-availability-removed.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
      */
     public function it_projects_price_info_events_on_events()
     {
