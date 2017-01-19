@@ -57,6 +57,7 @@ use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
+use CultuurNet\UDB3\Event\Events\EventCopied;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
@@ -291,6 +292,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
             EventCreated::class => 'applyEventCreated',
+            EventCopied::class => 'applyEventCopied',
             EventDeleted::class => 'applyEventDeleted',
             PlaceCreated::class => 'applyPlaceCreated',
             PlaceDeleted::class => 'applyPlaceDeleted',
@@ -601,6 +603,50 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
           ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param EventCopied $eventCopied
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyEventCopied(EventCopied $eventCopied, Metadata $metadata)
+    {
+        $eventCdbXml = $this->getCdbXmlDocument($eventCopied->getOriginalEventId());
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        // Set the new cdbid.
+        $event->setCdbId($eventCopied->getItemId());
+
+        // Set the new calendar.
+        $this->setCalendar($eventCopied->getCalendar(), $event);
+
+        // Set available to.
+        $this->setItemAvailableToFromCalendar($eventCopied->getCalendar(), $event);
+
+        // Set the workflow status.
+        $event->setWfStatus(WorkflowStatus::DRAFT()->toNative());
+
+        // Remove all labels.
+        $keywords = $event->getKeywords(true);
+        foreach ($keywords as $keyword) {
+            $event->deleteKeyword($keyword);
+        }
+
+        // Update metadata like createdby, creationdate, lastupdated and lastupdatedby.
+        // Make sure to first clear createdby and creationdate elsethey won't be updated.
+        $event->setCreationDate(null);
+        $event->setCreatedBy(null);
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
     }
 
     /**
