@@ -12,6 +12,7 @@
         "monolog/monolog": "~1.11",
         "predis/predis": "~1.0",
         "cultuurnet/broadway-amqp": "~1.0",
+        "cultuurnet/calendar-summary": "~1.0",
         "cultuurnet/deserializer": "~1.0",
         "cultuurnet/geocoding": "~0.1",
         "cultuurnet/silex-amqp": "~1.0",
