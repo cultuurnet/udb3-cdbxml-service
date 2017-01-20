@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <event availableto="2100-01-01T01:00:00" cdbid="8b1855f7-7f11-4653-9fbb-f5f4611f7960" createdby="2dotstwice" creationdate="2016-04-15T11:02:38" externalurl="http://foo.be/item/8b1855f7-7f11-4653-9fbb-f5f4611f7960" lastupdated="2016-04-15T11:02:38" lastupdatedby="info@2dotstwice.be" private="false" wfstatus="draft">
+    <categories>
+      <category catid="0.50.6.0.0" type="eventtype">film</category>
+      <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
+    </categories>
+    <calendar>
+      <permanentopeningtimes>
+        <permanent/>
+      </permanentopeningtimes>
+    </calendar>
+    <contactinfo>
+      <address>
+        <physical>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
+        </physical>
+      </address>
+    </contactinfo>
+    <eventdetails>
+      <eventdetail lang="nl">
+        <title>Griezelfilm of horror</title>
+      </eventdetail>
+    </eventdetails>
+    <location>
+      <address>
+        <physical>
+          <city>Leuven</city>
+          <country>BE</country>
+          <housenr>1</housenr>
+          <street>Bondgenotenlaan</street>
+          <zipcode>3000</zipcode>
+        </physical>
+      </address>
+      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</label>
+    </location>
+  </event>
+</cdbxml>
