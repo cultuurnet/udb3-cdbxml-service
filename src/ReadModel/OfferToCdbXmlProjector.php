@@ -625,8 +625,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Set the new calendar.
         $this->setCalendar($eventCopied->getCalendar(), $event);
 
-        // Set available to.
+        // Set availability
         $this->setItemAvailableToFromCalendar($eventCopied->getCalendar(), $event);
+        $event->setAvailableFrom(null);
 
         // Set the workflow status.
         $event->setWfStatus(WorkflowStatus::DRAFT()->toNative());
@@ -637,8 +638,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $event->deleteKeyword($keyword);
         }
 
-        // Update metadata like createdby, creationdate, lastupdated and lastupdatedby.
-        // Make sure to first clear createdby and creationdate elsethey won't be updated.
+        // Update metadata like created-by, creation-date, last-updated and last-updated-by.
+        // Make sure to first clear created-by and creation-date else they won't be updated.
         $event->setCreationDate(null);
         $event->setCreatedBy(null);
         $event = $this->metadataCdbItemEnricher
