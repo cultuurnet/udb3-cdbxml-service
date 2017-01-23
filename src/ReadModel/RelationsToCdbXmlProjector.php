@@ -257,7 +257,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         AbstractLabelEvent $labelEvent,
         DomainMessage $domainMessage
     ) {
-        $label = $this->getLabelName($domainMessage);
+        $label = (string) $labelEvent->getLabel();
 
         // Only apply UiTPAS labels.
         $labelCollection = LabelCollection::fromStrings([$label]);
@@ -291,18 +291,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
 
             $this->saveAndPublishIfChanged($newEvent, $event, $domainMessage->getMetadata());
         }
-    }
-
-    /**
-     * @param DomainMessage $domainMessage
-     * @return null|string
-     */
-    private function getLabelName(DomainMessage $domainMessage)
-    {
-        $metaDataAsArray = $domainMessage->getMetadata()->serialize();
-
-        return isset($metaDataAsArray['labelName']) ?
-            $metaDataAsArray['labelName'] : null;
     }
 
     /**
