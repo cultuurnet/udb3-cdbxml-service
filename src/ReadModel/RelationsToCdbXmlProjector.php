@@ -282,7 +282,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
                     $newEvent,
                     $labelCollection
                 );
-            } else {
+            } elseif ($labelEvent instanceof LabelRemoved) {
                 $newEvent = $this->uitpasLabelApplier->removeLabels(
                     $newEvent,
                     $labelCollection
