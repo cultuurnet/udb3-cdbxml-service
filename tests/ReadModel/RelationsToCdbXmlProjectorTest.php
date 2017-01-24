@@ -24,6 +24,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInte
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
@@ -385,6 +386,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             );
 
         $this->uitpasLabelFilter->method('filter')
+            ->with(LabelCollection::fromStrings([$labelName]))
             ->willReturn([$labelName]);
 
         $this->uitpasLabelApplier->expects($this->once())
@@ -445,6 +447,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             );
 
         $this->uitpasLabelFilter->method('filter')
+            ->with(LabelCollection::fromStrings([$labelName]))
             ->willReturn([$labelName]);
 
         $this->uitpasLabelApplier->expects($this->once())
