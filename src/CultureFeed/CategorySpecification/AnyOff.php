@@ -11,19 +11,13 @@ class AnyOff implements CategorySpecificationInterface
      */
     private $wrapped;
 
-    public function __construct()
+    /**
+     * AnyOff constructor.
+     * @param CategorySpecificationInterface[] ...$specs
+     */
+    public function __construct(CategorySpecificationInterface ...$specs)
     {
-        $args = func_get_args();
-
-        foreach ($args as $index => $arg) {
-            if (!$arg instanceof CategorySpecificationInterface) {
-                throw new \InvalidArgumentException(
-                    "Invalid argument received at position $index, expected an implementation of CategorySpecificationInterface"
-                );
-            }
-        }
-
-        $this->wrapped = $args;
+        $this->wrapped = $specs;
     }
 
     /**
