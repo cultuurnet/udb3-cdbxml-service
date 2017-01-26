@@ -82,6 +82,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                 'place/34973B89-BDA3-4A79-96C7-78ACC022907D',
                 false,
                 new PlaceProjectedToCdbXml(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     'place/34973B89-BDA3-4A79-96C7-78ACC022907D',
                     false
                 ),
@@ -93,6 +94,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                 'place/34973B89-BDA3-4A79-96C7-78ACC022907D',
                 true,
                 new PlaceProjectedToCdbXml(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     'place/34973B89-BDA3-4A79-96C7-78ACC022907D',
                     true
                 ),
@@ -104,6 +106,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                 'event/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                 false,
                 new EventProjectedToCdbXml(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     'event/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     false
                 ),
@@ -115,6 +118,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
                 'event/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                 true,
                 new EventProjectedToCdbXml(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     'event/404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     true
                 ),

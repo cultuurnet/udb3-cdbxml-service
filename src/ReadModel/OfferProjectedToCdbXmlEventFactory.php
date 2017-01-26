@@ -51,11 +51,13 @@ class OfferProjectedToCdbXmlEventFactory implements DocumentEventFactoryInterfac
     {
         if ($this->actorCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
             return new PlaceProjectedToCdbXml(
+                $cdbXmlDocument->getId(),
                 $this->iriGenerator->iri('place/' . $cdbXmlDocument->getId()),
                 $isNew
             );
         } elseif ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
             return new EventProjectedToCdbXml(
+                $cdbXmlDocument->getId(),
                 $this->iriGenerator->iri('event/' . $cdbXmlDocument->getId()),
                 $isNew
             );

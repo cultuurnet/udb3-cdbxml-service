@@ -10,17 +10,34 @@ class AbstractOfferProjectedToCdbXmlTest extends \PHPUnit_Framework_TestCase
     private $iri;
 
     /**
+     * @var string
+     */
+    private $itemId;
+
+    /**
      * @var AbstractOfferProjectedToCdbXml|\PHPUnit_Framework_MockObject_MockObject
      */
     private $abstractOfferProjectedToCdbXml;
 
     protected function setUp()
     {
+        $this->itemId = '7d47c27d-1f0f-461b-9471-07bfaa7b0c56';
         $this->iri = 'http://www.google.be';
 
         $this->abstractOfferProjectedToCdbXml = $this->getMockForAbstractClass(
             AbstractOfferProjectedToCdbXml::class,
-            [$this->iri, true]
+            [$this->itemId, $this->iri, true]
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_stores_an_itemId_property()
+    {
+        $this->assertEquals(
+            $this->itemId,
+            $this->abstractOfferProjectedToCdbXml->getItemId()
         );
     }
 
@@ -54,7 +71,7 @@ class AbstractOfferProjectedToCdbXmlTest extends \PHPUnit_Framework_TestCase
         /** @var AbstractOfferProjectedToCdbXml $abstractOfferProjectedToCdbXml */
         $abstractOfferProjectedToCdbXml = $this->getMockForAbstractClass(
             AbstractOfferProjectedToCdbXml::class,
-            [$this->iri]
+            [$this->itemId, $this->iri]
         );
 
         $this->assertEquals(

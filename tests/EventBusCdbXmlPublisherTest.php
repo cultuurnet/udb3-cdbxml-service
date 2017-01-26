@@ -66,6 +66,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         $publicationDate = '2016-04-12T10:58:55+00:00';
 
         $originalDomainEvent = new EventProjectedToCdbXml(
+            'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
             $iri,
             false
         );
@@ -106,6 +107,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         $publicationDate = '2016-04-12T10:58:55+00:00';
 
         $originalDomainEvent = new EventProjectedToCdbXml(
+            'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
             $iri,
             false
         );
@@ -198,6 +200,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                 new PlaceProjectedToCdbXml(
+                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     'https://foo.bar/place/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     true
                 ),
@@ -206,6 +209,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                 new PlaceProjectedToCdbXml(
+                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     'https://foo.bar/place/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     false
                 ),
@@ -214,6 +218,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                 new EventProjectedToCdbXml(
+                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     'https://foo.bar/event/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     true
                 ),
@@ -222,6 +227,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             [
                 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                 new EventProjectedToCdbXml(
+                    'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     'https://foo.bar/event/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
                     false
                 ),
@@ -239,6 +245,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
         $publicationUrl = 'http://foo.be/item/A59682E1-6745-4AF3-8B7F-FB8A8FE895D5';
 
         $originalDomainEvent = new EventProjectedToCdbXml(
+            'A59682E1-6745-4AF3-8B7F-FB8A8FE895D5',
             $iri,
             false
         );

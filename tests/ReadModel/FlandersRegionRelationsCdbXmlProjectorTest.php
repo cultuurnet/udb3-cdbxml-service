@@ -146,6 +146,7 @@ class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestC
         return [
             [
                 new PlaceProjectedToCdbXml(
+                    'place_id',
                     'http://foo.bar/place/place_id'
                 ),
                 [

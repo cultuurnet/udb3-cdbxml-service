@@ -11,9 +11,15 @@ abstract class AbstractOfferProjectedToCdbXml extends AbstractEventWithIri
      */
     protected $isNew;
 
-    public function __construct($iri, $isNew = false)
+    /**
+     * AbstractOfferProjectedToCdbXml constructor.
+     * @param string $itemId
+     * @param string $iri
+     * @param bool $isNew
+     */
+    public function __construct($itemId, $iri, $isNew = false)
     {
-        parent::__construct($iri);
+        parent::__construct($itemId, $iri);
         $this->isNew = $isNew;
     }
 

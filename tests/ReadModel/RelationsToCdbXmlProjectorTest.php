@@ -313,6 +313,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
 
         $placeProjectedToCdbXml = new PlaceProjectedToCdbXml(
+            $placeId,
             $placeIri
         );
 
