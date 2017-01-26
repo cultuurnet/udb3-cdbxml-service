@@ -46,6 +46,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategoryListFilter;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\AnyOff;
+use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\ID;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
@@ -153,6 +154,8 @@ use Rhumsaa\Uuid\Uuid as BaseUuid;
 class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
+
+    const SCHOOLS_CATEGORY_ID = '2.1.3.0.0';
 
     /**
      * @var array
@@ -1444,25 +1447,30 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $event = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
         $audienceType = $audienceUpdated->getAudience()->getAudienceType();
 
+        $filter = new CategoryListFilter(
+            new Not(new ID(self::SCHOOLS_CATEGORY_ID))
+        );
+        $categories = $filter->filter($event->getCategories());
+
         switch ($audienceType->getValue()) {
             case AudienceType::EVERYONE:
                 $event->setPrivate(false);
-                $event->setCategories($this->withoutCategory($event->getCategories(), '2.1.3.0.0'));
                 break;
             case AudienceType::MEMBERS:
                 $event->setPrivate(true);
-                $event->setCategories($this->withoutCategory($event->getCategories(), '2.1.3.0.0'));
                 break;
             case AudienceType::EDUCATION:
                 $event->setPrivate(true);
                 $targetAudience = new CultureFeed_Cdb_Data_Category(
                     'targetaudience',
-                    '2.1.3.0.0',
+                    self::SCHOOLS_CATEGORY_ID,
                     'Scholen'
                 );
-                $event->getCategories()->add($targetAudience);
+                $categories->add($targetAudience);
                 break;
         }
+
+        $event->setCategories($categories);
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
@@ -1471,29 +1479,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
-    }
-
-    /**
-     * @param CultureFeed_Cdb_Data_CategoryList $categories
-     * @param string $categoryId
-     * @return CultureFeed_Cdb_Data_CategoryList
-     */
-    private function withoutCategory(CultureFeed_Cdb_Data_CategoryList $categories, $categoryId)
-    {
-        return array_reduce(
-            iterator_to_array($categories),
-            function (
-                CultureFeed_Cdb_Data_CategoryList $categories,
-                CultureFeed_Cdb_Data_Category $category
-            ) use ($categoryId) {
-                if ($category->getId() !== $categoryId) {
-                    $categories->add($category);
-                }
-
-                return $categories;
-            },
-            new CultureFeed_Cdb_Data_CategoryList()
-        );
     }
 
     /**
