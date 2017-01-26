@@ -3,6 +3,8 @@
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification;
 
 use CultureFeed_Cdb_Data_Category;
+use PHPUnit_Framework_Error;
+use TypeError;
 
 class AnyOffTest extends \PHPUnit_Framework_TestCase
 {
@@ -52,10 +54,7 @@ class AnyOffTest extends \PHPUnit_Framework_TestCase
      */
     public function it_throws_exception_when_parameter_has_wrong_type()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Invalid argument received at position 2, expected an implementation of CategorySpecificationInterface'
-        );
+        $this->expectTypeError();
 
         $this->anyOff = new AnyOff(
             $this->falseCategorySpecification,
@@ -80,5 +79,14 @@ class AnyOffTest extends \PHPUnit_Framework_TestCase
             ->willReturn($result);
 
         return $categorySpecification;
+    }
+
+    private function expectTypeError()
+    {
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+            $this->expectException(TypeError::class);
+        } else {
+            $this->expectException(PHPUnit_Framework_Error::class);
+        }
     }
 }
