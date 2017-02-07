@@ -39,7 +39,11 @@ class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInte
         $result = $this->terms->xpath(
             '//c:term[@domain=\'' . CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION . '\' and '
             . 'contains(@label, \'' . $zip . '\') and '
-            . 'contains(@label, \'' . $city . '\')]'
+            . 'contains(
+                translate(@label, \'ABCDEFGHJIKLMNOPQRSTUVWXYZ\', \'abcdefghjiklmnopqrstuvwxyz\'),
+                \'' . strtolower($city) . '\'
+              )
+            ]'
         );
 
         if (count($result)) {
