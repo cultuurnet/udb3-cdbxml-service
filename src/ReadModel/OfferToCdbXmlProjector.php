@@ -721,6 +721,13 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 'Locatie'
             )
         );
+        $categoryList->add(
+            new CultureFeed_Cdb_Data_Category(
+                'eventtype',
+                $placeCreated->getEventType()->getId(),
+                $placeCreated->getEventType()->getLabel()
+            )
+        );
         $actor->setCategories($categoryList);
 
         $this->setItemAvailableToFromCalendar(

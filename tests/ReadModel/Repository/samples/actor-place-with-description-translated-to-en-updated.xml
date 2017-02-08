@@ -13,6 +13,7 @@
     </actordetails>
     <categories>
       <category catid="8.15.0.0.0" type="actortype">Locatie</category>
+      <category catid="0.50.4.0.0" type="eventtype">concert</category>
     </categories>
     <contactinfo>
       <address>

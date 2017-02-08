@@ -8,6 +8,7 @@
     </actordetails>
     <categories>
       <category catid="8.15.0.0.0" type="actortype">Locatie</category>
+      <category catid="0.50.4.0.0" type="eventtype">concert</category>
       <category catid="3.13.3.0.0" type="facility">Brochure beschikbaar in braille</category>
       <category catid="3.17.3.0.0" type="facility">Ondertiteling</category>
       <category catid="3.17.1.0.0" type="facility">Ringleiding</category>
