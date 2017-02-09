@@ -31,15 +31,26 @@ class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInte
      */
     public function findFlandersRegionCategory(CultureFeed_Cdb_Data_Address_PhysicalAddress $physicalAddress)
     {
-        $city = $physicalAddress->getCity();
+        $flandersRegion = CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION;
+        $city = strtolower($physicalAddress->getCity());
         $zip = $physicalAddress->getZip();
         $category = null;
 
         $this->terms->registerXPathNamespace('c', 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.2/FINAL');
+
+        // The following code tries to search for the city label in a case-insenstive way.
+        // xpath 2.0 has the method lower-case to convert a string to lower casing.
+        // Unfortunate PHP only supports xpath 1.0. A work-around for xpath 1.0 is to use translate.
+        // This approach only takes into account the basic characters and not yet special characters.
         $result = $this->terms->xpath(
-            '//c:term[@domain=\'' . CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION . '\' and '
-            . 'contains(@label, \'' . $zip . '\') and '
-            . 'contains(@label, \'' . $city . '\')]'
+            "//c:term[
+                @domain='$flandersRegion' and 
+                contains(@label, '$zip') and 
+                contains(
+                    translate(@label, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'),
+                    '$city'
+                )
+            ]"
         );
 
         if (count($result)) {
