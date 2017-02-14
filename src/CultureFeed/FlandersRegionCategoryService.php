@@ -42,15 +42,16 @@ class FlandersRegionCategoryService implements FlandersRegionCategoryServiceInte
         // xpath 2.0 has the method lower-case to convert a string to lower casing.
         // Unfortunate PHP only supports xpath 1.0. A work-around for xpath 1.0 is to use translate.
         // This approach only takes into account the basic characters and not yet special characters.
+        // Also make sure to surround the search terms with double quotes to allow searching on single quotes.
         $result = $this->terms->xpath(
-            "//c:term[
-                @domain='$flandersRegion' and 
-                contains(@label, '$zip') and 
+            '//c:term[
+                @domain="' . $flandersRegion . '" and 
+                contains(@label, "' . $zip . '") and 
                 contains(
-                    translate(@label, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'),
-                    '$city'
+                    translate(@label, "ABCDEFGHJIKLMNOPQRSTUVWXYZ", "abcdefghjiklmnopqrstuvwxyz"),
+                    "' . $city . '"
                 )
-            ]"
+            ]'
         );
 
         if (count($result)) {
