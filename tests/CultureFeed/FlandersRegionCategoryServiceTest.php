@@ -51,6 +51,21 @@ class FlandersRegionCategoryServiceTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_returns_a_category_case_insensitive_with_qoutes_by_city_and_zip()
+    {
+        $address = new \CultureFeed_Cdb_Data_Address_PhysicalAddress();
+        $address->setCity('Sint-Job-In-\'t-Goor');
+        $address->setZip('2960');
+
+        $expectedCategory = new CultureFeed_Cdb_Data_Category(CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION, 'reg.630', '2960 Sint-Job-In-\'t-Goor (Brecht)');
+
+        $actualCategory = $this->categories->findFlandersRegionCategory($address);
+        $this->assertEquals($expectedCategory, $actualCategory);
+    }
+
+    /**
+     * @test
+     */
     public function it_updates_an_existing_category()
     {
         $category = new CultureFeed_Cdb_Data_Category(CultureFeed_Cdb_Data_Category::CATEGORY_TYPE_FLANDERS_REGION, 'reg.651', '3050 Oud-Heverlee');
