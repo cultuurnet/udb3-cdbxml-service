@@ -59,9 +59,6 @@
             "cultuurnet/*": "source",
             "2dotstwice/*": "source",
             "*": "dist"
-        },
-        "platform": {
-            "php": "5.6.27"
         }
     }
 }
