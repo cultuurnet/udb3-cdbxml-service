@@ -26,7 +26,7 @@ class CdbXmlDocumentParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(\SimpleXMLElement::class, $simpleXmlElement);
         $this->assertEquals('cdbxml', $simpleXmlElement->getName());
-        $this->assertObjectHasAttribute('test', $simpleXmlElement);
+        $this->assertInstanceOf(\SimpleXMLElement::class, $simpleXmlElement->test);
     }
 
     /**
