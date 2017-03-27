@@ -1396,6 +1396,29 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_project_ageTo_and_remove_ageFrom_when_updating_typical_age_range_that_only_has_an_upper_boundary()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '9-12'
+                )
+            )
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '-18'
+                )
+            )
+            ->expect('event-with-age-to.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_event_major_info_updated()
     {
         $unknownPlaceID = UUID::generateAsString();
