@@ -1223,8 +1223,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         );
 
         $ageArray = explode('-', $ageRangeUpdated->getTypicalAgeRange());
-        $ageFrom = array_shift($ageArray);
-        $event->setAgeFrom((int) $ageFrom);
+        $ageFromString = $ageArray[0];
+        $ageToString = $ageArray[1];
+        isset($ageFromString) ? $event->setAgeFrom((int) $ageFromString) : $event->setAgeFrom();
+        isset($ageToString) ? $event->setAgeTo((int) $ageToString) : $event->setAgeFrom();
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
