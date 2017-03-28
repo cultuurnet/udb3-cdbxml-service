@@ -22,6 +22,7 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerEvent;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\TitleUpdated;
+use CultuurNet\UDB3\Organizer\Events\WebsiteUpdated;
 use CultuurNet\UDB3\Title;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
@@ -78,6 +79,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      * @uses applyOrganizerCreated()
      * @uses applyOrganizerCreatedWithUniqueWebsite()
      * @uses applyActorImportedFromUdb2()
+     * @uses applyWebsiteUpdated()
      * @uses applyTitleUpdated()
      * @uses applyAddressUpdated()
      * @uses applyContactPointUpdated()
@@ -96,6 +98,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             OrganizerCreatedWithUniqueWebsite::class => 'applyOrganizerCreatedWithUniqueWebsite',
             OrganizerImportedFromUDB2::class => 'applyActorImportedFromUdb2',
             OrganizerUpdatedFromUDB2::class => 'applyActorImportedFromUdb2',
+            WebsiteUpdated::class => 'applyWebsiteUpdated',
             TitleUpdated::class => 'applyTitleUpdated',
             AddressUpdated::class => 'applyAddressUpdated',
             ContactPointUpdated::class => 'applyContactPointUpdated',
@@ -180,6 +183,38 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $actor->setContactInfo($contactInfo);
 
         // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+    }
+
+    /**
+     * @param WebsiteUpdated $websiteUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function applyWebsiteUpdated(
+        WebsiteUpdated $websiteUpdated,
+        Metadata $metadata
+    ) {
+        $document = $this->documentRepository->get($websiteUpdated->getOrganizerId());
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $document->getCdbXml()
+        );
+
+        $contactInfo = $actor->getContactInfo();
+        if (is_null($contactInfo)) {
+            $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
+        }
+
+        $contactInfo->addUrl(
+            new \CultureFeed_Cdb_Data_Url((string) $websiteUpdated->getWebsite())
+        );
+        $actor->setContactInfo($contactInfo);
+
+        $actor = $this->metadataCdbItemEnricher->enrich($actor, $metadata);
+
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
     }
