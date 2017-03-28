@@ -1262,6 +1262,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         );
 
         $event->setAgeFrom(null);
+        $event->setAgeTo(null);
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
