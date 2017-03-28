@@ -1223,8 +1223,18 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         );
 
         $ageArray = explode('-', $ageRangeUpdated->getTypicalAgeRange());
-        $ageFrom = array_shift($ageArray);
-        $event->setAgeFrom((int) $ageFrom);
+        $ageFromString = $ageArray[0];
+        $ageToString = $ageArray[1];
+        if (filter_var($ageFromString, FILTER_VALIDATE_INT) === false) {
+            $event->setAgeFrom();
+        } else {
+            $event->setAgeFrom((int) $ageFromString);
+        }
+        if (filter_var($ageToString, FILTER_VALIDATE_INT) === false) {
+            $event->setAgeTo();
+        } else {
+            $event->setAgeTo((int) $ageToString);
+        }
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
@@ -1252,6 +1262,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         );
 
         $event->setAgeFrom(null);
+        $event->setAgeTo(null);
 
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher

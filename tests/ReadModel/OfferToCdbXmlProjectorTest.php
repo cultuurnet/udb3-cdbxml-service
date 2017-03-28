@@ -1356,17 +1356,117 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_a_typical_age_range_events()
+    public function it_should_project_ageFrom_and_ageTo_when_updating_typical_age_range_that_has_both_a_lower_and_upper_boundary()
     {
         $test = $this->given(OfferType::EVENT())
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    "9-12"
+                    '9-12'
                 )
             )
-            ->expect('event-with-age-from.xml')
+            ->expect('event-with-age-from-and-age-to.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_ageFrom_and_remove_ageTo_when_updating_typical_age_range_that_only_has_a_lower_boundary()
+    {
+        $test = $this->given(OfferType::EVENT())
             ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '9-12'
+                )
+            )
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '10-'
+                )
+            )
+            ->expect('event-with-age-from.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_ageTo_and_remove_ageFrom_when_updating_typical_age_range_that_only_has_an_upper_boundary()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '9-12'
+                )
+            )
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '-18'
+                )
+            )
+            ->expect('event-with-age-to.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_ageTo_and_ageFrom_when_updating_typical_age_range_with_zero_value_boundaries()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '0-0'
+                )
+            )
+            ->expect('event-with-zero-value-age-from-and-to.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_remove_ageTo_and_ageFrom_when_projecting_a_typical_age_range_update_without_boundaries()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '1-111'
+                )
+            )->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '-'
+                )
+            )
+            ->expect('event.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_remove_ageTo_and_ageFrom_when_projecting_a_typical_age_range_deleted_event()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    '1-111'
+                )
+            )->apply(
                 new TypicalAgeRangeDeleted(
                     $this->getEventId()
                 )
