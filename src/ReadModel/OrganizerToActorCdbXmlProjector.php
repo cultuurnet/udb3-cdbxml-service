@@ -21,6 +21,8 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\Organizer\Events\OrganizerEvent;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
+use CultuurNet\UDB3\Organizer\Events\TitleUpdated;
+use CultuurNet\UDB3\Title;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -76,6 +78,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      * @uses applyOrganizerCreated()
      * @uses applyOrganizerCreatedWithUniqueWebsite()
      * @uses applyActorImportedFromUdb2()
+     * @uses applyTitleUpdated()
      * @uses applyAddressUpdated()
      * @uses applyContactPointUpdated()
      * @uses applyLabelAdded()
@@ -93,6 +96,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             OrganizerCreatedWithUniqueWebsite::class => 'applyOrganizerCreatedWithUniqueWebsite',
             OrganizerImportedFromUDB2::class => 'applyActorImportedFromUdb2',
             OrganizerUpdatedFromUDB2::class => 'applyActorImportedFromUdb2',
+            TitleUpdated::class => 'applyTitleUpdated',
             AddressUpdated::class => 'applyAddressUpdated',
             ContactPointUpdated::class => 'applyContactPointUpdated',
             LabelAdded::class => 'applyLabelAdded',
@@ -176,6 +180,29 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $actor->setContactInfo($contactInfo);
 
         // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+    }
+
+    /**
+     * @param TitleUpdated $titleUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function applyTitleUpdated(
+        TitleUpdated $titleUpdated,
+        Metadata $metadata
+    ) {
+        $document = $this->documentRepository->get($titleUpdated->getOrganizerId());
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $document->getCdbXml()
+        );
+        $this->setTitle($actor, $titleUpdated->getTitle());
+
+        $actor = $this->metadataCdbItemEnricher->enrich($actor, $metadata);
+
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
     }
@@ -358,14 +385,8 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $actor = new \CultureFeed_Cdb_Item_Actor();
         $actor->setCdbId($organizerCreationEvent->getOrganizerId());
 
-        // Details.
-        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
-        $nlDetail->setLanguage('nl');
-        $nlDetail->setTitle($organizerCreationEvent->getTitle());
-
-        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
-        $details->add($nlDetail);
-        $actor->setDetails($details);
+        // Title
+        $this->setTitle($actor, $organizerCreationEvent->getTitle());
 
         // Categories.
         $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
@@ -383,5 +404,23 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             ->enrich($actor, $metadata);
 
         return $actor;
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Actor $actor
+     * @param Title $title
+     */
+    private function setTitle(
+        \CultureFeed_Cdb_Item_Actor $actor,
+        Title $title
+    ) {
+        // Details.
+        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
+        $nlDetail->setLanguage('nl');
+        $nlDetail->setTitle($title->toNative());
+
+        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
+        $details->add($nlDetail);
+        $actor->setDetails($details);
     }
 }
