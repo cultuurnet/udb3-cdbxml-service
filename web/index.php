@@ -21,4 +21,7 @@ $app->get('/place/{cdbid}', 'cdbxml_offer.controller:get');
 $app->get('/organizer/{cdbid}', 'cdbxml_actor.controller:get');
 $app->get('/organizers/{cdbid}', 'cdbxml_actor.controller:get');
 
+// calendar-summary
+$app->get('/event/{cdbid}/calendar-summary', 'calendar_summary.controller:get');
+
 $app->run();

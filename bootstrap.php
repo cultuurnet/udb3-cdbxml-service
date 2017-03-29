@@ -15,6 +15,7 @@ use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\Address\DefaultAddressFormatter;
+use CultuurNet\UDB3\CdbXmlService\CalendarSummary\CalendarSummaryController;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -783,6 +784,14 @@ $app['udb2_external_id_mapping_service_factory'] = $app->protect(
 
         return new ArrayMappingService($map);
     }
+);
+
+$app['calendar_summary.controller'] = $app->share(
+  function (Application $app) {
+      return new CalendarSummaryController(
+        $app['real_cdbxml_offer_repository']
+      );
+  }
 );
 
 /**
