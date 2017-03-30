@@ -31,17 +31,11 @@ class CalendarSummaryController
      */
     public function get($cdbid, Request $request)
     {
-        $supportedContentTypeFormatters = [
-          'text/plain' => CalendarPlainTextFormatter::class,
-          'text/html' => CalendarHTMLFormatter::class,
-        ];
         $defaultContentType = new ContentType('text/plain');
-        $defaultCalendarFormat = 'lg';
-
-        $calendarFormat = new Format($request->query->get('format', $defaultCalendarFormat));
-
         $requestedContentType = $request->getAcceptableContentTypes()[0];
         $contentType = $requestedContentType ? new ContentType($requestedContentType) : $defaultContentType;
+
+        $calendarFormat = new Format($request->query->get('format', 'lg'));
 
         $response = new Response();
 
