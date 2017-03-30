@@ -3,11 +3,9 @@
 namespace CultuurNet\UDB3\CdbXmlService\CalendarSummary;
 
 use Crell\ApiProblem\ApiProblem;
-use CultuurNet\CalendarSummary\CalendarFormatterInterface;
 use CultuurNet\CalendarSummary\CalendarHTMLFormatter;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\CalendarSummary\FormatterException;
-use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
