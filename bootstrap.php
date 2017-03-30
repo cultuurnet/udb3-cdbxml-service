@@ -786,10 +786,18 @@ $app['udb2_external_id_mapping_service_factory'] = $app->protect(
     }
 );
 
+$app['calendar_summary_repository'] = $app->share(
+  function (Application $app) {
+      return new \CultuurNet\UDB3\CdbXmlService\CalendarSummary\CalendarSummaryRepository(
+        $app['real_cdbxml_offer_repository']
+      );
+  }
+);
+
 $app['calendar_summary.controller'] = $app->share(
   function (Application $app) {
       return new CalendarSummaryController(
-        $app['real_cdbxml_offer_repository']
+        $app['calendar_summary_repository']
       );
   }
 );

@@ -9,23 +9,22 @@ use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\CalendarSummary\FormatterException;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CalendarSummaryController
 {
     /**
-     * @var DocumentRepositoryInterface
+     * @var CalendarSummaryRepositoryInterface
      */
-    protected $documentRepository;
+    protected $calendarSummaryRepository;
 
     /**
-     * @param DocumentRepositoryInterface $documentRepository
+     * @param CalendarSummaryRepositoryInterface $calendarSummaryRepository
      */
-    public function __construct(DocumentRepositoryInterface $documentRepository)
+    public function __construct(CalendarSummaryRepositoryInterface $calendarSummaryRepository)
     {
-        $this->documentRepository = $documentRepository;
+        $this->calendarSummaryRepository = $calendarSummaryRepository;
     }
 
     /**
@@ -38,49 +37,41 @@ class CalendarSummaryController
           'text/plain' => CalendarPlainTextFormatter::class,
           'text/html' => CalendarHTMLFormatter::class,
         ];
-        $defaultContentType = 'text/plain';
+        $defaultContentType = new ContentType('text/plain');
         $defaultCalendarFormat = 'lg';
 
-        $calendarFormat = $request->query->get('format', $defaultCalendarFormat);
+        $calendarFormat = new Format($request->query->get('format', $defaultCalendarFormat));
 
         $requestedContentType = $request->getAcceptableContentTypes()[0];
-        $contentTypeSupported = array_key_exists($requestedContentType, $supportedContentTypeFormatters);
-        $contentType = $contentTypeSupported ? $requestedContentType : $defaultContentType;
+        $contentType = $requestedContentType ? new ContentType($requestedContentType) : $defaultContentType;
 
         $response = new Response();
-        $response->headers->set('Content-Type', $contentType);
 
         try {
-            $document = $this->documentRepository->get($cdbid);
+            $summary = $this->calendarSummaryRepository->get($cdbid, $contentType, $calendarFormat);
 
-            if (is_null($document)) {
-                $problem = new ApiProblem('The document could not be found.');
+            if (is_null($summary)) {
+                $problem = new ApiProblem('The summary could not be found.');
                 $problem->setStatus(Response::HTTP_NOT_FOUND);
+            } else {
+                $response->setContent($summary);
+                $response->headers->set('Content-Type', (string) $contentType);
             }
         } catch (DocumentGoneException $e) {
-            $problem = new ApiProblem('The document is gone.');
+            $problem = new ApiProblem('The summary is gone.');
             $problem->setStatus(Response::HTTP_GONE);
-        }
-
-        if (isset($document)) {
-            $cdbxmlParser = new CdbXmlDocumentParser();
-            /** @var CalendarFormatterInterface $formatter */
-            $formatter = new $supportedContentTypeFormatters[$contentType]();
-
-            $eventCdbxml = $cdbxmlParser->parse($document)->event;
-            $cdbEvent = \CultureFeed_Cdb_Item_Event::parseFromCdbXml($eventCdbxml);
-            try {
-                $calendarSummary = $formatter->format($cdbEvent->getCalendar(), $calendarFormat);
-                $response->setContent($calendarSummary);
-            } catch (FormatterException $exception) {
-                $problem = new ApiProblem('The requested content-type does not support the calendar-format.');
-                $problem->setStatus(Response::HTTP_BAD_REQUEST);
-            }
+        } catch (FormatterException $exception) {
+            $problem = new ApiProblem('The requested content-type does not support the calendar-format.');
+            $problem->setStatus(Response::HTTP_NOT_ACCEPTABLE);
+        } catch (UnsupportedContentTypeException $exception) {
+            $problem = new ApiProblem('Content-type not supported.');
+            $problem->setDetail($exception->getMessage());
+            $problem->setStatus(Response::HTTP_NOT_ACCEPTABLE);
         }
 
         if (isset($problem)) {
             $problem
-                ->setDetail('A problem occurred when trying to show the calendar-summary for document with id: ' .$cdbid)
+                ->setDetail("A problem occurred when trying to show the calendar-summary for offer with id: \"$cdbid\" in format \"$calendarFormat\" as $contentType")
                 ->setType('about:blank');
 
             $response
