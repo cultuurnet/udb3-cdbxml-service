@@ -234,7 +234,16 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
             $document->getCdbXml()
         );
-        $this->setTitle($actor, $titleUpdated->getTitle());
+
+        /** @var \CultureFeed_Cdb_Data_ActorDetail[] $details */
+        $details = $actor->getDetails();
+        $nlDetail = null;
+        foreach ($details as $detail) {
+            if ($detail->getLanguage() === 'nl') {
+                $detail->setTitle($titleUpdated->getTitle()->toNative());
+                break;
+            }
+        }
 
         $actor = $this->metadataCdbItemEnricher->enrich($actor, $metadata);
 
@@ -420,8 +429,14 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $actor = new \CultureFeed_Cdb_Item_Actor();
         $actor->setCdbId($organizerCreationEvent->getOrganizerId());
 
-        // Title
-        $this->setTitle($actor, $organizerCreationEvent->getTitle());
+        // Details.
+        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
+        $nlDetail->setLanguage('nl');
+        $nlDetail->setTitle($organizerCreationEvent->getTitle()->toNative());
+
+        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
+        $details->add($nlDetail);
+        $actor->setDetails($details);
 
         // Categories.
         $categoryList = new \CultureFeed_Cdb_Data_CategoryList();
@@ -439,23 +454,5 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             ->enrich($actor, $metadata);
 
         return $actor;
-    }
-
-    /**
-     * @param \CultureFeed_Cdb_Item_Actor $actor
-     * @param Title $title
-     */
-    private function setTitle(
-        \CultureFeed_Cdb_Item_Actor $actor,
-        Title $title
-    ) {
-        // Details.
-        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
-        $nlDetail->setLanguage('nl');
-        $nlDetail->setTitle($title->toNative());
-
-        $details = new \CultureFeed_Cdb_Data_ActorDetailList();
-        $details->add($nlDetail);
-        $actor->setDetails($details);
     }
 }
