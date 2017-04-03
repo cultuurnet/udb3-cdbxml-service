@@ -5,7 +5,8 @@
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
     </categories>
-    <agefrom>10</agefrom>
+    <agefrom>0</agefrom>
+    <ageto>0</ageto>
     <calendar>
       <timestamps>
         <timestamp>
