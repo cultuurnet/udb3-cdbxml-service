@@ -640,6 +640,21 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         foreach ($keywords as $keyword) {
             $event->deleteKeyword($keyword);
         }
+        // But add the UiTPAS keywords again from the organizer.
+        $organiserCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
+        if ($organiserCdbId) {
+            $actorCdbXml = $this->actorDocumentRepository->get($organiserCdbId);
+            $actor = ActorItemFactory::createActorFromCdbXml(
+                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                $actorCdbXml->getCdbXml()
+            );
+            if ($actor) {
+                $event = $this->uitpasLabelApplier->addLabels(
+                    $event,
+                    LabelCollection::fromStrings($actor->getKeywords())
+                );
+            }
+        }
 
         // Update metadata like created-by, creation-date, last-updated and last-updated-by.
         // Make sure to first clear created-by and creation-date else they won't be updated.

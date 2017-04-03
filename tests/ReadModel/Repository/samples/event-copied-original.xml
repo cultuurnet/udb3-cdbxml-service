@@ -48,8 +48,12 @@
       <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</label>
     </location>
     <keywords>
+      <keyword>Paspartoe</keyword>
       <keyword>2dotstwice</keyword>
       <keyword visible="false">cultuurnet</keyword>
     </keywords>
+    <organiser>
+      <label cdbid="ORG-123">DE Studio</label>
+    </organiser>
   </event>
 </cdbxml>

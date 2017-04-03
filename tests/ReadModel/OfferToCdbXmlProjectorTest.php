@@ -14,6 +14,7 @@ use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
@@ -55,6 +56,7 @@ use CultuurNet\UDB3\Event\ValueObjects\Audience;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
@@ -332,8 +334,23 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $originalEventId,
             $this->loadCdbXmlFromFile('event-copied-original.xml')
         );
-
         $this->repository->save($cdbXmlDocument);
+
+        $organizerId = 'ORG-123';
+        $organizerCdbxml = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-uitpas-keyword.xml')
+        );
+        $this->actorRepository->save($organizerCdbxml);
+
+        $this->uitpasLabelApplier->expects($this->once())
+            ->method('addLabels')
+            ->willReturnCallback(
+                function (\CultureFeed_Cdb_Item_Event $event) {
+                    $event->addKeyword('Paspartoe');
+                    return $event;
+                }
+            );
 
         $eventCopied = new EventCopied(
             $eventId,
