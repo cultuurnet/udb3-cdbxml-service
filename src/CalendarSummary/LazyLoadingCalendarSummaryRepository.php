@@ -2,25 +2,18 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\CalendarSummary;
 
-use CultuurNet\CalendarSummary\CalendarFormatterInterface;
-use CultuurNet\CalendarSummary\CalendarHTMLFormatter;
-use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\CalendarSummary\FormatterException;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParserInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 
-class CalendarSummaryRepository implements CalendarSummaryRepositoryInterface
+class LazyLoadingCalendarSummaryRepository implements CalendarSummaryRepositoryInterface
 {
     /**
      * @var DocumentRepositoryInterface
      */
     private $offerCdbxmlRepository;
 
-    /**
-     * @var array
-     */
-    private $supportedContentTypeFormatters;
 
     /**
      * @var CdbXmlDocumentParserInterface
@@ -28,18 +21,22 @@ class CalendarSummaryRepository implements CalendarSummaryRepositoryInterface
     private $cdbxmlParser;
 
     /**
+     * @var FormatterLocatorInterface
+     */
+    private $formatterLocator;
+
+    /**
      * CalendarSummaryRepository constructor.
      * @param DocumentRepositoryInterface $offerCdbxmlRepository
+     * @param FormatterLocatorInterface $formatterLocator
      */
-    public function __construct(DocumentRepositoryInterface $offerCdbxmlRepository)
-    {
+    public function __construct(
+        DocumentRepositoryInterface $offerCdbxmlRepository,
+        FormatterLocatorInterface $formatterLocator
+    ) {
         $this->offerCdbxmlRepository = $offerCdbxmlRepository;
         $this->cdbxmlParser = new CdbXmlDocumentParser();
-
-        $this->supportedContentTypeFormatters = [
-          'text/plain' => CalendarPlainTextFormatter::class,
-          'text/html' => CalendarHTMLFormatter::class,
-        ];
+        $this->formatterLocator = $formatterLocator;
     }
 
     /**
@@ -49,7 +46,7 @@ class CalendarSummaryRepository implements CalendarSummaryRepositoryInterface
      */
     public function get($offerId, ContentType $type, Format $format)
     {
-        $formatter = $this->getTypeFormatter($type);
+        $formatter = $this->formatterLocator->getFormatterForContentType($type);
 
         $cdbxmlDocument = $this->offerCdbxmlRepository->get($offerId);
         if (!$cdbxmlDocument) {
@@ -61,24 +58,5 @@ class CalendarSummaryRepository implements CalendarSummaryRepositoryInterface
         $calendarSummary = $formatter->format($cdbEvent->getCalendar(), (string) $format);
 
         return $calendarSummary;
-    }
-
-    /**
-     * @param ContentType $type
-     *
-     * @return CalendarFormatterInterface
-     *
-     * @throws UnsupportedContentTypeException
-     */
-    private function getTypeFormatter(ContentType $type)
-    {
-        if (!array_key_exists((string) $type, $this->supportedContentTypeFormatters)) {
-            throw new UnsupportedContentTypeException("Content-type: $type is not supported!");
-        }
-
-        $formatterClassName = $this->supportedContentTypeFormatters[(string) $type];
-        $formatter = new $formatterClassName();
-
-        return $formatter;
     }
 }

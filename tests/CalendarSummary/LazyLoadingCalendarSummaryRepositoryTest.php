@@ -6,7 +6,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use PHPUnit_Framework_MockObject_MockObject;
 
-class CalendarSummaryRepositoryTest extends \PHPUnit_Framework_TestCase
+class LazyLoadingCalendarSummaryRepositoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var DocumentRepositoryInterface|PHPUnit_Framework_MockObject_MockObject
@@ -14,7 +14,7 @@ class CalendarSummaryRepositoryTest extends \PHPUnit_Framework_TestCase
     private $cdbxmlRepository;
 
     /**
-     * @var CalendarSummaryRepository
+     * @var LazyLoadingCalendarSummaryRepository
      */
     private $repository;
 
@@ -26,7 +26,10 @@ class CalendarSummaryRepositoryTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->cdbxmlRepository = $this->createMock(DocumentRepositoryInterface::class);
-        $this->repository = new CalendarSummaryRepository($this->cdbxmlRepository);
+        $this->repository = new LazyLoadingCalendarSummaryRepository(
+            $this->cdbxmlRepository,
+            new SimpleFormatterLocator()
+        );
     }
 
     /**
