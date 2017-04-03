@@ -739,18 +739,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/geocoding.git",
-                "reference": "0c28831ba3250f68d9906eafab89abe138b65b46"
+                "reference": "014de0628ab88ffd2e10c85164eaedbbffe9e0c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/geocoding/zipball/0c28831ba3250f68d9906eafab89abe138b65b46",
-                "reference": "0c28831ba3250f68d9906eafab89abe138b65b46",
+                "url": "https://api.github.com/repos/cultuurnet/geocoding/zipball/014de0628ab88ffd2e10c85164eaedbbffe9e0c9",
+                "reference": "014de0628ab88ffd2e10c85164eaedbbffe9e0c9",
                 "shasum": ""
             },
             "require-dev": {
                 "doctrine/cache": "~1.6",
                 "phing/phing": "~2.11",
-                "phpunit/phpunit": "~4.8",
+                "phpunit/phpunit": "~5.7",
                 "satooshi/php-coveralls": "~0.7",
                 "squizlabs/php_codesniffer": "~2.3",
                 "willdurand/geocoder": "~2.8"
@@ -780,7 +780,7 @@
                     "email": "bert@2dotstwice.be"
                 }
             ],
-            "time": "2017-02-23 14:39:19"
+            "time": "2017-03-31 14:39:58"
         },
         {
             "name": "cultuurnet/search",
@@ -968,12 +968,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "c52bec12c356d8b09addbaa000d1c37876125b43"
+                "reference": "ef25a8696d24991fe6e023afa72ed4a049395583"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/c52bec12c356d8b09addbaa000d1c37876125b43",
-                "reference": "c52bec12c356d8b09addbaa000d1c37876125b43",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/ef25a8696d24991fe6e023afa72ed4a049395583",
+                "reference": "ef25a8696d24991fe6e023afa72ed4a049395583",
                 "shasum": ""
             },
             "require": {
@@ -1036,7 +1036,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-02-28 13:59:05"
+            "time": "2017-04-03 09:47:37"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -4780,16 +4780,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "4.0.7",
+            "version": "4.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "09e2277d14ea467e5a984010f501343ef29ffc69"
+                "reference": "ef7b2f56815df854e66ceaee8ebe9393ae36a40d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/09e2277d14ea467e5a984010f501343ef29ffc69",
-                "reference": "09e2277d14ea467e5a984010f501343ef29ffc69",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/ef7b2f56815df854e66ceaee8ebe9393ae36a40d",
+                "reference": "ef7b2f56815df854e66ceaee8ebe9393ae36a40d",
                 "shasum": ""
             },
             "require": {
@@ -4839,7 +4839,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-03-01 09:12:17"
+            "time": "2017-04-02 07:44:40"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -5029,16 +5029,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.17",
+            "version": "5.7.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "68752b665d3875f9a38a357e3ecb35c79f8673bf"
+                "reference": "69c4f49ff376af2692bad9cebd883d17ebaa98a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/68752b665d3875f9a38a357e3ecb35c79f8673bf",
-                "reference": "68752b665d3875f9a38a357e3ecb35c79f8673bf",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/69c4f49ff376af2692bad9cebd883d17ebaa98a1",
+                "reference": "69c4f49ff376af2692bad9cebd883d17ebaa98a1",
                 "shasum": ""
             },
             "require": {
@@ -5107,7 +5107,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-03-19 16:52:12"
+            "time": "2017-04-03 02:22:27"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
