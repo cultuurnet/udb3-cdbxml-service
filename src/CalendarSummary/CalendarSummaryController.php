@@ -3,8 +3,6 @@
 namespace CultuurNet\UDB3\CdbXmlService\CalendarSummary;
 
 use Crell\ApiProblem\ApiProblem;
-use CultuurNet\CalendarSummary\CalendarHTMLFormatter;
-use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\CalendarSummary\FormatterException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +30,8 @@ class CalendarSummaryController
     public function get($cdbid, Request $request)
     {
         $defaultContentType = new ContentType('text/plain');
-        $requestedContentType = $request->getAcceptableContentTypes()[0];
+        $acceptableContentTypes = $request->getAcceptableContentTypes();
+        $requestedContentType = reset($acceptableContentTypes);
         $contentType = $requestedContentType ? new ContentType($requestedContentType) : $defaultContentType;
 
         $calendarFormat = new Format($request->query->get('format', 'lg'));
