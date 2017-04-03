@@ -36,17 +36,12 @@ class CalendarSummaryController
 
         $calendarFormat = new Format($request->query->get('format', 'lg'));
 
-        $response = new Response();
-
         try {
             $summary = $this->calendarSummaryRepository->get($cdbid, $contentType, $calendarFormat);
 
             if (is_null($summary)) {
                 $problem = new ApiProblem('The summary could not be found.');
                 $problem->setStatus(Response::HTTP_NOT_FOUND);
-            } else {
-                $response->setContent($summary);
-                $response->headers->set('Content-Type', (string) $contentType);
             }
         } catch (DocumentGoneException $e) {
             $problem = new ApiProblem('The summary is gone.');
@@ -60,7 +55,9 @@ class CalendarSummaryController
             $problem->setStatus(Response::HTTP_NOT_ACCEPTABLE);
         }
 
-        if (isset($problem)) {
+        $response = new Response();
+
+        if (!isset($summary) && isset($problem)) {
             $problem
                 ->setDetail("A problem occurred when trying to show the calendar-summary for offer with id: \"$cdbid\" in format \"$calendarFormat\" as $contentType")
                 ->setType('about:blank');
@@ -68,6 +65,9 @@ class CalendarSummaryController
             $response
                 ->setContent($problem->getTitle())
                 ->setStatusCode($problem->getStatus());
+        } else {
+            $response->setContent($summary);
+            $response->headers->set('Content-Type', (string) $contentType);
         }
 
         return $response;
