@@ -325,7 +325,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_projects_event_copied()
+    public function it_should_keep_uitpas_labels_when_an_event_gets_copied()
     {
         $originalEventId = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
         $eventId = '8b1855f7-7f11-4653-9fbb-f5f4611f7960';
