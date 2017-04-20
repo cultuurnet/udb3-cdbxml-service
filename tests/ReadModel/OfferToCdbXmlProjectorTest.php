@@ -63,6 +63,7 @@ use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
+use CultuurNet\UDB3\Offer\AgeRange;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
@@ -86,6 +87,7 @@ use Psr\Log\LoggerInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
 use ValueObjects\Money\Currency;
+use ValueObjects\Person\Age;
 use ValueObjects\StringLiteral\StringLiteral;
 use ValueObjects\Web\Url;
 
@@ -422,7 +424,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    "9-12"
+                    new AgeRange(new Age(9), new Age(12))
                 )
             )
             ->apply(
@@ -1379,7 +1381,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '9-12'
+                    new AgeRange(new Age(9), new Age(12))
                 )
             )
             ->expect('event-with-age-from-and-age-to.xml');
@@ -1396,13 +1398,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '9-12'
+                    new AgeRange(new Age(9), new Age(12))
                 )
             )
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '10-'
+                    new AgeRange(new Age(10))
                 )
             )
             ->expect('event-with-age-from.xml');
@@ -1419,13 +1421,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '9-12'
+                    new AgeRange(new Age(9), new Age(12))
                 )
             )
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '-18'
+                    new AgeRange(null, new Age(18))
                 )
             )
             ->expect('event-with-age-to.xml');
@@ -1442,7 +1444,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '0-0'
+                    new AgeRange(new Age(0), new Age(0))
                 )
             )
             ->expect('event-with-zero-value-age-from-and-to.xml');
@@ -1459,12 +1461,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '1-111'
+                    new AgeRange(new Age(1), new Age(111))
                 )
             )->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '-'
+                    new AgeRange()
                 )
             )
             ->expect('event.xml');
@@ -1481,7 +1483,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new TypicalAgeRangeUpdated(
                     $this->getEventId(),
-                    '1-111'
+                    new AgeRange(new Age(1), new Age(111))
                 )
             )->apply(
                 new TypicalAgeRangeDeleted(
