@@ -58,7 +58,8 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                     new LabelRelation(
                         $labelName,
                         RelationType::PLACE(),
-                        $placeId
+                        $placeId,
+                        false
                     ),
                 ]
             );
@@ -103,7 +104,8 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                     new LabelRelation(
                         $labelName,
                         RelationType::PLACE(),
-                        $placeId
+                        $placeId,
+                        false
                     ),
                 ]
             );
@@ -148,7 +150,8 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                     new LabelRelation(
                         $labelName,
                         RelationType::EVENT(),
-                        $eventId
+                        $eventId,
+                        false
                     ),
                 ]
             );
@@ -193,7 +196,8 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
                     new LabelRelation(
                         $labelName,
                         RelationType::EVENT(),
-                        $eventId
+                        $eventId,
+                        false
                     ),
                 ]
             );

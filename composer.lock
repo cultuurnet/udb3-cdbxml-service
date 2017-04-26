@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "afd43fd3e1334057b159d775aeaf31c0",
+    "content-hash": "d9408ba02f780f4a148cebb5fa27752d",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -963,16 +963,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-master",
+            "version": "dev-feature/III-2074",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "821d88a3c75551cbba7920f709669d723a8a6d3a"
+                "reference": "d9378ed68372df82262f02fdf422bfdc0593a1b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/821d88a3c75551cbba7920f709669d723a8a6d3a",
-                "reference": "821d88a3c75551cbba7920f709669d723a8a6d3a",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/d9378ed68372df82262f02fdf422bfdc0593a1b1",
+                "reference": "d9378ed68372df82262f02fdf422bfdc0593a1b1",
                 "shasum": ""
             },
             "require": {
@@ -1035,7 +1035,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-04-19 11:53:09"
+            "time": "2017-04-26 12:25:55"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -6020,9 +6020,18 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-2074",
+            "package": "cultuurnet/udb3"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/udb3": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],

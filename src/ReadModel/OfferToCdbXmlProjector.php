@@ -1614,10 +1614,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 if (is_array($openingHour)) {
                     $openingHour = (object) $openingHour;
                 }
-                foreach ($openingHour->dayOfWeek as $day) {
-                    $openingTimesPerDay[$day][] = new CultureFeed_Cdb_Data_Calendar_OpeningTime(
-                        $openingHour->opens . ':00',
-                        $openingHour->closes . ':00'
+                foreach ($openingHour->getDayOfWeekCollection()->getDaysOfWeek() as $day) {
+                    $openingTimesPerDay[$day->toNative()][] = new CultureFeed_Cdb_Data_Calendar_OpeningTime(
+                        $openingHour->getOpens()->toNativeString() . ':00',
+                        $openingHour->getCloses()->toNativeString() . ':00'
                     );
                 }
             }
