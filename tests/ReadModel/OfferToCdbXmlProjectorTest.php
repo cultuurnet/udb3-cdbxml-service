@@ -1734,16 +1734,18 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->createEvent(false);
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
 
-        $weekDays = (new DayOfWeekCollection())
-            ->addDayOfWeek(DayOfWeek::MONDAY())
-            ->addDayOfWeek(DayOfWeek::TUESDAY())
-            ->addDayOfWeek(DayOfWeek::WEDNESDAY())
-            ->addDayOfWeek(DayOfWeek::THURSDAY())
-            ->addDayOfWeek(DayOfWeek::FRIDAY());
+        $weekDays = new DayOfWeekCollection(
+            DayOfWeek::MONDAY(),
+            DayOfWeek::TUESDAY(),
+            DayOfWeek::WEDNESDAY(),
+            DayOfWeek::THURSDAY(),
+            DayOfWeek::FRIDAY()
+        );
 
-        $weekendDays = (new DayOfWeekCollection())
-            ->addDayOfWeek(DayOfWeek::SATURDAY())
-            ->addDayOfWeek(DayOfWeek::SUNDAY());
+        $weekendDays = new DayOfWeekCollection(
+            DayOfWeek::SATURDAY(),
+            DayOfWeek::SUNDAY()
+        );
 
         // add the major info to the event.
         $majorInfoUpdated = new MajorInfoUpdated(
