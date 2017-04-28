@@ -12,9 +12,12 @@ use CultuurNet\UDB3\Address\PostalCode;
 use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar;
+use CultuurNet\UDB3\Calendar\DayOfWeek;
+use CultuurNet\UDB3\Calendar\DayOfWeekCollection;
+use CultuurNet\UDB3\Calendar\OpeningHour;
+use CultuurNet\UDB3\Calendar\OpeningTime;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
-use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
@@ -56,7 +59,6 @@ use CultuurNet\UDB3\Event\ValueObjects\Audience;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
-use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Media\Image;
@@ -1732,6 +1734,19 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->createEvent(false);
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
 
+        $weekDays = new DayOfWeekCollection(
+            DayOfWeek::MONDAY(),
+            DayOfWeek::TUESDAY(),
+            DayOfWeek::WEDNESDAY(),
+            DayOfWeek::THURSDAY(),
+            DayOfWeek::FRIDAY()
+        );
+
+        $weekendDays = new DayOfWeekCollection(
+            DayOfWeek::SATURDAY(),
+            DayOfWeek::SUNDAY()
+        );
+
         // add the major info to the event.
         $majorInfoUpdated = new MajorInfoUpdated(
             $id,
@@ -1753,25 +1768,16 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 null,
                 [],
                 [
-                    [
-                        'dayOfWeek' => [
-                            'monday',
-                            'tuesday',
-                            'wednesday',
-                            'thursday',
-                            'friday',
-                        ],
-                        'opens' => '10:00',
-                        'closes' => '19:00',
-                    ],
-                    [
-                        'dayOfWeek' => [
-                            'saturday',
-                            'sunday',
-                        ],
-                        'opens' => '12:00',
-                        'closes' => '19:00',
-                    ],
+                    new OpeningHour(
+                        OpeningTime::fromNativeString('10:00'),
+                        OpeningTime::fromNativeString('19:00'),
+                        $weekDays
+                    ),
+                    new OpeningHour(
+                        OpeningTime::fromNativeString('12:00'),
+                        OpeningTime::fromNativeString('19:00'),
+                        $weekendDays
+                    ),
                 ]
             ),
             new Theme('1.8.2.0.0', 'Jazz en blues')
