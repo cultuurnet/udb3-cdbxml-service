@@ -29,7 +29,7 @@ use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
-use CultuurNet\UDB3\Calendar\CdbEncoder;
+use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
@@ -229,9 +229,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     protected $uriNormalizer;
 
     /**
-     * @var CdbEncoder
+     * @var CalendarConverter
      */
-    protected $calendarEncoder;
+    protected $calendarConverter;
 
     /**
      * @param DocumentRepositoryInterface $documentRepository
@@ -276,8 +276,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->slugger = new CulturefeedSlugger();
         $this->logger = new NullLogger();
         $this->uriNormalizer = new Normalize();
-
-        $this->calendarEncoder = new CdbEncoder();
+        $this->calendarConverter = new CalendarConverter();
     }
 
     /**
@@ -465,7 +464,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $actor->setContactInfo($contactInfo);
 
-        $cdbCalendar = $this->calendarEncoder->encode($placeMajorInfoUpdated->getCalendar(), 'cdb');
+        $cdbCalendar = $this->calendarConverter->toCdbCalendar(
+            $placeMajorInfoUpdated->getCalendar()
+        );
         if ($cdbCalendar instanceof CultureFeed_Cdb_Data_Calendar_Permanent) {
             $weekscheme = $cdbCalendar->getWeekScheme();
             empty($weekscheme) ?: $actor->setWeekScheme($weekscheme);
@@ -1593,7 +1594,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      */
     private function setCalendar(CalendarInterface $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
-        $calendar = $this->calendarEncoder->encode($eventCalendar, 'cdb');
+        $calendar = $this->calendarConverter->toCdbCalendar($eventCalendar);
 
         if (isset($calendar)) {
             $cdbEvent->setCalendar($calendar);
