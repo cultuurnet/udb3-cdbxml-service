@@ -10,14 +10,7 @@ use CommerceGuys\Intl\Formatter\NumberFormatter;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepositoryInterface;
 use CultureFeed_Cdb_Data_ActorDetail;
 use CultureFeed_Cdb_Data_Calendar_BookingPeriod;
-use CultureFeed_Cdb_Data_Calendar_OpeningTime;
-use CultureFeed_Cdb_Data_Calendar_Period;
-use CultureFeed_Cdb_Data_Calendar_PeriodList;
 use CultureFeed_Cdb_Data_Calendar_Permanent;
-use CultureFeed_Cdb_Data_Calendar_SchemeDay;
-use CultureFeed_Cdb_Data_Calendar_Timestamp;
-use CultureFeed_Cdb_Data_Calendar_TimestampList;
-use CultureFeed_Cdb_Data_Calendar_Weekscheme;
 use CultureFeed_Cdb_Data_Category;
 use CultureFeed_Cdb_Data_CategoryList;
 use CultureFeed_Cdb_Data_ContactInfo;
@@ -36,8 +29,8 @@ use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
+use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
-use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
@@ -236,6 +229,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     protected $uriNormalizer;
 
     /**
+     * @var CalendarConverter
+     */
+    protected $calendarConverter;
+
+    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
      * @param MetadataCdbItemEnricherInterface $metadataCdbItemEnricher
@@ -278,6 +276,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->slugger = new CulturefeedSlugger();
         $this->logger = new NullLogger();
         $this->uriNormalizer = new Normalize();
+        $this->calendarConverter = new CalendarConverter();
     }
 
     /**
@@ -465,9 +464,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $actor->setContactInfo($contactInfo);
 
-        $weekscheme = $this->getWeekscheme($placeMajorInfoUpdated->getCalendar());
-        if (!empty($weekscheme)) {
-            $actor->setWeekScheme($weekscheme);
+        $cdbCalendar = $this->calendarConverter->toCdbCalendar(
+            $placeMajorInfoUpdated->getCalendar()
+        );
+        if ($cdbCalendar instanceof CultureFeed_Cdb_Data_Calendar_Permanent) {
+            $weekscheme = $cdbCalendar->getWeekScheme();
+            empty($weekscheme) ?: $actor->setWeekScheme($weekscheme);
         }
 
         $this->setItemAvailableToFromCalendar(
@@ -1585,69 +1587,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param \CultuurNet\UDB3\CalendarInterface $itemCalendar
-     * @return \CultureFeed_Cdb_Data_Calendar_Weekscheme|null
-     * @throws \Exception
-     */
-    private function getWeekscheme(CalendarInterface $itemCalendar)
-    {
-        // Store opening hours.
-        $openingHours = $itemCalendar->getOpeningHours();
-        $weekscheme = null;
-
-        if (!empty($openingHours)) {
-            $weekscheme = new CultureFeed_Cdb_Data_Calendar_Weekscheme();
-
-            // Multiple opening times can happen on same day. Store them in array.
-            $openingTimesPerDay = array(
-              'monday' => array(),
-              'tuesday' => array(),
-              'wednesday' => array(),
-              'thursday' => array(),
-              'friday' => array(),
-              'saturday' => array(),
-              'sunday' => array(),
-            );
-
-            foreach ($openingHours as $openingHour) {
-                // In CDB2 every day needs to be a seperate entry.
-                if (is_array($openingHour)) {
-                    $openingHour = (object) $openingHour;
-                }
-                foreach ($openingHour->getDayOfWeekCollection()->getDaysOfWeek() as $day) {
-                    $openingTimesPerDay[$day->toNative()][] = new CultureFeed_Cdb_Data_Calendar_OpeningTime(
-                        $openingHour->getOpens()->toNativeString() . ':00',
-                        $openingHour->getCloses()->toNativeString() . ':00'
-                    );
-                }
-            }
-
-            // Create the opening times correctly
-            foreach ($openingTimesPerDay as $day => $openingTimes) {
-                // Empty == closed.
-                if (empty($openingTimes)) {
-                    $openingInfo = new CultureFeed_Cdb_Data_Calendar_SchemeDay(
-                        $day,
-                        CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_CLOSED
-                    );
-                } else {
-                    // Add all opening times.
-                    $openingInfo = new CultureFeed_Cdb_Data_Calendar_SchemeDay(
-                        $day,
-                        CultureFeed_Cdb_Data_Calendar_SchemeDay::SCHEMEDAY_OPEN_TYPE_OPEN
-                    );
-                    foreach ($openingTimes as $openingTime) {
-                        $openingInfo->addOpeningTime($openingTime);
-                    }
-                }
-                $weekscheme->setDay($day, $openingInfo);
-            }
-        }
-
-        return $weekscheme;
-    }
-
-    /**
      * Set the Calendar on the cdb event.
      *
      * @param CalendarInterface $eventCalendar
@@ -1655,44 +1594,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      */
     private function setCalendar(CalendarInterface $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
-        $weekscheme = $this->getWeekscheme($eventCalendar);
-
-        switch ($eventCalendar->getType()->toNative()) {
-            case CalendarType::MULTIPLE:
-                $calendar = new CultureFeed_Cdb_Data_Calendar_TimestampList();
-                foreach ($eventCalendar->getTimestamps() as $timestamp) {
-                    $this->timestampCalendar(
-                        $timestamp->getStartDate(),
-                        $timestamp->getEndDate(),
-                        $calendar
-                    );
-                }
-                break;
-            case CalendarType::SINGLE:
-                $calendar = $this->timestampCalendar(
-                    $eventCalendar->getStartDate(),
-                    $eventCalendar->getEndDate(),
-                    new CultureFeed_Cdb_Data_Calendar_TimestampList()
-                );
-                break;
-            case CalendarType::PERIODIC:
-                $calendar = new CultureFeed_Cdb_Data_Calendar_PeriodList();
-                $startDate = $eventCalendar->getStartDate()->format('Y-m-d');
-                $endDate = $eventCalendar->getEndDate()->format('Y-m-d');
-
-                $period = new CultureFeed_Cdb_Data_Calendar_Period($startDate, $endDate);
-                if (!empty($weekscheme) && !empty($weekscheme->getDays())) {
-                    $period->setWeekScheme($weekscheme);
-                }
-                $calendar->add($period);
-                break;
-            case CalendarType::PERMANENT:
-                $calendar = new CultureFeed_Cdb_Data_Calendar_Permanent();
-                if (!empty($weekscheme)) {
-                    $calendar->setWeekScheme($weekscheme);
-                }
-                break;
-        }
+        $calendar = $this->calendarConverter->toCdbCalendar($eventCalendar);
 
         if (isset($calendar)) {
             $cdbEvent->setCalendar($calendar);
@@ -1707,37 +1609,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $eventDetails->rewind();
             $eventDetails->current()->setCalendarSummary($calendarSummary);
         }
-    }
-
-    /**
-     * @param DateTimeInterface $startDate
-     * @param DateTimeInterface $endDate
-     * @param CultureFeed_Cdb_Data_Calendar_TimestampList $calendar
-     *
-     * @return CultureFeed_Cdb_Data_Calendar_TimestampList
-     */
-    private function timestampCalendar(
-        DateTimeInterface $startDate,
-        DateTimeInterface $endDate,
-        CultureFeed_Cdb_Data_Calendar_TimestampList $calendar
-    ) {
-        $startHour = $startDate->format('H:i:s');
-        if ($startHour == '00:00:00') {
-            $startHour = null;
-        }
-        $endHour = $endDate->format('H:i:s');
-        if ($endHour == '00:00:00') {
-            $endHour = null;
-        }
-        $calendar->add(
-            new CultureFeed_Cdb_Data_Calendar_Timestamp(
-                $startDate->format('Y-m-d'),
-                $startHour,
-                $endHour
-            )
-        );
-
-        return $calendar;
     }
 
     /**
