@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a8246aa01f53a57686bbf64145f8cfb0",
+    "content-hash": "afd43fd3e1334057b159d775aeaf31c0",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -963,16 +963,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-2082",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "fa10dc7e9b56e5e50c53894bb98be42df186b234"
+                "reference": "e677dac580ada4d752f11b76c4c83886016aed3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/fa10dc7e9b56e5e50c53894bb98be42df186b234",
-                "reference": "fa10dc7e9b56e5e50c53894bb98be42df186b234",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e677dac580ada4d752f11b76c4c83886016aed3d",
+                "reference": "e677dac580ada4d752f11b76c4c83886016aed3d",
                 "shasum": ""
             },
             "require": {
@@ -1035,7 +1035,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-05-03 18:53:45"
+            "time": "2017-05-03 19:02:28"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -6020,18 +6020,9 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-2082",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
