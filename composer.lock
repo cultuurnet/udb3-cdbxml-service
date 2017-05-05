@@ -967,12 +967,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "e677dac580ada4d752f11b76c4c83886016aed3d"
+                "reference": "dc6f4309031f76d073b13da44b15dd1f25a67177"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e677dac580ada4d752f11b76c4c83886016aed3d",
-                "reference": "e677dac580ada4d752f11b76c4c83886016aed3d",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/dc6f4309031f76d073b13da44b15dd1f25a67177",
+                "reference": "dc6f4309031f76d073b13da44b15dd1f25a67177",
                 "shasum": ""
             },
             "require": {
@@ -995,6 +995,7 @@
                 "guzzlehttp/psr7": "~1.2.3",
                 "justinrainbow/json-schema": "1.4.3",
                 "league/flysystem": "~1.0",
+                "league/period": "^3.3",
                 "php": "~5.6 || >=7.0",
                 "php-http/httplug": "^1.0",
                 "predis/predis": "~1.0",
@@ -1035,7 +1036,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-05-03 19:02:28"
+            "time": "2017-05-05 07:48:21"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2145,7 +2146,7 @@
             ],
             "authors": [
                 {
-                    "name": "KnpLabs",
+                    "name": "Knplabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -2369,6 +2370,63 @@
                 "geotools"
             ],
             "time": "2014-05-15T23:59:22+00:00"
+        },
+        {
+            "name": "league/period",
+            "version": "3.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/period.git",
+                "reference": "6a291739c326c8cc88b5c97098d182cc0d1b6a1d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/period/zipball/6a291739c326c8cc88b5c97098d182cc0d1b6a1d",
+                "reference": "6a291739c326c8cc88b5c97098d182cc0d1b6a1d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^1.10",
+                "phpunit/phpunit": "^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Period\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ignace Nyamagana Butera",
+                    "email": "nyamsprod@gmail.com",
+                    "homepage": "https://github.com/nyamsprod/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A time range immutable value object",
+            "homepage": "http://period.thephpleague.com",
+            "keywords": [
+                "date",
+                "dateinterval",
+                "dateperiod",
+                "datetime",
+                "interval",
+                "range",
+                "time"
+            ],
+            "time": "2016-09-19T10:33:45+00:00"
         },
         {
             "name": "league/uri",
