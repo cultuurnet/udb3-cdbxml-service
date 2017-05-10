@@ -494,20 +494,20 @@
         },
         {
             "name": "cultuurnet/calendar-summary",
-            "version": "v1.1.0",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/calendar-summary.git",
-                "reference": "f3c2675e5d0531a39b11aa299d5efe1c73da154a"
+                "reference": "32538bbccd01534da7345a84f20118331bb0c941"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/calendar-summary/zipball/f3c2675e5d0531a39b11aa299d5efe1c73da154a",
-                "reference": "f3c2675e5d0531a39b11aa299d5efe1c73da154a",
+                "url": "https://api.github.com/repos/cultuurnet/calendar-summary/zipball/32538bbccd01534da7345a84f20118331bb0c941",
+                "reference": "32538bbccd01534da7345a84f20118331bb0c941",
                 "shasum": ""
             },
             "require": {
-                "cultuurnet/cdb": "~2.0",
+                "cultuurnet/cdb": "~2.2.0",
                 "ext-intl": "*",
                 "php": ">=5.6.0"
             },
@@ -520,8 +520,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev",
-                    "dev-develop": "1.1.x-dev"
+                    "dev-master": "1.x-dev"
                 }
             },
             "autoload": {
@@ -536,7 +535,7 @@
                 "Apache-2.0"
             ],
             "description": "Library to convert a cdbXML input to a readable summary",
-            "time": "2017-02-22T13:08:47+00:00"
+            "time": "2017-05-10T10:18:56+00:00"
         },
         {
             "name": "cultuurnet/cdb",
