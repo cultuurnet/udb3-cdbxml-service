@@ -53,6 +53,7 @@ use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\StringLiteral\StringLiteral;
 use ValueObjects\Web\Url;
+use JDesrosiers\Silex\Provider\CorsServiceProvider;
 
 date_default_timezone_set('Europe/Brussels');
 
@@ -105,6 +106,11 @@ $app['event_bus.udb3-core.relations'] = $app->share(
         return $bus;
     }
 );
+
+$app->register(new CorsServiceProvider(), array(
+    "cors.allowOrigin" => implode(" ", $app['config']['cors']['origins']),
+    "cors.allowCredentials" => true
+));
 
 $app['organizer_event_bus_relay'] = $app->share(
     function (Application $app) {

@@ -13,6 +13,9 @@ $app = require __DIR__ . '/../bootstrap.php';
  */
 $app->register(new ServiceControllerServiceProvider());
 
+// Enable CORS.
+$app->after($app["cors"]);
+
 $app->get('/event/{cdbid}', 'cdbxml_offer.controller:get');
 $app->get('/place/{cdbid}', 'cdbxml_offer.controller:get');
 
