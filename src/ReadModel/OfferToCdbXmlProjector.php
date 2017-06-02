@@ -1864,24 +1864,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             }
         }
 
-        $updatedDetails = new CultureFeed_Cdb_Data_EventDetailList();
-        foreach ($event->getDetails() as $eventDetail) {
-            /* @var CultureFeed_Cdb_Data_EventDetail $eventDetail */
-            try {
-                $mergedDescription = MergedDescription::fromCdbDetail($eventDetail);
-            } catch (\InvalidArgumentException $e) {
-                // Event detail has neither short nor long description.
-                $updatedDetails->add($eventDetail);
-                continue;
-            }
-
-            $longDescription = $this->longDescriptionFilter->filter($mergedDescription->toNative());
-            $shortDescription = $this->shortDescriptionFilter->filter($mergedDescription->toNative());
-            $eventDetail->setLongDescription($longDescription);
-            $eventDetail->setShortDescription($shortDescription);
-            $updatedDetails->add($eventDetail);
-        }
-        $event->setDetails($updatedDetails);
+        $event = $this->mergeShortAndLongDescription($event);
 
         // Add metadata like createdby, creationdate, etc to the event.
         $event = $this->metadataCdbItemEnricher
@@ -1909,30 +1892,45 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $actor = $this->metadataCdbItemEnricher
             ->enrich($actor, $metadata);
 
-        $updatedDetails = new \CultureFeed_Cdb_Data_ActorDetailList();
-        foreach ($actor->getDetails() as $actorDetail) {
-            /* @var CultureFeed_Cdb_Data_ActorDetail $actorDetail */
-            try {
-                $mergedDescription = MergedDescription::fromCdbDetail($actorDetail);
-            } catch (\InvalidArgumentException $e) {
-                // Actor detail has neither short nor long description.
-                $updatedDetails->add($actorDetail);
-                continue;
-            }
-
-            $longDescription = $this->longDescriptionFilter->filter($mergedDescription->toNative());
-            $shortDescription = $this->shortDescriptionFilter->filter($mergedDescription->toNative());
-            $actorDetail->setLongDescription($longDescription);
-            $actorDetail->setShortDescription($shortDescription);
-            $updatedDetails->add($actorDetail);
-        }
-        $actor->setDetails($updatedDetails);
+        $actor = $this->mergeShortAndLongDescription($actor);
 
         // Return a new CdbXmlDocument.
         $cdbxmlDocument = $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($actor);
 
         return $cdbxmlDocument;
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Item_Base $cdbItem
+     * @return CultureFeed_Cdb_Item_Base
+     */
+    private function mergeShortAndLongDescription(\CultureFeed_Cdb_Item_Base $cdbItem)
+    {
+        /* @var \CultureFeed_Cdb_Data_DetailList $updatedDetails */
+        $currentDetails = $cdbItem->getDetails();
+        $detailsClassName = get_class($currentDetails);
+        $updatedDetails = new $detailsClassName;
+
+        foreach ($currentDetails as $detail) {
+            try {
+                $mergedDescription = MergedDescription::fromCdbDetail($detail);
+            } catch (\InvalidArgumentException $e) {
+                // Detail has neither short nor long description.
+                $updatedDetails->add($detail);
+                continue;
+            }
+
+            $longDescription = $this->longDescriptionFilter->filter($mergedDescription->toNative());
+            $shortDescription = $this->shortDescriptionFilter->filter($mergedDescription->toNative());
+            $detail->setLongDescription($longDescription);
+            $detail->setShortDescription($shortDescription);
+            $updatedDetails->add($detail);
+        }
+
+        $cdbItem->setDetails($updatedDetails);
+
+        return $cdbItem;
     }
 
     /**
