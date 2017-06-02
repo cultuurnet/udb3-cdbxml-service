@@ -33,6 +33,7 @@ use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
+use CultuurNet\UDB3\Cdb\Description\MergedDescription;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -1855,6 +1856,25 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $event->setOrganiser($organiser);
             }
         }
+
+        $updatedDetails = new CultureFeed_Cdb_Data_EventDetailList();
+        foreach ($event->getDetails() as $eventDetail) {
+            /* @var CultureFeed_Cdb_Data_EventDetail $eventDetail */
+            try {
+                $mergedDescription = MergedDescription::fromCdbEventDetail($eventDetail);
+            } catch (\InvalidArgumentException $e) {
+                // Event detail has neither short nor long description.
+                $updatedDetails->add($eventDetail);
+                continue;
+            }
+
+            $longDescription = $this->longDescriptionFilter->filter($mergedDescription->toNative());
+            $shortDescription = $this->shortDescriptionFilter->filter($mergedDescription->toNative());
+            $eventDetail->setLongDescription($longDescription);
+            $eventDetail->setShortDescription($shortDescription);
+            $updatedDetails->add($eventDetail);
+        }
+        $event->setDetails($updatedDetails);
 
         // Add metadata like createdby, creationdate, etc to the event.
         $event = $this->metadataCdbItemEnricher

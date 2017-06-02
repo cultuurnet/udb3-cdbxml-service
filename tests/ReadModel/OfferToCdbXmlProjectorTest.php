@@ -422,7 +422,85 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_merge_different_short_and_long_description_when_projecting_events_imported_from_udb2()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced-with-short-description-different-from-long.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_merge_short_and_long_description_the_short_description_is_already_included_in_the_long_description()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_event_updated_from_udb2()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    new AgeRange(new Age(9), new Age(12))
+                )
+            )
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-namespaced-with-short-description-different-from-long.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->expect('event-imported-with-short-description-merged-into-long-description.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_merge_different_short_and_long_description_when_projecting_events_updated_from_udb2()
     {
         $test = $this->given(OfferType::EVENT())
             ->apply(
