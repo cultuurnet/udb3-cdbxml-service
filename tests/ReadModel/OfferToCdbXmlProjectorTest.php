@@ -724,19 +724,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
-     * @dataProvider placeImportedFromUdb2DataProvider
-     * @param ActorImportedFromUDB2 $actorImportedFromUDB2
-     * @param string $expectedCdbXmlFile
      */
-    public function it_projects_imported_actor_places_from_udb2_as_actors(
-        ActorImportedFromUDB2 $actorImportedFromUDB2,
-        $expectedCdbXmlFile
-    ) {
+    public function it_should_project_places_imported_from_udb2_as_actors()
+    {
+        $actorImportedFromUDB2 = new PlaceImportedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
         $id = $actorImportedFromUDB2->getActorId();
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
+            $this->loadCdbXmlFromFile('place-actor-generated.xml')
         );
 
         $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
@@ -747,28 +748,82 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
-     * @return array
+     * @test
      */
-    public function placeImportedFromUdb2DataProvider()
+    public function it_should_merge_short_and_long_description_when_projecting_imported_places_and_short_is_not_included_in_long()
     {
-        return [
-            [
-                new PlaceImportedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-            [
-                new PlaceUpdatedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-        ];
+        $actorImportedFromUDB2 = new PlaceImportedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(
+                __DIR__ . '/Repository/samples/place-actor-with-short-description-different-from-long.xml'
+            ),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated-with-short-description-merged-into-long.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_places_updated_in_udb2_as_actors()
+    {
+        $actorImportedFromUDB2 = new PlaceUpdatedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_merge_short_and_long_description_when_projecting_places_updated_in_udb2_and_short_is_not_included_in_long()
+    {
+        $actorImportedFromUDB2 = new PlaceUpdatedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(
+                __DIR__ . '/Repository/samples/place-actor-with-short-description-different-from-long.xml'
+            ),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated-with-short-description-merged-into-long.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**

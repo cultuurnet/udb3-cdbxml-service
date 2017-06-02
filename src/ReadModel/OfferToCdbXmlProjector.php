@@ -329,7 +329,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
-            PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
+            PlaceUpdatedFromUDB2::class => 'applyPlaceUpdatedFromUdb2',
             EventPublished::class => 'applyPublished',
             PlacePublished::class => 'applyPublished',
             EventApproved::class => 'applyApproved',
@@ -374,28 +374,35 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param \CultuurNet\UDB3\Actor\ActorImportedFromUDB2 $actorImported
+     * @param PlaceImportedFromUDB2 $placeImportedFromUDB2
      * @param \Broadway\Domain\Metadata $metadata
      * @return CdbXmlDocument
      */
     public function applyPlaceImportedFromUdb2(
-        ActorImportedFromUDB2 $actorImported,
+        PlaceImportedFromUDB2 $placeImportedFromUDB2,
         Metadata $metadata
     ) {
-        $actor = ActorItemFactory::createActorFromCdbXml(
-            $actorImported->getCdbXmlNamespaceUri(),
-            $actorImported->getCdbXml()
+        return $this->updatePlaceFromCdbXml(
+            $placeImportedFromUDB2->getCdbXml(),
+            $placeImportedFromUDB2->getCdbXmlNamespaceUri(),
+            $metadata
         );
+    }
 
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $actor = $this->metadataCdbItemEnricher
-            ->enrich($actor, $metadata);
-
-        // Return a new CdbXmlDocument.
-        $cdbxmlDocument = $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($actor);
-
-        return $cdbxmlDocument;
+    /**
+     * @param PlaceUpdatedFromUDB2 $placeUpdatedFromUDB2
+     * @param \Broadway\Domain\Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPlaceUpdatedFromUdb2(
+        PlaceUpdatedFromUDB2 $placeUpdatedFromUDB2,
+        Metadata $metadata
+    ) {
+        return $this->updatePlaceFromCdbXml(
+            $placeUpdatedFromUDB2->getCdbXml(),
+            $placeUpdatedFromUDB2->getCdbXmlNamespaceUri(),
+            $metadata
+        );
     }
 
     /**
@@ -1818,8 +1825,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param $xmlString
-     * @param $namespace
+     * @param string $xmlString
+     * @param string $namespace
      * @param Metadata $metadata
      * @return CdbXmlDocument
      */
@@ -1883,6 +1890,49 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param string $xmlString
+     * @param string $namespace
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function updatePlaceFromCdbXml(
+        $xmlString,
+        $namespace,
+        Metadata $metadata
+    ) {
+        $actor = ActorItemFactory::createActorFromCdbXml($namespace, $xmlString);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
+        $updatedDetails = new \CultureFeed_Cdb_Data_ActorDetailList();
+        foreach ($actor->getDetails() as $actorDetail) {
+            /* @var CultureFeed_Cdb_Data_ActorDetail $actorDetail */
+            try {
+                $mergedDescription = MergedDescription::fromCdbActorDetail($actorDetail);
+            } catch (\InvalidArgumentException $e) {
+                // Actor detail has neither short nor long description.
+                $updatedDetails->add($actorDetail);
+                continue;
+            }
+
+            $longDescription = $this->longDescriptionFilter->filter($mergedDescription->toNative());
+            $shortDescription = $this->shortDescriptionFilter->filter($mergedDescription->toNative());
+            $actorDetail->setLongDescription($longDescription);
+            $actorDetail->setShortDescription($shortDescription);
+            $updatedDetails->add($actorDetail);
+        }
+        $actor->setDetails($updatedDetails);
+
+        // Return a new CdbXmlDocument.
+        $cdbxmlDocument = $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+
+        return $cdbxmlDocument;
     }
 
     /**
