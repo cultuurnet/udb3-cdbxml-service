@@ -1868,7 +1868,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         foreach ($event->getDetails() as $eventDetail) {
             /* @var CultureFeed_Cdb_Data_EventDetail $eventDetail */
             try {
-                $mergedDescription = MergedDescription::fromCdbEventDetail($eventDetail);
+                $mergedDescription = MergedDescription::fromCdbDetail($eventDetail);
             } catch (\InvalidArgumentException $e) {
                 // Event detail has neither short nor long description.
                 $updatedDetails->add($eventDetail);
@@ -1913,7 +1913,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         foreach ($actor->getDetails() as $actorDetail) {
             /* @var CultureFeed_Cdb_Data_ActorDetail $actorDetail */
             try {
-                $mergedDescription = MergedDescription::fromCdbActorDetail($actorDetail);
+                $mergedDescription = MergedDescription::fromCdbDetail($actorDetail);
             } catch (\InvalidArgumentException $e) {
                 // Actor detail has neither short nor long description.
                 $updatedDetails->add($actorDetail);
