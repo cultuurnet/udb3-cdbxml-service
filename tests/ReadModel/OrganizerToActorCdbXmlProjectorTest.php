@@ -12,6 +12,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Organizer\Events\AddressUpdated;
 use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
@@ -20,6 +21,7 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
+use CultuurNet\UDB3\Organizer\Events\TitleTranslated;
 use CultuurNet\UDB3\Organizer\Events\TitleUpdated;
 use CultuurNet\UDB3\Organizer\Events\WebsiteUpdated;
 use CultuurNet\UDB3\Title;
@@ -321,6 +323,39 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedDocument = new CdbXmlDocument(
             $organizerId,
             $this->loadCdbXmlFromFile('actor-with-updated-title.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_title_translated()
+    {
+        $organizerId = 'ORG-123';
+        $titleUpdated = new TitleTranslated(
+            $organizerId,
+            new Title('LE Studio'),
+            new Language('fr')
+        );
+
+        $domainMessage = $this->createDomainMessage(
+            $organizerId,
+            $titleUpdated,
+            $this->metadata
+        );
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-translated-title.xml')
         );
         $this->assertCdbXmlDocumentInRepository($expectedDocument);
     }
