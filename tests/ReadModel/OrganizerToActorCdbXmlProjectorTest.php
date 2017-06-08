@@ -363,6 +363,39 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_handles_title_translated_of_already_translated_title()
+    {
+        $organizerId = 'ORG-123';
+        $titleUpdated = new TitleTranslated(
+            $organizerId,
+            new Title('DE Studio FR'),
+            new Language('fr')
+        );
+
+        $domainMessage = $this->createDomainMessage(
+            $organizerId,
+            $titleUpdated,
+            $this->metadata
+        );
+
+        $document = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-translated-title.xml')
+        );
+        $this->repository->save($document);
+
+        $this->projector->handle($domainMessage);
+
+        $expectedDocument = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-with-modified-translated-title.xml')
+        );
+        $this->assertCdbXmlDocumentInRepository($expectedDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_handles_label_added()
     {
         $organizerId = 'ORG-123';
