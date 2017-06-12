@@ -27,7 +27,6 @@ use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
-use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
