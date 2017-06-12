@@ -1910,7 +1910,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         /* @var \CultureFeed_Cdb_Data_DetailList $updatedDetails */
         $currentDetails = $cdbItem->getDetails();
         $detailsClassName = get_class($currentDetails);
-        $updatedDetails = new $detailsClassName;
+        $updatedDetails = new $detailsClassName();
 
         foreach ($currentDetails as $detail) {
             try {
