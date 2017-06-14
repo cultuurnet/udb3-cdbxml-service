@@ -69,6 +69,7 @@ use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\AgeRange;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\OfferType;
+use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -1475,6 +1476,38 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->logger->expects($this->once())->method('warning')
             ->with('Could not find organizer with id ORG-123 when applying organizer updated on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_update_the_address_and_preserve_other_contact_info_when_a_place_has_its_address_updated()
+    {
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new PlaceContactPointUpdated(
+                    $this->getPlaceId(),
+                    new ContactPoint(
+                        ['+32 444 44 44 44'],
+                        ['test@foo.bar'],
+                        ['https://foo.bar']
+                    )
+                )
+            )
+            ->apply(
+                new AddressUpdated(
+                    $this->getPlaceId(),
+                    new Address(
+                        new Street('Kerkstraat 69'),
+                        new PostalCode('1000'),
+                        new Locality('Brussel'),
+                        Country::fromNative('DE')
+                    )
+                )
+            )
+            ->expect('place-with-contact-point-and-address-updated.xml');
 
         $this->execute($test);
     }

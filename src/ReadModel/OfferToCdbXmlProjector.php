@@ -102,6 +102,7 @@ use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractApproved;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractPublished;
 use CultuurNet\UDB3\Offer\WorkflowStatus;
+use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
@@ -291,6 +292,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $metadata = $domainMessage->getMetadata();
 
         $handlers = [
+            AddressUpdated::class => 'applyAddressUpdated',
             FacilitiesUpdated::class => 'applyFacilitiesUpdated',
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
@@ -1291,6 +1293,31 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AddressUpdated $addressUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyAddressUpdated(
+        AddressUpdated $addressUpdated,
+        Metadata $metadata
+    ) {
+        $placeCdbXml = $this->getCdbXmlDocument($addressUpdated->getPlaceId());
+
+        $place = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $placeCdbXml->getCdbXml()
+        );
+
+        $this->setCdbActorAddress($place, $addressUpdated->getAddress());
+
+        $place = $this->metadataCdbItemEnricher
+            ->enrich($place, $metadata);
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($place);
     }
 
     /**
