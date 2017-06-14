@@ -69,6 +69,7 @@ use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\AgeRange;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\OfferType;
+use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
@@ -1683,6 +1684,82 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $this->logger->expects($this->once())
             ->method('warning')
             ->with('Could not find location with id ' . $unknownPlaceID .' when setting location on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_preserve_unrelated_contact_info_when_applying_major_info_updated_on_event()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new ContactPointUpdated(
+                    $this->getEventId(),
+                    new ContactPoint(
+                        ['+32 444 44 44 44'],
+                        ['test@foo.bar'],
+                        ['https://foo.bar']
+                    )
+                )
+            )
+            ->apply(
+                new MajorInfoUpdated(
+                    $this->getEventId(),
+                    new Title("Nieuwe titel"),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    new Location(
+                        $this->getPlaceId(),
+                        new StringLiteral('Somewhere over the rainbow'),
+                        new Address(
+                            new Street('Kerkstraat 69'),
+                            new PostalCode('3000'),
+                            new Locality('Leuven'),
+                            Country::fromNative('BE')
+                        )
+                    ),
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.8.2.0.0', 'Jazz en blues')
+                )
+            )
+            ->expect('event-with-contact-point-and-major-info-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_preserve_unrelated_contact_info_when_applying_major_info_updated_on_place()
+    {
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new PlaceContactPointUpdated(
+                    $this->getPlaceId(),
+                    new ContactPoint(
+                        ['+32 444 44 44 44'],
+                        ['test@foo.bar'],
+                        ['https://foo.bar']
+                    )
+                )
+            )
+            ->apply(
+                new PlaceMajorInfoUpdated(
+                    $this->getPlaceId(),
+                    new Title("Monochrome Rainbow Rave"),
+                    new EventType('8.4.0.0.0', 'Galerie'),
+                    new Address(
+                        new Street('Kerkstraat 69'),
+                        new PostalCode('1000'),
+                        new Locality('Brussel'),
+                        Country::fromNative('DE')
+                    ),
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.0.1.0.0', 'Schilderkunst')
+                )
+            )
+            ->expect('place-with-contact-point-and-major-info-updated.xml');
 
         $this->execute($test);
     }

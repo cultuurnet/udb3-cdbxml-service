@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
+  <actor availableto="2100-01-01T01:00:00" cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft" asset="true">
+    <actordetails>
+      <actordetail lang="nl">
+        <title>Monochrome Rainbow Rave</title>
+      </actordetail>
+    </actordetails>
+    <categories>
+      <category catid="8.15.0.0.0" type="actortype">Locatie</category>
+      <category catid="8.4.0.0.0" type="eventtype">Galerie</category>
+      <category catid="1.0.1.0.0" type="theme">Schilderkunst</category>
+    </categories>
+    <contactinfo>
+      <address>
+        <physical>
+          <city>Brussel</city>
+          <country>DE</country>
+          <housenr>69</housenr>
+          <street>Kerkstraat</street>
+          <zipcode>1000</zipcode>
+        </physical>
+      </address>
+      <mail>test@foo.bar</mail>
+      <phone>+32 444 44 44 44</phone>
+      <url>https://foo.bar</url>
+    </contactinfo>
+  </actor>
+</cdbxml>

@@ -27,6 +27,7 @@ use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
+use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
@@ -463,13 +464,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
 
         // Contact info.
-        $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
-
-        $udb3Address = $placeMajorInfoUpdated->getAddress();
-        $address = $this->addressFactory->fromUdb3Address($udb3Address);
-        $contactInfo->addAddress($address);
-
-        $actor->setContactInfo($contactInfo);
+        $address = $placeMajorInfoUpdated->getAddress();
+        $this->setCdbActorAddress($actor, $address);
 
         $cdbCalendar = $this->calendarConverter->toCdbCalendar(
             $placeMajorInfoUpdated->getCalendar()
@@ -1743,7 +1739,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         ContactPoint $contactPoint
     ) {
         /* @var CultureFeed_Cdb_Item_Actor|CultureFeed_Cdb_Item_Event $cdbItem */
-        $contactInfo = $cdbItem->getContactInfo();
+        $contactInfo = $cdbItem->getContactInfo() ? $cdbItem->getContactInfo() : new CultureFeed_Cdb_Data_ContactInfo();
 
         // Remove non-reservation phones and add new ones.
         foreach ($contactInfo->getPhones() as $phoneIndex => $phone) {
@@ -2191,6 +2187,28 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $media = $detail->getMedia();
         $media->rewind();
         return $media;
+    }
+
+    /**
+     * Removes any addresses on the given actor and sets the given address
+     * instead. Other contact information is preserved.
+     *
+     * @param CultureFeed_Cdb_Item_Actor $actor
+     * @param Address $address
+     */
+    protected function setCdbActorAddress(CultureFeed_Cdb_Item_Actor $actor, Address $address)
+    {
+        $contactInfo = $actor->getContactInfo() ? $actor->getContactInfo() : new CultureFeed_Cdb_Data_ContactInfo();
+
+        $previousAddresses = $contactInfo->getAddresses();
+        foreach ($previousAddresses as $index => $previousAddress) {
+            $contactInfo->removeAddress($index);
+        }
+
+        $cdbAddress = $this->addressFactory->fromUdb3Address($address);
+        $contactInfo->addAddress($cdbAddress);
+
+        $actor->setContactInfo($contactInfo);
     }
 
     /**

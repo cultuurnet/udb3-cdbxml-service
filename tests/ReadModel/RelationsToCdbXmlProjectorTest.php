@@ -23,6 +23,8 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
+use CultuurNet\UDB3\ContactPoint;
+use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Label;
@@ -288,7 +290,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         // Add a second event.
         $secondEventId = 'EVENT-ABC-123';
-        $this->createEvent($secondEventId);
+        $includeTheme = true;
+        $includeContactPoint = true;
+        $this->createEvent($secondEventId, $includeTheme, $includeContactPoint);
 
         $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
         // Create a place.
@@ -476,7 +480,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      * @param string $eventId
      * @param bool $theme   Whether or not to add a theme to the event
      */
-    public function createEvent($eventId, $theme = true)
+    public function createEvent($eventId, $theme = true, $contactPoint = false)
     {
         $timestamps = [
             new Timestamp(
@@ -553,6 +557,21 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($eventId, $event, $eventMetadata);
 
         $this->projector->handle($domainMessage);
+
+        if ($contactPoint) {
+            $contactPointUpdated = new ContactPointUpdated(
+                $eventId,
+                new ContactPoint(
+                    ['+32 444 44 44 44'],
+                    ['test@foo.bar'],
+                    ['https://foo.bar']
+                )
+            );
+
+            $domainMessage = $this->createDomainMessage($eventId, $contactPointUpdated, $eventMetadata);
+
+            $this->projector->handle($domainMessage);
+        }
     }
 
     /**
