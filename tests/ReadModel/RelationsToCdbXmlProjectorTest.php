@@ -478,7 +478,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * Helper function to create an event.
      * @param string $eventId
-     * @param bool $theme   Whether or not to add a theme to the event
+     * @param bool $theme Whether or not to add a theme to the event
+     * @param bool $contactPoint
      */
     public function createEvent($eventId, $theme = true, $contactPoint = false)
     {
@@ -530,7 +531,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($placeId, $placeCreated, $placeMetadata);
         $this->projector->handle($domainMessage);
 
-        $theme = $theme?new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null;
         $event = new EventCreated(
             $eventId,
             new Title('Griezelfilm of horror'),
@@ -551,7 +551,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
                 $timestamps
             ),
-            $theme
+            $theme ? new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null
         );
 
         $domainMessage = $this->createDomainMessage($eventId, $event, $eventMetadata);
