@@ -21,9 +21,9 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\Organizer\Events\OrganizerEvent;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
+use CultuurNet\UDB3\Organizer\Events\TitleTranslated;
 use CultuurNet\UDB3\Organizer\Events\TitleUpdated;
 use CultuurNet\UDB3\Organizer\Events\WebsiteUpdated;
-use CultuurNet\UDB3\Title;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -81,6 +81,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      * @uses applyActorImportedFromUdb2()
      * @uses applyWebsiteUpdated()
      * @uses applyTitleUpdated()
+     * @uses applyTitleTranslated()
      * @uses applyAddressUpdated()
      * @uses applyContactPointUpdated()
      * @uses applyLabelAdded()
@@ -100,6 +101,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             OrganizerUpdatedFromUDB2::class => 'applyActorImportedFromUdb2',
             WebsiteUpdated::class => 'applyWebsiteUpdated',
             TitleUpdated::class => 'applyTitleUpdated',
+            TitleTranslated::class => 'applyTitleTranslated',
             AddressUpdated::class => 'applyAddressUpdated',
             ContactPointUpdated::class => 'applyContactPointUpdated',
             LabelAdded::class => 'applyLabelAdded',
@@ -237,13 +239,57 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
 
         /** @var \CultureFeed_Cdb_Data_ActorDetail[] $details */
         $details = $actor->getDetails();
-        $nlDetail = null;
         foreach ($details as $detail) {
             if ($detail->getLanguage() === 'nl') {
                 $detail->setTitle($titleUpdated->getTitle()->toNative());
                 break;
             }
         }
+
+        $actor = $this->metadataCdbItemEnricher->enrich($actor, $metadata);
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+    }
+
+    /**
+     * @param TitleTranslated $titleTranslated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function applyTitleTranslated(
+        TitleTranslated $titleTranslated,
+        Metadata $metadata
+    ) {
+        $document = $this->documentRepository->get($titleTranslated->getOrganizerId());
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $document->getCdbXml()
+        );
+
+        /** @var \CultureFeed_Cdb_Data_ActorDetail[]|\CultureFeed_Cdb_Data_DetailList $details */
+        $details = $actor->getDetails();
+
+        // Try to find the details for the translated language.
+        $translatedDetail = null;
+        foreach ($details as $detail) {
+            if ($detail->getLanguage() === $titleTranslated->getLanguage()->getCode()) {
+                $translatedDetail = $detail;
+                break;
+            }
+        }
+
+        // No details found for the translated language.
+        // Create a new detail for the translated language.
+        if ($translatedDetail === null) {
+            $translatedDetail = new \CultureFeed_Cdb_Data_ActorDetail();
+            $translatedDetail->setLanguage($titleTranslated->getLanguage()->getCode());
+            $details->add($translatedDetail);
+        }
+
+        // Finally update the title for the translated language.
+        $translatedDetail->setTitle($titleTranslated->getTitle()->toNative());
 
         $actor = $this->metadataCdbItemEnricher->enrich($actor, $metadata);
 
@@ -453,6 +499,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $actor = $this->metadataCdbItemEnricher
             ->enrich($actor, $metadata);
 
+        /** @var \CultureFeed_Cdb_Item_Actor $actor */
         return $actor;
     }
 }
