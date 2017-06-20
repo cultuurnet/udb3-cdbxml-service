@@ -12,6 +12,8 @@ use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
@@ -100,8 +102,8 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             new CdbXmlDateFormatter(),
             new AddressFactory(),
-            new LongDescriptionFilter(),
-            new ShortDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlLongDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(),

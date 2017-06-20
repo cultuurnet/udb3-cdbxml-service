@@ -5,7 +5,6 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\Metadata;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
-use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
@@ -18,6 +17,8 @@ use CultuurNet\UDB3\Calendar\OpeningHour;
 use CultuurNet\UDB3\Calendar\OpeningTime;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
@@ -141,8 +142,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             new CdbXmlDateFormatter(),
             new AddressFactory(),
-            new LongDescriptionFilter(),
-            new ShortDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlLongDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(
@@ -420,7 +421,85 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_merge_different_short_and_long_description_when_projecting_events_imported_from_udb2()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced-with-short-description-different-from-long.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_merge_short_and_long_description_the_short_description_is_already_included_in_the_long_description()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_event_updated_from_udb2()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    new AgeRange(new Age(9), new Age(12))
+                )
+            )
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-namespaced-with-short-description-different-from-long.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->expect('event-imported-with-short-description-merged-into-long-description.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_merge_different_short_and_long_description_when_projecting_events_updated_from_udb2()
     {
         $test = $this->given(OfferType::EVENT())
             ->apply(
@@ -644,19 +723,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
-     * @dataProvider placeImportedFromUdb2DataProvider
-     * @param ActorImportedFromUDB2 $actorImportedFromUDB2
-     * @param string $expectedCdbXmlFile
      */
-    public function it_projects_imported_actor_places_from_udb2_as_actors(
-        ActorImportedFromUDB2 $actorImportedFromUDB2,
-        $expectedCdbXmlFile
-    ) {
+    public function it_should_project_places_imported_from_udb2_as_actors()
+    {
+        $actorImportedFromUDB2 = new PlaceImportedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
         $id = $actorImportedFromUDB2->getActorId();
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
+            $this->loadCdbXmlFromFile('place-actor-generated.xml')
         );
 
         $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
@@ -667,28 +747,82 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
-     * @return array
+     * @test
      */
-    public function placeImportedFromUdb2DataProvider()
+    public function it_should_merge_short_and_long_description_when_projecting_imported_places_and_short_is_not_included_in_long()
     {
-        return [
-            [
-                new PlaceImportedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-            [
-                new PlaceUpdatedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-        ];
+        $actorImportedFromUDB2 = new PlaceImportedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(
+                __DIR__ . '/Repository/samples/place-actor-with-short-description-different-from-long.xml'
+            ),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated-with-short-description-merged-into-long.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_places_updated_in_udb2_as_actors()
+    {
+        $actorImportedFromUDB2 = new PlaceUpdatedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_merge_short_and_long_description_when_projecting_places_updated_in_udb2_and_short_is_not_included_in_long()
+    {
+        $actorImportedFromUDB2 = new PlaceUpdatedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(
+                __DIR__ . '/Repository/samples/place-actor-with-short-description-different-from-long.xml'
+            ),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated-with-short-description-merged-into-long.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**

@@ -27,12 +27,12 @@ use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
-use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
+use CultuurNet\UDB3\Cdb\Description\MergedDescription;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -328,7 +328,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
-            PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
+            PlaceUpdatedFromUDB2::class => 'applyPlaceUpdatedFromUdb2',
             EventPublished::class => 'applyPublished',
             PlacePublished::class => 'applyPublished',
             EventApproved::class => 'applyApproved',
@@ -373,28 +373,35 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param \CultuurNet\UDB3\Actor\ActorImportedFromUDB2 $actorImported
+     * @param PlaceImportedFromUDB2 $placeImportedFromUDB2
      * @param \Broadway\Domain\Metadata $metadata
      * @return CdbXmlDocument
      */
     public function applyPlaceImportedFromUdb2(
-        ActorImportedFromUDB2 $actorImported,
+        PlaceImportedFromUDB2 $placeImportedFromUDB2,
         Metadata $metadata
     ) {
-        $actor = ActorItemFactory::createActorFromCdbXml(
-            $actorImported->getCdbXmlNamespaceUri(),
-            $actorImported->getCdbXml()
+        return $this->updatePlaceFromCdbXml(
+            $placeImportedFromUDB2->getCdbXml(),
+            $placeImportedFromUDB2->getCdbXmlNamespaceUri(),
+            $metadata
         );
+    }
 
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $actor = $this->metadataCdbItemEnricher
-            ->enrich($actor, $metadata);
-
-        // Return a new CdbXmlDocument.
-        $cdbxmlDocument = $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($actor);
-
-        return $cdbxmlDocument;
+    /**
+     * @param PlaceUpdatedFromUDB2 $placeUpdatedFromUDB2
+     * @param \Broadway\Domain\Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPlaceUpdatedFromUdb2(
+        PlaceUpdatedFromUDB2 $placeUpdatedFromUDB2,
+        Metadata $metadata
+    ) {
+        return $this->updatePlaceFromCdbXml(
+            $placeUpdatedFromUDB2->getCdbXml(),
+            $placeUpdatedFromUDB2->getCdbXmlNamespaceUri(),
+            $metadata
+        );
     }
 
     /**
@@ -1817,8 +1824,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param $xmlString
-     * @param $namespace
+     * @param string $xmlString
+     * @param string $namespace
      * @param Metadata $metadata
      * @return CdbXmlDocument
      */
@@ -1856,6 +1863,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             }
         }
 
+        $event = $this->mergeShortAndLongDescription($event);
+
         // Add metadata like createdby, creationdate, etc to the event.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
@@ -1863,6 +1872,64 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param string $xmlString
+     * @param string $namespace
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function updatePlaceFromCdbXml(
+        $xmlString,
+        $namespace,
+        Metadata $metadata
+    ) {
+        $actor = ActorItemFactory::createActorFromCdbXml($namespace, $xmlString);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
+        $actor = $this->mergeShortAndLongDescription($actor);
+
+        // Return a new CdbXmlDocument.
+        $cdbxmlDocument = $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+
+        return $cdbxmlDocument;
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Item_Base $cdbItem
+     * @return CultureFeed_Cdb_Item_Base
+     */
+    private function mergeShortAndLongDescription(\CultureFeed_Cdb_Item_Base $cdbItem)
+    {
+        /* @var \CultureFeed_Cdb_Data_DetailList $updatedDetails */
+        $currentDetails = $cdbItem->getDetails();
+        $detailsClassName = get_class($currentDetails);
+        $updatedDetails = new $detailsClassName();
+
+        foreach ($currentDetails as $detail) {
+            try {
+                $mergedDescription = MergedDescription::fromCdbDetail($detail);
+            } catch (\InvalidArgumentException $e) {
+                // Detail has neither short nor long description.
+                $updatedDetails->add($detail);
+                continue;
+            }
+
+            $longDescription = $this->longDescriptionFilter->filter($mergedDescription->toNative());
+            $shortDescription = $this->shortDescriptionFilter->filter($mergedDescription->toNative());
+            $detail->setLongDescription($longDescription);
+            $detail->setShortDescription($shortDescription);
+            $updatedDetails->add($detail);
+        }
+
+        $cdbItem->setDetails($updatedDetails);
+
+        return $cdbItem;
     }
 
     /**
