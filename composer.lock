@@ -675,7 +675,7 @@
         },
         {
             "name": "cultuurnet/culturefeed-php",
-            "version": "dev-master",
+            "version": "v1.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/culturefeed-php.git",
@@ -739,7 +739,7 @@
                 }
             ],
             "description": "Culturefeed PHP library",
-            "time": "2017-07-20 10:44:03"
+            "time": "2017-07-20T10:44:03+00:00"
         },
         {
             "name": "cultuurnet/deserializer",
@@ -1023,12 +1023,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "ee76d99071c83a8ed19ae26b6bb1356426f27e6f"
+                "reference": "74c15dec68ec427b2b2b046037782494c236faf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/ee76d99071c83a8ed19ae26b6bb1356426f27e6f",
-                "reference": "ee76d99071c83a8ed19ae26b6bb1356426f27e6f",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/74c15dec68ec427b2b2b046037782494c236faf1",
+                "reference": "74c15dec68ec427b2b2b046037782494c236faf1",
                 "shasum": ""
             },
             "require": {
@@ -1094,7 +1094,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-07-26 09:04:46"
+            "time": "2017-07-26 09:14:36"
         },
         {
             "name": "cultuurnet/udb3-jwt",
