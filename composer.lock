@@ -600,12 +600,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "de5a97a82dec34ec7bd1ade0298b912764940e78"
+                "reference": "cd9db3898ea73034a5acfc78a3d2a3c891a945b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/de5a97a82dec34ec7bd1ade0298b912764940e78",
-                "reference": "de5a97a82dec34ec7bd1ade0298b912764940e78",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/cd9db3898ea73034a5acfc78a3d2a3c891a945b5",
+                "reference": "cd9db3898ea73034a5acfc78a3d2a3c891a945b5",
                 "shasum": ""
             },
             "require": {
@@ -630,7 +630,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2017-05-10 07:57:11"
+            "time": "2017-07-05 12:13:57"
         },
         {
             "name": "cultuurnet/clock",
@@ -679,12 +679,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/culturefeed-php.git",
-                "reference": "9e90cd8b646dd598155da36c4c8835b03b3a13c8"
+                "reference": "9f0c5c6b2274e666a2021b48529c889fe5248221"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/9e90cd8b646dd598155da36c4c8835b03b3a13c8",
-                "reference": "9e90cd8b646dd598155da36c4c8835b03b3a13c8",
+                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/9f0c5c6b2274e666a2021b48529c889fe5248221",
+                "reference": "9f0c5c6b2274e666a2021b48529c889fe5248221",
                 "shasum": ""
             },
             "require": {
@@ -739,7 +739,7 @@
                 }
             ],
             "description": "Culturefeed PHP library",
-            "time": "2017-02-23 10:02:29"
+            "time": "2017-07-20 10:44:03"
         },
         {
             "name": "cultuurnet/deserializer",
@@ -1023,12 +1023,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "41d03153cbe830d76c6b7f70358f2f6f201263d6"
+                "reference": "ee76d99071c83a8ed19ae26b6bb1356426f27e6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/41d03153cbe830d76c6b7f70358f2f6f201263d6",
-                "reference": "41d03153cbe830d76c6b7f70358f2f6f201263d6",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/ee76d99071c83a8ed19ae26b6bb1356426f27e6f",
+                "reference": "ee76d99071c83a8ed19ae26b6bb1356426f27e6f",
                 "shasum": ""
             },
             "require": {
@@ -1040,7 +1040,7 @@
                 "cultuurnet/auth": "~1.2",
                 "cultuurnet/cdb": "~2.2.0",
                 "cultuurnet/clock": "~0.1",
-                "cultuurnet/culturefeed-php": "dev-master as 1.6",
+                "cultuurnet/culturefeed-php": "~1.6",
                 "cultuurnet/deserializer": "~0.1",
                 "cultuurnet/geocoding": "~0.1",
                 "cultuurnet/search": "~1.1",
@@ -1061,6 +1061,7 @@
                 "symfony/http-foundation": "~2.7.2"
             },
             "require-dev": {
+                "escapestudios/symfony2-coding-standard": "~2.0",
                 "mikey179/vfsstream": "~1.6.2",
                 "phing/phing": "~2.10",
                 "phpunit/phpunit": "~5.7",
@@ -1093,7 +1094,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-06-27 12:54:20"
+            "time": "2017-07-26 09:04:46"
         },
         {
             "name": "cultuurnet/udb3-jwt",
