@@ -1248,7 +1248,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png'),
+            new Language('nl')
         );
 
         $test = $this->given($offerType)
@@ -1291,7 +1292,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png'),
+            new Language('nl')
         );
 
         $secondImage = new Image(
@@ -1299,7 +1301,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/jpg'),
             new Description('Beep Boop'),
             new CopyrightHolder('Noo Idee'),
-            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg'),
+            new Language('nl')
         );
 
         $test = $this->given($offerType)
@@ -1334,7 +1337,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png'),
+            new Language('nl')
         );
 
         $test = $this->given(OfferType::EVENT())
@@ -1366,7 +1370,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('My best selfie.'),
             new CopyrightHolder('Duck Face'),
-            Url::fromNative('http://foo.bar/media/c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png')
+            Url::fromNative('http://foo.bar/media/c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png'),
+            new Language('nl')
         );
 
         $test = $this->given(OfferType::EVENT())
@@ -1398,7 +1403,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://udb.twee/media/img_001.png')
+            Url::fromNative('http://udb.twee/media/img_001.png'),
+            new Language('nl')
         );
 
         $test = $this->given(OfferType::EVENT())
