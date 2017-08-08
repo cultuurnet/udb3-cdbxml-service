@@ -292,7 +292,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $placeId,
-            new Title('$name'),
+            new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
             new Calendar(CalendarType::PERMANENT())
@@ -1786,7 +1786,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new PlaceMajorInfoUpdated(
                     $this->getPlaceId(),
-                    new Title("Monochrome Rainbow Rave"),
+                    new Title("Bibberburcht"),
                     new EventType('8.4.0.0.0', 'Galerie'),
                     new Address(
                         new Street('Kerkstraat 69'),
@@ -2323,7 +2323,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $this->getPlaceId(),
-            new Title('$name'),
+            new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
             new Calendar(CalendarType::PERMANENT())

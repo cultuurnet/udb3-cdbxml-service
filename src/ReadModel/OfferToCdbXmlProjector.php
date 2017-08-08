@@ -47,6 +47,7 @@ use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\CulturefeedSlugger;
+use CultuurNet\UDB3\EntityNotFoundException;
 use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
@@ -62,6 +63,7 @@ use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelRemoved as EventLabelRemoved;
+use CultuurNet\UDB3\Event\Events\LocationUpdated;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
@@ -80,6 +82,7 @@ use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
+use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\AvailableTo;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
@@ -328,6 +331,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
+            LocationUpdated::class => 'applyLocationUpdated',
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
@@ -525,7 +529,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
 
         // Set location and calendar info.
-        $this->setLocation($eventMajorInfoUpdated->getLocation(), $event);
+        $this->setLocation(
+            new LocationId($eventMajorInfoUpdated->getLocation()->getCdbid()),
+            $event
+        );
         $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
 
         $this->setItemAvailableToFromCalendar(
@@ -538,6 +545,37 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $eventMajorInfoUpdated->getEventType(),
             $eventMajorInfoUpdated->getTheme()
         );
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param LocationUpdated $locationUpdated
+     * @param Metadata $metadata
+     *
+     * @return CdbXmlDocument
+     */
+    public function applyLocationUpdated(
+        LocationUpdated $locationUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->getCdbXmlDocument(
+            $locationUpdated->getItemId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        // Set the location.
+        $this->setLocation($locationUpdated->getLocationId(), $event);
 
         // Add metadata like createdby, creationdate, etc to the actor.
         $event = $this->metadataCdbItemEnricher
@@ -573,7 +611,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $event->setContactInfo($contactInfo);
 
         // Set location and calendar info.
-        $this->setLocation($eventCreated->getLocation(), $event);
+        $this->setLocation(
+            new LocationId($eventCreated->getLocation()->getCdbid()),
+            $event
+        );
         $this->setCalendar($eventCreated->getCalendar(), $event);
 
         $this->setItemAvailableToFromCalendar(
@@ -1576,13 +1617,14 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * Set the location on the cdb event based on an eventCreated event.
      *
-     * @param \CultuurNet\UDB3\Location\Location $eventLocation
+     * @param LocationId $locationId
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
-     * @throws \CultuurNet\UDB3\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
-    private function setLocation(Location $eventLocation, CultureFeed_Cdb_Item_Event $cdbEvent)
+    private function setLocation(LocationId $locationId, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
-        $placeCdbXml = $this->documentRepository->get($eventLocation->getCdbid());
+        // The location needs to exist as a place, so use this place to embed in the event.
+        $placeCdbXml = $this->documentRepository->get($locationId->toNative());
 
         if ($placeCdbXml) {
             $place = ActorItemFactory::createActorFromCdbXml(
@@ -1594,8 +1636,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $address = $contactInfo->getAddresses()[0];
 
             $location = new CultureFeed_Cdb_Data_Location($address);
-            $location->setCdbid($eventLocation->getCdbid());
-            $location->setLabel($eventLocation->getName());
+            $location->setCdbid($place->getCdbid());
+            // The name for the location can be taken from the title of the place details.
+            $place->getDetails()->rewind();
+            $location->setLabel($place->getDetails()->current()->getTitle());
             $cdbEvent->setLocation($location);
 
             $eventContactInfo = $cdbEvent->getContactInfo();
@@ -1610,7 +1654,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
             $cdbEvent->setContactInfo($eventContactInfo);
         } else {
-            $warning = 'Could not find location with id ' . $eventLocation->getCdbid();
+            $warning = 'Could not find location with id ' . $locationId->toNative();
             $warning .= ' when setting location on event ' . $cdbEvent->getCdbId() . '.';
             $this->logger->warning($warning);
         }
