@@ -518,7 +518,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $placeId,
-            new Title('$name'),
+            new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             new Address(
                 new Street('Bondgenotenlaan 1'),
