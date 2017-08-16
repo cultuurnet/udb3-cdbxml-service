@@ -28,6 +28,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\CalendarUpdated as EventCalendarUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated;
@@ -70,6 +71,7 @@ use CultuurNet\UDB3\Offer\AgeRange;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\AddressUpdated;
+use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
@@ -89,6 +91,8 @@ use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
 use Psr\Log\LoggerInterface;
+use ValueObjects\DateTime\Hour;
+use ValueObjects\DateTime\Minute;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
 use ValueObjects\Money\Currency;
@@ -1910,6 +1914,117 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->expect('place-with-major-info-updated.xml');
 
         $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_calendar_updated()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventCalendarUpdated(
+                    $this->getEventId(),
+                    $this->getMultipleCalendar()
+                )
+            )
+            ->expect('event-with-calendar-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @return Calendar
+     */
+    private function getMultipleCalendar()
+    {
+        $startDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-01-26T09:00:00+01:00');
+        $endDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-01T16:00:00+01:00');
+
+        $startDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-03T09:00:00+01:00');
+        $endDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-10T16:00:00+01:00');
+
+        $timeStamps = [
+            new Timestamp(
+                $startDatePeriod1,
+                $endDatePeriod1
+            ),
+            new Timestamp(
+                $startDatePeriod2,
+                $endDatePeriod2
+            ),
+        ];
+
+        return new Calendar(
+            CalendarType::MULTIPLE(),
+            $startDatePeriod1,
+            $endDatePeriod2,
+            $timeStamps,
+            []
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_place_calendar_updated()
+    {
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new PlaceCalendarUpdated(
+                    $this->getPlaceId(),
+                    $this->getPermanentCalendar()
+                )
+            )
+            ->expect('place-with-calendar-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @return Calendar
+     */
+    private function getPermanentCalendar()
+    {
+        $openingHours = [
+            new OpeningHour(
+                new OpeningTime(
+                    new Hour(9),
+                    new Minute(0)
+                ),
+                new OpeningTime(
+                    new Hour(17),
+                    new Minute(0)
+                ),
+                new DayOfWeekCollection(
+                    DayOfWeek::TUESDAY(),
+                    DayOfWeek::WEDNESDAY(),
+                    DayOfWeek::THURSDAY(),
+                    DayOfWeek::FRIDAY()
+                )
+            ),
+            new OpeningHour(
+                new OpeningTime(
+                    new Hour(9),
+                    new Minute(0)
+                ),
+                new OpeningTime(
+                    new Hour(12),
+                    new Minute(0)
+                ),
+                new DayOfWeekCollection(
+                    DayOfWeek::SATURDAY()
+                )
+            ),
+        ];
+
+        return new Calendar(
+            CalendarType::PERMANENT(),
+            null,
+            null,
+            [],
+            $openingHours
+        );
     }
 
     /**

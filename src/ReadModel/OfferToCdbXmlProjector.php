@@ -50,6 +50,7 @@ use CultuurNet\UDB3\CulturefeedSlugger;
 use CultuurNet\UDB3\EntityNotFoundException;
 use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\CalendarUpdated as EventCalendarUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
@@ -81,7 +82,6 @@ use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\LabelCollection;
-use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\AvailableTo;
@@ -107,6 +107,7 @@ use CultuurNet\UDB3\Offer\Events\Moderation\AbstractPublished;
 use CultuurNet\UDB3\Offer\WorkflowStatus;
 use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
+use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\DescriptionUpdated as PlaceDescriptionUpdated;
@@ -331,6 +332,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
+            EventCalendarUpdated::class => 'applyEventCalendarUpdated',
+            PlaceCalendarUpdated::class => 'applyPlaceCalendarUpdated',
             LocationUpdated::class => 'applyLocationUpdated',
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
@@ -584,6 +587,82 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param EventCalendarUpdated $calendarUpdated
+     * @param Metadata $metadata
+     *
+     * @return CdbXmlDocument
+     */
+    public function applyEventCalendarUpdated(
+        EventCalendarUpdated $calendarUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->getCdbXmlDocument(
+            $calendarUpdated->getItemId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $this->setCalendar($calendarUpdated->getCalendar(), $event);
+
+        $this->setItemAvailableToFromCalendar(
+            $calendarUpdated->getCalendar(),
+            $event
+        );
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param PlaceCalendarUpdated $calendarUpdated
+     * @param Metadata $metadata
+     *
+     * @return CdbXmlDocument
+     */
+    public function applyPlaceCalendarUpdated(
+        PlaceCalendarUpdated $calendarUpdated,
+        Metadata $metadata
+    ) {
+        $actorCdbXml = $this->getCdbXmlDocument(
+            $calendarUpdated->getItemId()
+        );
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $actorCdbXml->getCdbXml()
+        );
+
+        $cdbCalendar = $this->calendarConverter->toCdbCalendar(
+            $calendarUpdated->getCalendar()
+        );
+        if ($cdbCalendar instanceof CultureFeed_Cdb_Data_Calendar_Permanent) {
+            $weekscheme = $cdbCalendar->getWeekScheme();
+            empty($weekscheme) ?: $actor->setWeekScheme($weekscheme);
+        }
+
+        $this->setItemAvailableToFromCalendar(
+            $calendarUpdated->getCalendar(),
+            $actor
+        );
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
     }
 
     /**
