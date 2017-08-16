@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "afd43fd3e1334057b159d775aeaf31c0",
+    "content-hash": "dd7ff17bc7212f3fc169e8329b081ce1",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1019,16 +1019,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-master",
+            "version": "dev-feature/III-2287",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "501e4df6d2d1b2da4fd338431e7acac97ff7188b"
+                "reference": "8cb039a67f0721e26cb3ae68cea6a9605188d9ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/501e4df6d2d1b2da4fd338431e7acac97ff7188b",
-                "reference": "501e4df6d2d1b2da4fd338431e7acac97ff7188b",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/8cb039a67f0721e26cb3ae68cea6a9605188d9ef",
+                "reference": "8cb039a67f0721e26cb3ae68cea6a9605188d9ef",
                 "shasum": ""
             },
             "require": {
@@ -1094,7 +1094,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-08-08 08:06:58"
+            "time": "2017-08-16 16:51:31"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -6143,9 +6143,18 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-2287",
+            "package": "cultuurnet/udb3"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/udb3": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
