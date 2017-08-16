@@ -42,6 +42,7 @@ use CultuurNet\UDB3\Event\Events\ImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelRemoved;
+use CultuurNet\UDB3\Event\Events\LocationUpdated;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
@@ -63,6 +64,7 @@ use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
+use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
@@ -1912,6 +1914,46 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect('place-with-major-info-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_location_updated()
+    {
+        $placeId = 'ed138027-0d17-4b8e-8bfd-b547c96e2771';
+
+        $address = new Address(
+            new Street('Horststraat 28'),
+            new PostalCode('3220'),
+            new Locality('Holsbeek'),
+            Country::fromNative('BE')
+        );
+
+        $placeCreated = new PlaceCreated(
+            $placeId,
+            new Title('Kasteel van Horst'),
+            new EventType('0.1.2', 'kasteel'),
+            $address,
+            new Calendar(CalendarType::PERMANENT())
+        );
+        $domainMessage = $this->createDomainMessage(
+            $placeId,
+            $placeCreated,
+            $this->metadata
+        );
+        $this->projector->handle($domainMessage);
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new LocationUpdated(
+                    $this->getEventId(),
+                    new LocationId($placeId)
+                )
+            )
+            ->expect('event-with-location-updated.xml');
 
         $this->execute($test);
     }

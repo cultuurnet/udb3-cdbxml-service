@@ -1108,12 +1108,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * Only works for events for now, as price is not supported on actors.
      *
      * @param \CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated $priceInfoUpdated
-     * @param Metadata $metadata
      * @return CdbXmlDocument
      */
     public function applyPriceInfoUpdated(
-        AbstractPriceInfoUpdated $priceInfoUpdated,
-        Metadata $metadata
+        AbstractPriceInfoUpdated $priceInfoUpdated
     ) {
         $eventCdbXml = $this->getCdbXmlDocument(
             $priceInfoUpdated->getItemId()
