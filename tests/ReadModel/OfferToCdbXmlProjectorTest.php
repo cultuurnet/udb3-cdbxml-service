@@ -1220,8 +1220,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new ContactPoint(
                         array('+32 666 666'),
                         array('tickets@example.com'),
-                        array('http://tickets.example.com'),
-                        'type'
+                        array('http://tickets.example.com')
                     )
                 )
             )
