@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1dbd56fede3e1e6efeccd761ca3cd030",
+    "content-hash": "afd43fd3e1334057b159d775aeaf31c0",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -54,7 +54,7 @@
                 }
             ],
             "description": " Library for creating collection classes with strict typing.",
-            "time": "2015-12-16T09:28:40+00:00"
+            "time": "2015-12-16 09:28:40"
         },
         {
             "name": "beberlei/assert",
@@ -500,7 +500,7 @@
                 "Apache-2.0"
             ],
             "description": "Authentication service for CultuurNet web services",
-            "time": "2015-08-24T20:22:37+00:00"
+            "time": "2015-08-24 20:22:37"
         },
         {
             "name": "cultuurnet/broadway-amqp",
@@ -547,7 +547,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2017-04-20T12:39:24+00:00"
+            "time": "2017-04-20 12:39:24"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -630,7 +630,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2017-07-05T12:13:57+00:00"
+            "time": "2017-07-05 12:13:57"
         },
         {
             "name": "cultuurnet/clock",
@@ -671,7 +671,7 @@
                 }
             ],
             "description": "Clock abstraction library",
-            "time": "2015-06-08T16:12:34+00:00"
+            "time": "2015-06-08 16:12:34"
         },
         {
             "name": "cultuurnet/culturefeed-php",
@@ -786,7 +786,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2017-04-19T11:56:39+00:00"
+            "time": "2017-04-19 11:56:39"
         },
         {
             "name": "cultuurnet/geocoding",
@@ -835,7 +835,7 @@
                     "email": "bert@2dotstwice.be"
                 }
             ],
-            "time": "2017-03-31T14:39:58+00:00"
+            "time": "2017-03-31 14:39:58"
         },
         {
             "name": "cultuurnet/search",
@@ -924,7 +924,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2017-02-23T10:54:33+00:00"
+            "time": "2017-02-23 10:54:33"
         },
         {
             "name": "cultuurnet/symfony-security-jwt",
@@ -966,7 +966,7 @@
                 "Apache-2.0"
             ],
             "description": "JWT implementation for the Symfony Security component",
-            "time": "2017-02-23T11:20:01+00:00"
+            "time": "2017-02-23 11:20:01"
         },
         {
             "name": "cultuurnet/udb2-domain-events",
@@ -1015,20 +1015,20 @@
                 }
             ],
             "description": "PHP models for domain events in UiTdatabank version 2",
-            "time": "2017-04-20T15:15:25+00:00"
+            "time": "2017-04-20 15:15:25"
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-2278",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "e46c19107acf6b530e329d3b641a1ccc330ec18d"
+                "reference": "100ce003795b6e8b4852607695439ba5bc17fd72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e46c19107acf6b530e329d3b641a1ccc330ec18d",
-                "reference": "e46c19107acf6b530e329d3b641a1ccc330ec18d",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/100ce003795b6e8b4852607695439ba5bc17fd72",
+                "reference": "100ce003795b6e8b4852607695439ba5bc17fd72",
                 "shasum": ""
             },
             "require": {
@@ -1094,7 +1094,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-08-23T11:31:25+00:00"
+            "time": "2017-08-24 08:08:21"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -1143,7 +1143,7 @@
                 }
             ],
             "description": "Provides JWT service classes",
-            "time": "2017-04-19T11:59:07+00:00"
+            "time": "2017-04-19 11:59:07"
         },
         {
             "name": "cultuurnet/valueobjects",
@@ -2204,7 +2204,7 @@
             ],
             "authors": [
                 {
-                    "name": "KnpLabs",
+                    "name": "Knplabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -6143,18 +6143,9 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-2278",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
