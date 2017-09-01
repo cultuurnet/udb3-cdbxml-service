@@ -55,6 +55,7 @@ use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
+use CultuurNet\UDB3\Event\Events\TitleUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
@@ -879,6 +880,31 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect($cdbXmlType . '-with-title-translated-to-en-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param string $id
+     * @param string $cdbXmlType
+     */
+    public function it_should_update_the_main_language_title_detail_when_a_title_updated_event_occurs(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
+        $test = $this->given($offerType)
+            ->apply(
+                new TitleUpdated(
+                    $id,
+                    new Title('Nieuwe titel')
+                )
+            )
+            ->expect($cdbXmlType . '-with-title-updated.xml');
 
         $this->execute($test);
     }

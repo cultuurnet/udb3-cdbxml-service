@@ -96,6 +96,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
+use CultuurNet\UDB3\Offer\Events\AbstractTitleUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractImageAdded;
@@ -105,6 +106,8 @@ use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractApproved;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractPublished;
 use CultuurNet\UDB3\Offer\WorkflowStatus;
+use CultuurNet\UDB3\Place\Events\TitleUpdated as PlaceTitleUpdated;
+use CultuurNet\UDB3\Event\Events\TitleUpdated as EventTitleUpdated;
 use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
 use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
@@ -300,6 +303,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             FacilitiesUpdated::class => 'applyFacilitiesUpdated',
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
+            EventTitleUpdated::class => 'applyTitleUpdated',
+            PlaceTitleUpdated::class => 'applyTitleUpdated',
             EventCreated::class => 'applyEventCreated',
             EventCopied::class => 'applyEventCopied',
             EventDeleted::class => 'applyEventDeleted',
@@ -947,6 +952,40 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $detail->setTitle($title);
             $details->add($detail);
         }
+
+        $offer->setDetails($details);
+
+        // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($offer);
+    }
+
+    /**
+     * CDBXML does not keep track of the main language.
+     * The first detail returned by the iterator is considered the oldest.
+     * The oldest detail should be using the main language because it is created before you start translating.
+     *
+     * @param AbstractTitleUpdated $titleUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyTitleUpdated(
+        AbstractTitleUpdated $titleUpdated,
+        Metadata $metadata
+    ) {
+        $cdbXmlDocument = $this->getCdbXmlDocument($titleUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+
+        $details = $offer->getDetails();
+        $details->rewind();
+        /** @var \CultureFeed_Cdb_Data_Detail $mainLanguageDetail */
+        $mainLanguageDetail = $details->current();
+
+        $mainLanguageDetail->setTitle((string) $titleUpdated->getTitle());
 
         $offer->setDetails($details);
 
