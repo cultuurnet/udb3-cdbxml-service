@@ -31,6 +31,7 @@ use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
+use CultuurNet\UDB3\Category;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\Description\MergedDescription;
@@ -72,9 +73,15 @@ use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
+use CultuurNet\UDB3\Event\Events\ThemeUpdated as EventThemeUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractThemeUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractTypeUpdated;
+use CultuurNet\UDB3\Place\Events\ThemeUpdated as PlaceThemeUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\TypeUpdated as EventTypeUpdated;
+use CultuurNet\UDB3\Place\Events\TypeUpdated as PlaceTypeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
@@ -355,6 +362,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             EventFlaggedAsInappropriate::class => 'applyRejected',
             PlaceFlaggedAsInappropriate::class => 'applyRejected',
             AudienceUpdated::class => 'applyAudienceUpdated',
+            EventTypeUpdated::class => 'applyTypeUpdated',
+            PlaceTypeUpdated::class => 'applyTypeUpdated',
+            EventThemeUpdated::class => 'applyThemeUpdated',
+            PlaceThemeUpdated::class => 'applyThemeUpdated',
         ];
 
         $this->logger->info('found message ' . $payloadClassName . ' in OfferToCdbXmlProjector');
@@ -385,6 +396,42 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         } else {
             $this->logger->info('no handler found for message ' . $payloadClassName);
         }
+    }
+
+    public function applyTypeUpdated(
+        AbstractTypeUpdated $typeUpdated,
+        Metadata $metadata
+    ) {
+        $cdbXmlDocument = $this->getCdbXmlDocument($typeUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+
+        $this->replaceCategoryByDomain($offer, $typeUpdated->getType());
+
+        // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($offer);
+    }
+
+    public function applyThemeUpdated(
+        AbstractThemeUpdated $themeUpdated,
+        Metadata $metadata
+    ) {
+        $cdbXmlDocument = $this->getCdbXmlDocument($themeUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+
+        $this->replaceCategoryByDomain($offer, $themeUpdated->getTheme());
+
+        // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($offer);
     }
 
     /**
@@ -1970,6 +2017,31 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
         $cdbItem->setContactInfo($contactInfo);
 
+    }
+
+    /**
+     * Modifies the an item to replace any of its categories that matches domain with the given category.
+     *
+     * @param CultureFeed_Cdb_Item_Base $item
+     * @param Category $category
+     */
+    private function replaceCategoryByDomain(CultureFeed_Cdb_Item_Base $item, Category $category)
+    {
+        $filter = new CategoryListFilter(
+            new Not(new Type($category->getDomain()))
+        );
+
+        $categories = $filter->filter($item->getCategories());
+
+        $categories->add(
+            new CultureFeed_Cdb_Data_Category(
+                $category->getDomain(),
+                $category->getId(),
+                $category->getLabel()
+            )
+        );
+
+        $item->setCategories($categories);
     }
 
     /**
