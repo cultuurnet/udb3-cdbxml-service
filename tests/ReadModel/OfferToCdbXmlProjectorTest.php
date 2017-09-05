@@ -16,7 +16,6 @@ use CultuurNet\UDB3\Calendar\DayOfWeekCollection;
 use CultuurNet\UDB3\Calendar\OpeningHour;
 use CultuurNet\UDB3\Calendar\OpeningTime;
 use CultuurNet\UDB3\CalendarType;
-use CultuurNet\UDB3\Category;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
 use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
@@ -2294,7 +2293,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $typeUpdatedEvent = new TypeUpdated(
             $this->getEventId(),
-            new Category('YVBc8KVdrU6XfTNvhMYUpg', 'Discotheek', 'eventtype')
+            new EventType('YVBc8KVdrU6XfTNvhMYUpg', 'Discotheek')
         );
 
         $test = $this
