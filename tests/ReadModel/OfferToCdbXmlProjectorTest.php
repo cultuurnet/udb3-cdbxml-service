@@ -54,6 +54,7 @@ use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlagg
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
+use CultuurNet\UDB3\Event\Events\ThemeUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
 use CultuurNet\UDB3\Event\Events\TitleUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
@@ -72,6 +73,7 @@ use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\AgeRange;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
+use CultuurNet\UDB3\Event\Events\TypeUpdated;
 use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
@@ -2280,6 +2282,42 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->given(OfferType::EVENT())
             ->apply($audienceUpdatedEvent)
             ->expect('event-with-education-target-audience.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_replace_the_existing_type_when_updating_with_a_new_type()
+    {
+        $typeUpdatedEvent = new TypeUpdated(
+            $this->getEventId(),
+            new EventType('YVBc8KVdrU6XfTNvhMYUpg', 'Discotheek')
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($typeUpdatedEvent)
+            ->expect('event-with-type-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_replace_the_existing_theme_when_updating_with_a_new_theme()
+    {
+        $themeUpdatedEvent = new ThemeUpdated(
+            $this->getEventId(),
+            new Theme('1.8.3.3.0', 'Dance')
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($themeUpdatedEvent)
+            ->expect('event-with-theme-updated.xml');
 
         $this->execute($test);
     }
