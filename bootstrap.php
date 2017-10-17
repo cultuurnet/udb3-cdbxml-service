@@ -320,7 +320,7 @@ $app['geocoding_service'] = $app->share(
                     new Geocoder\HttpAdapter\CurlHttpAdapter(),
                     null,
                     null,
-                    false,
+                    true,
                     isset($app['config']['google_maps_api_key']) ? $app['config']['google_maps_api_key'] : null
                 )
             )
