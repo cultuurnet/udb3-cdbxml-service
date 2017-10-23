@@ -405,6 +405,49 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_logs_error_whe_actor_is_missing_on_event_copied()
+    {
+        $originalEventId = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventId = '8b1855f7-7f11-4653-9fbb-f5f4611f7960';
+
+        $cdbXmlDocument = new CdbXmlDocument(
+            $originalEventId,
+            $this->loadCdbXmlFromFile('event-copied-original.xml')
+        );
+        $this->repository->save($cdbXmlDocument);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with('No actor found with id ORG-123, when applying labels on copied event 8b1855f7-7f11-4653-9fbb-f5f4611f7960');
+
+        $eventCopied = new EventCopied(
+            $eventId,
+            $originalEventId,
+            new Calendar(CalendarType::PERMANENT())
+        );
+
+        $metadata = new Metadata(
+            [
+                'user_nick' => '2dotstwice',
+                'user_email' => 'info@2dotstwice.be',
+                'user_id' => '65000e81-2860-4120-a97e-1dca743892e5',
+                'request_time' => '1460710958',
+                'id' => 'http://foo.be/item/8b1855f7-7f11-4653-9fbb-f5f4611f7960',
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage(
+            $eventId,
+            $eventCopied,
+            $metadata
+        );
+
+        $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_event_imported_from_udb2()
     {
         $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';

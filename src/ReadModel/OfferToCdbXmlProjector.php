@@ -823,15 +823,21 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $organiserCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
         if ($organiserCdbId) {
             $actorCdbXml = $this->actorDocumentRepository->get($organiserCdbId);
-            $actor = ActorItemFactory::createActorFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $actorCdbXml->getCdbXml()
-            );
-            if ($actor) {
-                $event = $this->uitpasLabelApplier->addLabels(
-                    $event,
-                    LabelCollection::fromStrings($actor->getKeywords())
+            if ($actorCdbXml) {
+                $actor = ActorItemFactory::createActorFromCdbXml(
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+                    $actorCdbXml->getCdbXml()
                 );
+                if ($actor) {
+                    $event = $this->uitpasLabelApplier->addLabels(
+                        $event,
+                        LabelCollection::fromStrings($actor->getKeywords())
+                    );
+                }
+            } else {
+                $errorMessage = 'No actor found with id ' . $organiserCdbId;
+                $errorMessage .= ', when applying labels on copied event ' . $eventCopied->getItemId();
+                $this->logger->error($errorMessage);
             }
         }
 
