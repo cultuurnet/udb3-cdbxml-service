@@ -17,8 +17,6 @@ use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFil
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -27,14 +25,10 @@ use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\Label;
-use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Offer\OfferType;
-use CultuurNet\UDB3\Organizer\Events\LabelAdded;
-use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
@@ -76,16 +70,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $iriOfferIdentifierFactory;
 
-    /**
-     * @var LabelFilterInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $uitpasLabelFilter;
-
-    /**
-     * @var LabelApplierInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $uitpasLabelApplier;
-
     public function setUp()
     {
         parent::setUp();
@@ -108,17 +92,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
-            new EventCdbIdExtractor(),
-            $this->createMock(LabelApplierInterface::class)
+            new EventCdbIdExtractor()
         );
 
         $this->offerRelationsService = $this->createMock(OfferRelationsServiceInterface::class);
 
         $this->iriOfferIdentifierFactory = $this->createMock(IriOfferIdentifierFactoryInterface::class);
-
-        $this->uitpasLabelFilter = $this->createMock(LabelFilterInterface::class);
-
-        $this->uitpasLabelApplier = $this->createMock(LabelApplierInterface::class);
 
         $this->relationsProjector = new RelationsToCdbXmlProjector(
             $this->repository,
@@ -128,9 +107,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
             $this->actorRepository,
             $this->offerRelationsService,
-            $this->iriOfferIdentifierFactory,
-            $this->uitpasLabelFilter,
-            $this->uitpasLabelApplier
+            $this->iriOfferIdentifierFactory
         );
 
         $this->metadata = new Metadata(
@@ -351,128 +328,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
         $this->assertCdbXmlDocumentInRepository($expectedSecondCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_adds_label_to_all_related_events_when_organizer_has_uitpas_label_added()
-    {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventCdbXml = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-        $this->repository->save($eventCdbXml);
-
-        $organizerId = 'ORG-123';
-        $organizerCdbxml = new CdbXmlDocument(
-            $organizerId,
-            $this->loadCdbXmlFromFile('actor.xml')
-        );
-        $this->actorRepository->save($organizerCdbxml);
-
-        $labelName = 'foobar';
-
-        $labelAdded = new LabelAdded($organizerId, new Label($labelName));
-
-        $domainMessage = $this->createDomainMessage(
-            $organizerId,
-            $labelAdded,
-            new Metadata()
-        );
-
-        $this->offerRelationsService
-            ->expects($this->once())
-            ->method('getByOrganizer')
-            ->with($organizerId)
-            ->willReturn(
-                [
-                    $id,
-                ]
-            );
-
-        $this->uitpasLabelFilter->method('filter')
-            ->with(LabelCollection::fromStrings([$labelName]))
-            ->willReturn([$labelName]);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('addLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    $event->addKeyword('foobar');
-                    return $event;
-                }
-            );
-
-        $this->relationsProjector->handle($domainMessage);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword.xml')
-        );
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_removes_label_from_all_related_events_when_organizer_has_uitpas_label_removed()
-    {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventCdbXml = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword.xml')
-        );
-        $this->repository->save($eventCdbXml);
-
-        $organizerId = 'ORG-123';
-        $organizerCdbxml = new CdbXmlDocument(
-            $organizerId,
-            $this->loadCdbXmlFromFile('actor.xml')
-        );
-        $this->actorRepository->save($organizerCdbxml);
-
-        $labelName = 'foobar';
-
-        $labelRemoved = new LabelRemoved($organizerId, new Label($labelName));
-
-        $domainMessage = $this->createDomainMessage(
-            $organizerId,
-            $labelRemoved,
-            new Metadata()
-        );
-
-        $this->offerRelationsService
-            ->expects($this->once())
-            ->method('getByOrganizer')
-            ->with($organizerId)
-            ->willReturn(
-                [
-                    $id,
-                ]
-            );
-
-        $this->uitpasLabelFilter->method('filter')
-            ->with(LabelCollection::fromStrings([$labelName]))
-            ->willReturn([$labelName]);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('removeLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    $event->deleteKeyword('foobar');
-                    return $event;
-                }
-            );
-
-        $this->relationsProjector->handle($domainMessage);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**

@@ -21,7 +21,6 @@ use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilt
 use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
@@ -127,11 +126,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $logger;
 
-    /**
-     * @var LabelApplierInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $uitpasLabelApplier;
-
     public function setUp()
     {
         parent::setUp();
@@ -140,8 +134,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         date_default_timezone_set('Europe/Brussels');
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
-
-        $this->uitpasLabelApplier = $this->createMock(LabelApplierInterface::class);
 
         $this->projector = (
         new OfferToCdbXmlProjector(
@@ -168,8 +160,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
                     ]
                 )
-            ),
-            $this->uitpasLabelApplier
+            )
         ));
 
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -341,7 +332,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_should_keep_uitpas_labels_when_an_event_gets_copied()
+    public function it_should_remove_all_labels_when_an_event_gets_copied()
     {
         $originalEventId = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
         $eventId = '8b1855f7-7f11-4653-9fbb-f5f4611f7960';
@@ -358,15 +349,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor-with-uitpas-keyword.xml')
         );
         $this->actorRepository->save($organizerCdbxml);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('addLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    $event->addKeyword('Paspartoe');
-                    return $event;
-                }
-            );
 
         $eventCopied = new EventCopied(
             $eventId,
@@ -400,49 +382,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
 
         $this->assertEquals($expectedCdbXmlDocument, $cdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_logs_error_whe_actor_is_missing_on_event_copied()
-    {
-        $originalEventId = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventId = '8b1855f7-7f11-4653-9fbb-f5f4611f7960';
-
-        $cdbXmlDocument = new CdbXmlDocument(
-            $originalEventId,
-            $this->loadCdbXmlFromFile('event-copied-original.xml')
-        );
-        $this->repository->save($cdbXmlDocument);
-
-        $this->logger->expects($this->once())
-            ->method('error')
-            ->with('No actor found with id ORG-123, when applying labels on copied event 8b1855f7-7f11-4653-9fbb-f5f4611f7960');
-
-        $eventCopied = new EventCopied(
-            $eventId,
-            $originalEventId,
-            new Calendar(CalendarType::PERMANENT())
-        );
-
-        $metadata = new Metadata(
-            [
-                'user_nick' => '2dotstwice',
-                'user_email' => 'info@2dotstwice.be',
-                'user_id' => '65000e81-2860-4120-a97e-1dca743892e5',
-                'request_time' => '1460710958',
-                'id' => 'http://foo.be/item/8b1855f7-7f11-4653-9fbb-f5f4611f7960',
-            ]
-        );
-
-        $domainMessage = $this->createDomainMessage(
-            $eventId,
-            $eventCopied,
-            $metadata
-        );
-
-        $this->projector->handle($domainMessage);
     }
 
     /**
@@ -1507,22 +1446,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor.xml')
         );
         $this->actorRepository->save($organizerCdbxml);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('addLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    return $event;
-                }
-            );
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('removeLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    return $event;
-                }
-            );
 
         $test = $this->given(OfferType::EVENT())
             ->apply(

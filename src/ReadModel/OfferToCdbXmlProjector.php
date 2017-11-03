@@ -44,7 +44,6 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\AnyOff;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\ID;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\CulturefeedSlugger;
@@ -88,7 +87,6 @@ use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
-use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\AvailableTo;
@@ -230,11 +228,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $eventCdbIdExtractor;
 
     /**
-     * @var LabelApplierInterface
-     */
-    private $uitpasLabelApplier;
-
-    /**
      * @var SluggerInterface
      */
     private $slugger;
@@ -261,7 +254,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
-     * @param LabelApplierInterface $uitpasLabelApplier
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -274,8 +266,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         StringFilterInterface $shortDescriptionFilter,
         CurrencyRepositoryInterface $currencyRepository,
         NumberFormatRepositoryInterface $numberFormatRepository,
-        EventCdbIdExtractorInterface $eventCdbIdExtractor,
-        LabelApplierInterface $uitpasLabelApplier
+        EventCdbIdExtractorInterface $eventCdbIdExtractor
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -288,7 +279,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
-        $this->uitpasLabelApplier = $uitpasLabelApplier;
         $this->slugger = new CulturefeedSlugger();
         $this->logger = new NullLogger();
         $this->uriNormalizer = new Normalize();
@@ -818,27 +808,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $keywords = $event->getKeywords(true);
         foreach ($keywords as $keyword) {
             $event->deleteKeyword($keyword);
-        }
-        // But add the UiTPAS keywords again from the organizer.
-        $organiserCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
-        if ($organiserCdbId) {
-            $actorCdbXml = $this->actorDocumentRepository->get($organiserCdbId);
-            if ($actorCdbXml) {
-                $actor = ActorItemFactory::createActorFromCdbXml(
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                    $actorCdbXml->getCdbXml()
-                );
-                if ($actor) {
-                    $event = $this->uitpasLabelApplier->addLabels(
-                        $event,
-                        LabelCollection::fromStrings($actor->getKeywords())
-                    );
-                }
-            } else {
-                $errorMessage = 'No actor found with id ' . $organiserCdbId;
-                $errorMessage .= ', when applying labels on copied event ' . $eventCopied->getItemId();
-                $this->logger->error($errorMessage);
-            }
         }
 
         // Update metadata like created-by, creation-date, last-updated and last-updated-by.
@@ -1380,11 +1349,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
-            $event = $this->uitpasLabelApplier->addLabels(
-                $event,
-                LabelCollection::fromStrings($actor->getKeywords())
-            );
-
             $event->setOrganiser($organizer);
         } else {
             $warning = 'Could not find organizer with id ' . $organizerUpdated->getOrganizerId();
@@ -1425,11 +1389,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $actor = ActorItemFactory::createActorFromCdbXml(
                 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
                 $organizerCdbXml->getCdbXml()
-            );
-
-            $event = $this->uitpasLabelApplier->removeLabels(
-                $event,
-                LabelCollection::fromStrings($actor->getKeywords())
             );
         }
 
