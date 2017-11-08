@@ -27,9 +27,6 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\EventBusRelay;
-use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelApplier;
-use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
-use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelProvider;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
@@ -148,23 +145,6 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
     }
 );
 
-$app['uitpas_label_filter'] = $app->share(
-    function (Application $app) {
-        $uitpasLabelProvider = new UitpasLabelProvider(
-            new \Guzzle\Http\Client(),
-            Url::fromNative($app['config']['uitpas_service']['labels_url'])
-        );
-
-        return new UitpasLabelFilter($uitpasLabelProvider);
-    }
-);
-
-$app['uitpas_label_applier'] = $app->share(
-    function (Application $app) {
-        return new UitpasLabelApplier($app['uitpas_label_filter']);
-    }
-);
-
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $projector = (new OfferToCdbXmlProjector(
@@ -178,8 +158,7 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
             new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
-            $app['event_cdbid_extractor'],
-            $app['uitpas_label_applier']
+            $app['event_cdbid_extractor']
         ));
 
         $projector->setLogger($app['logger.projector']);
@@ -241,9 +220,7 @@ $app['relations_to_cdbxml_projector'] = $app->share(
             $app['metadata_cdb_item_enricher'],
             $app['cdbxml_actor_repository'],
             $app['offer_relations_service'],
-            $app['iri_offer_identifier_factory'],
-            $app['uitpas_label_filter'],
-            $app['uitpas_label_applier']
+            $app['iri_offer_identifier_factory']
         ));
 
         $projector->setLogger($app['logger.projector']);

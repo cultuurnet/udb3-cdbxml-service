@@ -12,16 +12,10 @@ use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
-use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
-use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
-use CultuurNet\UDB3\Organizer\Events\LabelAdded;
-use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -67,16 +61,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
     private $iriOfferIdentifierFactory;
 
     /**
-     * @var LabelFilterInterface
-     */
-    private $uitpasLabelFilter;
-
-    /**
-     * @var LabelApplierInterface
-     */
-    private $uitpasLabelApplier;
-
-    /**
      * RelationsToCdbXmlProjector constructor.
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $cdbXmlDocumentFactory
@@ -84,8 +68,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
      * @param DocumentRepositoryInterface $actorDocumentRepository
      * @param OfferRelationsServiceInterface $offerRelationsService
      * @param IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
-     * @param LabelFilterInterface $uitpasLabelFilter
-     * @param LabelApplierInterface $uitpasLabelApplier
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -93,9 +75,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         MetadataCdbItemEnricherInterface $metadataCdbItemEnricher,
         DocumentRepositoryInterface $actorDocumentRepository,
         OfferRelationsServiceInterface $offerRelationsService,
-        IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory,
-        LabelFilterInterface $uitpasLabelFilter,
-        LabelApplierInterface $uitpasLabelApplier
+        IriOfferIdentifierFactoryInterface $iriOfferIdentifierFactory
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -103,8 +83,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         $this->actorDocumentRepository = $actorDocumentRepository;
         $this->offerRelationsService = $offerRelationsService;
         $this->iriOfferIdentifierFactory = $iriOfferIdentifierFactory;
-        $this->uitpasLabelFilter = $uitpasLabelFilter;
-        $this->uitpasLabelApplier = $uitpasLabelApplier;
         $this->logger = new NullLogger();
     }
 
@@ -119,8 +97,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         $handlers = [
             OrganizerProjectedToCdbXml::class => 'applyOrganizerProjectedToCdbXml',
             PlaceProjectedToCdbXml::class => 'applyPlaceProjectedToCdbXml',
-            LabelAdded::class => 'applyOrganizerLabelAdded',
-            LabelRemoved::class => 'applyOrganizerLabelRemoved',
         ];
 
         if (isset($handlers[$payloadClassName])) {
@@ -224,72 +200,6 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
             $newEvent->setContactInfo($eventContactInfo);
 
             $this->saveAndPublishIfChanged($newEvent, $event, $metadata);
-        }
-    }
-
-    /**
-     * @param LabelAdded $labelAdded
-     * @param DomainMessage $domainMessage
-     */
-    public function applyOrganizerLabelAdded(
-        LabelAdded $labelAdded,
-        DomainMessage $domainMessage
-    ) {
-        $this->applyLabelEvent($labelAdded, $domainMessage);
-    }
-
-    /**
-     * @param LabelRemoved $labelRemoved
-     * @param DomainMessage $domainMessage
-     */
-    public function applyOrganizerLabelRemoved(
-        LabelRemoved $labelRemoved,
-        DomainMessage $domainMessage
-    ) {
-        $this->applyLabelEvent($labelRemoved, $domainMessage);
-    }
-
-    /**
-     * @param AbstractLabelEvent $labelEvent
-     * @param DomainMessage $domainMessage
-     */
-    private function applyLabelEvent(
-        AbstractLabelEvent $labelEvent,
-        DomainMessage $domainMessage
-    ) {
-        $label = (string) $labelEvent->getLabel();
-
-        // Only apply UiTPAS labels.
-        $labelCollection = LabelCollection::fromStrings([$label]);
-        if (count($this->uitpasLabelFilter->filter($labelCollection)) === 0) {
-            return;
-        }
-
-        $eventIds = $this->offerRelationsService->getByOrganizer($labelEvent->getOrganizerId());
-
-        foreach ($eventIds as $eventId) {
-            $eventCdbXml = $this->documentRepository->get($eventId);
-
-            $event = EventItemFactory::createEventFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $eventCdbXml->getCdbXml()
-            );
-
-            $newEvent = clone $event;
-
-            if ($labelEvent instanceof LabelAdded) {
-                $newEvent = $this->uitpasLabelApplier->addLabels(
-                    $newEvent,
-                    $labelCollection
-                );
-            } elseif ($labelEvent instanceof LabelRemoved) {
-                $newEvent = $this->uitpasLabelApplier->removeLabels(
-                    $newEvent,
-                    $labelCollection
-                );
-            }
-
-            $this->saveAndPublishIfChanged($newEvent, $event, $domainMessage->getMetadata());
         }
     }
 
