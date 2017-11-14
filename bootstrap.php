@@ -15,6 +15,8 @@ use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
 use CultuurNet\UDB3\Address\DefaultAddressFormatter;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\CdbXmlService\CalendarSummary\CalendarSummaryController;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
@@ -25,22 +27,17 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\EventBusRelay;
-use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelApplier;
-use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelFilter;
-use CultuurNet\UDB3\CdbXmlService\Labels\UitpasLabelProvider;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\CdbXmlDateFormatter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOfferCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionOrganizerCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\FlandersRegionRelationsCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\GeocodingOfferCdbXmlProjector;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\LongDescriptionFilter;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\MetadataCdbItemEnricher;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\CdbXmlService\ReadModel\ShortDescriptionFilter;
 use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\Label\LabelEventRelationTypeResolver;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
@@ -154,23 +151,6 @@ $app['organizer_to_actor_cdbxml_projector'] = $app->share(
     }
 );
 
-$app['uitpas_label_filter'] = $app->share(
-    function (Application $app) {
-        $uitpasLabelProvider = new UitpasLabelProvider(
-            new \Guzzle\Http\Client(),
-            Url::fromNative($app['config']['uitpas_service']['labels_url'])
-        );
-
-        return new UitpasLabelFilter($uitpasLabelProvider);
-    }
-);
-
-$app['uitpas_label_applier'] = $app->share(
-    function (Application $app) {
-        return new UitpasLabelApplier($app['uitpas_label_filter']);
-    }
-);
-
 $app['offer_to_event_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $projector = (new OfferToCdbXmlProjector(
@@ -180,12 +160,11 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             $app['cdbxml_actor_repository'],
             $app['cdbxml_date_formatter'],
             $app['address_factory'],
-            new LongDescriptionFilter(),
-            new ShortDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlLongDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
             new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
-            $app['event_cdbid_extractor'],
-            $app['uitpas_label_applier']
+            $app['event_cdbid_extractor']
         ));
 
         $projector->setLogger($app['logger.projector']);
@@ -247,9 +226,7 @@ $app['relations_to_cdbxml_projector'] = $app->share(
             $app['metadata_cdb_item_enricher'],
             $app['cdbxml_actor_repository'],
             $app['offer_relations_service'],
-            $app['iri_offer_identifier_factory'],
-            $app['uitpas_label_filter'],
-            $app['uitpas_label_applier']
+            $app['iri_offer_identifier_factory']
         ));
 
         $projector->setLogger($app['logger.projector']);
@@ -326,7 +303,7 @@ $app['geocoding_service'] = $app->share(
                     new Geocoder\HttpAdapter\CurlHttpAdapter(),
                     null,
                     null,
-                    false,
+                    true,
                     isset($app['config']['google_maps_api_key']) ? $app['config']['google_maps_api_key'] : null
                 )
             )
@@ -718,6 +695,7 @@ $app['labels_relations_projector'] = $app->share(
     function ($app) {
         return new \CultuurNet\UDB3\Label\ReadModels\Relations\Projector(
             $app['labels_relations_repository'],
+            $app[OFFER_LABEL_RELATION_REPOSITORY],
             new LabelEventRelationTypeResolver()
         );
     }

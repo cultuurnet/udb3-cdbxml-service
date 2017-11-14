@@ -5,7 +5,6 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use Broadway\Domain\Metadata;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
-use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
 use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
@@ -18,15 +17,17 @@ use CultuurNet\UDB3\Calendar\OpeningHour;
 use CultuurNet\UDB3\Calendar\OpeningTime;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\CalendarUpdated as EventCalendarUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated;
@@ -40,6 +41,7 @@ use CultuurNet\UDB3\Event\Events\ImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelRemoved;
+use CultuurNet\UDB3\Event\Events\LocationUpdated;
 use CultuurNet\UDB3\Event\Events\MainImageSelected;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
@@ -51,7 +53,9 @@ use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlagg
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
+use CultuurNet\UDB3\Event\Events\ThemeUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated;
+use CultuurNet\UDB3\Event\Events\TitleUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
@@ -61,13 +65,18 @@ use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
+use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
 use CultuurNet\UDB3\Media\Properties\MIMEType;
 use CultuurNet\UDB3\Offer\AgeRange;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
+use CultuurNet\UDB3\Event\Events\TypeUpdated;
 use CultuurNet\UDB3\Offer\OfferType;
+use CultuurNet\UDB3\Place\Events\AddressUpdated;
+use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
+use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
@@ -86,6 +95,8 @@ use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
 use Psr\Log\LoggerInterface;
+use ValueObjects\DateTime\Hour;
+use ValueObjects\DateTime\Minute;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
 use ValueObjects\Money\Currency;
@@ -115,11 +126,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $logger;
 
-    /**
-     * @var LabelApplierInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $uitpasLabelApplier;
-
     public function setUp()
     {
         parent::setUp();
@@ -128,8 +134,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         date_default_timezone_set('Europe/Brussels');
 
         $this->actorRepository = new CacheDocumentRepository($this->cache);
-
-        $this->uitpasLabelApplier = $this->createMock(LabelApplierInterface::class);
 
         $this->projector = (
         new OfferToCdbXmlProjector(
@@ -141,8 +145,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             new CdbXmlDateFormatter(),
             new AddressFactory(),
-            new LongDescriptionFilter(),
-            new ShortDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlLongDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
             new EventCdbIdExtractor(
@@ -156,8 +160,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
                     ]
                 )
-            ),
-            $this->uitpasLabelApplier
+            )
         ));
 
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -289,7 +292,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $placeId,
-            new Title('$name'),
+            new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
             new Calendar(CalendarType::PERMANENT())
@@ -329,7 +332,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
-    public function it_should_keep_uitpas_labels_when_an_event_gets_copied()
+    public function it_should_remove_all_labels_when_an_event_gets_copied()
     {
         $originalEventId = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
         $eventId = '8b1855f7-7f11-4653-9fbb-f5f4611f7960';
@@ -346,15 +349,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor-with-uitpas-keyword.xml')
         );
         $this->actorRepository->save($organizerCdbxml);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('addLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    $event->addKeyword('Paspartoe');
-                    return $event;
-                }
-            );
 
         $eventCopied = new EventCopied(
             $eventId,
@@ -420,7 +414,85 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_merge_different_short_and_long_description_when_projecting_events_imported_from_udb2()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-namespaced-with-short-description-different-from-long.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_merge_short_and_long_description_the_short_description_is_already_included_in_the_long_description()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $eventImportedFromUdb2 = new EventImportedFromUDB2(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+        $domainMessage = $this->createDomainMessage(
+            $id,
+            $eventImportedFromUdb2,
+            $this->metadata
+        );
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('event-imported-with-short-description-merged-into-long-description.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_event_updated_from_udb2()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TypicalAgeRangeUpdated(
+                    $this->getEventId(),
+                    new AgeRange(new Age(9), new Age(12))
+                )
+            )
+            ->apply(
+                new EventUpdatedFromUDB2(
+                    $this->getEventId(),
+                    $this->loadCdbXmlFromFile('event-namespaced-with-short-description-different-from-long.xml'),
+                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+                )
+            )
+            ->expect('event-imported-with-short-description-merged-into-long-description.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_merge_different_short_and_long_description_when_projecting_events_updated_from_udb2()
     {
         $test = $this->given(OfferType::EVENT())
             ->apply(
@@ -644,19 +716,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
     /**
      * @test
-     * @dataProvider placeImportedFromUdb2DataProvider
-     * @param ActorImportedFromUDB2 $actorImportedFromUDB2
-     * @param string $expectedCdbXmlFile
      */
-    public function it_projects_imported_actor_places_from_udb2_as_actors(
-        ActorImportedFromUDB2 $actorImportedFromUDB2,
-        $expectedCdbXmlFile
-    ) {
+    public function it_should_project_places_imported_from_udb2_as_actors()
+    {
+        $actorImportedFromUDB2 = new PlaceImportedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
         $id = $actorImportedFromUDB2->getActorId();
 
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
-            $this->loadCdbXmlFromFile($expectedCdbXmlFile)
+            $this->loadCdbXmlFromFile('place-actor-generated.xml')
         );
 
         $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
@@ -667,28 +740,82 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
-     * @return array
+     * @test
      */
-    public function placeImportedFromUdb2DataProvider()
+    public function it_should_merge_short_and_long_description_when_projecting_imported_places_and_short_is_not_included_in_long()
     {
-        return [
-            [
-                new PlaceImportedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-            [
-                new PlaceUpdatedFromUDB2(
-                    '061C13AC-A15F-F419-D8993D68C9E94548',
-                    file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
-                    'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
-                ),
-                'place-actor-generated.xml',
-            ],
-        ];
+        $actorImportedFromUDB2 = new PlaceImportedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(
+                __DIR__ . '/Repository/samples/place-actor-with-short-description-different-from-long.xml'
+            ),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated-with-short-description-merged-into-long.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_places_updated_in_udb2_as_actors()
+    {
+        $actorImportedFromUDB2 = new PlaceUpdatedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(__DIR__ . '/Repository/samples/place-actor.xml'),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_merge_short_and_long_description_when_projecting_places_updated_in_udb2_and_short_is_not_included_in_long()
+    {
+        $actorImportedFromUDB2 = new PlaceUpdatedFromUDB2(
+            '061C13AC-A15F-F419-D8993D68C9E94548',
+            file_get_contents(
+                __DIR__ . '/Repository/samples/place-actor-with-short-description-different-from-long.xml'
+            ),
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL'
+        );
+
+        $id = $actorImportedFromUDB2->getActorId();
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('place-actor-generated-with-short-description-merged-into-long.xml')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $actorImportedFromUDB2, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
     }
 
     /**
@@ -737,6 +864,31 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect($cdbXmlType . '-with-title-translated-to-en-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param string $id
+     * @param string $cdbXmlType
+     */
+    public function it_should_update_the_main_language_title_detail_when_a_title_updated_event_occurs(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
+        $test = $this->given($offerType)
+            ->apply(
+                new TitleUpdated(
+                    $id,
+                    new Title('Nieuwe titel')
+                )
+            )
+            ->expect($cdbXmlType . '-with-title-updated.xml');
 
         $this->execute($test);
     }
@@ -1084,8 +1236,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new ContactPoint(
                         array('+32 666 666'),
                         array('tickets@example.com'),
-                        array('http://tickets.example.com'),
-                        'type'
+                        array('http://tickets.example.com')
                     )
                 )
             )
@@ -1112,7 +1263,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png'),
+            new Language('nl')
         );
 
         $test = $this->given($offerType)
@@ -1155,7 +1307,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png'),
+            new Language('nl')
         );
 
         $secondImage = new Image(
@@ -1163,7 +1316,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/jpg'),
             new Description('Beep Boop'),
             new CopyrightHolder('Noo Idee'),
-            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg')
+            Url::fromNative('http://foo.bar/media/9554d6f6-bed1-4303-8d42-3fcec4601e0e.jpg'),
+            new Language('nl')
         );
 
         $test = $this->given($offerType)
@@ -1198,7 +1352,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png')
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png'),
+            new Language('nl')
         );
 
         $test = $this->given(OfferType::EVENT())
@@ -1230,7 +1385,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('My best selfie.'),
             new CopyrightHolder('Duck Face'),
-            Url::fromNative('http://foo.bar/media/c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png')
+            Url::fromNative('http://foo.bar/media/c0c96570-3b3c-4d3f-9d82-c26b290e6c12.png'),
+            new Language('nl')
         );
 
         $test = $this->given(OfferType::EVENT())
@@ -1262,7 +1418,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new MIMEType('image/png'),
             new Description('title'),
             new CopyrightHolder('John Doe'),
-            Url::fromNative('http://udb.twee/media/img_001.png')
+            Url::fromNative('http://udb.twee/media/img_001.png'),
+            new Language('nl')
         );
 
         $test = $this->given(OfferType::EVENT())
@@ -1289,22 +1446,6 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->loadCdbXmlFromFile('actor.xml')
         );
         $this->actorRepository->save($organizerCdbxml);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('addLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    return $event;
-                }
-            );
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('removeLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    return $event;
-                }
-            );
 
         $test = $this->given(OfferType::EVENT())
             ->apply(
@@ -1340,6 +1481,38 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $this->logger->expects($this->once())->method('warning')
             ->with('Could not find organizer with id ORG-123 when applying organizer updated on event 404EE8DE-E828-9C07-FE7D12DC4EB24480.');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_update_the_address_and_preserve_other_contact_info_when_a_place_has_its_address_updated()
+    {
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new PlaceContactPointUpdated(
+                    $this->getPlaceId(),
+                    new ContactPoint(
+                        ['+32 444 44 44 44'],
+                        ['test@foo.bar'],
+                        ['https://foo.bar']
+                    )
+                )
+            )
+            ->apply(
+                new AddressUpdated(
+                    $this->getPlaceId(),
+                    new Address(
+                        new Street('Kerkstraat 69'),
+                        new PostalCode('1000'),
+                        new Locality('Brussel'),
+                        Country::fromNative('DE')
+                    )
+                )
+            )
+            ->expect('place-with-contact-point-and-address-updated.xml');
 
         $this->execute($test);
     }
@@ -1556,6 +1729,82 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_should_preserve_unrelated_contact_info_when_applying_major_info_updated_on_event()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new ContactPointUpdated(
+                    $this->getEventId(),
+                    new ContactPoint(
+                        ['+32 444 44 44 44'],
+                        ['test@foo.bar'],
+                        ['https://foo.bar']
+                    )
+                )
+            )
+            ->apply(
+                new MajorInfoUpdated(
+                    $this->getEventId(),
+                    new Title("Nieuwe titel"),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    new Location(
+                        $this->getPlaceId(),
+                        new StringLiteral('Somewhere over the rainbow'),
+                        new Address(
+                            new Street('Kerkstraat 69'),
+                            new PostalCode('3000'),
+                            new Locality('Leuven'),
+                            Country::fromNative('BE')
+                        )
+                    ),
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.8.2.0.0', 'Jazz en blues')
+                )
+            )
+            ->expect('event-with-contact-point-and-major-info-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_preserve_unrelated_contact_info_when_applying_major_info_updated_on_place()
+    {
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new PlaceContactPointUpdated(
+                    $this->getPlaceId(),
+                    new ContactPoint(
+                        ['+32 444 44 44 44'],
+                        ['test@foo.bar'],
+                        ['https://foo.bar']
+                    )
+                )
+            )
+            ->apply(
+                new PlaceMajorInfoUpdated(
+                    $this->getPlaceId(),
+                    new Title("Bibberburcht"),
+                    new EventType('8.4.0.0.0', 'Galerie'),
+                    new Address(
+                        new Street('Kerkstraat 69'),
+                        new PostalCode('1000'),
+                        new Locality('Brussel'),
+                        Country::fromNative('DE')
+                    ),
+                    new Calendar(CalendarType::PERMANENT()),
+                    new Theme('1.0.1.0.0', 'Schilderkunst')
+                )
+            )
+            ->expect('place-with-contact-point-and-major-info-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_event_without_theme_major_info_updated()
     {
         $this->createEvent(false);
@@ -1661,6 +1910,157 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->expect('place-with-major-info-updated.xml');
 
         $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_location_updated()
+    {
+        $placeId = 'ed138027-0d17-4b8e-8bfd-b547c96e2771';
+
+        $address = new Address(
+            new Street('Horststraat 28'),
+            new PostalCode('3220'),
+            new Locality('Holsbeek'),
+            Country::fromNative('BE')
+        );
+
+        $placeCreated = new PlaceCreated(
+            $placeId,
+            new Title('Kasteel van Horst'),
+            new EventType('0.1.2', 'kasteel'),
+            $address,
+            new Calendar(CalendarType::PERMANENT())
+        );
+        $domainMessage = $this->createDomainMessage(
+            $placeId,
+            $placeCreated,
+            $this->metadata
+        );
+        $this->projector->handle($domainMessage);
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new LocationUpdated(
+                    $this->getEventId(),
+                    new LocationId($placeId)
+                )
+            )
+            ->expect('event-with-location-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_event_calendar_updated()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventCalendarUpdated(
+                    $this->getEventId(),
+                    $this->getMultipleCalendar()
+                )
+            )
+            ->expect('event-with-calendar-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @return Calendar
+     */
+    private function getMultipleCalendar()
+    {
+        $startDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-01-26T09:00:00+01:00');
+        $endDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-01T16:00:00+01:00');
+
+        $startDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-03T09:00:00+01:00');
+        $endDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-10T16:00:00+01:00');
+
+        $timeStamps = [
+            new Timestamp(
+                $startDatePeriod1,
+                $endDatePeriod1
+            ),
+            new Timestamp(
+                $startDatePeriod2,
+                $endDatePeriod2
+            ),
+        ];
+
+        return new Calendar(
+            CalendarType::MULTIPLE(),
+            $startDatePeriod1,
+            $endDatePeriod2,
+            $timeStamps,
+            []
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_place_calendar_updated()
+    {
+        $test = $this->given(OfferType::PLACE())
+            ->apply(
+                new PlaceCalendarUpdated(
+                    $this->getPlaceId(),
+                    $this->getPermanentCalendar()
+                )
+            )
+            ->expect('place-with-calendar-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @return Calendar
+     */
+    private function getPermanentCalendar()
+    {
+        $openingHours = [
+            new OpeningHour(
+                new OpeningTime(
+                    new Hour(9),
+                    new Minute(0)
+                ),
+                new OpeningTime(
+                    new Hour(17),
+                    new Minute(0)
+                ),
+                new DayOfWeekCollection(
+                    DayOfWeek::TUESDAY(),
+                    DayOfWeek::WEDNESDAY(),
+                    DayOfWeek::THURSDAY(),
+                    DayOfWeek::FRIDAY()
+                )
+            ),
+            new OpeningHour(
+                new OpeningTime(
+                    new Hour(9),
+                    new Minute(0)
+                ),
+                new OpeningTime(
+                    new Hour(12),
+                    new Minute(0)
+                ),
+                new DayOfWeekCollection(
+                    DayOfWeek::SATURDAY()
+                )
+            ),
+        ];
+
+        return new Calendar(
+            CalendarType::PERMANENT(),
+            null,
+            null,
+            [],
+            $openingHours
+        );
     }
 
     /**
@@ -1848,6 +2248,42 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->given(OfferType::EVENT())
             ->apply($audienceUpdatedEvent)
             ->expect('event-with-education-target-audience.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_replace_the_existing_type_when_updating_with_a_new_type()
+    {
+        $typeUpdatedEvent = new TypeUpdated(
+            $this->getEventId(),
+            new EventType('YVBc8KVdrU6XfTNvhMYUpg', 'Discotheek')
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($typeUpdatedEvent)
+            ->expect('event-with-type-updated.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_replace_the_existing_theme_when_updating_with_a_new_theme()
+    {
+        $themeUpdatedEvent = new ThemeUpdated(
+            $this->getEventId(),
+            new Theme('1.8.3.3.0', 'Dance')
+        );
+
+        $test = $this
+            ->given(OfferType::EVENT())
+            ->apply($themeUpdatedEvent)
+            ->expect('event-with-theme-updated.xml');
 
         $this->execute($test);
     }
@@ -2073,7 +2509,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $this->getPlaceId(),
-            new Title('$name'),
+            new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
             new Calendar(CalendarType::PERMANENT())

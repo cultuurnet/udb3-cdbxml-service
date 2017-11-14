@@ -27,12 +27,14 @@ use CultureFeed_Cdb_Item_Actor;
 use CultureFeed_Cdb_Item_Base;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
-use CultuurNet\UDB3\Actor\ActorImportedFromUDB2;
+use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\BookingInfo;
 use CultuurNet\UDB3\Calendar\CalendarConverter;
 use CultuurNet\UDB3\CalendarInterface;
+use CultuurNet\UDB3\Category;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
+use CultuurNet\UDB3\Cdb\Description\MergedDescription;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -42,12 +44,13 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\AnyOff;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\ID;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\CulturefeedSlugger;
+use CultuurNet\UDB3\EntityNotFoundException;
 use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
+use CultuurNet\UDB3\Event\Events\CalendarUpdated as EventCalendarUpdated;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated as EventContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\DescriptionTranslated as EventDescriptionTranslated;
 use CultuurNet\UDB3\Event\Events\DescriptionUpdated as EventDescriptionUpdated;
@@ -61,6 +64,7 @@ use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
 use CultuurNet\UDB3\Event\Events\LabelAdded as EventLabelAdded;
 use CultuurNet\UDB3\Event\Events\LabelRemoved as EventLabelRemoved;
+use CultuurNet\UDB3\Event\Events\LocationUpdated;
 use CultuurNet\UDB3\Event\Events\MainImageSelected as EventMainImageSelected;
 use CultuurNet\UDB3\Event\Events\Moderation\Published as EventPublished;
 use CultuurNet\UDB3\Event\Events\Moderation\Approved as EventApproved;
@@ -68,17 +72,22 @@ use CultuurNet\UDB3\Event\Events\Moderation\Rejected as EventRejected;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAsDuplicate;
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
+use CultuurNet\UDB3\Event\Events\ThemeUpdated as EventThemeUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractThemeUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractTypeUpdated;
+use CultuurNet\UDB3\Place\Events\ThemeUpdated as PlaceThemeUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\TypeUpdated as EventTypeUpdated;
+use CultuurNet\UDB3\Place\Events\TypeUpdated as PlaceTypeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeUpdated as EventTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted as EventTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
-use CultuurNet\UDB3\LabelCollection;
-use CultuurNet\UDB3\Location\Location;
+use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\AvailableTo;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
@@ -92,6 +101,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractOrganizerDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractPriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTitleTranslated;
+use CultuurNet\UDB3\Offer\Events\AbstractTitleUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Offer\Events\AbstractTypicalAgeRangeUpdated;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractImageAdded;
@@ -101,7 +111,11 @@ use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractApproved;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractPublished;
 use CultuurNet\UDB3\Offer\WorkflowStatus;
+use CultuurNet\UDB3\Place\Events\TitleUpdated as PlaceTitleUpdated;
+use CultuurNet\UDB3\Event\Events\TitleUpdated as EventTitleUpdated;
+use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\BookingInfoUpdated as PlaceBookingInfoUpdated;
+use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\DescriptionUpdated as PlaceDescriptionUpdated;
@@ -214,11 +228,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $eventCdbIdExtractor;
 
     /**
-     * @var LabelApplierInterface
-     */
-    private $uitpasLabelApplier;
-
-    /**
      * @var SluggerInterface
      */
     private $slugger;
@@ -245,7 +254,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
-     * @param LabelApplierInterface $uitpasLabelApplier
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -258,8 +266,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         StringFilterInterface $shortDescriptionFilter,
         CurrencyRepositoryInterface $currencyRepository,
         NumberFormatRepositoryInterface $numberFormatRepository,
-        EventCdbIdExtractorInterface $eventCdbIdExtractor,
-        LabelApplierInterface $uitpasLabelApplier
+        EventCdbIdExtractorInterface $eventCdbIdExtractor
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -272,7 +279,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
-        $this->uitpasLabelApplier = $uitpasLabelApplier;
         $this->slugger = new CulturefeedSlugger();
         $this->logger = new NullLogger();
         $this->uriNormalizer = new Normalize();
@@ -290,9 +296,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $metadata = $domainMessage->getMetadata();
 
         $handlers = [
+            AddressUpdated::class => 'applyAddressUpdated',
             FacilitiesUpdated::class => 'applyFacilitiesUpdated',
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
+            EventTitleUpdated::class => 'applyTitleUpdated',
+            PlaceTitleUpdated::class => 'applyTitleUpdated',
             EventCreated::class => 'applyEventCreated',
             EventCopied::class => 'applyEventCopied',
             EventDeleted::class => 'applyEventDeleted',
@@ -325,10 +334,13 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             PlaceDescriptionUpdated::class => 'applyDescriptionUpdated',
             EventMajorInfoUpdated::class => 'applyEventMajorInfoUpdated',
             PlaceMajorInfoUpdated::class => 'applyPlaceMajorInfoUpdated',
+            EventCalendarUpdated::class => 'applyEventCalendarUpdated',
+            PlaceCalendarUpdated::class => 'applyPlaceCalendarUpdated',
+            LocationUpdated::class => 'applyLocationUpdated',
             EventImportedFromUDB2::class => 'applyEventImportedFromUdb2',
             EventUpdatedFromUDB2::class => 'applyEventUpdatedFromUdb2',
             PlaceImportedFromUDB2::class => 'applyPlaceImportedFromUdb2',
-            PlaceUpdatedFromUDB2::class => 'applyPlaceImportedFromUdb2',
+            PlaceUpdatedFromUDB2::class => 'applyPlaceUpdatedFromUdb2',
             EventPublished::class => 'applyPublished',
             PlacePublished::class => 'applyPublished',
             EventApproved::class => 'applyApproved',
@@ -340,6 +352,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             EventFlaggedAsInappropriate::class => 'applyRejected',
             PlaceFlaggedAsInappropriate::class => 'applyRejected',
             AudienceUpdated::class => 'applyAudienceUpdated',
+            EventTypeUpdated::class => 'applyTypeUpdated',
+            PlaceTypeUpdated::class => 'applyTypeUpdated',
+            EventThemeUpdated::class => 'applyThemeUpdated',
+            PlaceThemeUpdated::class => 'applyThemeUpdated',
         ];
 
         $this->logger->info('found message ' . $payloadClassName . ' in OfferToCdbXmlProjector');
@@ -372,29 +388,72 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
     }
 
+    public function applyTypeUpdated(
+        AbstractTypeUpdated $typeUpdated,
+        Metadata $metadata
+    ) {
+        $cdbXmlDocument = $this->getCdbXmlDocument($typeUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+
+        $this->replaceCategoryByDomain($offer, $typeUpdated->getType());
+
+        // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($offer);
+    }
+
+    public function applyThemeUpdated(
+        AbstractThemeUpdated $themeUpdated,
+        Metadata $metadata
+    ) {
+        $cdbXmlDocument = $this->getCdbXmlDocument($themeUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+
+        $this->replaceCategoryByDomain($offer, $themeUpdated->getTheme());
+
+        // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($offer);
+    }
+
     /**
-     * @param \CultuurNet\UDB3\Actor\ActorImportedFromUDB2 $actorImported
+     * @param PlaceImportedFromUDB2 $placeImportedFromUDB2
      * @param \Broadway\Domain\Metadata $metadata
      * @return CdbXmlDocument
      */
     public function applyPlaceImportedFromUdb2(
-        ActorImportedFromUDB2 $actorImported,
+        PlaceImportedFromUDB2 $placeImportedFromUDB2,
         Metadata $metadata
     ) {
-        $actor = ActorItemFactory::createActorFromCdbXml(
-            $actorImported->getCdbXmlNamespaceUri(),
-            $actorImported->getCdbXml()
+        return $this->updatePlaceFromCdbXml(
+            $placeImportedFromUDB2->getCdbXml(),
+            $placeImportedFromUDB2->getCdbXmlNamespaceUri(),
+            $metadata
         );
+    }
 
-        // Add metadata like createdby, creationdate, etc to the actor.
-        $actor = $this->metadataCdbItemEnricher
-            ->enrich($actor, $metadata);
-
-        // Return a new CdbXmlDocument.
-        $cdbxmlDocument = $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($actor);
-
-        return $cdbxmlDocument;
+    /**
+     * @param PlaceUpdatedFromUDB2 $placeUpdatedFromUDB2
+     * @param \Broadway\Domain\Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyPlaceUpdatedFromUdb2(
+        PlaceUpdatedFromUDB2 $placeUpdatedFromUDB2,
+        Metadata $metadata
+    ) {
+        return $this->updatePlaceFromCdbXml(
+            $placeUpdatedFromUDB2->getCdbXml(),
+            $placeUpdatedFromUDB2->getCdbXmlNamespaceUri(),
+            $metadata
+        );
     }
 
     /**
@@ -456,13 +515,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
 
         // Contact info.
-        $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
-
-        $udb3Address = $placeMajorInfoUpdated->getAddress();
-        $address = $this->addressFactory->fromUdb3Address($udb3Address);
-        $contactInfo->addAddress($address);
-
-        $actor->setContactInfo($contactInfo);
+        $address = $placeMajorInfoUpdated->getAddress();
+        $this->setCdbActorAddress($actor, $address);
 
         $cdbCalendar = $this->calendarConverter->toCdbCalendar(
             $placeMajorInfoUpdated->getCalendar()
@@ -520,7 +574,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
 
         // Set location and calendar info.
-        $this->setLocation($eventMajorInfoUpdated->getLocation(), $event);
+        $this->setLocation(
+            new LocationId($eventMajorInfoUpdated->getLocation()->getCdbid()),
+            $event
+        );
         $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
 
         $this->setItemAvailableToFromCalendar(
@@ -541,6 +598,113 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param LocationUpdated $locationUpdated
+     * @param Metadata $metadata
+     *
+     * @return CdbXmlDocument
+     */
+    public function applyLocationUpdated(
+        LocationUpdated $locationUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->getCdbXmlDocument(
+            $locationUpdated->getItemId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        // Set the location.
+        $this->setLocation($locationUpdated->getLocationId(), $event);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param EventCalendarUpdated $calendarUpdated
+     * @param Metadata $metadata
+     *
+     * @return CdbXmlDocument
+     */
+    public function applyEventCalendarUpdated(
+        EventCalendarUpdated $calendarUpdated,
+        Metadata $metadata
+    ) {
+        $eventCdbXml = $this->getCdbXmlDocument(
+            $calendarUpdated->getItemId()
+        );
+
+        $event = EventItemFactory::createEventFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $eventCdbXml->getCdbXml()
+        );
+
+        $this->setCalendar($calendarUpdated->getCalendar(), $event);
+
+        $this->setItemAvailableToFromCalendar(
+            $calendarUpdated->getCalendar(),
+            $event
+        );
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param PlaceCalendarUpdated $calendarUpdated
+     * @param Metadata $metadata
+     *
+     * @return CdbXmlDocument
+     */
+    public function applyPlaceCalendarUpdated(
+        PlaceCalendarUpdated $calendarUpdated,
+        Metadata $metadata
+    ) {
+        $actorCdbXml = $this->getCdbXmlDocument(
+            $calendarUpdated->getItemId()
+        );
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $actorCdbXml->getCdbXml()
+        );
+
+        $cdbCalendar = $this->calendarConverter->toCdbCalendar(
+            $calendarUpdated->getCalendar()
+        );
+        if ($cdbCalendar instanceof CultureFeed_Cdb_Data_Calendar_Permanent) {
+            $weekscheme = $cdbCalendar->getWeekScheme();
+            empty($weekscheme) ?: $actor->setWeekScheme($weekscheme);
+        }
+
+        $this->setItemAvailableToFromCalendar(
+            $calendarUpdated->getCalendar(),
+            $actor
+        );
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
     }
 
     /**
@@ -568,7 +732,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $event->setContactInfo($contactInfo);
 
         // Set location and calendar info.
-        $this->setLocation($eventCreated->getLocation(), $event);
+        $this->setLocation(
+            new LocationId($eventCreated->getLocation()->getCdbid()),
+            $event
+        );
         $this->setCalendar($eventCreated->getCalendar(), $event);
 
         $this->setItemAvailableToFromCalendar(
@@ -641,21 +808,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $keywords = $event->getKeywords(true);
         foreach ($keywords as $keyword) {
             $event->deleteKeyword($keyword);
-        }
-        // But add the UiTPAS keywords again from the organizer.
-        $organiserCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
-        if ($organiserCdbId) {
-            $actorCdbXml = $this->actorDocumentRepository->get($organiserCdbId);
-            $actor = ActorItemFactory::createActorFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $actorCdbXml->getCdbXml()
-            );
-            if ($actor) {
-                $event = $this->uitpasLabelApplier->addLabels(
-                    $event,
-                    LabelCollection::fromStrings($actor->getKeywords())
-                );
-            }
         }
 
         // Update metadata like created-by, creation-date, last-updated and last-updated-by.
@@ -822,6 +974,40 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $detail->setTitle($title);
             $details->add($detail);
         }
+
+        $offer->setDetails($details);
+
+        // Change the lastupdated attribute.
+        $offer = $this->metadataCdbItemEnricher
+            ->enrich($offer, $metadata);
+
+        // Return a new CdbXmlDocument.
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($offer);
+    }
+
+    /**
+     * CDBXML does not keep track of the main language.
+     * The first detail returned by the iterator is considered the oldest.
+     * The oldest detail should be using the main language because it is created before you start translating.
+     *
+     * @param AbstractTitleUpdated $titleUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyTitleUpdated(
+        AbstractTitleUpdated $titleUpdated,
+        Metadata $metadata
+    ) {
+        $cdbXmlDocument = $this->getCdbXmlDocument($titleUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
+
+        $details = $offer->getDetails();
+        $details->rewind();
+        /** @var \CultureFeed_Cdb_Data_Detail $mainLanguageDetail */
+        $mainLanguageDetail = $details->current();
+
+        $mainLanguageDetail->setTitle((string) $titleUpdated->getTitle());
 
         $offer->setDetails($details);
 
@@ -1040,6 +1226,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $event->setDetails($updatedDetails);
 
+        // Change the lastupdated attribute.
+        $event = $this->metadataCdbItemEnricher
+            ->enrich($event, $metadata);
+
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
     }
@@ -1159,11 +1349,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
             $organizer->setActor($actor);
 
-            $event = $this->uitpasLabelApplier->addLabels(
-                $event,
-                LabelCollection::fromStrings($actor->getKeywords())
-            );
-
             $event->setOrganiser($organizer);
         } else {
             $warning = 'Could not find organizer with id ' . $organizerUpdated->getOrganizerId();
@@ -1204,11 +1389,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $actor = ActorItemFactory::createActorFromCdbXml(
                 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
                 $organizerCdbXml->getCdbXml()
-            );
-
-            $event = $this->uitpasLabelApplier->removeLabels(
-                $event,
-                LabelCollection::fromStrings($actor->getKeywords())
             );
         }
 
@@ -1288,6 +1468,31 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param AddressUpdated $addressUpdated
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    public function applyAddressUpdated(
+        AddressUpdated $addressUpdated,
+        Metadata $metadata
+    ) {
+        $placeCdbXml = $this->getCdbXmlDocument($addressUpdated->getPlaceId());
+
+        $place = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $placeCdbXml->getCdbXml()
+        );
+
+        $this->setCdbActorAddress($place, $addressUpdated->getAddress());
+
+        $place = $this->metadataCdbItemEnricher
+            ->enrich($place, $metadata);
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($place);
     }
 
     /**
@@ -1546,13 +1751,14 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * Set the location on the cdb event based on an eventCreated event.
      *
-     * @param \CultuurNet\UDB3\Location\Location $eventLocation
+     * @param LocationId $locationId
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
-     * @throws \CultuurNet\UDB3\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
-    private function setLocation(Location $eventLocation, CultureFeed_Cdb_Item_Event $cdbEvent)
+    private function setLocation(LocationId $locationId, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
-        $placeCdbXml = $this->documentRepository->get($eventLocation->getCdbid());
+        // The location needs to exist as a place, so use this place to embed in the event.
+        $placeCdbXml = $this->documentRepository->get($locationId->toNative());
 
         if ($placeCdbXml) {
             $place = ActorItemFactory::createActorFromCdbXml(
@@ -1564,8 +1770,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $address = $contactInfo->getAddresses()[0];
 
             $location = new CultureFeed_Cdb_Data_Location($address);
-            $location->setCdbid($eventLocation->getCdbid());
-            $location->setLabel($eventLocation->getName());
+            $location->setCdbid($place->getCdbid());
+            // The name for the location can be taken from the title of the place details.
+            $place->getDetails()->rewind();
+            $location->setLabel($place->getDetails()->current()->getTitle());
             $cdbEvent->setLocation($location);
 
             $eventContactInfo = $cdbEvent->getContactInfo();
@@ -1580,7 +1788,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
             $cdbEvent->setContactInfo($eventContactInfo);
         } else {
-            $warning = 'Could not find location with id ' . $eventLocation->getCdbid();
+            $warning = 'Could not find location with id ' . $locationId->toNative();
             $warning .= ' when setting location on event ' . $cdbEvent->getCdbId() . '.';
             $this->logger->warning($warning);
         }
@@ -1736,7 +1944,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         ContactPoint $contactPoint
     ) {
         /* @var CultureFeed_Cdb_Item_Actor|CultureFeed_Cdb_Item_Event $cdbItem */
-        $contactInfo = $cdbItem->getContactInfo();
+        $contactInfo = $cdbItem->getContactInfo() ? $cdbItem->getContactInfo() : new CultureFeed_Cdb_Data_ContactInfo();
 
         // Remove non-reservation phones and add new ones.
         foreach ($contactInfo->getPhones() as $phoneIndex => $phone) {
@@ -1774,6 +1982,31 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         }
         $cdbItem->setContactInfo($contactInfo);
 
+    }
+
+    /**
+     * Modifies the an item to replace any of its categories that matches domain with the given category.
+     *
+     * @param CultureFeed_Cdb_Item_Base $item
+     * @param Category $category
+     */
+    private function replaceCategoryByDomain(CultureFeed_Cdb_Item_Base $item, Category $category)
+    {
+        $filter = new CategoryListFilter(
+            new Not(new Type($category->getDomain()))
+        );
+
+        $categories = $filter->filter($item->getCategories());
+
+        $categories->add(
+            new CultureFeed_Cdb_Data_Category(
+                $category->getDomain(),
+                $category->getId(),
+                $category->getLabel()
+            )
+        );
+
+        $item->setCategories($categories);
     }
 
     /**
@@ -1817,8 +2050,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param $xmlString
-     * @param $namespace
+     * @param string $xmlString
+     * @param string $namespace
      * @param Metadata $metadata
      * @return CdbXmlDocument
      */
@@ -1856,6 +2089,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             }
         }
 
+        $event = $this->mergeShortAndLongDescription($event);
+
         // Add metadata like createdby, creationdate, etc to the event.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
@@ -1863,6 +2098,64 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         // Return a new CdbXmlDocument.
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param string $xmlString
+     * @param string $namespace
+     * @param Metadata $metadata
+     * @return CdbXmlDocument
+     */
+    private function updatePlaceFromCdbXml(
+        $xmlString,
+        $namespace,
+        Metadata $metadata
+    ) {
+        $actor = ActorItemFactory::createActorFromCdbXml($namespace, $xmlString);
+
+        // Add metadata like createdby, creationdate, etc to the actor.
+        $actor = $this->metadataCdbItemEnricher
+            ->enrich($actor, $metadata);
+
+        $actor = $this->mergeShortAndLongDescription($actor);
+
+        // Return a new CdbXmlDocument.
+        $cdbxmlDocument = $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+
+        return $cdbxmlDocument;
+    }
+
+    /**
+     * @param CultureFeed_Cdb_Item_Base $cdbItem
+     * @return CultureFeed_Cdb_Item_Base
+     */
+    private function mergeShortAndLongDescription(\CultureFeed_Cdb_Item_Base $cdbItem)
+    {
+        /* @var \CultureFeed_Cdb_Data_DetailList $updatedDetails */
+        $currentDetails = $cdbItem->getDetails();
+        $detailsClassName = get_class($currentDetails);
+        $updatedDetails = new $detailsClassName();
+
+        foreach ($currentDetails as $detail) {
+            try {
+                $mergedDescription = MergedDescription::fromCdbDetail($detail);
+            } catch (\InvalidArgumentException $e) {
+                // Detail has neither short nor long description.
+                $updatedDetails->add($detail);
+                continue;
+            }
+
+            $longDescription = $this->longDescriptionFilter->filter($mergedDescription->toNative());
+            $shortDescription = $this->shortDescriptionFilter->filter($mergedDescription->toNative());
+            $detail->setLongDescription($longDescription);
+            $detail->setShortDescription($shortDescription);
+            $updatedDetails->add($detail);
+        }
+
+        $cdbItem->setDetails($updatedDetails);
+
+        return $cdbItem;
     }
 
     /**
@@ -2124,6 +2417,28 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $media = $detail->getMedia();
         $media->rewind();
         return $media;
+    }
+
+    /**
+     * Removes any addresses on the given actor and sets the given address
+     * instead. Other contact information is preserved.
+     *
+     * @param CultureFeed_Cdb_Item_Actor $actor
+     * @param Address $address
+     */
+    protected function setCdbActorAddress(CultureFeed_Cdb_Item_Actor $actor, Address $address)
+    {
+        $contactInfo = $actor->getContactInfo() ? $actor->getContactInfo() : new CultureFeed_Cdb_Data_ContactInfo();
+
+        $previousAddresses = $contactInfo->getAddresses();
+        foreach ($previousAddresses as $index => $previousAddress) {
+            $contactInfo->removeAddress($index);
+        }
+
+        $cdbAddress = $this->addressFactory->fromUdb3Address($address);
+        $contactInfo->addAddress($cdbAddress);
+
+        $actor->setContactInfo($contactInfo);
     }
 
     /**

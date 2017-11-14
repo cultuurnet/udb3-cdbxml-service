@@ -5,13 +5,12 @@
       <actordetail lang="nl">
         <title>DE Studio</title>
       </actordetail>
+      <actordetail lang="fr">
+        <title>LE Studio</title>
+      </actordetail>
     </actordetails>
     <categories>
       <category catid="8.11.0.0.0" type="actortype">Organisator(en)</category>
     </categories>
-    <keywords>
-      <keyword>Paspartoe</keyword>
-      <keyword>UiTPAS Gent</keyword>
-    </keywords>
   </actor>
 </cdbxml>

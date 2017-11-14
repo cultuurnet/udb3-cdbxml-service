@@ -12,25 +12,23 @@ use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
+use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelApplierInterface;
-use CultuurNet\UDB3\CdbXmlService\Labels\LabelFilterInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
+use CultuurNet\UDB3\ContactPoint;
+use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\Label;
-use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Offer\OfferType;
-use CultuurNet\UDB3\Organizer\Events\LabelAdded;
-use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
@@ -72,16 +70,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $iriOfferIdentifierFactory;
 
-    /**
-     * @var LabelFilterInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $uitpasLabelFilter;
-
-    /**
-     * @var LabelApplierInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $uitpasLabelApplier;
-
     public function setUp()
     {
         parent::setUp();
@@ -100,21 +88,16 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $this->actorRepository,
             new CdbXmlDateFormatter(),
             new AddressFactory(),
-            new LongDescriptionFilter(),
-            new ShortDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlLongDescriptionFilter(),
+            new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new CurrencyRepository(),
             new NumberFormatRepository(),
-            new EventCdbIdExtractor(),
-            $this->createMock(LabelApplierInterface::class)
+            new EventCdbIdExtractor()
         );
 
         $this->offerRelationsService = $this->createMock(OfferRelationsServiceInterface::class);
 
         $this->iriOfferIdentifierFactory = $this->createMock(IriOfferIdentifierFactoryInterface::class);
-
-        $this->uitpasLabelFilter = $this->createMock(LabelFilterInterface::class);
-
-        $this->uitpasLabelApplier = $this->createMock(LabelApplierInterface::class);
 
         $this->relationsProjector = new RelationsToCdbXmlProjector(
             $this->repository,
@@ -124,9 +107,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
             $this->actorRepository,
             $this->offerRelationsService,
-            $this->iriOfferIdentifierFactory,
-            $this->uitpasLabelFilter,
-            $this->uitpasLabelApplier
+            $this->iriOfferIdentifierFactory
         );
 
         $this->metadata = new Metadata(
@@ -286,7 +267,9 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         // Add a second event.
         $secondEventId = 'EVENT-ABC-123';
-        $this->createEvent($secondEventId);
+        $includeTheme = true;
+        $includeContactPoint = true;
+        $this->createEvent($secondEventId, $includeTheme, $includeContactPoint);
 
         $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
         // Create a place.
@@ -348,133 +331,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     }
 
     /**
-     * @test
-     */
-    public function it_adds_label_to_all_related_events_when_organizer_has_uitpas_label_added()
-    {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventCdbXml = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-        $this->repository->save($eventCdbXml);
-
-        $organizerId = 'ORG-123';
-        $organizerCdbxml = new CdbXmlDocument(
-            $organizerId,
-            $this->loadCdbXmlFromFile('actor.xml')
-        );
-        $this->actorRepository->save($organizerCdbxml);
-
-        $labelName = 'foobar';
-
-        $labelAdded = new LabelAdded($organizerId, new Label($labelName));
-
-        $domainMessage = $this->createDomainMessage(
-            $organizerId,
-            $labelAdded,
-            new Metadata()
-        );
-
-        $this->offerRelationsService
-            ->expects($this->once())
-            ->method('getByOrganizer')
-            ->with($organizerId)
-            ->willReturn(
-                [
-                    $id,
-                ]
-            );
-
-        $this->uitpasLabelFilter->method('filter')
-            ->with(LabelCollection::fromStrings([$labelName]))
-            ->willReturn([$labelName]);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('addLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    $event->addKeyword('foobar');
-                    return $event;
-                }
-            );
-
-        $this->relationsProjector->handle($domainMessage);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword.xml')
-        );
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
-     * @test
-     */
-    public function it_removes_label_from_all_related_events_when_organizer_has_uitpas_label_removed()
-    {
-        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
-        $eventCdbXml = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event-with-keyword.xml')
-        );
-        $this->repository->save($eventCdbXml);
-
-        $organizerId = 'ORG-123';
-        $organizerCdbxml = new CdbXmlDocument(
-            $organizerId,
-            $this->loadCdbXmlFromFile('actor.xml')
-        );
-        $this->actorRepository->save($organizerCdbxml);
-
-        $labelName = 'foobar';
-
-        $labelRemoved = new LabelRemoved($organizerId, new Label($labelName));
-
-        $domainMessage = $this->createDomainMessage(
-            $organizerId,
-            $labelRemoved,
-            new Metadata()
-        );
-
-        $this->offerRelationsService
-            ->expects($this->once())
-            ->method('getByOrganizer')
-            ->with($organizerId)
-            ->willReturn(
-                [
-                    $id,
-                ]
-            );
-
-        $this->uitpasLabelFilter->method('filter')
-            ->with(LabelCollection::fromStrings([$labelName]))
-            ->willReturn([$labelName]);
-
-        $this->uitpasLabelApplier->expects($this->once())
-            ->method('removeLabels')
-            ->willReturnCallback(
-                function (\CultureFeed_Cdb_Item_Event $event) {
-                    $event->deleteKeyword('foobar');
-                    return $event;
-                }
-            );
-
-        $this->relationsProjector->handle($domainMessage);
-
-        $expectedCdbXmlDocument = new CdbXmlDocument(
-            $id,
-            $this->loadCdbXmlFromFile('event.xml')
-        );
-        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
-    }
-
-    /**
      * Helper function to create an event.
      * @param string $eventId
-     * @param bool $theme   Whether or not to add a theme to the event
+     * @param bool $theme Whether or not to add a theme to the event
+     * @param bool $contactPoint
      */
-    public function createEvent($eventId, $theme = true)
+    public function createEvent($eventId, $theme = true, $contactPoint = false)
     {
         $timestamps = [
             new Timestamp(
@@ -511,7 +373,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $placeId,
-            new Title('$name'),
+            new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             new Address(
                 new Street('Bondgenotenlaan 1'),
@@ -524,7 +386,6 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($placeId, $placeCreated, $placeMetadata);
         $this->projector->handle($domainMessage);
 
-        $theme = $theme?new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null;
         $event = new EventCreated(
             $eventId,
             new Title('Griezelfilm of horror'),
@@ -545,12 +406,27 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
                 $timestamps
             ),
-            $theme
+            $theme ? new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null
         );
 
         $domainMessage = $this->createDomainMessage($eventId, $event, $eventMetadata);
 
         $this->projector->handle($domainMessage);
+
+        if ($contactPoint) {
+            $contactPointUpdated = new ContactPointUpdated(
+                $eventId,
+                new ContactPoint(
+                    ['+32 444 44 44 44'],
+                    ['test@foo.bar'],
+                    ['https://foo.bar']
+                )
+            );
+
+            $domainMessage = $this->createDomainMessage($eventId, $contactPointUpdated, $eventMetadata);
+
+            $this->projector->handle($domainMessage);
+        }
     }
 
     /**

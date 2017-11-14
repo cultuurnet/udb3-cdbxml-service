@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event availableto="2014-02-20T16:00:00" cdbid="EVENT-ABC-123" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/EVENT-ABC-123" lastupdated="2016-04-15T11:01:57" lastupdatedby="foo@bar.com" private="false" wfstatus="draft">
+  <event availableto="2014-02-20T16:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" wfstatus="draft">
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
@@ -29,12 +29,11 @@
           <zipcode>3000</zipcode>
         </physical>
       </address>
-      <mail>test@foo.bar</mail>
-      <phone>+32 444 44 44 44</phone>
-      <url>https://foo.bar</url>
     </contactinfo>
     <eventdetails>
       <eventdetail lang="nl">
+        <longdescription>Korte beschrijving.&lt;br&gt;&lt;br&gt;Lange beschrijving. Curabitur blandit tempus porttitor. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Maecenas faucibus mollis interdum. Sed posuere consectetur est at lobortis. Aenean lacinia bibendum nulla sed consectetur.</longdescription>
+        <shortdescription>Korte beschrijving. Lange beschrijving. Curabitur blandit tempus porttitor. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Duis mollis, ...</shortdescription>
         <title>Griezelfilm of horror</title>
       </eventdetail>
     </eventdetails>
@@ -48,7 +47,7 @@
           <zipcode>3000</zipcode>
         </physical>
       </address>
-      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">My Place</label>
+      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</label>
     </location>
   </event>
 </cdbxml>
