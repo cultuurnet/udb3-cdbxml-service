@@ -1504,7 +1504,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         FacilitiesUpdated $facilitiesUpdated,
         Metadata $metadata
     ) {
-        $placeCdbXml = $this->getCdbXmlDocument($facilitiesUpdated->getPlaceId());
+        $placeCdbXml = $this->getCdbXmlDocument($facilitiesUpdated->getItemId());
 
         $place = ActorItemFactory::createActorFromCdbXml(
             'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',

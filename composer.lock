@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "84e05510ae3af601aeed53f773ef35e8",
+    "content-hash": "9afc7034aae83c39d85b7c50251311b8",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1019,16 +1019,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-master",
+            "version": "dev-feature/III-2413",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "e2e0779213d9bb6327c6a0ae53e2fbc1a786c261"
+                "reference": "010ca657297f5ac75e3d671610faf816fc20bb55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e2e0779213d9bb6327c6a0ae53e2fbc1a786c261",
-                "reference": "e2e0779213d9bb6327c6a0ae53e2fbc1a786c261",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/010ca657297f5ac75e3d671610faf816fc20bb55",
+                "reference": "010ca657297f5ac75e3d671610faf816fc20bb55",
                 "shasum": ""
             },
             "require": {
@@ -1094,7 +1094,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2017-10-16T07:36:30+00:00"
+            "time": "2017-12-04T14:03:13+00:00"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -2256,7 +2256,7 @@
             ],
             "authors": [
                 {
-                    "name": "Knplabs",
+                    "name": "KnpLabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -6201,9 +6201,18 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-2413",
+            "package": "cultuurnet/udb3"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/udb3": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
