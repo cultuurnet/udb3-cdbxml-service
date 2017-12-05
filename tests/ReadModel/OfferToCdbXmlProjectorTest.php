@@ -36,6 +36,7 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
+use CultuurNet\UDB3\Event\Events\FacilitiesUpdated as EventFacilitiesUpdated;
 use CultuurNet\UDB3\Event\Events\ImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated;
@@ -77,7 +78,7 @@ use CultuurNet\UDB3\Offer\OfferType;
 use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
-use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
+use CultuurNet\UDB3\Place\Events\FacilitiesUpdated as PlaceFacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\Events\PlaceDeleted;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
@@ -1524,7 +1525,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $test = $this->given(OfferType::PLACE())
             ->apply(
-                new FacilitiesUpdated(
+                new PlaceFacilitiesUpdated(
                     $this->getPlaceId(),
                     [
                         new Facility('3.13.3.0.0', 'Brochure beschikbaar in braille'),
@@ -1534,7 +1535,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )->expect('place-with-facilities.xml')
             ->apply(
-                new FacilitiesUpdated(
+                new PlaceFacilitiesUpdated(
                     $this->getPlaceId(),
                     [
                         new Facility('3.13.2.0.0', 'Audiodescriptie'),
@@ -1543,6 +1544,36 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     ]
                 )
             )->expect('place-with-updated-facilities.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_project_an_updated_list_of_categories_when_event_facilities_have_changed()
+    {
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new EventFacilitiesUpdated(
+                    $this->getEventId(),
+                    [
+                        new Facility('3.13.3.0.0', 'Brochure beschikbaar in braille'),
+                        new Facility('3.17.3.0.0', 'Ondertiteling'),
+                        new Facility('3.17.1.0.0', 'Ringleiding'),
+                    ]
+                )
+            )->expect('event-with-facilities.xml')
+            ->apply(
+                new EventFacilitiesUpdated(
+                    $this->getEventId(),
+                    [
+                        new Facility('3.13.2.0.0', 'Audiodescriptie'),
+                        new Facility('3.17.3.0.0', 'Ondertiteling'),
+                        new Facility('3.17.1.0.0', 'Ringleiding'),
+                    ]
+                )
+            )->expect('event-with-updated-facilities.xml');
 
         $this->execute($test);
     }
