@@ -1504,14 +1504,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         FacilitiesUpdated $facilitiesUpdated,
         Metadata $metadata
     ) {
-        $placeCdbXml = $this->getCdbXmlDocument($facilitiesUpdated->getItemId());
+        $cdbXmlDocument = $this->getCdbXmlDocument($facilitiesUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $place = ActorItemFactory::createActorFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $placeCdbXml->getCdbXml()
-        );
 
-        $existingCategories = $place->getCategories();
+        $existingCategories = $offer->getCategories();
         $newCategoryList = new CultureFeed_Cdb_Data_CategoryList();
 
         // Add all the non-facility categories that should stay untouched to the new list.
@@ -1532,13 +1529,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $newCategoryList->add($facilityCategory);
         }
 
-        $place->setCategories($newCategoryList);
+        $offer->setCategories($newCategoryList);
 
-        $place = $this->metadataCdbItemEnricher
-            ->enrich($place, $metadata);
+        $offer = $this->metadataCdbItemEnricher->enrich($offer, $metadata);
 
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($place);
+        return $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($offer);
     }
 
     /**
