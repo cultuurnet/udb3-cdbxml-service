@@ -59,6 +59,7 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventDeleted;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
+use CultuurNet\UDB3\Event\Events\FacilitiesUpdated as EventFacilitiesUpdated;
 use CultuurNet\UDB3\Event\Events\ImageAdded as EventImageAdded;
 use CultuurNet\UDB3\Event\Events\ImageRemoved as EventImageRemoved;
 use CultuurNet\UDB3\Event\Events\ImageUpdated as EventImageUpdated;
@@ -73,6 +74,7 @@ use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAs
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ThemeUpdated as EventThemeUpdated;
+use CultuurNet\UDB3\Offer\Events\AbstractFacilitiesUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractThemeUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypeUpdated;
 use CultuurNet\UDB3\Place\Events\ThemeUpdated as PlaceThemeUpdated;
@@ -119,7 +121,7 @@ use CultuurNet\UDB3\Place\Events\CalendarUpdated as PlaceCalendarUpdated;
 use CultuurNet\UDB3\Place\Events\ContactPointUpdated as PlaceContactPointUpdated;
 use CultuurNet\UDB3\Place\Events\DescriptionTranslated as PlaceDescriptionTranslated;
 use CultuurNet\UDB3\Place\Events\DescriptionUpdated as PlaceDescriptionUpdated;
-use CultuurNet\UDB3\Place\Events\FacilitiesUpdated;
+use CultuurNet\UDB3\Place\Events\FacilitiesUpdated as PlaceFacilitiesUpdated;
 use CultuurNet\UDB3\Place\Events\ImageAdded as PlaceImageAdded;
 use CultuurNet\UDB3\Place\Events\ImageRemoved as PlaceImageRemoved;
 use CultuurNet\UDB3\Place\Events\ImageUpdated as PlaceImageUpdated;
@@ -297,7 +299,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         $handlers = [
             AddressUpdated::class => 'applyAddressUpdated',
-            FacilitiesUpdated::class => 'applyFacilitiesUpdated',
+            PlaceFacilitiesUpdated::class => 'applyFacilitiesUpdated',
+            EventFacilitiesUpdated::class => 'applyFacilitiesUpdated',
             EventTitleTranslated::class => 'applyTitleTranslated',
             PlaceTitleTranslated::class => 'applyTitleTranslated',
             EventTitleUpdated::class => 'applyTitleUpdated',
@@ -1496,22 +1499,19 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param FacilitiesUpdated $facilitiesUpdated
+     * @param AbstractFacilitiesUpdated $facilitiesUpdated
      * @param Metadata $metadata
      * @return CdbXmlDocument
      */
     public function applyFacilitiesUpdated(
-        FacilitiesUpdated $facilitiesUpdated,
+        AbstractFacilitiesUpdated $facilitiesUpdated,
         Metadata $metadata
     ) {
-        $placeCdbXml = $this->getCdbXmlDocument($facilitiesUpdated->getPlaceId());
+        $cdbXmlDocument = $this->getCdbXmlDocument($facilitiesUpdated->getItemId());
+        $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $place = ActorItemFactory::createActorFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $placeCdbXml->getCdbXml()
-        );
 
-        $existingCategories = $place->getCategories();
+        $existingCategories = $offer->getCategories();
         $newCategoryList = new CultureFeed_Cdb_Data_CategoryList();
 
         // Add all the non-facility categories that should stay untouched to the new list.
@@ -1532,13 +1532,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $newCategoryList->add($facilityCategory);
         }
 
-        $place->setCategories($newCategoryList);
+        $offer->setCategories($newCategoryList);
 
-        $place = $this->metadataCdbItemEnricher
-            ->enrich($place, $metadata);
+        $offer = $this->metadataCdbItemEnricher->enrich($offer, $metadata);
 
-        return $this->cdbXmlDocumentFactory
-            ->fromCulturefeedCdbItem($place);
+        return $this->cdbXmlDocumentFactory->fromCulturefeedCdbItem($offer);
     }
 
     /**
