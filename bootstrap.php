@@ -14,7 +14,6 @@ use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
-use CultuurNet\UDB3\Address\DefaultAddressFormatter;
 use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
 use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\CdbXmlService\CalendarSummary\CalendarSummaryController;
@@ -49,7 +48,6 @@ use Silex\Application;
 use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\StringLiteral\StringLiteral;
-use ValueObjects\Web\Url;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 
 date_default_timezone_set('Europe/Brussels');
@@ -325,9 +323,7 @@ $app['geocoding_offer_cdbxml_projector'] = $app->share(
         $projector = (new GeocodingOfferCdbXmlProjector(
             $app['real_cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
-            $app['offer_relations_service'],
-            new DefaultAddressFormatter(),
-            $app['cached_geocoding_service']
+            $app['offer_relations_service']
         ));
 
         $projector->setLogger($app['logger.projector']);
