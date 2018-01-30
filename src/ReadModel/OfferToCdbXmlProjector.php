@@ -1779,7 +1779,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
             }
 
-            foreach ($eventContactInfo->getAddresses() as $index => $address) {
+            foreach ($eventContactInfo->getAddresses() as $index => $currAddress) {
                 $eventContactInfo->removeAddress($index);
             }
             $eventContactInfo->addAddress($address);
