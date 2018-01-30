@@ -1762,6 +1762,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     public function it_should_preserve_unrelated_contact_info_when_applying_major_info_updated_on_event()
     {
+        $this->createKerkPlace();
+
         $test = $this->given(OfferType::EVENT())
             ->apply(
                 new ContactPointUpdated(
@@ -1779,13 +1781,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     new Title("Nieuwe titel"),
                     new EventType('0.50.4.0.0', 'concert'),
                     new Location(
-                        $this->getPlaceId(),
+                        $this->getKerkPlaceId(),
                         new StringLiteral('Somewhere over the rainbow'),
                         new Address(
                             new Street('Kerkstraat 69'),
-                            new PostalCode('3000'),
-                            new Locality('Leuven'),
-                            Country::fromNative('BE')
+                            new PostalCode('1000'),
+                            new Locality('Brussel'),
+                            Country::fromNative('DE')
                         )
                     ),
                     new Calendar(CalendarType::PERMANENT()),
@@ -2598,6 +2600,44 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 Country::fromNative('BE')
             ),
             new Calendar(CalendarType::PERMANENT())
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
+
+        $this->projector->handle($domainMessage);
+
+        return $id;
+    }
+
+    /**
+     * @return string
+     */
+    private function getKerkPlaceId()
+    {
+        return 'ece91dd1-07cc-45c7-bfb6-576847d4e836';
+    }
+
+    /**
+     * Helper function to create a Kerkstraat place.
+     *
+     * @return string
+     */
+    private function createKerkPlace()
+    {
+        $id = $this->getKerkPlaceId();
+
+        $place = new PlaceCreated(
+            $id,
+            new Title('Kerk'),
+            new EventType('8.4.0.0.0', 'Galerie'),
+            $address = new Address(
+                new Street('Kerkstraat 69'),
+                new PostalCode('1000'),
+                new Locality('Brussel'),
+                Country::fromNative('BE')
+            ),
+            new Calendar(CalendarType::PERMANENT()),
+            new Theme('1.0.1.0.0', 'Schilderkunst')
         );
 
         $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);

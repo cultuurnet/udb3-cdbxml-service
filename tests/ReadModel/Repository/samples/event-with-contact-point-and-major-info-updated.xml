@@ -13,11 +13,11 @@
     <contactinfo>
       <address>
         <physical>
-          <city>Leuven</city>
+          <city>Brussel</city>
           <country>BE</country>
-          <housenr>1</housenr>
-          <street>Bondgenotenlaan</street>
-          <zipcode>3000</zipcode>
+          <housenr>69</housenr>
+          <street>Kerkstraat</street>
+          <zipcode>1000</zipcode>
         </physical>
       </address>
       <mail>test@foo.bar</mail>
@@ -32,14 +32,14 @@
     <location>
       <address>
         <physical>
-          <city>Leuven</city>
+          <city>Brussel</city>
           <country>BE</country>
-          <housenr>1</housenr>
-          <street>Bondgenotenlaan</street>
-          <zipcode>3000</zipcode>
+          <housenr>69</housenr>
+          <street>Kerkstraat</street>
+          <zipcode>1000</zipcode>
         </physical>
       </address>
-      <label cdbid="C4ACF936-1D5F-48E8-B2EC-863B313CBDE6">Bibberburcht</label>
+      <label cdbid="ece91dd1-07cc-45c7-bfb6-576847d4e836">Kerk</label>
     </location>
   </event>
 </cdbxml>
