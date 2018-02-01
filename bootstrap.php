@@ -8,8 +8,6 @@ use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\BroadwayAMQP\Message\Body\BodyFactoryInterface;
 use CultuurNet\BroadwayAMQP\Message\Body\PayloadOnlyBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
-use CultuurNet\Geocoding\CachedGeocodingService;
-use CultuurNet\Geocoding\DefaultGeocodingService;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
@@ -41,7 +39,6 @@ use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\Label\LabelEventRelationTypeResolver;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use DerAlex\Silex\YamlConfigServiceProvider;
-use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Silex\Application;
@@ -290,31 +287,6 @@ $app['flanders_region_relations_cdbxml_projector'] = $app->share(
         $projector->setLogger($app['logger.projector']);
 
         return $projector;
-    }
-);
-
-$app['geocoding_service'] = $app->share(
-    function (Application $app) {
-        return new DefaultGeocodingService(
-            new Geocoder\Geocoder(
-                new GoogleMapsProvider(
-                    new Geocoder\HttpAdapter\CurlHttpAdapter(),
-                    null,
-                    null,
-                    true,
-                    isset($app['config']['google_maps_api_key']) ? $app['config']['google_maps_api_key'] : null
-                )
-            )
-        );
-    }
-);
-
-$app['cached_geocoding_service'] = $app->share(
-    function (Application $app) {
-        return new CachedGeocodingService(
-            $app['geocoding_service'],
-            $app['cache']('geocoords')
-        );
     }
 );
 
