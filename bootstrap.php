@@ -8,13 +8,10 @@ use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\BroadwayAMQP\Message\Body\BodyFactoryInterface;
 use CultuurNet\BroadwayAMQP\Message\Body\PayloadOnlyBodyFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
-use CultuurNet\Geocoding\CachedGeocodingService;
-use CultuurNet\Geocoding\DefaultGeocodingService;
 use CultuurNet\UDB2DomainEvents\ActorCreated;
 use CultuurNet\UDB2DomainEvents\ActorUpdated;
 use CultuurNet\UDB2DomainEvents\EventCreated;
 use CultuurNet\UDB2DomainEvents\EventUpdated;
-use CultuurNet\UDB3\Address\DefaultAddressFormatter;
 use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlLongDescriptionFilter;
 use CultuurNet\UDB3\Cdb\Description\JsonLdDescriptionToCdbXmlShortDescriptionFilter;
 use CultuurNet\UDB3\CdbXmlService\CalendarSummary\CalendarSummaryController;
@@ -42,14 +39,12 @@ use CultuurNet\UDB3\Iri\CallableIriGenerator;
 use CultuurNet\UDB3\Label\LabelEventRelationTypeResolver;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use DerAlex\Silex\YamlConfigServiceProvider;
-use Geocoder\Provider\GoogleMapsProvider;
 use Monolog\Handler\StreamHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Silex\Application;
 use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\StringLiteral\StringLiteral;
-use ValueObjects\Web\Url;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 
 date_default_timezone_set('Europe/Brussels');
@@ -295,39 +290,12 @@ $app['flanders_region_relations_cdbxml_projector'] = $app->share(
     }
 );
 
-$app['geocoding_service'] = $app->share(
-    function (Application $app) {
-        return new DefaultGeocodingService(
-            new Geocoder\Geocoder(
-                new GoogleMapsProvider(
-                    new Geocoder\HttpAdapter\CurlHttpAdapter(),
-                    null,
-                    null,
-                    true,
-                    isset($app['config']['google_maps_api_key']) ? $app['config']['google_maps_api_key'] : null
-                )
-            )
-        );
-    }
-);
-
-$app['cached_geocoding_service'] = $app->share(
-    function (Application $app) {
-        return new CachedGeocodingService(
-            $app['geocoding_service'],
-            $app['cache']('geocoords')
-        );
-    }
-);
-
 $app['geocoding_offer_cdbxml_projector'] = $app->share(
     function (Application $app) {
         $projector = (new GeocodingOfferCdbXmlProjector(
             $app['real_cdbxml_offer_repository'],
             $app['cdbxml_document_factory'],
-            $app['offer_relations_service'],
-            new DefaultAddressFormatter(),
-            $app['cached_geocoding_service']
+            $app['offer_relations_service']
         ));
 
         $projector->setLogger($app['logger.projector']);

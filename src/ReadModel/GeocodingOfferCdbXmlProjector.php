@@ -2,19 +2,15 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
-use CultuurNet\Geocoding\GeocodingServiceInterface;
-use CultuurNet\UDB3\Address\Address;
-use CultuurNet\UDB3\Address\AddressFormatterInterface;
+use CultuurNet\Geocoding\Coordinate\Coordinates;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInterface;
-use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
-use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
-use CultuurNet\UDB3\Place\Events\PlaceCreated;
+use CultuurNet\UDB3\Event\Events\GeoCoordinatesUpdated as EventGeoCoordinatesUpdated;
+use CultuurNet\UDB3\Place\Events\GeoCoordinatesUpdated as PlaceGeoCoordinatesUpdated;
 
 class GeocodingOfferCdbXmlProjector extends AbstractCdbXmlProjector
 {
@@ -29,34 +25,18 @@ class GeocodingOfferCdbXmlProjector extends AbstractCdbXmlProjector
     private $offerRelationsService;
 
     /**
-     * @var AddressFormatterInterface
-     */
-    private $addressFormatter;
-
-    /**
-     * @var GeocodingServiceInterface
-     */
-    private $geocodingService;
-
-    /**
      * @param DocumentRepositoryInterface $documentRepository
      * @param CdbXmlDocumentFactoryInterface $documentFactory
      * @param OfferRelationsServiceInterface $offerRelationsService
-     * @param AddressFormatterInterface $addressFormatter
-     * @param GeocodingServiceInterface $geocodingService
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
         CdbXmlDocumentFactoryInterface $documentFactory,
-        OfferRelationsServiceInterface $offerRelationsService,
-        AddressFormatterInterface $addressFormatter,
-        GeocodingServiceInterface $geocodingService
+        OfferRelationsServiceInterface $offerRelationsService
     ) {
         parent::__construct($documentRepository);
         $this->documentFactory = $documentFactory;
         $this->offerRelationsService = $offerRelationsService;
-        $this->addressFormatter = $addressFormatter;
-        $this->geocodingService = $geocodingService;
     }
 
     /**
@@ -65,53 +45,49 @@ class GeocodingOfferCdbXmlProjector extends AbstractCdbXmlProjector
     public function getHandlers()
     {
         return [
-            PlaceCreated::class => 'applyPlaceAddressUpdated',
-            PlaceMajorInfoUpdated::class => 'applyPlaceAddressUpdated',
-            EventCreated::class => 'applyEventAddressUpdated',
-            EventMajorInfoUpdated::class => 'applyEventAddressUpdated',
+            EventGeoCoordinatesUpdated::class => 'applyEventGeoCoordinatesUpdated',
+            PlaceGeoCoordinatesUpdated::class => 'applyPlaceGeoCoordinatesUpdated',
         ];
     }
 
     /**
-     * @param PlaceCreated|PlaceMajorInfoUpdated $event
+     * @param EventGeoCoordinatesUpdated $geoCoordinatesUpdated
      * @return \Generator|CdbXmlDocument[]
      */
-    protected function applyPlaceAddressUpdated($event)
+    protected function applyEventGeoCoordinatesUpdated(EventGeoCoordinatesUpdated $geoCoordinatesUpdated)
     {
-        $placeId = $event->getPlaceId();
-        $address = $event->getAddress();
+        yield $this->getCdbXmlDocumentWithUpdatedGeoCoordinates(
+            $geoCoordinatesUpdated->getItemId(),
+            $geoCoordinatesUpdated->getCoordinates()
+        );
+    }
 
-        yield $this->getCdbXmlDocumentWithUpdatedAddressCoordinates($placeId, $address);
+    /**
+     * @param PlaceGeoCoordinatesUpdated $geoCoordinatesUpdated
+     * @return \Generator|CdbXmlDocument[]
+     */
+    protected function applyPlaceGeoCoordinatesUpdated(PlaceGeoCoordinatesUpdated $geoCoordinatesUpdated)
+    {
+        yield $this->getCdbXmlDocumentWithUpdatedGeoCoordinates(
+            $geoCoordinatesUpdated->getItemId(),
+            $geoCoordinatesUpdated->getCoordinates()
+        );
 
-        foreach ($this->offerRelationsService->getByPlace($placeId) as $eventId) {
-            yield $this->getCdbXmlDocumentWithUpdatedAddressCoordinates($eventId, $address);
+        foreach ($this->offerRelationsService->getByPlace($geoCoordinatesUpdated->getItemId()) as $eventId) {
+            yield $this->getCdbXmlDocumentWithUpdatedGeoCoordinates(
+                $eventId,
+                $geoCoordinatesUpdated->getCoordinates()
+            );
         }
     }
 
     /**
-     * @param EventCreated|EventMajorInfoUpdated $event
-     * @return \Generator|CdbXmlDocument[]
-     */
-    protected function applyEventAddressUpdated($event)
-    {
-        $eventId = $event->getEventId();
-
-        $address = $event->getLocation()->getAddress();
-
-        yield $this->getCdbXmlDocumentWithUpdatedAddressCoordinates($eventId, $address);
-    }
-
-    /**
-     * @param $id
-     * @param Address $address
+     * @param string $id
+     * @param Coordinates $coordinates
      * @return CdbXmlDocument
      */
-    private function getCdbXmlDocumentWithUpdatedAddressCoordinates($id, Address $address)
+    private function getCdbXmlDocumentWithUpdatedGeoCoordinates($id, Coordinates $coordinates)
     {
-        $coordinates = $this->geocodingService->getCoordinates(
-            $this->addressFormatter->format($address)
-        );
-
         $cdbGeoInformation = new \CultureFeed_Cdb_Data_Address_GeoInformation(
             (string) $coordinates->getLongitude()->toDouble(),
             (string) $coordinates->getLatitude()->toDouble()
