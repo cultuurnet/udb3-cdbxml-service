@@ -1778,7 +1778,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             if (is_null($eventContactInfo)) {
                 $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
             }
-            
+
             for ($index = 0; $index < count($eventContactInfo->getAddresses()); $index++) {
                 $eventContactInfo->removeAddress($index);
             }
@@ -1834,12 +1834,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $endDate = null;
 
             if ($bookingInfo->getAvailabilityStarts()) {
-                $startDate = new DateTime($bookingInfo->getAvailabilityStarts());
-                $startDate = $startDate->getTimestamp();
+                $startDate = $bookingInfo->getAvailabilityStarts()->getTimestamp();
             }
             if ($bookingInfo->getAvailabilityEnds()) {
-                $endDate = new DateTime($bookingInfo->getAvailabilityEnds());
-                $endDate = $endDate->getTimestamp();
+                $endDate = $bookingInfo->getAvailabilityEnds()->getTimestamp();
             }
 
             $bookingPeriod = null;
