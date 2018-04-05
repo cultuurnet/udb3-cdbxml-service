@@ -20,6 +20,7 @@ use CultuurNet\UDB3\Event\EventEvent;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
@@ -150,6 +151,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 ),
                 new EventCreated(
                     'event_1_id',
+                    new Language('nl'),
                     new Title('title'),
                     new EventType('id', 'label'),
                     $location,
@@ -184,6 +186,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 ),
                 new PlaceCreated(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    new Language('nl'),
                     new Title('title'),
                     new EventType('id', 'label'),
                     $address,
