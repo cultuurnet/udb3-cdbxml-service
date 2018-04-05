@@ -1069,8 +1069,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'Tickets on Example.com',
                         '+32 666 666',
                         'tickets@example.com',
-                        \DateTimeImmutable::createFromFormat(\DATE_ATOM,  '2014-01-31T13:00:00+01:00'),
-                        \DateTimeImmutable::createFromFormat(\DATE_ATOM,  '2014-02-20T16:00:00+01:00')
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-02-20T16:00:00+01:00')
                     )
                 )
             )
@@ -1102,8 +1102,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'Tickets on Example.com',
                         '+32 666 666',
                         'tickets@example.com',
-                        \DateTimeImmutable::createFromFormat(\DATE_ATOM,  '2014-01-31T13:00:00+01:00'),
-                        \DateTimeImmutable::createFromFormat(\DATE_ATOM,  '2014-02-20T16:00:00+01:00')
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-02-20T16:00:00+01:00')
                     )
                 )
             )
@@ -1116,7 +1116,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         '+32 666 666',
                         'tickets@example.com',
                         null,
-                        null)
+                        null
+                    )
                 )
             )
             ->expect($cdbXmlType . '-booking-info-availability-removed.xml');
