@@ -25,6 +25,7 @@ use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
@@ -373,6 +374,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $placeId,
+            new Language('nl'),
             new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             new Address(
@@ -388,6 +390,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $event = new EventCreated(
             $eventId,
+            new Language('nl'),
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
             new Location(
@@ -437,6 +440,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $place = new PlaceCreated(
             $id,
+            new Language('nl'),
             new Title('My Place'),
             new EventType('0.50.4.0.0', 'concert'),
             new Address(

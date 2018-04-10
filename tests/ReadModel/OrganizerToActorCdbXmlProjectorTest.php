@@ -128,6 +128,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $event = new OrganizerCreatedWithUniqueWebsite(
             $id,
+            new Language('nl'),
             Url::fromNative('http://www.destudio.com'),
             new Title('DE Studio')
         );
