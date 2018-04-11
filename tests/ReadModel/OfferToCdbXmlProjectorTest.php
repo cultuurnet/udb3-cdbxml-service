@@ -165,7 +165,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ),
             [
                 'nl' => 'Basistarief',
-                'fr' => 'Tariff de base',
+                'fr' => 'Tarif de base',
                 'en' => 'Base tariff',
                 'de' => 'Basisrate',
             ]
@@ -1177,6 +1177,75 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect('event-with-price-info.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_multilingual_price_info_events_on_events()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(10.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $priceInfo = $priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    (new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Werkloze dodo kwekers')
+                    ))
+                        ->withTranslation(
+                            new Language('fr'),
+                            new StringLiteral('Werkloze dodo kwekers FR')
+                        )
+                        ->withTranslation(
+                            new Language('en'),
+                            new StringLiteral('Werkloze dodo kwekers EN')
+                        ),
+                    Price::fromFloat(7.755),
+                    Currency::fromNative('EUR')
+                )
+            )
+            ->withExtraTariff(
+                new Tariff(
+                    (new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Seniele senioren')
+                    ))
+                        ->withTranslation(
+                            new Language('fr'),
+                            new StringLiteral('Seniele senioren FR')
+                        )
+                        ->withTranslation(
+                            new Language('en'),
+                            new StringLiteral('Seniele senioren EN')
+                        ),
+                    new Price(0),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TitleTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('fr'),
+                    new StringLiteral('Titel FR')
+                )
+            )
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-multilingual-price-info.xml');
 
         $this->execute($test);
     }
