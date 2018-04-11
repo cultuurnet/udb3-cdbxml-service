@@ -16,6 +16,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
@@ -139,6 +140,7 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                 new EventCreated(
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('nl'),
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,
@@ -156,6 +158,7 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 '404EE8DE-E828-9C07-FE7D12DC4EB24481',
                 new EventCreated(
                     '404EE8DE-E828-9C07-FE7D12DC4EB24481',
+                    new Language('nl'),
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,

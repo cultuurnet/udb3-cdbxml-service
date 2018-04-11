@@ -95,6 +95,7 @@ use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use CultuurNet\UDB3\ValueObject\MultilingualString;
 use Psr\Log\LoggerInterface;
 use ValueObjects\DateTime\Hour;
 use ValueObjects\DateTime\Minute;
@@ -161,7 +162,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
                     ]
                 )
-            )
+            ),
+            [
+                'nl' => 'Basistarief',
+                'fr' => 'Tariff de base',
+                'en' => 'Base tariff',
+                'de' => 'Basisrate',
+            ]
         ));
 
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -184,6 +191,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     ) {
         $placeCreated = new PlaceCreated(
             $this->getPlaceId(),
+            new Language('nl'),
             new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             new Address(
@@ -233,6 +241,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                 new EventCreated(
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('nl'),
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,
@@ -250,6 +259,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                 new EventCreated(
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('nl'),
                     new Title('Griezelfilm of horror'),
                     new EventType('0.50.6.0.0', 'film'),
                     $location,
@@ -293,6 +303,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $placeId,
+            new Language('nl'),
             new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
@@ -303,6 +314,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $event = new EventCreated(
             $id,
+            new Language('nl'),
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
             $location,
@@ -692,6 +704,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 '34973B89-BDA3-4A79-96C7-78ACC022907D',
                 new PlaceCreated(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    new Language('nl'),
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
                     $address,
@@ -703,6 +716,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 '34973B89-BDA3-4A79-96C7-78ACC022907D',
                 new PlaceCreated(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    new Language('nl'),
                     new Title('My Place'),
                     new EventType('0.50.4.0.0', 'concert'),
                     $address,
@@ -1136,14 +1150,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $priceInfo = $priceInfo
             ->withExtraTariff(
                 new Tariff(
-                    new StringLiteral('Werkloze dodo kwekers'),
+                    new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Werkloze dodo kwekers')
+                    ),
                     Price::fromFloat(7.755),
                     Currency::fromNative('EUR')
                 )
             )
             ->withExtraTariff(
                 new Tariff(
-                    new StringLiteral('Seniele senioren'),
+                    new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Seniele senioren')
+                    ),
                     new Price(0),
                     Currency::fromNative('EUR')
                 )
@@ -1961,6 +1981,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $placeId,
+            new Language('nl'),
             new Title('Kasteel van Horst'),
             new EventType('0.1.2', 'kasteel'),
             $address,
@@ -2542,6 +2563,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeCreated = new PlaceCreated(
             $this->getPlaceId(),
+            new Language('nl'),
             new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
             $address,
@@ -2553,6 +2575,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $theme = $theme?new Theme('1.7.6.0.0', 'Griezelfilm of horror'):null;
         $event = new EventCreated(
             $id,
+            new Language('nl'),
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
             $location,
@@ -2591,6 +2614,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $place = new PlaceCreated(
             $id,
+            new Language('nl'),
             new Title('My Place'),
             new EventType('0.50.4.0.0', 'concert'),
             $address = new Address(
@@ -2628,6 +2652,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $place = new PlaceCreated(
             $id,
+            new Language('nl'),
             new Title('Kerk'),
             new EventType('8.4.0.0.0', 'Galerie'),
             $address = new Address(
