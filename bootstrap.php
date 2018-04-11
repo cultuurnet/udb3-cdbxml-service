@@ -159,7 +159,8 @@ $app['offer_to_event_cdbxml_projector'] = $app->share(
             new JsonLdDescriptionToCdbXmlShortDescriptionFilter(),
             new \CommerceGuys\Intl\Currency\CurrencyRepository(),
             new \CommerceGuys\Intl\NumberFormat\NumberFormatRepository(),
-            $app['event_cdbid_extractor']
+            $app['event_cdbid_extractor'],
+            $app['config']['base_price_translations']
         ));
 
         $projector->setLogger($app['logger.projector']);

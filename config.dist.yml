@@ -31,3 +31,8 @@ uitpas_service:
   labels_url: http://udb-uitpas.dev/labels
 cors:
   origins: []
+base_price_translations:
+  nl: 'Basistarief'
+  fr: 'Tarif de base'
+  en: 'Base tariff'
+  de: 'Basisrate'
