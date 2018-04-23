@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f4fd1f3c5769f11da7dd6e198ccf4dd",
+    "content-hash": "b048ae2747bcd99fb332143238c927e1",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -54,7 +54,7 @@
                 }
             ],
             "description": " Library for creating collection classes with strict typing.",
-            "time": "2015-12-16 09:28:40"
+            "time": "2015-12-16T09:28:40+00:00"
         },
         {
             "name": "2dotstwice/value-objects",
@@ -105,16 +105,16 @@
         },
         {
             "name": "beberlei/assert",
-            "version": "v2.9.3",
+            "version": "v2.9.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/assert.git",
-                "reference": "7d8108458bbe3d063dc3315278b2001a7156fade"
+                "reference": "c07fe163d6a3b3e4b1275981ec004397954afa89"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/assert/zipball/7d8108458bbe3d063dc3315278b2001a7156fade",
-                "reference": "7d8108458bbe3d063dc3315278b2001a7156fade",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/c07fe163d6a3b3e4b1275981ec004397954afa89",
+                "reference": "c07fe163d6a3b3e4b1275981ec004397954afa89",
                 "shasum": ""
             },
             "require": {
@@ -156,7 +156,7 @@
                 "assertion",
                 "validation"
             ],
-            "time": "2018-03-16T17:46:00+00:00"
+            "time": "2018-04-16T11:18:27+00:00"
         },
         {
             "name": "broadway/broadway",
@@ -547,7 +547,7 @@
                 "Apache-2.0"
             ],
             "description": "Authentication service for CultuurNet web services",
-            "time": "2015-08-24 20:22:37"
+            "time": "2015-08-24T20:22:37+00:00"
         },
         {
             "name": "cultuurnet/broadway-amqp",
@@ -594,7 +594,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2018-04-03 11:29:30"
+            "time": "2018-04-03T11:29:30+00:00"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -677,7 +677,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2017-07-05 12:13:57"
+            "time": "2017-07-05T12:13:57+00:00"
         },
         {
             "name": "cultuurnet/clock",
@@ -718,20 +718,20 @@
                 }
             ],
             "description": "Clock abstraction library",
-            "time": "2015-06-08 16:12:34"
+            "time": "2015-06-08T16:12:34+00:00"
         },
         {
             "name": "cultuurnet/culturefeed-php",
-            "version": "1.9",
+            "version": "1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/culturefeed-php.git",
-                "reference": "5b7d83a2f0c78e63f59e96479b41b5e3c89b3984"
+                "reference": "cbbd88349d7b41144c67b8e918672be6cafa1e04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/5b7d83a2f0c78e63f59e96479b41b5e3c89b3984",
-                "reference": "5b7d83a2f0c78e63f59e96479b41b5e3c89b3984",
+                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/cbbd88349d7b41144c67b8e918672be6cafa1e04",
+                "reference": "cbbd88349d7b41144c67b8e918672be6cafa1e04",
                 "shasum": ""
             },
             "require": {
@@ -786,7 +786,7 @@
                 }
             ],
             "description": "Culturefeed PHP library",
-            "time": "2017-11-20T08:54:20+00:00"
+            "time": "2018-04-16T11:18:06+00:00"
         },
         {
             "name": "cultuurnet/deserializer",
@@ -833,7 +833,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2017-04-19 11:56:39"
+            "time": "2017-04-19T11:56:39+00:00"
         },
         {
             "name": "cultuurnet/geocoding",
@@ -882,7 +882,7 @@
                     "email": "bert@2dotstwice.be"
                 }
             ],
-            "time": "2018-01-24 21:26:16"
+            "time": "2018-01-24T21:26:16+00:00"
         },
         {
             "name": "cultuurnet/search",
@@ -971,7 +971,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2018-04-03 11:40:23"
+            "time": "2018-04-03T11:40:23+00:00"
         },
         {
             "name": "cultuurnet/symfony-security-jwt",
@@ -1013,7 +1013,7 @@
                 "Apache-2.0"
             ],
             "description": "JWT implementation for the Symfony Security component",
-            "time": "2017-02-23 11:20:01"
+            "time": "2017-02-23T11:20:01+00:00"
         },
         {
             "name": "cultuurnet/udb2-domain-events",
@@ -1062,20 +1062,20 @@
                 }
             ],
             "description": "PHP models for domain events in UiTdatabank version 2",
-            "time": "2017-04-20 15:15:25"
+            "time": "2017-04-20T15:15:25+00:00"
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-2454",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "e23308a5c57b65e3ead3aba2a32e8dbe7d9bbc5e"
+                "reference": "25b79c9e8642bdc109f74bc14ab7d17e8b665e4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e23308a5c57b65e3ead3aba2a32e8dbe7d9bbc5e",
-                "reference": "e23308a5c57b65e3ead3aba2a32e8dbe7d9bbc5e",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/25b79c9e8642bdc109f74bc14ab7d17e8b665e4e",
+                "reference": "25b79c9e8642bdc109f74bc14ab7d17e8b665e4e",
                 "shasum": ""
             },
             "require": {
@@ -1142,7 +1142,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2018-04-06 13:17:44"
+            "time": "2018-04-23T12:57:02+00:00"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -1150,12 +1150,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-jwt.git",
-                "reference": "df4932e232533184c9854bfb02783f32f1098945"
+                "reference": "2b1b9b7be1df371aa550e024f42d3845ea426e3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/df4932e232533184c9854bfb02783f32f1098945",
-                "reference": "df4932e232533184c9854bfb02783f32f1098945",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/2b1b9b7be1df371aa550e024f42d3845ea426e3e",
+                "reference": "2b1b9b7be1df371aa550e024f42d3845ea426e3e",
                 "shasum": ""
             },
             "require": {
@@ -1191,7 +1191,7 @@
                 }
             ],
             "description": "Provides JWT service classes",
-            "time": "2017-04-19 11:59:07"
+            "time": "2018-04-23T13:19:52+00:00"
         },
         {
             "name": "cultuurnet/udb3-models",
@@ -1236,7 +1236,7 @@
             "license": [
                 "Apache-2.0"
             ],
-            "time": "2018-04-06 10:27:17"
+            "time": "2018-04-06T10:27:17+00:00"
         },
         {
             "name": "cultuurnet/valueobjects",
@@ -4601,16 +4601,16 @@
         },
         {
             "name": "zendframework/zend-stdlib",
-            "version": "3.1.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-stdlib.git",
-                "reference": "debedcfc373a293f9250cc9aa03cf121428c8e78"
+                "reference": "10ef03144902d1955f935fff5346ed52f7d99bcc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-stdlib/zipball/debedcfc373a293f9250cc9aa03cf121428c8e78",
-                "reference": "debedcfc373a293f9250cc9aa03cf121428c8e78",
+                "url": "https://api.github.com/repos/zendframework/zend-stdlib/zipball/10ef03144902d1955f935fff5346ed52f7d99bcc",
+                "reference": "10ef03144902d1955f935fff5346ed52f7d99bcc",
                 "shasum": ""
             },
             "require": {
@@ -4619,7 +4619,7 @@
             "require-dev": {
                 "athletic/athletic": "~0.1",
                 "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "^2.6.2"
+                "zendframework/zend-coding-standard": "~1.0.0"
             },
             "type": "library",
             "extra": {
@@ -4642,7 +4642,7 @@
                 "stdlib",
                 "zf2"
             ],
-            "time": "2016-09-13T14:38:50+00:00"
+            "time": "2018-04-12T16:05:42+00:00"
         },
         {
             "name": "zendframework/zend-validator",
@@ -5104,23 +5104,23 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.7.5",
+            "version": "1.7.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401"
+                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/dfd6be44111a7c41c2e884a336cc4f461b3b2401",
-                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
+                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.0.2",
                 "php": "^5.3|^7.0",
                 "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0",
-                "sebastian/comparator": "^1.1|^2.0",
+                "sebastian/comparator": "^1.1|^2.0|^3.0",
                 "sebastian/recursion-context": "^1.0|^2.0|^3.0"
             },
             "require-dev": {
@@ -5163,7 +5163,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2018-02-19T10:16:54+00:00"
+            "time": "2018-04-18T13:57:24+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -6418,18 +6418,9 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-2454",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],

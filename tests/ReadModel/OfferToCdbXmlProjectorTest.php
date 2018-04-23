@@ -867,7 +867,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new TitleTranslated(
                     $id,
                     new Language('en'),
-                    new StringLiteral('Horror movie')
+                    new Title('Horror movie')
                 )
             )
             ->expect($cdbXmlType . '-with-title-translated-to-en.xml')
@@ -875,7 +875,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new TitleTranslated(
                     $id,
                     new Language('en'),
-                    new StringLiteral('Horror movie updated')
+                    new Title('Horror movie updated')
                 )
             )
             ->expect($cdbXmlType . '-with-title-translated-to-en-updated.xml');
@@ -926,7 +926,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new DescriptionTranslated(
                     $id,
                     new Language('en'),
-                    new StringLiteral('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+                    new \CultuurNet\UDB3\Description('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
                 )
             )
             ->expect($cdbXmlType . '-with-description-translated-to-en.xml')
@@ -934,7 +934,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new DescriptionTranslated(
                     $id,
                     new Language('en'),
-                    new StringLiteral('Description updated.')
+                    new \CultuurNet\UDB3\Description('Description updated.')
                 )
             )
             ->expect($cdbXmlType . '-with-description-translated-to-en-updated.xml');
@@ -987,13 +987,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new DescriptionUpdated(
                     $id,
-                    'Initial description'
+                    new \CultuurNet\UDB3\Description('Initial description')
                 )
             )
             ->apply(
                 new DescriptionUpdated(
                     $id,
-                    file_get_contents(__DIR__ .'/Repository/samples/description/' . $exampleId . '.txt')
+                    new \CultuurNet\UDB3\Description(file_get_contents(__DIR__ .'/Repository/samples/description/' . $exampleId . '.txt'))
                 )
             )
             ->expect('description/' . $cdbXmlType . '-with-' . $exampleId . '.xml');
@@ -1076,9 +1076,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'Tickets on Example.com',
                         '+32 666 666',
                         'tickets@example.com',
-                        '2014-01-31T12:00:00',
-                        '2014-02-20T15:00:00',
-                        'booking name'
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-02-20T16:00:00+01:00')
                     )
                 )
             )
@@ -1110,9 +1109,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'Tickets on Example.com',
                         '+32 666 666',
                         'tickets@example.com',
-                        '2014-01-31T12:00:00',
-                        '2014-02-20T15:00:00',
-                        'booking name'
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-02-20T16:00:00+01:00')
                     )
                 )
             )
@@ -1124,9 +1122,8 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'Tickets on Example.com',
                         '+32 666 666',
                         'tickets@example.com',
-                        '',
-                        '',
-                        'booking name'
+                        null,
+                        null
                     )
                 )
             )
