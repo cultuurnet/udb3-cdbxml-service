@@ -964,7 +964,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $languageCode = $titleTranslated->getLanguage()->getCode();
-        $title = $titleTranslated->getTitle();
+        $title = $titleTranslated->getTitle()->toNative();
 
         $details = $offer->getDetails();
         $detail = $details->getDetailByLanguage($languageCode);
@@ -1010,7 +1010,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         /** @var \CultureFeed_Cdb_Data_Detail $mainLanguageDetail */
         $mainLanguageDetail = $details->current();
 
-        $mainLanguageDetail->setTitle((string) $titleUpdated->getTitle());
+        $mainLanguageDetail->setTitle($titleUpdated->getTitle()->toNative());
 
         $offer->setDetails($details);
 
@@ -1098,7 +1098,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $details->add($detailNl);
         }
 
-        $description = $descriptionUpdated->getDescription();
+        $description = $descriptionUpdated->getDescription()->toNative();
 
         $shortDescription = $this->shortDescriptionFilter->filter($description);
         $longDescription = $this->longDescriptionFilter->filter($description);
