@@ -230,6 +230,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     private $eventCdbIdExtractor;
 
     /**
+     * @var string[]
+     */
+    private $basePriceTranslations;
+
+    /**
      * @var SluggerInterface
      */
     private $slugger;
@@ -256,6 +261,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      * @param CurrencyRepositoryInterface $currencyRepository
      * @param NumberFormatRepositoryInterface $numberFormatRepository
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
+     * @param string[] $basePriceTranslations
+     *   Associative array of language codes and a "base tariff" label for each language.
      */
     public function __construct(
         DocumentRepositoryInterface $documentRepository,
@@ -268,7 +275,8 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         StringFilterInterface $shortDescriptionFilter,
         CurrencyRepositoryInterface $currencyRepository,
         NumberFormatRepositoryInterface $numberFormatRepository,
-        EventCdbIdExtractorInterface $eventCdbIdExtractor
+        EventCdbIdExtractorInterface $eventCdbIdExtractor,
+        array $basePriceTranslations = []
     ) {
         $this->documentRepository = $documentRepository;
         $this->cdbXmlDocumentFactory = $cdbXmlDocumentFactory;
@@ -281,6 +289,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $this->currencyRepository = $currencyRepository;
         $this->numberFormatRepository = $numberFormatRepository;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
+        $this->basePriceTranslations = $basePriceTranslations;
         $this->slugger = new CulturefeedSlugger();
         $this->logger = new NullLogger();
         $this->uriNormalizer = new Normalize();
@@ -1192,20 +1201,14 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $currencyFormatter = new NumberFormatter($numberFormat, NumberFormatter::CURRENCY);
 
         $priceInfo = $priceInfoUpdated->getPriceInfo();
+
+        // Create the cdb price object with a base price value.
         $basePrice = $priceInfo->getBasePrice();
+        $cdbPrice = new \CultureFeed_Cdb_Data_Price($basePrice->getPrice()->toFloat());
+
+        // Create a price description for each available language in the tariffs.
         $tariffs = $priceInfo->getTariffs();
-
-        $basePriceCurrencyCode = $basePrice->getCurrency()->getCode()->toNative();
-        $basePriceCurrency = $this->currencyRepository->get($basePriceCurrencyCode);
-        $basePriceFormatted = $currencyFormatter->formatCurrency(
-            (string) $basePrice->getPrice()->toFloat(),
-            $basePriceCurrency
-        );
-
-        $descriptionStrings = [
-            'Basistarief: ' . $basePriceFormatted,
-        ];
-
+        $descriptionStrings = [];
         foreach ($tariffs as $tariff) {
             $price = $tariff->getPrice()->toFloat();
 
@@ -1214,19 +1217,66 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
             $tariffPrice = $currencyFormatter->formatCurrency((string) $price, $currency);
 
-            $descriptionStrings[] = $tariff->getName() . ': ' . $tariffPrice;
+            $name = $tariff->getName();
+
+            foreach ($name->getTranslationsIncludingOriginal() as $languageCode => $translation) {
+                $descriptionStrings[$languageCode][] = $translation->toNative() . ': ' . $tariffPrice;
+            }
         }
 
-        $cdbPrice = new \CultureFeed_Cdb_Data_Price($basePrice->getPrice()->toFloat());
-        $cdbPrice->setDescription(implode('; ', $descriptionStrings));
+        // Add the base price to each of the price descriptions.
+        $basePriceCurrencyCode = $basePrice->getCurrency()->getCode()->toNative();
+        $basePriceCurrency = $this->currencyRepository->get($basePriceCurrencyCode);
+        $basePriceFormatted = $currencyFormatter->formatCurrency(
+            (string) $basePrice->getPrice()->toFloat(),
+            $basePriceCurrency
+        );
 
-        $updatedDetails = new \CultureFeed_Cdb_Data_EventDetailList();
-        foreach ($event->getDetails() as $detail) {
-            /* @var \CultureFeed_Cdb_Data_Detail $detail */
-            $detail->setPrice($cdbPrice);
+        // Get the current details and create an empty list for the new details.
+        $details = $event->getDetails();
+        $nlDetail = $details->getDetailByLanguage('nl');
+        $updatedDetails = new CultureFeed_Cdb_Data_EventDetailList();
+
+        // Create a list of all languages for which an eventdetail should exist.
+        $detailLanguages = [];
+        foreach ($details as $detail) {
+            $detailLanguages[] = $detail->getLanguage();
+        }
+        $priceLanguages = array_keys($descriptionStrings);
+        $languages = array_unique(array_merge($detailLanguages, $priceLanguages));
+
+        // Create an eventdetail for each language, either based on an existing
+        // eventdetail or a new one with the title of the nl detail.
+        foreach ($languages as $language) {
+            $detail = $details->getDetailByLanguage($language);
+            if (!$detail) {
+                $detail = $this->createOfferItemCdbDetail($event);
+                $detail->setLanguage($language);
+                $detail->setTitle($nlDetail->getTitle());
+            }
+
+            // Use the price object without description as the default for each
+            // detail.
+            $translatedCdbPrice = clone $cdbPrice;
+
+            if (isset($descriptionStrings[$language])) {
+                $descriptionParts = $descriptionStrings[$language];
+            } else {
+                $descriptionParts = [];
+            }
+            $basePriceDescription = $this->getBasePriceTranslation($language) . ': ' . $basePriceFormatted;
+            array_unshift($descriptionParts, $basePriceDescription);
+            $description = implode('; ', $descriptionParts);
+            $translatedCdbPrice->setDescription($description);
+
+            // Set a price object on each detail, with or without description.
+            $detail->setPrice($translatedCdbPrice);
+
+            // Add the new detail to the list of updated details.
             $updatedDetails->add($detail);
         }
 
+        // Override the list of eventdetails with the list of updated details.
         $event->setDetails($updatedDetails);
 
         // Change the lastupdated attribute.
@@ -1235,6 +1285,23 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         return $this->cdbXmlDocumentFactory
             ->fromCulturefeedCdbItem($event);
+    }
+
+    /**
+     * @param string $languageCode
+     * @return string
+     */
+    private function getBasePriceTranslation($languageCode)
+    {
+        if (isset($this->basePriceTranslations[$languageCode])) {
+            return $this->basePriceTranslations[$languageCode];
+        }
+
+        if (isset($this->basePriceTranslations['en'])) {
+            return $this->basePriceTranslations['en'];
+        }
+
+        return 'Base tariff';
     }
 
     /**

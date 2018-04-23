@@ -95,6 +95,7 @@ use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use CultuurNet\UDB3\ValueObject\MultilingualString;
 use Psr\Log\LoggerInterface;
 use ValueObjects\DateTime\Hour;
 use ValueObjects\DateTime\Minute;
@@ -161,7 +162,13 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                         'external-id-2' => 'c1fb0316-85a0-4dd3-9fa7-02410dff0e0f',
                     ]
                 )
-            )
+            ),
+            [
+                'nl' => 'Basistarief',
+                'fr' => 'Tarif de base',
+                'en' => 'Base tariff',
+                'de' => 'Basisrate',
+            ]
         ));
 
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -1140,14 +1147,20 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $priceInfo = $priceInfo
             ->withExtraTariff(
                 new Tariff(
-                    new StringLiteral('Werkloze dodo kwekers'),
+                    new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Werkloze dodo kwekers')
+                    ),
                     Price::fromFloat(7.755),
                     Currency::fromNative('EUR')
                 )
             )
             ->withExtraTariff(
                 new Tariff(
-                    new StringLiteral('Seniele senioren'),
+                    new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Seniele senioren')
+                    ),
                     new Price(0),
                     Currency::fromNative('EUR')
                 )
@@ -1161,6 +1174,75 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 )
             )
             ->expect('event-with-price-info.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_multilingual_price_info_events_on_events()
+    {
+        $priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(10.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $priceInfo = $priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    (new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Werkloze dodo kwekers')
+                    ))
+                        ->withTranslation(
+                            new Language('fr'),
+                            new StringLiteral('Werkloze dodo kwekers FR')
+                        )
+                        ->withTranslation(
+                            new Language('en'),
+                            new StringLiteral('Werkloze dodo kwekers EN')
+                        ),
+                    Price::fromFloat(7.755),
+                    Currency::fromNative('EUR')
+                )
+            )
+            ->withExtraTariff(
+                new Tariff(
+                    (new MultilingualString(
+                        new Language('nl'),
+                        new StringLiteral('Seniele senioren')
+                    ))
+                        ->withTranslation(
+                            new Language('fr'),
+                            new StringLiteral('Seniele senioren FR')
+                        )
+                        ->withTranslation(
+                            new Language('en'),
+                            new StringLiteral('Seniele senioren EN')
+                        ),
+                    new Price(0),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $test = $this->given(OfferType::EVENT())
+            ->apply(
+                new TitleTranslated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('fr'),
+                    new Title('Titel FR')
+                )
+            )
+            ->apply(
+                new PriceInfoUpdated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    $priceInfo
+                )
+            )
+            ->expect('event-with-multilingual-price-info.xml');
 
         $this->execute($test);
     }
