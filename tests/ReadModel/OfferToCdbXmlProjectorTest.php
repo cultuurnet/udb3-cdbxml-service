@@ -1233,7 +1233,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 new TitleTranslated(
                     '404EE8DE-E828-9C07-FE7D12DC4EB24480',
                     new Language('fr'),
-                    new StringLiteral('Titel FR')
+                    new Title('Titel FR')
                 )
             )
             ->apply(
