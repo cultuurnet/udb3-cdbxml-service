@@ -11,6 +11,7 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
 use CultuurNet\UDB3\Organizer\Events\AddressUpdated;
 use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
@@ -237,13 +238,10 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             $document->getCdbXml()
         );
 
-        /** @var \CultureFeed_Cdb_Data_ActorDetail[] $details */
         $details = $actor->getDetails();
-        foreach ($details as $detail) {
-            if ($detail->getLanguage() === 'nl') {
-                $detail->setTitle($titleUpdated->getTitle()->toNative());
-                break;
-            }
+        $detail = $details->getFirst();
+        if ($detail) {
+            $detail->setTitle($titleUpdated->getTitle()->toNative());
         }
 
         $actor = $this->metadataCdbItemEnricher->enrich($actor, $metadata);
@@ -471,17 +469,22 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         OrganizerEvent $organizerCreationEvent,
         Metadata $metadata
     ) {
+        $mainLanguage = new Language('nl');
+        if ($organizerCreationEvent instanceof OrganizerCreatedWithUniqueWebsite) {
+            $mainLanguage = $organizerCreationEvent->getMainLanguage();
+        }
+
         // Actor.
         $actor = new \CultureFeed_Cdb_Item_Actor();
         $actor->setCdbId($organizerCreationEvent->getOrganizerId());
 
         // Details.
-        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
-        $nlDetail->setLanguage('nl');
-        $nlDetail->setTitle($organizerCreationEvent->getTitle()->toNative());
+        $mainLanguageDetail = new \CultureFeed_Cdb_Data_ActorDetail();
+        $mainLanguageDetail->setLanguage($mainLanguage);
+        $mainLanguageDetail->setTitle($organizerCreationEvent->getTitle()->toNative());
 
         $details = new \CultureFeed_Cdb_Data_ActorDetailList();
-        $details->add($nlDetail);
+        $details->add($mainLanguageDetail);
         $actor->setDetails($details);
 
         // Categories.
