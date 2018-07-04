@@ -74,6 +74,7 @@ use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAs
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ThemeUpdated as EventThemeUpdated;
+use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Offer\Events\AbstractFacilitiesUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractThemeUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypeUpdated;
@@ -518,12 +519,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $actorCdbXml->getCdbXml()
         );
 
-        // set title
-        foreach ($actor->getDetails() as $detail) {
-            if ($detail->getLanguage() == 'nl') {
-                $detail->setTitle($placeMajorInfoUpdated->getTitle());
-                break;
-            }
+        // Update the title for the main language.
+        $details = $actor->getDetails();
+        $detail = $details->getFirst();
+        if ($detail) {
+            $detail->setTitle($placeMajorInfoUpdated->getTitle());
         }
 
         // Contact info.
@@ -577,12 +577,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $eventCdbXml->getCdbXml()
         );
 
-        // set title
-        foreach ($event->getDetails() as $detail) {
-            if ($detail->getLanguage() == 'nl') {
-                $detail->setTitle($eventMajorInfoUpdated->getTitle());
-                break;
-            }
+        // Update the title for the main language.
+        $detail = $event->getDetails()->getFirst();
+        if ($detail) {
+            $detail->setTitle($eventMajorInfoUpdated->getTitle());
         }
 
         // Set location and calendar info.
@@ -731,12 +729,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $event = new CultureFeed_Cdb_Item_Event();
         $event->setCdbId($eventCreated->getEventId());
 
-        $nlDetail = new CultureFeed_Cdb_Data_EventDetail();
-        $nlDetail->setLanguage('nl');
-        $nlDetail->setTitle($eventCreated->getTitle());
+        $mainLanguageDetail = new CultureFeed_Cdb_Data_EventDetail();
+        $mainLanguageDetail->setLanguage($eventCreated->getMainLanguage()->getCode());
+        $mainLanguageDetail->setTitle($eventCreated->getTitle());
 
         $details = new CultureFeed_Cdb_Data_EventDetailList();
-        $details->add($nlDetail);
+        $details->add($mainLanguageDetail);
         $event->setDetails($details);
 
         // Empty contact info.
@@ -876,12 +874,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $actor->setAsset(true);
 
         // Details.
-        $nlDetail = new \CultureFeed_Cdb_Data_ActorDetail();
-        $nlDetail->setLanguage('nl');
-        $nlDetail->setTitle($placeCreated->getTitle());
+        $mainLanguageDetail = new \CultureFeed_Cdb_Data_ActorDetail();
+        $mainLanguageDetail->setLanguage($placeCreated->getMainLanguage()->getCode());
+        $mainLanguageDetail->setTitle($placeCreated->getTitle());
 
         $details = new \CultureFeed_Cdb_Data_ActorDetailList();
-        $details->add($nlDetail);
+        $details->add($mainLanguageDetail);
         $actor->setDetails($details);
 
         // Contact info.
@@ -1050,8 +1048,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $details = $offer->getDetails();
         $detail = $details->getDetailByLanguage($languageCode);
 
-        $nlDetail = $details->getDetailByLanguage('nl');
-
         if (!empty($detail)) {
             $detail->setLongDescription(
                 $this->longDescriptionFilter->filter($description)
@@ -1063,7 +1059,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $detail = $this->createOfferItemCdbDetail($offer);
             $detail->setLanguage($descriptionTranslated->getLanguage()->getCode());
 
-            $detail->setTitle($nlDetail->getTitle());
+            $mainLanguageDetail = $details->getFirst();
+
+            $detail->setTitle($mainLanguageDetail->getTitle());
             $detail->setLongDescription(
                 $this->longDescriptionFilter->filter($description)
             );
@@ -1098,13 +1096,12 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
         $details = $offer->getDetails();
-        $detailNl = $details->getDetailByLanguage('nl');
+        $mainLanguageDetail = $details->getFirst();
 
-        if (empty($detailNl)) {
-            $detailNl = $this->createOfferItemCdbDetail($offer);
-            $detailNl->setLanguage('nl');
-
-            $details->add($detailNl);
+        if (empty($mainLanguageDetail)) {
+            $mainLanguageDetail = $this->createOfferItemCdbDetail($offer);
+            $mainLanguageDetail->setLanguage('nl');
+            $details->add($mainLanguageDetail);
         }
 
         $description = $descriptionUpdated->getDescription()->toNative();
@@ -1115,15 +1112,15 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         if ($offer instanceof CultureFeed_Cdb_Item_Event) {
             $uivSourceUrl = $this->generateUivSourceUrl(
                 $descriptionUpdated->getItemId(),
-                $detailNl->getTitle()
+                $mainLanguageDetail->getTitle()
             );
 
             $longDescription .=
                 "<p class=\"uiv-source\">Bron: <a href=\"{$uivSourceUrl}\">UiTinVlaanderen.be</a></p>";
         }
 
-        $detailNl->setLongDescription($longDescription);
-        $detailNl->setShortDescription($shortDescription);
+        $mainLanguageDetail->setLongDescription($longDescription);
+        $mainLanguageDetail->setShortDescription($shortDescription);
 
         $offer->setDetails($details);
 
@@ -1234,7 +1231,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         // Get the current details and create an empty list for the new details.
         $details = $event->getDetails();
-        $nlDetail = $details->getDetailByLanguage('nl');
+        $mainLanguageDetail = $details->getFirst();
         $updatedDetails = new CultureFeed_Cdb_Data_EventDetailList();
 
         // Create a list of all languages for which an eventdetail should exist.
@@ -1246,13 +1243,13 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $languages = array_unique(array_merge($detailLanguages, $priceLanguages));
 
         // Create an eventdetail for each language, either based on an existing
-        // eventdetail or a new one with the title of the nl detail.
+        // eventdetail or a new one with the title of the main language detail.
         foreach ($languages as $language) {
             $detail = $details->getDetailByLanguage($language);
             if (!$detail) {
                 $detail = $this->createOfferItemCdbDetail($event);
                 $detail->setLanguage($language);
-                $detail->setTitle($nlDetail->getTitle());
+                $detail->setTitle($mainLanguageDetail->getTitle());
             }
 
             // Use the price object without description as the default for each
@@ -1416,7 +1413,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
             $organizer = new \CultureFeed_Cdb_Data_Organiser();
             $organizer->setCdbid($organizerUpdated->getOrganizerId());
-            $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
+            $organizer->setLabel($actor->getDetails()->getFirst()->getTitle());
             $organizer->setActor($actor);
 
             $event->setOrganiser($organizer);

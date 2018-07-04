@@ -148,6 +148,32 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * @test
      */
+    public function it_projects_organizer_created_with_unique_website_and_english_main_language()
+    {
+        $id = 'ORG-123';
+
+        $event = new OrganizerCreatedWithUniqueWebsite(
+            $id,
+            new Language('en'),
+            Url::fromNative('http://www.destudio.com'),
+            new Title('DE Studio')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-unique-website-and-english-main-language.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
     public function it_projects_address_updated_and_updates_the_lastupdated_attributes()
     {
         $id = 'ORG-123';

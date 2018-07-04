@@ -274,6 +274,24 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                 ),
                 'event-with-publication-date.xml',
             ],
+            [
+                '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                new EventCreated(
+                    '404EE8DE-E828-9C07-FE7D12DC4EB24480',
+                    new Language('en'),
+                    new Title('Horror movie'),
+                    new EventType('0.50.6.0.0', 'film'),
+                    $location,
+                    new Calendar(
+                        CalendarType::MULTIPLE(),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
+                        \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00'),
+                        $timestamps
+                    ),
+                    new Theme('1.7.6.0.0', 'Griezelfilm of horror')
+                ),
+                'event-with-english-main-language.xml',
+            ],
         ];
     }
 
@@ -725,6 +743,18 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', '2016-04-23T15:30:06')
                 ),
                 'place-with-publication-date.xml',
+            ],
+            [
+                '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                new PlaceCreated(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    new Language('en'),
+                    new Title('My Place'),
+                    new EventType('0.50.4.0.0', 'concert'),
+                    $address,
+                    new Calendar(CalendarType::PERMANENT())
+                ),
+                'place-with-english-main-language.xml',
             ],
         ];
     }
