@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "7dac79d2dfb0eaf7210aa1289d28ab58",
+    "content-hash": "b048ae2747bcd99fb332143238c927e1",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -643,16 +643,16 @@
         },
         {
             "name": "cultuurnet/cdb",
-            "version": "dev-feature/III-2534",
+            "version": "2.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/Cdb.git",
-                "reference": "c3229517c1a7a1927f8a75407b6764064ae04e98"
+                "reference": "e6305e724b5e827ddec8a03bd961ea817d7c05a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/c3229517c1a7a1927f8a75407b6764064ae04e98",
-                "reference": "c3229517c1a7a1927f8a75407b6764064ae04e98",
+                "url": "https://api.github.com/repos/cultuurnet/Cdb/zipball/e6305e724b5e827ddec8a03bd961ea817d7c05a0",
+                "reference": "e6305e724b5e827ddec8a03bd961ea817d7c05a0",
                 "shasum": ""
             },
             "require": {
@@ -677,7 +677,7 @@
                 "Apache-2.0"
             ],
             "description": "PHP library for hydrating/manipulating CultuurNet's Cdb XML documents",
-            "time": "2018-06-28 12:06:41"
+            "time": "2018-07-03 09:18:11"
         },
         {
             "name": "cultuurnet/clock",
@@ -6552,18 +6552,9 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "2.2",
-            "alias_normalized": "2.2.0.0",
-            "version": "dev-feature/III-2534",
-            "package": "cultuurnet/cdb"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/cdb": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
