@@ -10,4 +10,4 @@ after_script:
 notifications:
   email:
     recipients:
-    - bert@2dotstwice
+    - team-uitdatabank@2dotstwice.be
