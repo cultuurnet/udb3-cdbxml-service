@@ -252,7 +252,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
 
         $organizer = new \CultureFeed_Cdb_Data_Organiser();
         $organizer->setCdbid($organizerId);
-        $organizer->setLabel($actor->getDetails()->getDetailByLanguage('nl')->getTitle());
+        $organizer->setLabel($actor->getDetails()->getFirst()->getTitle());
         $organizer->setActor($actor);
 
         return $organizer;

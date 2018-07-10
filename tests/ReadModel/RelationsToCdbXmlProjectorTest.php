@@ -143,16 +143,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
         $this->actorRepository->save($organizerCdbxml);
 
-        $this->offerRelationsService
-            ->expects($this->once())
-            ->method('getByOrganizer')
-            ->with($organizerId)
-            ->willReturn(
-                [
-                    $id,
-                    $secondId,
-                ]
-            );
+        $this->setUpOrganizerRelations($organizerId, $id, $secondId);
 
         $organizerProjectedToCdbXml = new OrganizerProjectedToCdbXml(
             $organizerId
@@ -455,5 +446,66 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
 
         $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_the_main_language_of_organizers()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $this->createEvent($id);
+
+        $organizerId = 'ORG-123';
+        $organizerCdbxml = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-fr.xml')
+        );
+        $this->actorRepository->save($organizerCdbxml);
+
+        $this->setUpOrganizerRelations($organizerId, $id);
+
+        $organizerProjectedToCdbXml = new OrganizerProjectedToCdbXml(
+            $organizerId
+        );
+
+        $organizerMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710907',
+                'id' => 'http://foo.be/item/' . $organizerId,
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $organizerProjectedToCdbXml, $organizerMetadata);
+        $this->relationsProjector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = $this->loadCdbXmlDocumentFromFile(
+            $id,
+            'event-with-organizer-fr.xml'
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @param string $organizerId
+     * @param string ...$eventIds
+     */
+    public function setUpOrganizerRelations(
+        string $organizerId,
+        string ...$eventIds
+    ) {
+        $this->offerRelationsService
+            ->expects($this->once())
+            ->method('getByOrganizer')
+            ->with($organizerId)
+            ->willReturn(
+                $eventIds
+            );
     }
 }
