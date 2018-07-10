@@ -143,16 +143,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         );
         $this->actorRepository->save($organizerCdbxml);
 
-        $this->offerRelationsService
-            ->expects($this->once())
-            ->method('getByOrganizer')
-            ->with($organizerId)
-            ->willReturn(
-                [
-                    $id,
-                    $secondId,
-                ]
-            );
+        $this->setUpOrganizerRelations($organizerId, $id, $secondId);
 
         $organizerProjectedToCdbXml = new OrganizerProjectedToCdbXml(
             $organizerId
@@ -274,7 +265,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 
         $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
         // Create a place.
-        $this->createPlace($placeId);
+        $this->createPlace($placeId, 'nl');
         $placeIri = Url::fromNative('http://foo.bar/place/' . $placeId);
 
         $placeIdentifier = new IriOfferIdentifier($placeIri, $placeId, OfferType::PLACE());
@@ -435,13 +426,22 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     /**
      * Helper function to create a place.
      * @param string $id
+     * @param string $language
      */
-    public function createPlace($id = '34973B89-BDA3-4A79-96C7-78ACC022907D')
+    public function createPlace(string $id, string $language)
     {
+        switch ($language) {
+            case 'fr':
+                $title = 'Ma place';
+                break;
+            default:
+                $title = 'My Place';
+        }
+
         $place = new PlaceCreated(
             $id,
-            new Language('nl'),
-            new Title('My Place'),
+            new Language($language),
+            new Title($title),
             new EventType('0.50.4.0.0', 'concert'),
             new Address(
                 new Street('Bondgenotenlaan 1'),
@@ -455,5 +455,130 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $domainMessage = $this->createDomainMessage($id, $place, $this->metadata);
 
         $this->projector->handle($domainMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_the_main_language_of_organizers()
+    {
+        $id = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $this->createEvent($id);
+
+        $organizerId = 'ORG-123';
+        $organizerCdbxml = new CdbXmlDocument(
+            $organizerId,
+            $this->loadCdbXmlFromFile('actor-fr.xml')
+        );
+        $this->actorRepository->save($organizerCdbxml);
+
+        $this->setUpOrganizerRelations($organizerId, $id);
+
+        $organizerProjectedToCdbXml = new OrganizerProjectedToCdbXml(
+            $organizerId
+        );
+
+        $organizerMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710907',
+                'id' => 'http://foo.be/item/' . $organizerId,
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $organizerProjectedToCdbXml, $organizerMetadata);
+        $this->relationsProjector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = $this->loadCdbXmlDocumentFromFile(
+            $id,
+            'event-with-organizer-fr.xml'
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @param string $organizerId
+     * @param string ...$eventIds
+     */
+    public function setUpOrganizerRelations(
+        string $organizerId,
+        string ...$eventIds
+    ): void {
+        $this->offerRelationsService
+            ->expects($this->once())
+            ->method('getByOrganizer')
+            ->with($organizerId)
+            ->willReturn(
+                $eventIds
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_the_main_language_of_places()
+    {
+        $eventId = '404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $this->createEvent($eventId);
+
+        $placeId = 'C4ACF936-1D5F-48E8-B2EC-863B313CBDE6';
+        $this->createPlace($placeId, 'fr');
+        $placeIri = Url::fromNative('http://foo.bar/place/' . $placeId);
+
+        $placeIdentifier = new IriOfferIdentifier($placeIri, $placeId, OfferType::PLACE());
+
+        $this->iriOfferIdentifierFactory->expects($this->once())
+            ->method('fromIri')
+            ->with($placeIri)
+            ->willReturn($placeIdentifier);
+
+        $this->setUpPlaceRelations($placeId, $eventId);
+
+        $placeProjectedToCdbXml = new PlaceProjectedToCdbXml(
+            $placeId,
+            $placeIri
+        );
+
+        $placeMetadata = new Metadata(
+            [
+                'user_nick' => 'foobar',
+                'user_email' => 'foo@bar.com',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'request_time' => '1460710917',
+                'id' => 'http://foo.be/item/' . $placeId,
+            ]
+        );
+
+        $domainMessage = $this->createDomainMessage($placeId, $placeProjectedToCdbXml, $placeMetadata);
+        $this->relationsProjector->handle($domainMessage);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $eventId,
+            $this->loadCdbXmlFromFile('event-with-place-fr.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @param string $placeId
+     * @param string ...$eventIds
+     */
+    protected function setUpPlaceRelations(string $placeId, string ...$eventIds): void
+    {
+        $this->offerRelationsService
+            ->expects($this->once())
+            ->method('getByPlace')
+            ->with($placeId)
+            ->willReturn(
+                $eventIds
+            );
     }
 }

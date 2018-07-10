@@ -109,6 +109,19 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $id
+     * @param string $fileName
+     * @return \CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument
+     */
+    protected function loadCdbXmlDocumentFromFile(string $id, string $fileName)
+    {
+        return new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile($fileName)
+        );
+    }
+
+    /**
      * @param string $fileName
      * @return string
      */
