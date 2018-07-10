@@ -9,6 +9,7 @@ use CultureFeed_Cdb_Data_ContactInfo;
 use CultureFeed_Cdb_Item_Event;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
+use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
@@ -29,6 +30,8 @@ use ValueObjects\Web\Url;
 class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
+
+    private const CDBXML_NAMESPACE_URI = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
 
     /**
      * @var DocumentRepositoryInterface
@@ -127,22 +130,11 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         $organizer = $this->createOrganizer($organizerId);
 
         foreach ($eventIds as $eventId) {
-            $eventCdbXml = $this->documentRepository->get($eventId);
+            $event = $this->loadEventFromDocumentRepository($eventId);
 
-            if (!$eventCdbXml) {
-                $this->logger->alert(
-                    'Unable to load cdbxml of event with id {event_id}',
-                    [
-                        'event_id' => $eventId,
-                    ]
-                );
+            if (!$event) {
                 continue;
             }
-
-            $event = EventItemFactory::createEventFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $eventCdbXml->getCdbXml()
-            );
 
             $newEvent = clone $event;
 
@@ -175,12 +167,11 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         $location = $this->createLocation($placeId);
 
         foreach ($eventIds as $eventId) {
-            $eventCdbXml = $this->documentRepository->get($eventId);
+            $event = $this->loadEventFromDocumentRepository($eventId);
 
-            $event = EventItemFactory::createEventFromCdbXml(
-                'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-                $eventCdbXml->getCdbXml()
-            );
+            if (!$event) {
+                continue;
+            }
 
             $newEvent = clone $event;
 
@@ -211,12 +202,9 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
     {
         $placeCdbXml = $this->documentRepository->get($placeId);
 
-        $place = ActorItemFactory::createActorFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $placeCdbXml->getCdbXml()
-        );
+        $place = $this->createActorFromCdbXml($placeCdbXml);
 
-        $placeTitle = $place->getDetails()->getDetailByLanguage('nl')->getTitle();
+        $placeTitle = $place->getDetails()->getFirst()->getTitle();
 
         $addresses = !is_null($place->getContactInfo()) ? $place->getContactInfo()->getAddresses() : array();
 
@@ -245,10 +233,7 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
         // load organizer from documentRepo & add to document
         $organizerCdbXml = $this->actorDocumentRepository->get($organizerId);
 
-        $actor = ActorItemFactory::createActorFromCdbXml(
-            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
-            $organizerCdbXml->getCdbXml()
-        );
+        $actor = $this->createActorFromCdbXml($organizerCdbXml);
 
         $organizer = new \CultureFeed_Cdb_Data_Organiser();
         $organizer->setCdbid($organizerId);
@@ -279,5 +264,58 @@ class RelationsToCdbXmlProjector implements EventListenerInterface, LoggerAwareI
 
             $this->documentRepository->save($newCdbXmlDocument);
         }
+    }
+
+    /**
+     * @param CdbXmlDocument $eventCdbXml
+     * @return \CultureFeed_Cdb_Item_Event
+     * @throws \CultureFeed_Cdb_ParseException
+     */
+    private function createEventFromCdbXml(CdbXmlDocument $eventCdbXml): \CultureFeed_Cdb_Item_Event
+    {
+        $event = EventItemFactory::createEventFromCdbXml(
+            self::CDBXML_NAMESPACE_URI,
+            $eventCdbXml->getCdbXml()
+        );
+        return $event;
+    }
+
+    /**
+     * @param CdbXmlDocument $actorCdbXml
+     * @return \CultureFeed_Cdb_Item_Actor
+     * @throws \CultureFeed_Cdb_ParseException
+     */
+    private function createActorFromCdbXml(CdbXmlDocument $actorCdbXml): \CultureFeed_Cdb_Item_Actor
+    {
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            self::CDBXML_NAMESPACE_URI,
+            $actorCdbXml->getCdbXml()
+        );
+        return $actor;
+    }
+
+    /**
+     * @param string $eventId
+     * @return \CultureFeed_Cdb_Item_Event|null
+     * @throws \CultureFeed_Cdb_ParseException
+     */
+    private function loadEventFromDocumentRepository(string $eventId): ?CultureFeed_Cdb_Item_Event
+    {
+        $eventCdbXml = $this->documentRepository->get($eventId);
+
+        if (!$eventCdbXml) {
+            $this->logger->alert(
+                'Unable to load cdbxml of event with id {event_id}',
+                [
+                    'event_id' => $eventId,
+                ]
+            );
+
+            return null;
+        }
+
+        $event = $this->createEventFromCdbXml($eventCdbXml);
+
+        return $event;
     }
 }
