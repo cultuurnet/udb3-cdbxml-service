@@ -1103,7 +1103,10 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $id,
                     new BookingInfo(
                         'http://tickets.example.com',
-                        'Tickets on Example.com',
+                        new MultilingualString(
+                            new Language('nl'),
+                            new StringLiteral('Tickets on Example.com')
+                        ),
                         '+32 666 666',
                         'tickets@example.com',
                         \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-01-31T13:00:00+01:00'),
@@ -1136,7 +1139,10 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $id,
                     new BookingInfo(
                         'http://tickets.example.com',
-                        'Tickets on Example.com',
+                        new MultilingualString(
+                            new Language('nl'),
+                            new StringLiteral('Tickets on Example.com')
+                        ),
                         '+32 666 666',
                         'tickets@example.com',
                         \DateTimeImmutable::createFromFormat(\DATE_ATOM, '2014-01-31T13:00:00+01:00'),
@@ -1149,7 +1155,10 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $id,
                     new BookingInfo(
                         'http://tickets.example.com',
-                        'Tickets on Example.com',
+                        new MultilingualString(
+                            new Language('nl'),
+                            new StringLiteral('Tickets on Example.com')
+                        ),
                         '+32 666 666',
                         'tickets@example.com',
                         null,
