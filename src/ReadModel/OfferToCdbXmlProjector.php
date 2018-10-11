@@ -384,7 +384,9 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
                 $cdbXmlDocument = $this->{$handler}($payload, $metadata);
 
-                $this->documentRepository->save($cdbXmlDocument);
+                if ($cdbXmlDocument) {
+                    $this->documentRepository->save($cdbXmlDocument);
+                }
             } catch (\Exception $exception) {
                 $this->logger->error(
                     'Handle error for uuid=' . $domainMessage->getId()
@@ -1616,6 +1618,17 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         $cdbXmlDocument = $this->documentRepository->get($imageAdded->getItemId());
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
+        if (!$offer->getDetails()->getFirst()) {
+            return;
+        }
+
+        $imageLanguage = $imageAdded->getImage()->getLanguage()->getCode();
+        $mainLanguage = $offer->getDetails()->getFirst()->getLanguage();
+
+        if ($imageLanguage !== $mainLanguage) {
+            return;
+        }
+
         $this->addImageToCdbItem($offer, $imageAdded->getImage());
 
         // Change the lastupdated attribute.
@@ -2450,7 +2463,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * Get the media for a CDB item.
      *
-     * If the items does not have any detials, one will be created.
+     * If the items does not have any details, one will be created.
      *
      * @param \CultureFeed_Cdb_Item_Base $cdbItem
      *
@@ -2459,15 +2472,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     protected function getCdbItemMedia(CultureFeed_Cdb_Item_Base $cdbItem)
     {
         $details = $cdbItem->getDetails();
-        $details->rewind();
-
-        // Get the first detail.
-        $detail = null;
-        foreach ($details as $languageDetail) {
-            if (!$detail) {
-                $detail = $languageDetail;
-            }
-        }
+        $detail = $details->getFirst();
 
         // Make sure a detail exists.
         if (empty($detail)) {

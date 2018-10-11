@@ -1423,6 +1423,39 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      * @param $id
      * @param $cdbXmlType
      */
+    public function it_ignores_images_in_translations(
+        OfferType $offerType,
+        $id,
+        $cdbXmlType
+    ) {
+        $translation = new Language('en');
+
+        $image = new Image(
+            new UUID('de305d54-75b4-431b-adb2-eb6b9e546014'),
+            new MIMEType('image/png'),
+            new Description('title'),
+            new CopyrightHolder('John Doe'),
+            Url::fromNative('http://foo.bar/media/de305d54-75b4-431b-adb2-eb6b9e546014.png'),
+            $translation
+        );
+
+        $test = $this->given($offerType)
+            ->apply(
+                new ImageAdded($id, $image)
+            )
+            ->expect($cdbXmlType . '.xml');
+
+        $this->execute($test);
+    }
+
+    /**
+     * @test
+     * @dataProvider genericOfferTestDataProvider
+     *
+     * @param OfferType $offerType
+     * @param $id
+     * @param $cdbXmlType
+     */
     public function it_projects_main_image_selected_events(
         OfferType $offerType,
         $id,
