@@ -1622,13 +1622,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             return;
         }
 
-        $imageLanguage = $imageAdded->getImage()->getLanguage()->getCode();
-        $mainLanguage = $offer->getDetails()->getFirst()->getLanguage();
-
-        if ($imageLanguage !== $mainLanguage) {
-            return;
-        }
-
         $this->addImageToCdbItem($offer, $imageAdded->getImage());
 
         // Change the lastupdated attribute.
@@ -1642,23 +1635,29 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
     /**
      * Apply the imageUpdated event to udb2.
-     * @param AbstractImageUpdated $mageUpdated
+     * @param AbstractImageUpdated $imageUpdated
      * @param MetaData $metadata
      * @return CdbXmlDocument
      */
     public function applyImageUpdated(
-        AbstractImageUpdated $mageUpdated,
+        AbstractImageUpdated $imageUpdated,
         Metadata $metadata
     ) {
-        $cdbXmlDocument = $this->documentRepository->get($mageUpdated->getItemId());
+        $cdbXmlDocument = $this->documentRepository->get($imageUpdated->getItemId());
+
+        /** @var CultureFeed_Cdb_Item_Base $offer */
         $offer = $this->parseOfferCultureFeedItem($cdbXmlDocument->getCdbXml());
 
-        $this->updateImageOnCdbItem(
-            $offer,
-            $mageUpdated->getMediaObjectId(),
-            $mageUpdated->getDescription(),
-            $mageUpdated->getCopyrightHolder()
-        );
+        $details = $offer->getDetails();
+        /** @var \CultureFeed_Cdb_Data_Detail $detail */
+        foreach ($details as $detail) {
+            foreach ($detail->getMedia() as $file) {
+                if ($this->fileMatchesMediaObject($file, $imageUpdated->getMediaObjectId())) {
+                    $file->setTitle($imageUpdated->getDescription()->toNative());
+                    $file->setCopyright($imageUpdated->getCopyrightHolder()->toNative());
+                }
+            }
+        }
 
         // Change the lastupdated attribute.
         $offer = $this->metadataCdbItemEnricher
@@ -2349,7 +2348,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         CultureFeed_Cdb_Item_Base $cdbItem,
         Image $image
     ) {
-        $oldMedia = $this->getCdbItemMedia($cdbItem);
+        $oldMedia = $this->getCdbItemMedia($cdbItem, $image->getLanguage());
         $mainImageRemoved = false;
 
         $newMedia = new CultureFeed_Cdb_Data_Media();
@@ -2382,38 +2381,13 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
         CultureFeed_Cdb_Item_Base $cdbItem,
         Image $image
     ) {
-        $media = $this->getCdbItemMedia($cdbItem);
+        $media = $this->getCdbItemMedia($cdbItem, $image->getLanguage());
         $mainImageId = $image->getMediaObjectId();
 
         foreach ($media as $file) {
             $file->setMain($this->fileMatchesMediaObject($file, $mainImageId));
         }
     }
-
-    /**
-     * Update an existing image on the cdb item.
-     *
-     * @param \CultureFeed_Cdb_Item_Base $cdbItem
-     * @param UUID $mediaObjectId
-     * @param StringLiteral $description
-     * @param StringLiteral $copyrightHolder
-     */
-    protected function updateImageOnCdbItem(
-        CultureFeed_Cdb_Item_Base $cdbItem,
-        UUID $mediaObjectId,
-        StringLiteral $description,
-        StringLiteral $copyrightHolder
-    ) {
-        $media = $this->getCdbItemMedia($cdbItem);
-
-        foreach ($media as $file) {
-            if ($this->fileMatchesMediaObject($file, $mediaObjectId)) {
-                $file->setTitle((string) $description);
-                $file->setCopyright((string) $copyrightHolder);
-            }
-        }
-    }
-
 
     /**
      * Add an image to the cdb item.
@@ -2427,7 +2401,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     ) {
         $sourceUri = (string) $image->getSourceLocation();
         $uriParts = explode('/', $sourceUri);
-        $media = $this->getCdbItemMedia($cdbItem);
+        $media = $this->getCdbItemMedia($cdbItem, $image->getLanguage());
 
         $file = new CultureFeed_Cdb_Data_File();
         $file->setHLink($sourceUri);
@@ -2469,14 +2443,24 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      *
      * @return CultureFeed_Cdb_Data_Media
      */
-    protected function getCdbItemMedia(CultureFeed_Cdb_Item_Base $cdbItem)
+    protected function getCdbItemMedia(CultureFeed_Cdb_Item_Base $cdbItem, Language $language)
     {
         $details = $cdbItem->getDetails();
-        $detail = $details->getFirst();
+        $detail = $details->getDetailByLanguage($language->getCode());
 
         // Make sure a detail exists.
         if (empty($detail)) {
             $detail = $this->createOfferItemCdbDetail($cdbItem);
+            $detail->setLanguage($language->getCode());
+
+            // Take over title from main language, if possible.
+            // The eventdetail title is a required element in cdbxml, so
+            // we can't ignore it.
+            $mainLanguageDetail = $details->getFirst();
+            if ($mainLanguageDetail) {
+                $detail->setTitle($mainLanguageDetail->getTitle());
+            }
+
             $details->add($detail);
         }
 
