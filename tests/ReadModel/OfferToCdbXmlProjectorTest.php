@@ -1423,7 +1423,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      * @param $id
      * @param $cdbXmlType
      */
-    public function it_ignores_images_in_translations(
+    public function it_puts_images_in_the_detail_with_the_same_language(
         OfferType $offerType,
         $id,
         $cdbXmlType
@@ -1443,7 +1443,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             ->apply(
                 new ImageAdded($id, $image)
             )
-            ->expect($cdbXmlType . '.xml');
+            ->expect($cdbXmlType . '-with-image-in-translation.xml');
 
         $this->execute($test);
     }
@@ -2591,12 +2591,12 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     public function genericOfferTestDataProvider()
     {
         return [
-            [
+            'offer' => [
                 OfferType::EVENT(),
                 $this->getEventId(),
                 'event',
             ],
-            [
+            'actor-place' => [
                 OfferType::PLACE(),
                 $this->getPlaceId(),
                 'actor-place',
