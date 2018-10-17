@@ -10,6 +10,8 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentMetadataFactoryInterface;
 use DateTime;
 use RuntimeException;
+use ValueObjects\Exception\InvalidNativeArgumentException;
+use ValueObjects\Identity\UUID;
 
 class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
 {
@@ -25,11 +27,21 @@ class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
         $values = [];
 
         if (!empty($offer->getCreatedBy())) {
-            $values['user_nick'] = $offer->getCreatedBy();
+            try {
+                $userId = UUID::fromNative($offer->getCreatedBy());
+                $values['user_id'] = $userId->toNative();
+            } catch (InvalidNativeArgumentException $exception){
+                $values['user_nick'] = $offer->getCreatedBy();
+            }
         }
 
         if (!empty($offer->getLastUpdatedBy())) {
-            $values['user_mail'] = $offer->getLastUpdatedBy();
+            try {
+                $userId = UUID::fromNative($offer->getLastUpdatedBy());
+                $values['user_id'] = $userId->toNative();
+            } catch (InvalidNativeArgumentException $exception){
+                $values['user_mail'] = $offer->getLastUpdatedBy();
+            }
         }
 
         if (!empty($offer->getCdbId())) {

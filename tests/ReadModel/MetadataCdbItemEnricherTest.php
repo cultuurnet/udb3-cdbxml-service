@@ -69,6 +69,35 @@ class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_adds_created_by_if_not_set_before_and_metadata_contains_user_id()
+    {
+        $userId = '20a72430-7e3e-4b75-ab59-043156b3169c';
+        $metadata = Metadata::kv('user_id', $userId);
+
+        $expectedCdbItem = clone $this->cdbItemBase;
+        $expectedCdbItem->setCreatedBy($userId);
+        $expectedCdbItem->setLastUpdatedBy($userId);
+
+        $url = 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $metadata = $this->addIdToMetadata($metadata, $url);
+        $expectedCdbItem->setExternalUrl($url);
+
+        $actualCdbItem = $this->enricher->enrich($this->cdbItemBase, $metadata);
+        $this->assertEquals($expectedCdbItem, $actualCdbItem);
+
+        // Make sure created by is never overwritten, but last updated by
+        $newUserId = 'de2f72f8-3515-4d34-986c-c2ca7c719843';
+        $metadata = Metadata::kv('user_id', $newUserId);
+        $metadata = $this->addIdToMetadata($metadata, $url);
+        $expectedCdbItem->setLastUpdatedBy($newUserId);
+
+        $actualCdbItem = $this->enricher->enrich($actualCdbItem, $metadata);
+        $this->assertEquals($expectedCdbItem, $actualCdbItem);
+    }
+
+    /**
+     * @test
+     */
     public function it_adds_last_updated_by_if_metadata_contains_user_email()
     {
         $email = 'foo@bar.com';
@@ -76,6 +105,26 @@ class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
 
         $expectedCdbItem = clone $this->cdbItemBase;
         $expectedCdbItem->setLastUpdatedBy($email);
+
+        $url = 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480';
+        $metadata = $this->addIdToMetadata($metadata, $url);
+        $expectedCdbItem->setExternalUrl($url);
+
+        $actualCdbItem = $this->enricher->enrich($this->cdbItemBase, $metadata);
+        $this->assertEquals($expectedCdbItem, $actualCdbItem);
+    }
+
+    /**
+     * @test
+     */
+    public function it_adds_last_updated_by_if_metadata_contains_user_id()
+    {
+        $userId = '20a72430-7e3e-4b75-ab59-043156b3169c';
+        $metadata = Metadata::kv('user_id', $userId);
+
+        $expectedCdbItem = clone $this->cdbItemBase;
+        $expectedCdbItem->setCreatedBy($userId);
+        $expectedCdbItem->setLastUpdatedBy($userId);
 
         $url = 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480';
         $metadata = $this->addIdToMetadata($metadata, $url);
