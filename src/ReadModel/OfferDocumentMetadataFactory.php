@@ -30,7 +30,7 @@ class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
             try {
                 $userId = UUID::fromNative($offer->getCreatedBy());
                 $values['user_id'] = $userId->toNative();
-            } catch (InvalidNativeArgumentException $exception){
+            } catch (InvalidNativeArgumentException $exception) {
                 $values['user_nick'] = $offer->getCreatedBy();
             }
         }
@@ -39,7 +39,7 @@ class OfferDocumentMetadataFactory implements DocumentMetadataFactoryInterface
             try {
                 $userId = UUID::fromNative($offer->getLastUpdatedBy());
                 $values['user_id'] = $userId->toNative();
-            } catch (InvalidNativeArgumentException $exception){
+            } catch (InvalidNativeArgumentException $exception) {
                 $values['user_mail'] = $offer->getLastUpdatedBy();
             }
         }

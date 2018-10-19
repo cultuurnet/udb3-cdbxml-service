@@ -91,7 +91,7 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
 
         if (isset($metadataArray['user_id'])) {
             $cdbItem->setCreatedBy($metadataArray['user_id']);
-        } else if (isset($metadataArray['user_nick'])) {
+        } elseif (isset($metadataArray['user_nick'])) {
             $cdbItem->setCreatedBy($metadataArray['user_nick']);
         }
     }
@@ -106,7 +106,7 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
     ): void {
         if (isset($metadataArray['user_id'])) {
             $cdbItem->setLastUpdatedBy($metadataArray['user_id']);
-        } else if (isset($metadataArray['user_email'])) {
+        } elseif (isset($metadataArray['user_email'])) {
             $cdbItem->setLastUpdatedBy($metadataArray['user_email']);
         }
     }
