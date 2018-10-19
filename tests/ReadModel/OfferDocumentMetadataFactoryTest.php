@@ -26,7 +26,7 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $cdbXmlDocument = new CdbXmlDocument(
             $id,
-            file_get_contents(__DIR__ . '/Repository/samples/' . 'event.xml')
+            file_get_contents(__DIR__ . '/Repository/samples/' . 'event-with-nick-and-email.xml')
         );
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
@@ -52,16 +52,16 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $cdbXmlDocument = new CdbXmlDocument(
             $id,
-            file_get_contents(__DIR__ . '/Repository/samples/' . 'event-with-user-id.xml')
+            file_get_contents(__DIR__ . '/Repository/samples/' . 'event.xml')
         );
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
 
         $expectedMetadata = new Metadata(
             [
-                'user_id' => '20a72430-7e3e-4b75-ab59-043156b3169c',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                'request_time' => '1460710907',
+                'request_time' => 1460710907,
             ]
         );
 
@@ -77,7 +77,7 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $cdbXmlDocument = new CdbXmlDocument(
             $id,
-            file_get_contents(__DIR__ . '/Repository/samples/' . 'place.xml')
+            file_get_contents(__DIR__ . '/Repository/samples/' . 'place-with-nick-and-email.xml')
         );
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
@@ -103,16 +103,16 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $cdbXmlDocument = new CdbXmlDocument(
             $id,
-            file_get_contents(__DIR__ . '/Repository/samples/' . 'place-with-user-id.xml')
+            file_get_contents(__DIR__ . '/Repository/samples/' . 'place.xml')
         );
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
 
         $expectedMetadata = new Metadata(
             [
-                'user_id' => '20a72430-7e3e-4b75-ab59-043156b3169c',
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
                 'id' => 'http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480',
-                'request_time' => '1460710907',
+                'request_time' => 1460710907,
             ]
         );
 
@@ -128,7 +128,7 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 
         $cdbXmlDocument = new CdbXmlDocument(
             $id,
-            file_get_contents(__DIR__ . '/Repository/samples/' . 'actor.xml')
+            file_get_contents(__DIR__ . '/Repository/samples/' . 'actor-with-nick-and-email.xml')
         );
 
         $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
@@ -139,6 +139,31 @@ class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
                 'user_mail' => 'foo@bar.com',
                 'id' => 'http://foo.be/item/ORG-123',
                 'request_time' => '1460710907',
+            ]
+        );
+
+        $this->assertEquals($expectedMetadata, $metadata);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_the_correct_metadata_when_given_an_organizer_cdbxml_with_user_id()
+    {
+        $id = 'ORG-123';
+
+        $cdbXmlDocument = new CdbXmlDocument(
+            $id,
+            file_get_contents(__DIR__ . '/Repository/samples/' . 'actor.xml')
+        );
+
+        $metadata = $this->offerDocumentMetadataFactory->createMetadata($cdbXmlDocument);
+
+        $expectedMetadata = new Metadata(
+            [
+                'user_id' => '96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa',
+                'id' => 'http://foo.be/item/ORG-123',
+                'request_time' => 1460710907,
             ]
         );
 
