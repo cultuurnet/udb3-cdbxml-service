@@ -35,13 +35,9 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
 
         $cdbItem = $this->enrichTime($cdbItem, $metadata);
 
-        if (isset($metadataArray['user_nick']) && empty($cdbItem->getCreatedBy())) {
-            $cdbItem->setCreatedBy($metadataArray['user_nick']);
-        }
+        $this->setCreatedBy($cdbItem, $metadataArray);
 
-        if (isset($metadataArray['user_email'])) {
-            $cdbItem->setLastUpdatedBy($metadataArray['user_email']);
-        }
+        $this->setLastUpdatedBy($cdbItem, $metadataArray);
 
         if (isset($metadataArray['id'])) {
             $cdbItem->setExternalUrl($metadataArray['id']);
@@ -79,5 +75,39 @@ class MetadataCdbItemEnricher implements MetadataCdbItemEnricherInterface
         }
 
         return $cdbItem;
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Base $cdbItem
+     * @param string[] $metadataArray
+     */
+    private function setCreatedBy(
+        \CultureFeed_Cdb_Item_Base $cdbItem,
+        array $metadataArray
+    ): void {
+        if (!empty($cdbItem->getCreatedBy())) {
+            return;
+        }
+
+        if (isset($metadataArray['user_id'])) {
+            $cdbItem->setCreatedBy($metadataArray['user_id']);
+        } elseif (isset($metadataArray['user_nick'])) {
+            $cdbItem->setCreatedBy($metadataArray['user_nick']);
+        }
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Base $cdbItem
+     * @param string[] $metadataArray
+     */
+    private function setLastUpdatedBy(
+        \CultureFeed_Cdb_Item_Base $cdbItem,
+        array $metadataArray
+    ): void {
+        if (isset($metadataArray['user_id'])) {
+            $cdbItem->setLastUpdatedBy($metadataArray['user_id']);
+        } elseif (isset($metadataArray['user_email'])) {
+            $cdbItem->setLastUpdatedBy($metadataArray['user_email']);
+        }
     }
 }

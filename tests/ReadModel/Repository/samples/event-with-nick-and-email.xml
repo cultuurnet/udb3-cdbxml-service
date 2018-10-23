@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event availableto="2014-02-20T16:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa" private="false" wfstatus="draft">
+  <event availableto="2014-02-20T16:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="foobar" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="foo@bar.com" private="false" wfstatus="draft">
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
@@ -32,32 +32,6 @@
     </contactinfo>
     <eventdetails>
       <eventdetail lang="nl">
-        <media>
-          <file>
-            <copyright>John Doe</copyright>
-            <filename>img_001.png</filename>
-            <filetype>png</filetype>
-            <hlink>//udb.twee/media/img_001.png</hlink>
-            <mediatype>photo</mediatype>
-            <title>title</title>
-          </file>
-          <file main="true">
-            <copyright>Noo Idee</copyright>
-            <filename>random-name.jpg</filename>
-            <filetype>jpeg</filetype>
-            <hlink>//udb.twee/media/random-name.jpg</hlink>
-            <mediatype>photo</mediatype>
-            <title>Beep Boop</title>
-          </file>
-          <file>
-            <copyright>Duck Face</copyright>
-            <filename>_MG_2001.png</filename>
-            <filetype>png</filetype>
-            <hlink>//udb.twee/media/_MG_2001.png</hlink>
-            <mediatype>photo</mediatype>
-            <title>My best selfie.</title>
-          </file>
-        </media>
         <title>Griezelfilm of horror</title>
       </eventdetail>
     </eventdetails>

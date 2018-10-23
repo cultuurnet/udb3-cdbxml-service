@@ -60,8 +60,8 @@ class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
         );
         $actor->setCategories($categoryList);
 
-        $actor->setCreatedBy('foobar');
-        $actor->setLastUpdatedBy('foo@bar.com');
+        $actor->setCreatedBy('96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa');
+        $actor->setLastUpdatedBy('96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa');
         $actor->setCreationDate('2016-04-15T11:01:47');
         $actor->setLastUpdated('2016-04-15T11:01:47');
         $actor->setExternalUrl('http://foo.be/item/ORG-123');
