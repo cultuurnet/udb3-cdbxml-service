@@ -13,6 +13,7 @@ use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
+use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\PlaceEvent;
 
@@ -54,6 +55,7 @@ class FlandersRegionOfferCdbXmlProjector extends AbstractCdbXmlProjector
             PlaceCreated::class => 'applyFlandersRegionToPlace',
             EventMajorInfoUpdated::class => 'applyFlandersRegionToEvent',
             PlaceMajorInfoUpdated::class => 'applyFlandersRegionToPlace',
+            AddressUpdated::class => 'applyFlandersRegionToPlace',
         ];
     }
 
