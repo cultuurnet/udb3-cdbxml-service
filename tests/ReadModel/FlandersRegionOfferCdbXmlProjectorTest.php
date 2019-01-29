@@ -23,6 +23,7 @@ use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
+use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\PlaceEvent;
@@ -208,6 +209,20 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     new EventType('id', 'label'),
                     $address,
                     new Calendar(CalendarType::PERMANENT())
+                ),
+                new CdbXmlDocument(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place-with-category.xml')
+                ),
+            ],
+            [
+                new CdbXmlDocument(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    file_get_contents(__DIR__ . '/Repository/samples/flanders_region/place.xml')
+                ),
+                new AddressUpdated(
+                    '34973B89-BDA3-4A79-96C7-78ACC022907D',
+                    $address
                 ),
                 new CdbXmlDocument(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
