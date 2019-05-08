@@ -1823,7 +1823,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * Set the location on the cdb event based on an eventCreated event.
+     * Set the location on the cdb event.
      *
      * @param LocationId $locationId
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
@@ -1877,7 +1877,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
             $cdbEvent->setContactInfo($eventContactInfo);
         } else {
-            if (!$cdbEvent->getLocation() || $cdbEvent->getLocation()->getAddress()->getPhysicalAddress()) {
+            if (!$cdbEvent->getLocation() || !$cdbEvent->getLocation()->getAddress()->getPhysicalAddress()) {
                 // We need to use a dummy location, otherwise the cdbxml will fail to load
                 // when processing later events.
                 $cdbEvent->setLocation($this->emptyLocation($locationId));
