@@ -1839,54 +1839,54 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
                 $placeCdbXml->getCdbXml()
             );
-            $contactInfo = $place->getContactInfo();
 
-            if (!$contactInfo) {
-                $warning = 'unable to retrieve address from location with id ' . $locationId;
-                $warning .= ', its cdbxml projection misses contact info';
-                $this->logger->warning($warning);
-
-                if (!$cdbEvent->getLocation() || !$cdbEvent->getLocation()->getAddress()->getPhysicalAddress()) {
-                    // We need to use a dummy location, otherwise the cdbxml will fail to load
-                    // when processing later events.
-                    $cdbEvent->setLocation($this->emptyLocation($locationId));
-                }
-
-                return;
-            }
-
-            $address = $contactInfo->getAddresses()[0];
-
-            $location = new CultureFeed_Cdb_Data_Location($address);
-            $location->setCdbid($place->getCdbid());
-            // The name for the location can be taken from the title of the place details.
-            $place->getDetails()->rewind();
-            $location->setLabel($place->getDetails()->current()->getTitle());
-            $cdbEvent->setLocation($location);
-
-            $eventContactInfo = $cdbEvent->getContactInfo();
-            if (is_null($eventContactInfo)) {
-                $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
-            }
-
-            for ($index = 0; $index < count($eventContactInfo->getAddresses()); $index++) {
-                $eventContactInfo->removeAddress($index);
-            }
-
-            $eventContactInfo->addAddress($address);
-
-            $cdbEvent->setContactInfo($eventContactInfo);
+            $this->setAddressFromPlace($place, $cdbEvent);
         } else {
-            if (!$cdbEvent->getLocation() || !$cdbEvent->getLocation()->getAddress()->getPhysicalAddress()) {
-                // We need to use a dummy location, otherwise the cdbxml will fail to load
-                // when processing later events.
-                $cdbEvent->setLocation($this->emptyLocation($locationId));
-            }
-
             $warning = 'Could not find location with id ' . $locationId->toNative();
             $warning .= ' when setting location on event ' . $cdbEvent->getCdbId() . '.';
             $this->logger->warning($warning);
         }
+
+        if (!$cdbEvent->getLocation() || !$cdbEvent->getLocation()->getAddress()->getPhysicalAddress()) {
+            // We need to use a dummy location, otherwise the cdbxml will fail to load
+            // when processing later events.
+            $cdbEvent->setLocation($this->emptyLocation($locationId));
+        }
+    }
+
+    private function setAddressFromPlace(CultureFeed_Cdb_Item_Actor $place, CultureFeed_Cdb_Item_Event $cdbEvent)
+    {
+        $contactInfo = $place->getContactInfo();
+
+        if (!$contactInfo) {
+            $warning = 'unable to retrieve address from location with id ' . $place->getCdbId();
+            $warning .= ', its cdbxml projection misses contact info';
+            $this->logger->warning($warning);
+
+            return;
+        }
+
+        $address = $contactInfo->getAddresses()[0];
+
+        $location = new CultureFeed_Cdb_Data_Location($address);
+        $location->setCdbid($place->getCdbid());
+        // The name for the location can be taken from the title of the place details.
+        $place->getDetails()->rewind();
+        $location->setLabel($place->getDetails()->current()->getTitle());
+        $cdbEvent->setLocation($location);
+
+        $eventContactInfo = $cdbEvent->getContactInfo();
+        if (is_null($eventContactInfo)) {
+            $eventContactInfo = new CultureFeed_Cdb_Data_ContactInfo();
+        }
+
+        for ($index = 0; $index < count($eventContactInfo->getAddresses()); $index++) {
+            $eventContactInfo->removeAddress($index);
+        }
+
+        $eventContactInfo->addAddress($address);
+
+        $cdbEvent->setContactInfo($eventContactInfo);
     }
 
     /**
