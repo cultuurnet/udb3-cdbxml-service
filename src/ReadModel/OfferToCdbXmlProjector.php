@@ -1846,9 +1846,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
                 $warning .= ', its cdbxml projection misses contact info';
                 $this->logger->warning($warning);
 
-                // We need to use a dummy location, otherwise the cdbxml will fail to load
-                // when processing later events.
-                $cdbEvent->setLocation($this->emptyLocation($locationId));
+                if (!$cdbEvent->getLocation()->getAddress()->getPhysicalAddress()) {
+                    // We need to use a dummy location, otherwise the cdbxml will fail to load
+                    // when processing later events.
+                    $cdbEvent->setLocation($this->emptyLocation($locationId));
+                }
 
                 return;
             }
@@ -1875,9 +1877,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
             $cdbEvent->setContactInfo($eventContactInfo);
         } else {
-            // We need to use a dummy location, otherwise the cdbxml will fail to load
-            // when processing later events.
-            $cdbEvent->setLocation($this->emptyLocation($locationId));
+            if (!$cdbEvent->getLocation()->getAddress()->getPhysicalAddress()) {
+                // We need to use a dummy location, otherwise the cdbxml will fail to load
+                // when processing later events.
+                $cdbEvent->setLocation($this->emptyLocation($locationId));
+            }
 
             $warning = 'Could not find location with id ' . $locationId->toNative();
             $warning .= ' when setting location on event ' . $cdbEvent->getCdbId() . '.';

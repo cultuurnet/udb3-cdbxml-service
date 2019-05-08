@@ -25,5 +25,12 @@
         <title>Griezelfilm of horror</title>
       </eventdetail>
     </eventdetails>
+    <location>
+      <address>
+        <virtual>
+          <title>Onbekend</title>
+        </virtual>
+      </address>
+    </location>
   </event>
 </cdbxml>
