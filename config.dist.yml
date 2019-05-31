@@ -1,6 +1,5 @@
 debug: false
 bootstrap: []
-consumerExecutionDelay: 4
 url: http://culudb-cdbxml.dev:8080
 amqp:
   host: example.com
