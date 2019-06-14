@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3165a771873fa16f587bf7da6609ecea",
+    "content-hash": "0bce465b5edfcd28a3876cbfea85626a",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -377,6 +377,7 @@
                 "redis",
                 "resque"
             ],
+            "abandoned": "resque/php-resque",
             "time": "2012-10-13T07:28:16+00:00"
         },
         {
@@ -595,6 +596,47 @@
             ],
             "description": "AMQP integration for Broadway library",
             "time": "2018-06-29T14:20:00+00:00"
+        },
+        {
+            "name": "cultuurnet/broadway-tools",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cultuurnet/broadway-tools.git",
+                "reference": "93d0100408a5f84e6d14645350eec1e548d30bc6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-tools/zipball/93d0100408a5f84e6d14645350eec1e548d30bc6",
+                "reference": "93d0100408a5f84e6d14645350eec1e548d30bc6",
+                "shasum": ""
+            },
+            "require": {
+                "broadway/broadway": "~0.10.",
+                "php": "~5.6 || >=7.0"
+            },
+            "require-dev": {
+                "phing/phing": "~2.11",
+                "phpunit/phpunit": "~5.7",
+                "satooshi/php-coveralls": "~0.7",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CultuurNet\\Broadway\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "time": "2018-09-28T12:46:42+00:00"
         },
         {
             "name": "cultuurnet/calendar-summary",
@@ -1066,16 +1108,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-master",
+            "version": "dev-feature/III-2944",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "8dc960f3a37601b48940d27e40088ebe40efec1f"
+                "reference": "d4975e8c811ff454e5250c7fca472cbaf2bef130"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/8dc960f3a37601b48940d27e40088ebe40efec1f",
-                "reference": "8dc960f3a37601b48940d27e40088ebe40efec1f",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/d4975e8c811ff454e5250c7fca472cbaf2bef130",
+                "reference": "d4975e8c811ff454e5250c7fca472cbaf2bef130",
                 "shasum": ""
             },
             "require": {
@@ -1085,6 +1127,7 @@
                 "chrisboulton/php-resque": "~1.2",
                 "commerceguys/intl": "^0.7.1",
                 "cultuurnet/auth": "~1.2",
+                "cultuurnet/broadway-tools": "~0.1",
                 "cultuurnet/cdb": "~2.2.0",
                 "cultuurnet/clock": "~0.1",
                 "cultuurnet/culturefeed-php": "~1.7",
@@ -1096,12 +1139,14 @@
                 "cultuurnet/valueobjects": "~3.0",
                 "danielstjules/stringy": "~1.9",
                 "doctrine/dbal": "~2.4",
+                "ext-json": "*",
+                "ext-pdo": "*",
                 "ext-tidy": "*",
                 "guzzlehttp/psr7": "~1.2.3",
                 "justinrainbow/json-schema": "1.4.3",
                 "league/flysystem": "~1.0",
                 "league/period": "^3.3",
-                "php": "~5.6 || >=7.0",
+                "php": ">=7.1",
                 "php-http/httplug": "^1.0",
                 "predis/predis": "~1.0",
                 "psr/log": "~1.0",
@@ -1142,7 +1187,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2018-09-10T13:43:51+00:00"
+            "time": "2019-06-14T08:59:08+00:00"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -5439,6 +5484,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
@@ -6306,9 +6352,18 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "0.1",
+            "alias_normalized": "0.1.0.0",
+            "version": "dev-feature/III-2944",
+            "package": "cultuurnet/udb3"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/udb3": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
