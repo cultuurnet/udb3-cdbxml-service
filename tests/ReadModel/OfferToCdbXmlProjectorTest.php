@@ -62,11 +62,10 @@ use CultuurNet\UDB3\Event\Events\TypicalAgeRangeDeleted;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Event\ValueObjects\Audience;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
+use CultuurNet\UDB3\Event\ValueObjects\LocationId;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
-use CultuurNet\UDB3\Location\Location;
-use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Media\Properties\CopyrightHolder;
 use CultuurNet\UDB3\Media\Properties\Description;
@@ -223,18 +222,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $timestamps = $this->getTimestamps();
 
-        $address = new Address(
-            new Street('Bondgenotenlaan 1'),
-            new PostalCode('3000'),
-            new Locality('Leuven'),
-            Country::fromNative('BE')
-        );
-
-        $location = new Location(
-            $this->getPlaceId(),
-            new StringLiteral('Bibberburcht'),
-            $address
-        );
+        $location = new LocationId($this->getPlaceId());
 
         return [
             [
@@ -306,25 +294,19 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $placeId = UUID::generateAsString();
         $unknownPlaceId = UUID::generateAsString();
 
-        $address = new Address(
-            new Street('Bondgenotenlaan 1'),
-            new PostalCode('3000'),
-            new Locality('Leuven'),
-            Country::fromNative('BE')
-        );
-
-        $location = new Location(
-            $unknownPlaceId,
-            new StringLiteral('Bibberburcht'),
-            $address
-        );
+        $location = new LocationId($unknownPlaceId);
 
         $placeCreated = new PlaceCreated(
             $placeId,
             new Language('nl'),
             new Title('Bibberburcht'),
             new EventType('0.50.4.0.0', 'concert'),
-            $address,
+            new Address(
+                new Street('Bondgenotenlaan 1'),
+                new PostalCode('3000'),
+                new Locality('Leuven'),
+                Country::fromNative('BE')
+            ),
             new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage($id, $placeCreated, $this->metadata);
@@ -562,16 +544,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $this->getEventId(),
                     new Title("Griezelfilm of horror"),
                     new EventType('0.50.4.0.0', 'concert'),
-                    new Location(
-                        $this->getPlaceId(),
-                        new StringLiteral('Bibberburcht'),
-                        new Address(
-                            new Street('Bondgenotenlaan 1'),
-                            new PostalCode('3000'),
-                            new Locality('Leuven'),
-                            Country::fromNative('BE')
-                        )
-                    ),
+                    new LocationId($this->getPlaceId()),
                     new Calendar(CalendarType::PERMANENT()),
                     null
                 )
@@ -599,16 +572,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $this->getEventId(),
                     new Title("Griezelfilm of horror"),
                     new EventType('0.50.4.0.0', 'concert'),
-                    new Location(
-                        $this->getPlaceId(),
-                        new StringLiteral('Bibberburcht'),
-                        new Address(
-                            new Street('Bondgenotenlaan 1'),
-                            new PostalCode('3000'),
-                            new Locality('Leuven'),
-                            Country::fromNative('BE')
-                        )
-                    ),
+                    new LocationId($this->getPlaceId()),
                     new Calendar(CalendarType::PERMANENT()),
                     new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
@@ -1872,16 +1836,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $this->getEventId(),
                     new Title("Nieuwe titel"),
                     new EventType('0.50.4.0.0', 'concert'),
-                    new Location(
-                        $this->getPlaceId(),
-                        new StringLiteral('Bibberburcht'),
-                        new Address(
-                            new Street('Bondgenotenlaan 1'),
-                            new PostalCode('3000'),
-                            new Locality('Leuven'),
-                            Country::fromNative('BE')
-                        )
-                    ),
+                    new LocationId($this->getPlaceId()),
                     new Calendar(CalendarType::PERMANENT()),
                     new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
@@ -1892,16 +1847,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $this->getEventId(),
                     new Title("Nieuwe titel"),
                     new EventType('0.50.4.0.0', 'concert'),
-                    new Location(
-                        $unknownPlaceID,
-                        new StringLiteral('Somewhere over the rainbow'),
-                        new Address(
-                            new Street('Kerkstraat 69'),
-                            new PostalCode('3000'),
-                            new Locality('Leuven'),
-                            Country::fromNative('BE')
-                        )
-                    ),
+                    new LocationId($unknownPlaceID),
                     new Calendar(CalendarType::PERMANENT()),
                     new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
@@ -1938,16 +1884,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
                     $this->getEventId(),
                     new Title("Nieuwe titel"),
                     new EventType('0.50.4.0.0', 'concert'),
-                    new Location(
-                        $this->getKerkPlaceId(),
-                        new StringLiteral('Somewhere over the rainbow'),
-                        new Address(
-                            new Street('Kerkstraat 69'),
-                            new PostalCode('1000'),
-                            new Locality('Brussel'),
-                            Country::fromNative('DE')
-                        )
-                    ),
+                    new LocationId($this->getKerkPlaceId()),
                     new Calendar(CalendarType::PERMANENT()),
                     new Theme('1.8.2.0.0', 'Jazz en blues')
                 )
@@ -2006,16 +1943,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title("Nieuwe titel"),
             new EventType("0.50.4.0.0", "concert"),
-            new Location(
-                $this->getPlaceId(),
-                new StringLiteral('Bibberburcht'),
-                new Address(
-                    new Street('Bondgenotenlaan 1'),
-                    new PostalCode('3000'),
-                    new Locality('Leuven'),
-                    Country::fromNative('BE')
-                )
-            ),
+            new LocationId($this->getPlaceId()),
             new Calendar(CalendarType::PERMANENT()),
             new Theme('1.8.2.0.0', 'Jazz en blues')
         );
@@ -2049,16 +1977,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title("Nieuwe titel"),
             new EventType("id", "label"),
-            new Location(
-                $placeId,
-                new StringLiteral('Bibberburcht'),
-                new Address(
-                    new Street('Bondgenotenlaan 1'),
-                    new PostalCode('3000'),
-                    new Locality('Leuven'),
-                    Country::fromNative('BE')
-                )
-            ),
+            new LocationId($placeId),
             new Calendar(CalendarType::PERMANENT())
         );
         $domainMessage = $this->createDomainMessage(
@@ -2344,16 +2263,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             $id,
             new Title("Nieuwe titel"),
             new EventType("0.50.4.0.0", "concert"),
-            new Location(
-                $this->getPlaceId(),
-                new StringLiteral('Bibberburcht'),
-                new Address(
-                    new Street('Bondgenotenlaan 1'),
-                    new PostalCode('3000'),
-                    new Locality('Leuven'),
-                    Country::fromNative('BE')
-                )
-            ),
+            new LocationId($this->getPlaceId()),
             new Calendar(
                 CalendarType::PERMANENT(),
                 null,
@@ -2693,11 +2603,7 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             Country::fromNative('BE')
         );
 
-        $location = new Location(
-            $this->getPlaceId(),
-            new StringLiteral('Bibberburcht'),
-            $address
-        );
+        $location = new LocationId($this->getPlaceId());
 
         $placeCreated = new PlaceCreated(
             $this->getPlaceId(),

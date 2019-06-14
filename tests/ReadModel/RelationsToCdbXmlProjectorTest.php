@@ -25,8 +25,8 @@ use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Event\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Event\ValueObjects\LocationId;
 use CultuurNet\UDB3\Language;
-use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Offer\OfferType;
@@ -384,16 +384,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
             new Language('nl'),
             new Title('Griezelfilm of horror'),
             new EventType('0.50.6.0.0', 'film'),
-            new Location(
-                '34973B89-BDA3-4A79-96C7-78ACC022907D',
-                new StringLiteral('Bibberburcht'),
-                new Address(
-                    new Street('Bondgenotenlaan 1'),
-                    new PostalCode('3000'),
-                    new Locality('Leuven'),
-                    Country::fromNative('BE')
-                )
-            ),
+            new LocationId('34973B89-BDA3-4A79-96C7-78ACC022907D'),
             new Calendar(
                 CalendarType::MULTIPLE(),
                 \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
