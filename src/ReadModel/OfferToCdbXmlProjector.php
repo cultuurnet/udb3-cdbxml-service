@@ -74,6 +74,7 @@ use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsDuplicate as EventFlaggedAs
 use CultuurNet\UDB3\Event\Events\Moderation\FlaggedAsInappropriate as EventFlaggedAsInappropriate;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated as EventPriceInfoUpdated;
 use CultuurNet\UDB3\Event\Events\ThemeUpdated as EventThemeUpdated;
+use CultuurNet\UDB3\Event\ValueObjects\LocationId;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Offer\Events\AbstractFacilitiesUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractThemeUpdated;
@@ -90,7 +91,6 @@ use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
-use CultuurNet\UDB3\Location\LocationId;
 use CultuurNet\UDB3\Media\Image;
 use CultuurNet\UDB3\Offer\AvailableTo;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
@@ -587,7 +587,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         // Set location and calendar info.
         $this->setLocation(
-            new LocationId($eventMajorInfoUpdated->getLocation()->getCdbid()),
+            $eventMajorInfoUpdated->getLocation(),
             $event
         );
         $this->setCalendar($eventMajorInfoUpdated->getCalendar(), $event);
@@ -745,7 +745,7 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
 
         // Set location and calendar info.
         $this->setLocation(
-            new LocationId($eventCreated->getLocation()->getCdbid()),
+            $eventCreated->getLocation(),
             $event
         );
         $this->setCalendar($eventCreated->getCalendar(), $event);

@@ -20,8 +20,8 @@ use CultuurNet\UDB3\Event\EventEvent;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\MajorInfoUpdated as EventMajorInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Event\ValueObjects\LocationId;
 use CultuurNet\UDB3\Language;
-use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\Place\Events\AddressUpdated;
 use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
@@ -131,18 +131,7 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      */
     public function eventDataProvider()
     {
-        $address = new Address(
-            new Street('Bondgenotenlaan 1'),
-            new PostalCode('3000'),
-            new Locality('Leuven'),
-            Country::fromNative('BE')
-        );
-
-        $location = new Location(
-            UUID::generateAsString(),
-            new StringLiteral('Bibberburcht'),
-            $address
-        );
+        $location = new LocationId(UUID::generateAsString());
 
         return [
             [
@@ -190,7 +179,12 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     new Language('nl'),
                     new Title('title'),
                     new EventType('id', 'label'),
-                    $address,
+                    new Address(
+                        new Street('Bondgenotenlaan 1'),
+                        new PostalCode('3000'),
+                        new Locality('Leuven'),
+                        Country::fromNative('BE')
+                    ),
                     new Calendar(CalendarType::PERMANENT())
                 ),
                 new CdbXmlDocument(
@@ -207,7 +201,12 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
                     new Title('title'),
                     new EventType('id', 'label'),
-                    $address,
+                    new Address(
+                        new Street('Bondgenotenlaan 1'),
+                        new PostalCode('3000'),
+                        new Locality('Leuven'),
+                        Country::fromNative('BE')
+                    ),
                     new Calendar(CalendarType::PERMANENT())
                 ),
                 new CdbXmlDocument(
@@ -222,7 +221,12 @@ class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
                 ),
                 new AddressUpdated(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
-                    $address
+                    new Address(
+                        new Street('Bondgenotenlaan 1'),
+                        new PostalCode('3000'),
+                        new Locality('Leuven'),
+                        Country::fromNative('BE')
+                    )
                 ),
                 new CdbXmlDocument(
                     '34973B89-BDA3-4A79-96C7-78ACC022907D',
