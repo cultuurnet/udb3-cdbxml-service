@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0bce465b5edfcd28a3876cbfea85626a",
+    "content-hash": "3165a771873fa16f587bf7da6609ecea",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1108,16 +1108,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/III-2944",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "d4975e8c811ff454e5250c7fca472cbaf2bef130"
+                "reference": "83f4d7d609bc59e127e1e25c7f55ec33ad161d13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/d4975e8c811ff454e5250c7fca472cbaf2bef130",
-                "reference": "d4975e8c811ff454e5250c7fca472cbaf2bef130",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/83f4d7d609bc59e127e1e25c7f55ec33ad161d13",
+                "reference": "83f4d7d609bc59e127e1e25c7f55ec33ad161d13",
                 "shasum": ""
             },
             "require": {
@@ -1157,7 +1157,7 @@
                 "escapestudios/symfony2-coding-standard": "~2.0",
                 "mikey179/vfsstream": "~1.6.2",
                 "phing/phing": "~2.10",
-                "phpunit/phpunit": "~5.7",
+                "phpunit/phpunit": "^7.5",
                 "satooshi/php-coveralls": "~0.7",
                 "squizlabs/php_codesniffer": "2.6.1"
             },
@@ -1187,7 +1187,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2019-06-14T08:59:08+00:00"
+            "time": "2019-07-31T14:14:53+00:00"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -6352,18 +6352,9 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-2944",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
