@@ -16,8 +16,9 @@ use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
 use ValueObjects\Identity\UUID;
+use PHPUnit\Framework\TestCase;
 
-class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
+class EventBusCdbXmlPublisherTest extends TestCase
 {
 
     /**

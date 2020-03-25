@@ -11,8 +11,9 @@ use CultuurNet\UDB3\CdbXmlService\Samples\DummyAddedEvent;
 use CultuurNet\UDB3\CdbXmlService\Samples\DummyCreatedEvent;
 use CultuurNet\UDB3\CdbXmlService\Samples\DummyRemovedEvent;
 use ValueObjects\Identity\UUID;
+use PHPUnit\Framework\TestCase;
 
-class EventBusRelayTest extends \PHPUnit_Framework_TestCase
+class EventBusRelayTest extends TestCase
 {
     /**
      * @var UUID

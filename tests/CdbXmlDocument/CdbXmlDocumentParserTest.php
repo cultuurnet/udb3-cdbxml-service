@@ -1,8 +1,9 @@
 <?php
 
 namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument;
+use PHPUnit\Framework\TestCase;
 
-class CdbXmlDocumentParserTest extends \PHPUnit_Framework_TestCase
+class CdbXmlDocumentParserTest extends TestCase
 {
     /**
      * @var CdbXmlDocumentParser
@@ -37,7 +38,7 @@ class CdbXmlDocumentParserTest extends \PHPUnit_Framework_TestCase
         $xml = '<cdbxml></invalid>';
         $cdbXmlDocument = new CdbXmlDocument(1, $xml);
 
-        $this->setExpectedException(
+        $this->expectException(
             \InvalidArgumentException::class,
             'CdbXml could not be parsed.'
         );

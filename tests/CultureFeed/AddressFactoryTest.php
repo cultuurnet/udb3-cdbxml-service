@@ -7,8 +7,9 @@ use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
 use CultuurNet\UDB3\Address\Street;
 use ValueObjects\Geography\Country;
+use PHPUnit\Framework\TestCase;
 
-class AddressFactoryTest extends \PHPUnit_Framework_TestCase
+class AddressFactoryTest extends TestCase
 {
     /**
      * @var AddressFactory

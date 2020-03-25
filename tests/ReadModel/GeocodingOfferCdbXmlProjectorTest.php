@@ -16,8 +16,9 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInte
 use CultuurNet\UDB3\Event\Events\GeoCoordinatesUpdated as EventGeoCoordinatesUpdated;
 use CultuurNet\UDB3\Place\Events\GeoCoordinatesUpdated as PlaceGeoCoordinatesUpdated;
 use Doctrine\Common\Cache\ArrayCache;
+use PHPUnit\Framework\TestCase;
 
-class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
+class GeocodingOfferCdbXmlProjectorTest extends TestCase
 {
     /**
      * @var DocumentRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject

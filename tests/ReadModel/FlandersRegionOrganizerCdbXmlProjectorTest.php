@@ -17,11 +17,11 @@ use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
 
-class FlandersRegionOrganizerCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
+class FlandersRegionOrganizerCdbXmlProjectorTest extends TestCase
 {
     /**
      * @var ArrayCache

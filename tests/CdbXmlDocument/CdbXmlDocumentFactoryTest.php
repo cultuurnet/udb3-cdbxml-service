@@ -1,8 +1,9 @@
 <?php
 
 namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument;
+use PHPUnit\Framework\TestCase;
 
-class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
+class CdbXmlDocumentFactoryTest extends TestCase
 {
     /**
      * @var CdbXmlDocumentFactory

@@ -1,8 +1,9 @@
 <?php
 
 namespace CultuurNet\UDB3\CdbXmlService\Events;
+use PHPUnit\Framework\TestCase;
 
-class AbstractOfferProjectedToCdbXmlTest extends \PHPUnit_Framework_TestCase
+class AbstractOfferProjectedToCdbXmlTest extends TestCase
 {
     /**
      * @var string

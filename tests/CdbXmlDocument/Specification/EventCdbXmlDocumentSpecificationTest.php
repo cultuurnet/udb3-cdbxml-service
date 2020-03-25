@@ -4,8 +4,9 @@ namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification;
 
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
+use PHPUnit\Framework\TestCase;
 
-class EventCdbXmlDocumentSpecificationTest extends \PHPUnit_Framework_TestCase
+class EventCdbXmlDocumentSpecificationTest extends TestCase
 {
     /**
      * @var CdbXmlDocumentParser

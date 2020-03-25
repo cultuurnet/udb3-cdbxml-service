@@ -6,8 +6,9 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
+use PHPUnit\Framework\TestCase;
 
-class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
+class OfferCdbXmlControllerTest extends TestCase
 {
     /**
      * @var CdbXmlDocumentController

@@ -4,11 +4,12 @@ namespace CultuurNet\UDB3\CdbXmlService\CalendarSummary;
 
 use CultuurNet\CalendarSummary\FormatterException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestMatcherInterface;
 
-class CalendarSummaryControllerTest extends \PHPUnit_Framework_TestCase
+class CalendarSummaryControllerTest extends TestCase
 {
     /**
      * @var CalendarSummaryRepositoryInterface|PHPUnit_Framework_MockObject_MockObject

@@ -1,8 +1,9 @@
 <?php
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
+use PHPUnit\Framework\TestCase;
 
-class CdbXmlDateFormatterTest extends \PHPUnit_Framework_TestCase
+class CdbXmlDateFormatterTest extends TestCase
 {
     /**
      * @var CdbXmlDateFormatter
@@ -32,7 +33,7 @@ class CdbXmlDateFormatterTest extends \PHPUnit_Framework_TestCase
      */
     public function it_throws_an_exception_if_the_timestamp_is_not_an_int()
     {
-        $this->setExpectedException(
+        $this->expectException(
             \InvalidArgumentException::class,
             'Timestamp should be of type int, string given.'
         );

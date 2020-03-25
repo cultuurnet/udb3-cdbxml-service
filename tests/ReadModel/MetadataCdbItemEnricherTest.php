@@ -4,8 +4,9 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
-class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
+class MetadataCdbItemEnricherTest extends TestCase
 {
     /**
      * @var \CultureFeed_Cdb_Item_Base|\PHPUnit_Framework_MockObject_MockObject

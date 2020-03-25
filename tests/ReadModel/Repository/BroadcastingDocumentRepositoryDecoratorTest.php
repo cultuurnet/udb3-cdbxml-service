@@ -5,8 +5,9 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferDocumentMetadataFactory;
+use PHPUnit\Framework\TestCase;
 
-class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_TestCase
+class BroadcastingDocumentRepositoryDecoratorTest extends TestCase
 {
     /**
      * @var EventBusInterface|\PHPUnit_Framework_MockObject_MockObject

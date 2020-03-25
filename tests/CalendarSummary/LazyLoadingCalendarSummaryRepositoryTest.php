@@ -5,8 +5,9 @@ namespace CultuurNet\UDB3\CdbXmlService\CalendarSummary;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\TestCase;
 
-class LazyLoadingCalendarSummaryRepositoryTest extends \PHPUnit_Framework_TestCase
+class LazyLoadingCalendarSummaryRepositoryTest extends TestCase
 {
     /**
      * @var DocumentRepositoryInterface|PHPUnit_Framework_MockObject_MockObject

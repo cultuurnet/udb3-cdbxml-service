@@ -3,8 +3,9 @@
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification;
 
 use CultureFeed_Cdb_Data_Category;
+use PHPUnit\Framework\TestCase;
 
-class IDTest extends \PHPUnit_Framework_TestCase
+class IDTest extends TestCase
 {
     /**
      * @var CultureFeed_Cdb_Data_Category

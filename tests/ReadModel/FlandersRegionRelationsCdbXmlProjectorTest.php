@@ -16,12 +16,12 @@ use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Offer\OfferType;
 use Doctrine\Common\Cache\ArrayCache;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Web\Url;
 
-class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
+class FlandersRegionRelationsCdbXmlProjectorTest extends TestCase
 {
     /**
      * @var ArrayCache

@@ -3,9 +3,9 @@
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed;
 
 use CultureFeed_Cdb_Data_Category;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FlandersRegionCategoryServiceTest extends PHPUnit_Framework_TestCase
+class FlandersRegionCategoryServiceTest extends TestCase
 {
     /**
      * @var FlandersRegionCategoryService

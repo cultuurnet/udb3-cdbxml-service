@@ -29,14 +29,14 @@ use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Place\PlaceEvent;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Identity\UUID;
 use ValueObjects\StringLiteral\StringLiteral;
 
-class FlandersRegionOfferCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
+class FlandersRegionOfferCdbXmlProjectorTest extends TestCase
 {
     /**
      * @var ArrayCache

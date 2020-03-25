@@ -5,8 +5,9 @@ namespace CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification;
 use CultureFeed_Cdb_Data_Category;
 use PHPUnit_Framework_Error;
 use TypeError;
+use PHPUnit\Framework\TestCase;
 
-class AnyOffTest extends \PHPUnit_Framework_TestCase
+class AnyOffTest extends TestCase
 {
     /**
      * @var CategorySpecificationInterface
