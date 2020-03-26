@@ -13,6 +13,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
+use CultuurNet\UDB3\Organizer\Events\AddressRemoved;
 use CultuurNet\UDB3\Organizer\Events\AddressUpdated;
 use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
@@ -53,14 +54,14 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         date_default_timezone_set('Europe/Brussels');
 
         $this->projector = (
-            new OrganizerToActorCdbXmlProjector(
-                $this->repository,
-                new CdbXmlDocumentFactory('3.3'),
-                new AddressFactory(),
-                new MetadataCdbItemEnricher(
-                    new CdbXmlDateFormatter()
-                )
+        new OrganizerToActorCdbXmlProjector(
+            $this->repository,
+            new CdbXmlDocumentFactory('3.3'),
+            new AddressFactory(),
+            new MetadataCdbItemEnricher(
+                new CdbXmlDateFormatter()
             )
+        )
         );
 
         $this->metadata = new Metadata(
@@ -199,6 +200,36 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('actor-with-updated-address.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+
+    /**
+     * @test
+     */
+    public function it_projects_address_updated_removed()
+    {
+        $id = 'ORG-123';
+
+        $event = new AddressRemoved(
+            $id
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->updateMetadata);
+
+        $initialDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-contact-info.xml')
+        );
+        $this->repository->save($initialDocument);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-address-removed.xml')
         );
 
         $this->projector->handle($domainMessage);
