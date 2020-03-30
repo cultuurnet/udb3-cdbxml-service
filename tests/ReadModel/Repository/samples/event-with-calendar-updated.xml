@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdbxml xmlns="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL/CdbXSD.xsd">
-  <event availableto="2020-02-10T16:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa" private="false" wfstatus="draft">
+  <event availableto="2100-02-10T16:00:00" cdbid="404EE8DE-E828-9C07-FE7D12DC4EB24480" createdby="96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa" creationdate="2016-04-15T11:01:47" externalurl="http://foo.be/item/404EE8DE-E828-9C07-FE7D12DC4EB24480" lastupdated="2016-04-15T11:01:47" lastupdatedby="96fd6c13-eaab-4dd1-bb6a-1c483d5e40aa" private="false" wfstatus="draft">
     <categories>
       <category catid="0.50.6.0.0" type="eventtype">film</category>
       <category catid="1.7.6.0.0" type="theme">Griezelfilm of horror</category>
@@ -8,64 +8,64 @@
     <calendar>
       <timestamps>
         <timestamp>
-          <date>2020-01-26</date>
+          <date>2100-01-26</date>
           <timestart>09:00:01</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-01-27</date>
+          <date>2100-01-27</date>
           <timestart>00:00:01</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-01-28</date>
+          <date>2100-01-28</date>
           <timestart>00:00:01</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-01-29</date>
+          <date>2100-01-29</date>
           <timestart>00:00:01</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-01-30</date>
+          <date>2100-01-30</date>
           <timestart>00:00:01</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-01-31</date>
+          <date>2100-01-31</date>
           <timestart>00:00:01</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-01</date>
+          <date>2100-02-01</date>
           <timestart>00:00:01</timestart>
           <timeend>16:00:00</timeend>
         </timestamp>
         <timestamp>
-          <date>2020-02-03</date>
+          <date>2100-02-03</date>
           <timestart>09:00:02</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-04</date>
+          <date>2100-02-04</date>
           <timestart>00:00:02</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-05</date>
+          <date>2100-02-05</date>
           <timestart>00:00:02</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-06</date>
+          <date>2100-02-06</date>
           <timestart>00:00:02</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-07</date>
+          <date>2100-02-07</date>
           <timestart>00:00:02</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-08</date>
+          <date>2100-02-08</date>
           <timestart>00:00:02</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-09</date>
+          <date>2100-02-09</date>
           <timestart>00:00:02</timestart>
         </timestamp>
         <timestamp>
-          <date>2020-02-10</date>
+          <date>2100-02-10</date>
           <timestart>00:00:02</timestart>
           <timeend>16:00:00</timeend>
         </timestamp>
@@ -84,7 +84,7 @@
     </contactinfo>
     <eventdetails>
       <eventdetail lang="nl">
-        <calendarsummary>Van zo 26 januari 2020 09:00 tot za 1 februari 2020 16:00 Van ma 3 februari 2020 09:00 tot ma 10 februari 2020 16:00</calendarsummary>
+        <calendarsummary>Van di 26 januari 2100 09:00 tot ma 1 februari 2100 16:00 Van wo 3 februari 2100 09:00 tot wo 10 februari 2100 16:00</calendarsummary>
         <title>Griezelfilm of horror</title>
       </eventdetail>
     </eventdetails>
