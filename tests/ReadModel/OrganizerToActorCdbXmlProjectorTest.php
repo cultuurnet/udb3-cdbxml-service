@@ -54,14 +54,14 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         date_default_timezone_set('Europe/Brussels');
 
         $this->projector = (
-        new OrganizerToActorCdbXmlProjector(
-            $this->repository,
-            new CdbXmlDocumentFactory('3.3'),
-            new AddressFactory(),
-            new MetadataCdbItemEnricher(
-                new CdbXmlDateFormatter()
+            new OrganizerToActorCdbXmlProjector(
+                $this->repository,
+                new CdbXmlDocumentFactory('3.3'),
+                new AddressFactory(),
+                new MetadataCdbItemEnricher(
+                    new CdbXmlDateFormatter()
+                )
             )
-        )
         );
 
         $this->metadata = new Metadata(
