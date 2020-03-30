@@ -2085,11 +2085,11 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private function getMultipleCalendar()
     {
-        $startDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-01-26T09:00:00+01:00');
-        $endDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-01T16:00:00+01:00');
+        $startDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2100-01-26T09:00:00+01:00');
+        $endDatePeriod1 = \DateTime::createFromFormat(\DateTime::ATOM, '2100-02-01T16:00:00+01:00');
 
-        $startDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-03T09:00:00+01:00');
-        $endDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2020-02-10T16:00:00+01:00');
+        $startDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2100-02-03T09:00:00+01:00');
+        $endDatePeriod2 = \DateTime::createFromFormat(\DateTime::ATOM, '2100-02-10T16:00:00+01:00');
 
         $timeStamps = [
             new Timestamp(
