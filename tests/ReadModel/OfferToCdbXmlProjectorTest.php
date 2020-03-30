@@ -95,6 +95,7 @@ use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\ValueObject\MultilingualString;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use ValueObjects\DateTime\Hour;
 use ValueObjects\DateTime\Minute;
@@ -123,11 +124,11 @@ class OfferToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private $actorRepository;
 
     /**
-     * @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var LoggerInterface|MockObject
      */
     private $logger;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');

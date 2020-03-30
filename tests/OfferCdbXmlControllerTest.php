@@ -5,9 +5,11 @@ namespace CultuurNet\UDB3\CdbXmlService;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
+class OfferCdbXmlControllerTest extends TestCase
 {
     /**
      * @var CdbXmlDocumentController
@@ -15,11 +17,11 @@ class OfferCdbXmlControllerTest extends \PHPUnit_Framework_TestCase
     protected $controller;
 
     /**
-     * @var DocumentRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DocumentRepositoryInterface|MockObject
      */
     protected $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->createMock(DocumentRepositoryInterface::class);
         $this->controller = new CdbXmlDocumentController($this->repository);

@@ -3,8 +3,9 @@
 namespace CultuurNet\UDB3\CdbXmlService\Events;
 
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
+use PHPUnit\Framework\TestCase;
 
-class EnrichedOrganizerUpdatedTest extends \PHPUnit_Framework_TestCase
+class EnrichedOrganizerUpdatedTest extends TestCase
 {
     /**
      * @test

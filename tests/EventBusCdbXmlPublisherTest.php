@@ -15,13 +15,15 @@ use CultuurNet\UDB3\CdbXmlService\Events\EventProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\OrganizerProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactory;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ValueObjects\Identity\UUID;
 
-class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
+class EventBusCdbXmlPublisherTest extends TestCase
 {
 
     /**
-     * @var EventBusInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var EventBusInterface|MockObject
      */
     protected $eventBus;
 
@@ -40,7 +42,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
      */
     private $regex;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->eventBus = $this->createMock(EventBusInterface::class);
 

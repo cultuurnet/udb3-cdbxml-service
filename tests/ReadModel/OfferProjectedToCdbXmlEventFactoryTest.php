@@ -7,11 +7,13 @@ use CultuurNet\UDB3\CdbXmlService\Events\EventProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\Iri\IriGeneratorInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
+class OfferProjectedToCdbXmlEventFactoryTest extends TestCase
 {
     /**
-     * @var IriGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var IriGeneratorInterface|MockObject
      */
     private $iriGenerator;
 
@@ -25,7 +27,7 @@ class OfferProjectedToCdbXmlEventFactoryTest extends \PHPUnit_Framework_TestCase
      */
     private $cdbXmlDocumentParser;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->iriGenerator = $this->createMock(IriGeneratorInterface::class);
 

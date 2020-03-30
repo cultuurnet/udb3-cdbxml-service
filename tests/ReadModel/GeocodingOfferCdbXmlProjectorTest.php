@@ -16,11 +16,13 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\OfferRelationsServiceInte
 use CultuurNet\UDB3\Event\Events\GeoCoordinatesUpdated as EventGeoCoordinatesUpdated;
 use CultuurNet\UDB3\Place\Events\GeoCoordinatesUpdated as PlaceGeoCoordinatesUpdated;
 use Doctrine\Common\Cache\ArrayCache;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
+class GeocodingOfferCdbXmlProjectorTest extends TestCase
 {
     /**
-     * @var DocumentRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DocumentRepositoryInterface|MockObject
      */
     private $cdbXmlDocumentRepository;
 
@@ -30,7 +32,7 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
     private $cdbXmlDocumentFactory;
 
     /**
-     * @var OfferRelationsServiceInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var OfferRelationsServiceInterface|MockObject
      */
     private $offerRelationsService;
 
@@ -39,7 +41,7 @@ class GeocodingOfferCdbXmlProjectorTest extends \PHPUnit_Framework_TestCase
      */
     private $projector;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->cdbXmlDocumentRepository = new CacheDocumentRepository(new ArrayCache());
         $this->cdbXmlDocumentFactory = new CdbXmlDocumentFactory('3.3');

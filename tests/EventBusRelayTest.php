@@ -10,9 +10,11 @@ use CultuurNet\UDB3\CdbXmlService\Samples\AbstractDummyEvent;
 use CultuurNet\UDB3\CdbXmlService\Samples\DummyAddedEvent;
 use CultuurNet\UDB3\CdbXmlService\Samples\DummyCreatedEvent;
 use CultuurNet\UDB3\CdbXmlService\Samples\DummyRemovedEvent;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ValueObjects\Identity\UUID;
 
-class EventBusRelayTest extends \PHPUnit_Framework_TestCase
+class EventBusRelayTest extends TestCase
 {
     /**
      * @var UUID
@@ -20,7 +22,7 @@ class EventBusRelayTest extends \PHPUnit_Framework_TestCase
     private $uuid;
 
     /**
-     * @var EventBusInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var EventBusInterface|MockObject
      */
     private $eventBus;
 
@@ -29,7 +31,7 @@ class EventBusRelayTest extends \PHPUnit_Framework_TestCase
      */
     private $eventBusRelay;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->uuid = new UUID();
 

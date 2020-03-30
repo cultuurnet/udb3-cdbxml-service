@@ -3,10 +3,12 @@
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification;
 
 use CultureFeed_Cdb_Data_Category;
-use PHPUnit_Framework_Error;
+use PHPUnit\Framework\Error\Error;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use TypeError;
 
-class AnyOffTest extends \PHPUnit_Framework_TestCase
+class AnyOffTest extends TestCase
 {
     /**
      * @var CategorySpecificationInterface
@@ -23,7 +25,7 @@ class AnyOffTest extends \PHPUnit_Framework_TestCase
      */
     private $anyOff;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->falseCategorySpecification = $this->createCategorySpecification(false);
 
@@ -69,7 +71,7 @@ class AnyOffTest extends \PHPUnit_Framework_TestCase
      */
     private function createCategorySpecification($result)
     {
-        /** @var CategorySpecificationInterface|\PHPUnit_Framework_MockObject_MockObject $categorySpecification */
+        /** @var CategorySpecificationInterface|MockObject $categorySpecification */
         $categorySpecification = $this->createMock(
             CategorySpecificationInterface::class
         );
@@ -86,7 +88,7 @@ class AnyOffTest extends \PHPUnit_Framework_TestCase
         if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
             $this->expectException(TypeError::class);
         } else {
-            $this->expectException(PHPUnit_Framework_Error::class);
+            $this->expectException(Error::class);
         }
     }
 }

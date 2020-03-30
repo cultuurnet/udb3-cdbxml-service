@@ -3,8 +3,9 @@
 namespace CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification;
 
 use CultureFeed_Cdb_Data_Category;
+use PHPUnit\Framework\TestCase;
 
-class NotTest extends \PHPUnit_Framework_TestCase
+class NotTest extends TestCase
 {
     /**
      * @var CategorySpecificationInterface
@@ -16,7 +17,7 @@ class NotTest extends \PHPUnit_Framework_TestCase
      */
     private $not;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->categorySpecification = $this->createMock(
             CategorySpecificationInterface::class

@@ -6,16 +6,17 @@ use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
 use CultuurNet\UDB3\Address\Street;
+use PHPUnit\Framework\TestCase;
 use ValueObjects\Geography\Country;
 
-class AddressFactoryTest extends \PHPUnit_Framework_TestCase
+class AddressFactoryTest extends TestCase
 {
     /**
      * @var AddressFactory
      */
     private $factory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->factory = new AddressFactory();
     }

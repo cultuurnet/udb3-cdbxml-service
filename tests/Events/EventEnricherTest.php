@@ -13,16 +13,18 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterfa
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated as EventOrganizerUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractOrganizerUpdated;
 use CultuurNet\UDB3\Place\Events\OrganizerUpdated as PlaceOrganizerUpdated;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class EventEnricherTest extends \PHPUnit_Framework_TestCase
+class EventEnricherTest extends TestCase
 {
     /**
-     * @var EventBusInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var EventBusInterface|MockObject
      */
     private $eventBus;
 
     /**
-     * @var DocumentRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DocumentRepositoryInterface|MockObject
      */
     private $organizerRepository;
 
@@ -36,7 +38,7 @@ class EventEnricherTest extends \PHPUnit_Framework_TestCase
      */
     private $enricher;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->eventBus = $this->createMock(EventBusInterface::class);
         $this->organizerRepository = $this->createMock(DocumentRepositoryInterface::class);

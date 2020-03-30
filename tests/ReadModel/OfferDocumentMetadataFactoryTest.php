@@ -4,15 +4,16 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use PHPUnit\Framework\TestCase;
 
-class OfferDocumentMetadataFactoryTest extends \PHPUnit_Framework_TestCase
+class OfferDocumentMetadataFactoryTest extends TestCase
 {
     /**
      * @var OfferDocumentMetadataFactory
      */
     protected $offerDocumentMetadataFactory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->offerDocumentMetadataFactory = new OfferDocumentMetadataFactory();
     }

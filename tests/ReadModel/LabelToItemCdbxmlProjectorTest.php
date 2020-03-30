@@ -11,6 +11,7 @@ use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\LabelRelation;
 use CultuurNet\UDB3\Label\ReadModels\Relations\Repository\ReadRepositoryInterface;
 use CultuurNet\UDB3\Label\ValueObjects\LabelName;
 use CultuurNet\UDB3\Label\ValueObjects\RelationType;
+use PHPUnit\Framework\MockObject\MockObject;
 use ValueObjects\Identity\UUID;
 use ValueObjects\StringLiteral\StringLiteral;
 
@@ -22,11 +23,11 @@ class LabelToItemCdbxmlProjectorTest extends CdbXmlProjectorTestBase
     protected $projector;
 
     /**
-     * @var ReadRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var ReadRepositoryInterface|MockObject
      */
     private $relationRepository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');

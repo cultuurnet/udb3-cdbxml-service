@@ -2,7 +2,10 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Events;
 
-class AbstractOfferProjectedToCdbXmlTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+
+class AbstractOfferProjectedToCdbXmlTest extends TestCase
 {
     /**
      * @var string
@@ -15,11 +18,11 @@ class AbstractOfferProjectedToCdbXmlTest extends \PHPUnit_Framework_TestCase
     private $itemId;
 
     /**
-     * @var AbstractOfferProjectedToCdbXml|\PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractOfferProjectedToCdbXml|MockObject
      */
     private $abstractOfferProjectedToCdbXml;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->itemId = '7d47c27d-1f0f-461b-9471-07bfaa7b0c56';
         $this->iri = 'http://www.google.be';

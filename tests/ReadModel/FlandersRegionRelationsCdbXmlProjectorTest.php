@@ -16,12 +16,12 @@ use CultuurNet\UDB3\Offer\IriOfferIdentifier;
 use CultuurNet\UDB3\Offer\IriOfferIdentifierFactoryInterface;
 use CultuurNet\UDB3\Offer\OfferType;
 use Doctrine\Common\Cache\ArrayCache;
-use PHPUnit_Framework_TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Web\Url;
 
-class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
+class FlandersRegionRelationsCdbXmlProjectorTest extends TestCase
 {
     /**
      * @var ArrayCache
@@ -34,17 +34,17 @@ class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestC
     private $categories;
 
     /**
-     * @var IriOfferIdentifierFactoryInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var IriOfferIdentifierFactoryInterface|MockObject
      */
     private $iriOfferIdentifierFactory;
 
     /**
-     * @var LoggerInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var LoggerInterface|MockObject
      */
     private $logger;
 
     /**
-     * @var OfferRelationsServiceInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var OfferRelationsServiceInterface|MockObject
      */
     private $offerRelationsService;
 
@@ -58,7 +58,7 @@ class FlandersRegionRelationsCdbXmlProjectorTest extends PHPUnit_Framework_TestC
      */
     private $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);

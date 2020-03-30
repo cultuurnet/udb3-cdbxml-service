@@ -2,14 +2,16 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument;
 
-class CdbXmlDocumentFactoryTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class CdbXmlDocumentFactoryTest extends TestCase
 {
     /**
      * @var CdbXmlDocumentFactory
      */
     private $factory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->factory = new CdbXmlDocumentFactory('3.3');
     }

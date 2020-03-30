@@ -4,8 +4,10 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use CultuurNet\UDB3\Event\ReadModel\Relations\RepositoryInterface as EventRelationsRepositoryInterface;
 use CultuurNet\UDB3\Place\ReadModel\Relations\RepositoryInterface as PlaceRelationsRepositoryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class OfferRelationsServiceTest extends \PHPUnit_Framework_TestCase
+class OfferRelationsServiceTest extends TestCase
 {
     /**
      * @var OfferRelationsServiceInterface
@@ -13,19 +15,19 @@ class OfferRelationsServiceTest extends \PHPUnit_Framework_TestCase
     private $offerRelationsService;
 
     /**
-     * @var EventRelationsRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var EventRelationsRepositoryInterface|MockObject
      */
     private $eventRelationsRepository;
 
     /**
-     * @var PlaceRelationsRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var PlaceRelationsRepositoryInterface|MockObject
      */
     private $placeRelationsRepository;
 
     /**
      * setup
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->eventRelationsRepository = $this->createMock(EventRelationsRepositoryInterface::class);
         $this->placeRelationsRepository = $this->createMock(PlaceRelationsRepositoryInterface::class);
@@ -42,7 +44,7 @@ class OfferRelationsServiceTest extends \PHPUnit_Framework_TestCase
     public function it_returns_eventids_and_placeids_when_getting_by_organizer()
     {
         $organizerId = 'ORG-id-123';
-        
+
         $eventIds = [
             'EvEnT-ID-1',
             'EvEnT-ID-2',

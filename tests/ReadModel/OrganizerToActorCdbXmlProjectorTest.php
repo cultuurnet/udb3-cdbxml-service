@@ -45,7 +45,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
      */
     private $updateMetadata;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');

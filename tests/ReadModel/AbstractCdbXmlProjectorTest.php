@@ -19,13 +19,13 @@ use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
 use Doctrine\Common\Cache\ArrayCache;
 use Exception;
-use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use ValueObjects\Identity\UUID;
 
-class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
+class AbstractCdbXmlProjectorTest extends TestCase
 {
     /**
      * @var ArrayCache
@@ -38,12 +38,12 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     protected $cdbXmlFilesPath;
 
     /**
-     * @var LoggerInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var LoggerInterface|MockObject
      */
     protected $logger;
 
     /**
-     * @var AbstractCdbXmlProjector|PHPUnit_Framework_MockObject_MockObject
+     * @var AbstractCdbXmlProjector|MockObject
      */
     protected $projector;
 
@@ -256,7 +256,7 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
      */
     public function it_throws_an_error_when_no_cdbxml_document_found()
     {
-        $this->setExpectedException(RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->projector->getCdbXmlDocument('foo');
     }
 
@@ -272,7 +272,7 @@ class AbstractCdbXmlProjectorTest extends PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->cdbXmlFilesPath = __DIR__ . '/Repository/samples/';
         $this->cache = new ArrayCache();

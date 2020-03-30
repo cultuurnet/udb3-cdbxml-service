@@ -5,16 +5,18 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 use Broadway\EventHandling\EventBusInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\OfferDocumentMetadataFactory;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_TestCase
+class BroadcastingDocumentRepositoryDecoratorTest extends TestCase
 {
     /**
-     * @var EventBusInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var EventBusInterface|MockObject
      */
     protected $eventBus;
 
     /**
-     * @var DocumentRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DocumentRepositoryInterface|MockObject
      */
     protected $decoratedRepository;
 
@@ -24,7 +26,7 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
     protected $repository;
 
     /**
-     * @var DocumentEventFactoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DocumentEventFactoryInterface|MockObject
      */
     protected $eventFactory;
 
@@ -33,7 +35,7 @@ class BroadcastingDocumentRepositoryDecoratorTest extends \PHPUnit_Framework_Tes
      */
     protected $offerDocumentMetadataFactory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->decoratedRepository = $this->createMock(DocumentRepositoryInterface::class);
         $this->eventBus = $this->createMock(EventBusInterface::class);

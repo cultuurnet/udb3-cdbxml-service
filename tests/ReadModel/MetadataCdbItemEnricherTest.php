@@ -4,11 +4,13 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 
 use Broadway\Domain\Metadata;
 use InvalidArgumentException;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
+class MetadataCdbItemEnricherTest extends TestCase
 {
     /**
-     * @var \CultureFeed_Cdb_Item_Base|\PHPUnit_Framework_MockObject_MockObject
+     * @var \CultureFeed_Cdb_Item_Base|MockObject
      */
     private $cdbItemBase;
 
@@ -22,7 +24,7 @@ class MetadataCdbItemEnricherTest extends \PHPUnit_Framework_TestCase
      */
     private $dateFormatter;
 
-    public function setUp()
+    protected function setUp(): void
     {
         date_default_timezone_set('Europe/Brussels');
 

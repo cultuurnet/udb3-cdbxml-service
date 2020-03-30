@@ -14,7 +14,7 @@ class NewActorPublicationTest extends AbstractSpecificationTest
      */
     protected $specification;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->specification = new NewActorPublication();
     }

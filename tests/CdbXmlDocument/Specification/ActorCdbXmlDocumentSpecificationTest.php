@@ -4,8 +4,9 @@ namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification;
 
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParser;
+use PHPUnit\Framework\TestCase;
 
-class ActorCdbXmlDocumentSpecificationTest extends \PHPUnit_Framework_TestCase
+class ActorCdbXmlDocumentSpecificationTest extends TestCase
 {
     /**
      * @var CdbXmlDocumentParser
@@ -17,7 +18,7 @@ class ActorCdbXmlDocumentSpecificationTest extends \PHPUnit_Framework_TestCase
      */
     private $specification;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->parser = new CdbXmlDocumentParser();
         $this->specification = new ActorCdbXmlDocumentSpecification($this->parser);

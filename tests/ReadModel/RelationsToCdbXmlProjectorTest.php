@@ -34,6 +34,7 @@ use CultuurNet\UDB3\Place\Events\PlaceCreated;
 use CultuurNet\UDB3\Theme;
 use CultuurNet\UDB3\Timestamp;
 use CultuurNet\UDB3\Title;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Web\Url;
@@ -62,16 +63,16 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     private $actorRepository;
 
     /**
-     * @var OfferRelationsServiceInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var OfferRelationsServiceInterface|MockObject
      */
     private $offerRelationsService;
 
     /**
-     * @var IriOfferIdentifierFactoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var IriOfferIdentifierFactoryInterface|MockObject
      */
     private $iriOfferIdentifierFactory;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setCdbXmlFilesPath(__DIR__ . '/Repository/samples/');
@@ -190,7 +191,7 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         // But don't add a second event to force logging an alert
         $secondId = 'EVENT-ABC-123';
 
-        /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject $logger */
+        /** @var LoggerInterface|MockObject $logger */
         $logger = $this->createMock(LoggerInterface::class);
         $this->relationsProjector->setLogger($logger);
         $logger->expects($this->once())

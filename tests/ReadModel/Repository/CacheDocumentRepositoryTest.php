@@ -4,8 +4,9 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use Doctrine\Common\Cache\ArrayCache;
+use PHPUnit\Framework\TestCase;
 
-class CacheDocumentRepositoryTest extends \PHPUnit_Framework_TestCase
+class CacheDocumentRepositoryTest extends TestCase
 {
     /**
      * @var ArrayCache
@@ -17,7 +18,7 @@ class CacheDocumentRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     private $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->cache = new ArrayCache();
         $this->repository = new CacheDocumentRepository($this->cache);
@@ -55,7 +56,7 @@ class CacheDocumentRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->repository->save($cdbXmlDocument);
         $this->repository->remove($id);
 
-        $this->setExpectedException(DocumentGoneException::class);
+        $this->expectException(DocumentGoneException::class);
         $this->repository->get($id);
     }
 }

@@ -4,14 +4,14 @@ namespace CultuurNet\UDB3\CdbXmlService\CalendarSummary;
 
 use CultuurNet\CalendarSummary\FormatterException;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentGoneException;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestMatcherInterface;
 
-class CalendarSummaryControllerTest extends \PHPUnit_Framework_TestCase
+class CalendarSummaryControllerTest extends TestCase
 {
     /**
-     * @var CalendarSummaryRepositoryInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var CalendarSummaryRepositoryInterface|MockObject
      */
     private $calendarSummaryRepository;
 
@@ -20,7 +20,7 @@ class CalendarSummaryControllerTest extends \PHPUnit_Framework_TestCase
      */
     private $controller;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->calendarSummaryRepository = $this->createMock(CalendarSummaryRepositoryInterface::class);
         $this->controller = new CalendarSummaryController($this->calendarSummaryRepository);
@@ -72,7 +72,7 @@ class CalendarSummaryControllerTest extends \PHPUnit_Framework_TestCase
     public function it_should_return_a_summary_in_the_request_content_type_and_format()
     {
         $offerId = '21915201-a582-45b1-a997-4171ac6b71c1';
-        /** @var Request|PHPUnit_Framework_MockObject_MockObject $request */
+        /** @var Request|MockObject $request */
         $request = $this->getMockBuilder(Request::class)
             ->disableOriginalClone()
             ->disableArgumentCloning()

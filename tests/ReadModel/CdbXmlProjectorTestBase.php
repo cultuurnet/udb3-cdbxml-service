@@ -10,8 +10,9 @@ use Broadway\EventHandling\EventListenerInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use Doctrine\Common\Cache\ArrayCache;
+use PHPUnit\Framework\TestCase;
 
-abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
+abstract class CdbXmlProjectorTestBase extends TestCase
 {
     /**
      * @var EventListenerInterface
@@ -33,7 +34,7 @@ abstract class CdbXmlProjectorTestBase extends \PHPUnit_Framework_TestCase
      */
     protected $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->cdbXmlFilesPath = __DIR__;
 

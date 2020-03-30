@@ -3,15 +3,16 @@
 namespace CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification;
 
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
+use PHPUnit\Framework\TestCase;
 
-class PlaceCdbXmlDocumentSpecificationTest extends \PHPUnit_Framework_TestCase
+class PlaceCdbXmlDocumentSpecificationTest extends TestCase
 {
     /**
      * @var PlaceCdbXmlDocumentSpecification
      */
     private $specification;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->specification = new PlaceCdbXmlDocumentSpecification();
     }
