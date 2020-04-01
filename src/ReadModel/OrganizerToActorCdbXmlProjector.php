@@ -13,6 +13,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
+use CultuurNet\UDB3\Organizer\Events\AddressRemoved;
 use CultuurNet\UDB3\Organizer\Events\AddressUpdated;
 use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
@@ -84,6 +85,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
      * @uses applyTitleUpdated()
      * @uses applyTitleTranslated()
      * @uses applyAddressUpdated()
+     * @uses applyAddressRemoved()
      * @uses applyContactPointUpdated()
      * @uses applyLabelAdded()
      * @uses applyLabelRemoved()
@@ -104,6 +106,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
             TitleUpdated::class => 'applyTitleUpdated',
             TitleTranslated::class => 'applyTitleTranslated',
             AddressUpdated::class => 'applyAddressUpdated',
+            AddressRemoved::class => 'applyAddressRemoved',
             ContactPointUpdated::class => 'applyContactPointUpdated',
             LabelAdded::class => 'applyLabelAdded',
             LabelRemoved::class => 'applyLabelRemoved',
@@ -322,6 +325,29 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         }
         $address = $this->addressFactory->fromUdb3Address($addressUpdated->getAddress());
         $contactInfo->addAddress($address);
+
+        $actor->setContactInfo($contactInfo);
+
+        $actor = $this->metadataCdbItemEnricher->enrich($actor, $metadata);
+
+        return $this->cdbXmlDocumentFactory
+            ->fromCulturefeedCdbItem($actor);
+    }
+
+    private function applyAddressRemoved(AddressRemoved $addressRemoved, Metadata $metadata)
+    {
+        $document = $this->documentRepository->get($addressRemoved->getOrganizerId());
+
+        $actor = ActorItemFactory::createActorFromCdbXml(
+            'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL',
+            $document->getCdbXml()
+        );
+
+        $contactInfo = $actor->getContactInfo();
+
+        foreach ($contactInfo->getAddresses() as $index => $address) {
+            $contactInfo->removeAddress($index);
+        }
 
         $actor->setContactInfo($contactInfo);
 
