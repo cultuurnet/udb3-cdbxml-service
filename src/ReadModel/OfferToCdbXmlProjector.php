@@ -47,7 +47,6 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\CulturefeedSlugger;
-use CultuurNet\UDB3\EntityNotFoundException;
 use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\CalendarUpdated as EventCalendarUpdated;
@@ -143,7 +142,6 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\SluggerInterface;
 use CultuurNet\UDB3\StringFilter\StringFilterInterface;
 use CultuurNet\UDB3\Theme;
-use DateTime;
 use DateTimeInterface;
 use League\Uri\Modifiers\AbstractUriModifier;
 use League\Uri\Modifiers\Normalize;
@@ -153,7 +151,6 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use ValueObjects\Identity\UUID;
-use ValueObjects\StringLiteral\StringLiteral;
 use Rhumsaa\Uuid\Uuid as BaseUuid;
 
 /**
@@ -1827,7 +1824,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      *
      * @param LocationId $locationId
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
-     * @throws EntityNotFoundException
      */
     private function setLocation(LocationId $locationId, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
