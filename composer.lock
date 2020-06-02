@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "43c968c8bbf1d039c6c151af62a94e0d",
+    "content-hash": "3165a771873fa16f587bf7da6609ecea",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1067,16 +1067,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-bugfix/restore-shared-code",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "e52019e0ec97815ca5707606031009218205a0a8"
+                "reference": "3dd0783e697349fac63d0b04ef0e6ab42ebe62f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/e52019e0ec97815ca5707606031009218205a0a8",
-                "reference": "e52019e0ec97815ca5707606031009218205a0a8",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/3dd0783e697349fac63d0b04ef0e6ab42ebe62f6",
+                "reference": "3dd0783e697349fac63d0b04ef0e6ab42ebe62f6",
                 "shasum": ""
             },
             "require": {
@@ -1141,7 +1141,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2020-06-02T14:55:36+00:00"
+            "time": "2020-05-27T05:42:26+00:00"
         },
         {
             "name": "cultuurnet/udb3-models",
@@ -6353,18 +6353,9 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-bugfix/restore-shared-code",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
