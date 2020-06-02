@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\Relations\Label;
 use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
+use CultuurNet\UDB3\CdbXmlService\ValueObjects\LabelCollection;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\CdbXmlService\Relations\Label\Repository\LabelRelation;
