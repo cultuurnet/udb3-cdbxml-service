@@ -524,7 +524,7 @@ $app['deserializer_locator'] = $app->share(
         $maps =
             \CultuurNet\UDB3\Event\Events\ContentTypes::map() +
             \CultuurNet\UDB3\Place\Events\ContentTypes::map() +
-            \CultuurNet\UDB3\CdbXmlService\Relations\Label\Events\ContentTypes::map() +
+            \CultuurNet\UDB3\Label\Events\ContentTypes::map() +
             \CultuurNet\UDB3\Organizer\Events\ContentTypes::map();
 
         foreach ($maps as $payloadClass => $contentType) {
