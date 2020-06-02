@@ -47,22 +47,6 @@ class LabelCollection implements \Countable
     }
 
     /**
-     * @param Label $label
-     * @return LabelCollection
-     */
-    public function without(Label $label)
-    {
-        $labels = array_filter(
-            $this->labels,
-            function (Label $existingLabel) use ($label) {
-                return !$existingLabel->equals($label);
-            }
-        );
-
-        return new LabelCollection($labels);
-    }
-
-    /**
      * @inheritdoc
      */
     public function count()
