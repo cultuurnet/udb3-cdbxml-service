@@ -2,7 +2,7 @@
 
 namespace CultuurNet\UDB3\CdbXmlService;
 
-use CultuurNet\UDB3\Doctrine\DBAL\SchemaConfiguratorInterface;
+use CultuurNet\UDB3\CdbXmlService\Doctrine\DBAL\SchemaConfiguratorInterface;
 use Silex\Application;
 
 class DatabaseSchemaInstaller implements DatabaseSchemaInstallerInterface
