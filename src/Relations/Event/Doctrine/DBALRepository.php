@@ -36,17 +36,6 @@ class DBALRepository implements RepositoryInterface
         $this->connection->commit();
     }
 
-    public function removeOrganizer($eventId)
-    {
-        $transaction = function ($connection) use ($eventId) {
-            if ($this->eventHasRelations($connection, $eventId)) {
-                $this->updateEventRelation($connection, $eventId, 'organizer', null);
-            }
-        };
-
-        $this->connection->transactional($transaction);
-    }
-
     public function storeOrganizer($eventId, $organizerId)
     {
         $this->storeRelation($eventId, 'organizer', $organizerId);

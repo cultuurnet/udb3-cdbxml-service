@@ -24,11 +24,6 @@ interface RepositoryInterface
     public function storePlace($eventId, $placeId);
 
     /**
-     * @param string $eventId
-     */
-    public function removeOrganizer($eventId);
-
-    /**
      * @param string $placeId
      *
      * @return string[]
