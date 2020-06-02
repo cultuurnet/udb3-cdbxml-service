@@ -58,7 +58,7 @@ class LabelCollection implements \Countable
      * @param Label $label
      * @return bool
      */
-    public function contains(Label $label)
+    private function contains(Label $label)
     {
         $equalLabels = array_filter(
             $this->labels,
