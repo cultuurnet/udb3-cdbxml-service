@@ -68,10 +68,12 @@ class LabelCollectionTest extends TestCase
 
         $labelCollection = LabelCollection::fromStrings($labelsAsStrings);
 
-        $expectedLabelCollection = new LabelCollection([
-            new Label('Correct label'),
-            new Label('Another correct label'),
-        ]);
+        $expectedLabelCollection = new LabelCollection(
+            [
+                new Label('Correct label'),
+                new Label('Another correct label'),
+            ]
+        );
 
         $this->assertEquals($expectedLabelCollection, $labelCollection);
     }
