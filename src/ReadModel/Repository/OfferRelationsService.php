@@ -2,8 +2,8 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
-use CultuurNet\UDB3\Event\ReadModel\Relations\RepositoryInterface as EventRelationsRepositoryInterface;
-use CultuurNet\UDB3\Place\ReadModel\Relations\RepositoryInterface as PlaceRelationsRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\Relations\Event\RepositoryInterface as EventRelationsRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\Relations\Place\RepositoryInterface as PlaceRelationsRepositoryInterface;
 
 class OfferRelationsService implements OfferRelationsServiceInterface
 {

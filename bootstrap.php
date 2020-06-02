@@ -36,7 +36,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\OrganizerToActorCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
-use CultuurNet\UDB3\Label\LabelEventRelationTypeResolver;
+use CultuurNet\UDB3\CdbXmlService\Relations\Label\LabelEventRelationTypeResolver;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
@@ -524,7 +524,7 @@ $app['deserializer_locator'] = $app->share(
         $maps =
             \CultuurNet\UDB3\Event\Events\ContentTypes::map() +
             \CultuurNet\UDB3\Place\Events\ContentTypes::map() +
-            \CultuurNet\UDB3\Label\Events\ContentTypes::map() +
+            \CultuurNet\UDB3\CdbXmlService\Relations\Label\Events\ContentTypes::map() +
             \CultuurNet\UDB3\Organizer\Events\ContentTypes::map();
 
         foreach ($maps as $payloadClass => $contentType) {
@@ -611,7 +611,7 @@ $app['dbal_connection:keepalive'] = $app->protect(
 
 $app['event_relations_repository'] = $app->share(
     function ($app) {
-        return new \CultuurNet\UDB3\Event\ReadModel\Relations\Doctrine\DBALRepository(
+        return new \CultuurNet\UDB3\CdbXmlService\Relations\Event\Doctrine\DBALRepository(
             $app['dbal_connection']
         );
     }
@@ -619,7 +619,7 @@ $app['event_relations_repository'] = $app->share(
 
 $app['place_relations_repository'] = $app->share(
     function ($app) {
-        return new \CultuurNet\UDB3\Place\ReadModel\Relations\Doctrine\DBALRepository(
+        return new \CultuurNet\UDB3\CdbXmlService\Relations\Place\Doctrine\DBALRepository(
             $app['dbal_connection']
         );
     }
@@ -627,7 +627,7 @@ $app['place_relations_repository'] = $app->share(
 
 $app['labels_relations_repository'] = $app->share(
     function ($app) {
-        return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\DBALWriteRepository(
+        return new \CultuurNet\UDB3\CdbXmlService\Relations\Label\Repository\Doctrine\DBALWriteRepository(
             $app['dbal_connection'],
             new StringLiteral('labels_relations')
         );
@@ -636,7 +636,7 @@ $app['labels_relations_repository'] = $app->share(
 
 $app[OFFER_LABEL_RELATION_REPOSITORY] = $app->share(
   function (Application $app) {
-      return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\DBALReadRepository(
+      return new \CultuurNet\UDB3\CdbXmlService\Relations\Label\Repository\Doctrine\DBALReadRepository(
           $app['dbal_connection'],
           new StringLiteral('labels_relations')
       );
@@ -645,7 +645,7 @@ $app[OFFER_LABEL_RELATION_REPOSITORY] = $app->share(
 
 $app['event_relations_projector'] = $app->share(
     function ($app) {
-        return new \CultuurNet\UDB3\Event\ReadModel\Relations\Projector(
+        return new \CultuurNet\UDB3\CdbXmlService\Relations\Event\Projector(
             $app['event_relations_repository'],
             $app['event_cdbid_extractor']
         );
@@ -654,7 +654,7 @@ $app['event_relations_projector'] = $app->share(
 
 $app['place_relations_projector'] = $app->share(
     function ($app) {
-        return new \CultuurNet\UDB3\Place\ReadModel\Relations\Projector(
+        return new \CultuurNet\UDB3\CdbXmlService\Relations\Place\Projector(
             $app['place_relations_repository']
         );
     }
@@ -662,7 +662,7 @@ $app['place_relations_projector'] = $app->share(
 
 $app['labels_relations_projector'] = $app->share(
     function ($app) {
-        return new \CultuurNet\UDB3\Label\ReadModels\Relations\Projector(
+        return new \CultuurNet\UDB3\CdbXmlService\Relations\Label\Projector(
             $app['labels_relations_repository'],
             $app[OFFER_LABEL_RELATION_REPOSITORY],
             new LabelEventRelationTypeResolver()
@@ -678,7 +678,7 @@ $app['database.installer'] = $app->share(
 
 $app['labels_relations_schema'] = $app->share(
     function (Application $app) {
-        return new \CultuurNet\UDB3\Label\ReadModels\Relations\Repository\Doctrine\SchemaConfigurator(
+        return new \CultuurNet\UDB3\CdbXmlService\Relations\Label\Repository\Doctrine\SchemaConfigurator(
             new StringLiteral('labels_relations')
         );
     }
