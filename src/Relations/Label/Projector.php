@@ -60,14 +60,14 @@ class Projector extends AbstractProjector
      */
     public function applyLabelAdded(LabelEventInterface $labelAdded, Metadata $metadata)
     {
-        $LabelRelation = $this->createLabelRelation($labelAdded);
+        $labelRelation = $this->createLabelRelation($labelAdded);
 
         try {
-            if (!is_null($LabelRelation)) {
+            if (!is_null($labelRelation)) {
                 $this->writeRepository->save(
-                    $LabelRelation->getLabelName(),
-                    $LabelRelation->getRelationType(),
-                    $LabelRelation->getRelationId(),
+                    $labelRelation->getLabelName(),
+                    $labelRelation->getRelationType(),
+                    $labelRelation->getRelationId(),
                     false
                 );
             }

@@ -21,18 +21,22 @@ class DBALWriteRepository extends AbstractDBALRepository implements WriteReposit
     ) {
         $queryBuilder = $this->createQueryBuilder()
             ->insert($this->getTableName())
-            ->values([
-                SchemaConfigurator::LABEL_NAME => '?',
-                SchemaConfigurator::RELATION_TYPE => '?',
-                SchemaConfigurator::RELATION_ID => '?',
-                SchemaConfigurator::IMPORTED => '?',
-            ])
-            ->setParameters([
-                $labelName->toNative(),
-                $relationType->toNative(),
-                $relationId->toNative(),
-                $imported ? 1 : 0,
-            ]);
+            ->values(
+                [
+                    SchemaConfigurator::LABEL_NAME => '?',
+                    SchemaConfigurator::RELATION_TYPE => '?',
+                    SchemaConfigurator::RELATION_ID => '?',
+                    SchemaConfigurator::IMPORTED => '?',
+                ]
+            )
+            ->setParameters(
+                [
+                    $labelName->toNative(),
+                    $relationType->toNative(),
+                    $relationId->toNative(),
+                    $imported ? 1 : 0,
+                ]
+            );
 
         $this->executeTransactional($queryBuilder);
     }
@@ -90,8 +94,10 @@ class DBALWriteRepository extends AbstractDBALRepository implements WriteReposit
      */
     private function executeTransactional(QueryBuilder $queryBuilder)
     {
-        $this->getConnection()->transactional(function () use ($queryBuilder) {
-            $queryBuilder->execute();
-        });
+        $this->getConnection()->transactional(
+            function () use ($queryBuilder) {
+                $queryBuilder->execute();
+            }
+        );
     }
 }

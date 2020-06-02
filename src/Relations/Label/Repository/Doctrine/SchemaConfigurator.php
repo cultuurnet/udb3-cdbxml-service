@@ -69,11 +69,13 @@ class SchemaConfigurator implements SchemaConfiguratorInterface
             ->setDefault(false);
 
         $table->addIndex([self::LABEL_NAME]);
-        $table->addUniqueIndex([
-            self::LABEL_NAME,
-            self::RELATION_TYPE,
-            self::RELATION_ID,
-        ]);
+        $table->addUniqueIndex(
+            [
+                self::LABEL_NAME,
+                self::RELATION_TYPE,
+                self::RELATION_ID,
+            ]
+        );
 
         return $table;
     }
