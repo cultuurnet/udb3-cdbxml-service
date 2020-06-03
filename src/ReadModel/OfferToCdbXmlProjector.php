@@ -45,9 +45,9 @@ use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\ID;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Not;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\CategorySpecification\Type;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\ValueObjects\Offer\AvailableTo;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\CulturefeedSlugger;
-use CultuurNet\UDB3\EntityNotFoundException;
 use CultuurNet\UDB3\Event\Events\AudienceUpdated;
 use CultuurNet\UDB3\Event\Events\BookingInfoUpdated as EventBookingInfoUpdated;
 use CultuurNet\UDB3\Event\Events\CalendarUpdated as EventCalendarUpdated;
@@ -79,6 +79,7 @@ use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Offer\Events\AbstractFacilitiesUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractThemeUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypeUpdated;
+use CultuurNet\UDB3\Offer\WorkflowStatus;
 use CultuurNet\UDB3\Place\Events\ThemeUpdated as PlaceThemeUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
@@ -92,7 +93,6 @@ use CultuurNet\UDB3\Event\EventType;
 use CultuurNet\UDB3\Event\ValueObjects\AudienceType;
 use CultuurNet\UDB3\Facility;
 use CultuurNet\UDB3\Media\Image;
-use CultuurNet\UDB3\Offer\AvailableTo;
 use CultuurNet\UDB3\Offer\Events\AbstractBookingInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractContactPointUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractDescriptionTranslated;
@@ -113,7 +113,6 @@ use CultuurNet\UDB3\Offer\Events\Image\AbstractImageUpdated;
 use CultuurNet\UDB3\Offer\Events\Image\AbstractMainImageSelected;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractApproved;
 use CultuurNet\UDB3\Offer\Events\Moderation\AbstractPublished;
-use CultuurNet\UDB3\Offer\WorkflowStatus;
 use CultuurNet\UDB3\Place\Events\TitleUpdated as PlaceTitleUpdated;
 use CultuurNet\UDB3\Event\Events\TitleUpdated as EventTitleUpdated;
 use CultuurNet\UDB3\Place\Events\AddressUpdated;
@@ -143,7 +142,6 @@ use CultuurNet\UDB3\Place\Events\MajorInfoUpdated as PlaceMajorInfoUpdated;
 use CultuurNet\UDB3\SluggerInterface;
 use CultuurNet\UDB3\StringFilter\StringFilterInterface;
 use CultuurNet\UDB3\Theme;
-use DateTime;
 use DateTimeInterface;
 use League\Uri\Modifiers\AbstractUriModifier;
 use League\Uri\Modifiers\Normalize;
@@ -153,7 +151,6 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use ValueObjects\Identity\UUID;
-use ValueObjects\StringLiteral\StringLiteral;
 use Rhumsaa\Uuid\Uuid as BaseUuid;
 
 /**
@@ -1827,7 +1824,6 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
      *
      * @param LocationId $locationId
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
-     * @throws EntityNotFoundException
      */
     private function setLocation(LocationId $locationId, CultureFeed_Cdb_Item_Event $cdbEvent)
     {

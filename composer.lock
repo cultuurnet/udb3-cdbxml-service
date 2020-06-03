@@ -1071,12 +1071,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "5f70a2f251999a114aabd149089f87faebe4cc6b"
+                "reference": "3dd0783e697349fac63d0b04ef0e6ab42ebe62f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/5f70a2f251999a114aabd149089f87faebe4cc6b",
-                "reference": "5f70a2f251999a114aabd149089f87faebe4cc6b",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/3dd0783e697349fac63d0b04ef0e6ab42ebe62f6",
+                "reference": "3dd0783e697349fac63d0b04ef0e6ab42ebe62f6",
                 "shasum": ""
             },
             "require": {
@@ -1141,7 +1141,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2020-04-14T10:14:07+00:00"
+            "time": "2020-05-27T05:42:26+00:00"
         },
         {
             "name": "cultuurnet/udb3-models",

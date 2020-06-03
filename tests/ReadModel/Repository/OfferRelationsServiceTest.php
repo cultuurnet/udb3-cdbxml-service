@@ -2,8 +2,8 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\ReadModel\Repository;
 
-use CultuurNet\UDB3\Event\ReadModel\Relations\RepositoryInterface as EventRelationsRepositoryInterface;
-use CultuurNet\UDB3\Place\ReadModel\Relations\RepositoryInterface as PlaceRelationsRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\Relations\Event\RepositoryInterface as EventRelationsRepositoryInterface;
+use CultuurNet\UDB3\CdbXmlService\Relations\Place\RepositoryInterface as PlaceRelationsRepositoryInterface;
 
 class OfferRelationsServiceTest extends \PHPUnit_Framework_TestCase
 {
@@ -42,7 +42,7 @@ class OfferRelationsServiceTest extends \PHPUnit_Framework_TestCase
     public function it_returns_eventids_and_placeids_when_getting_by_organizer()
     {
         $organizerId = 'ORG-id-123';
-        
+
         $eventIds = [
             'EvEnT-ID-1',
             'EvEnT-ID-2',
