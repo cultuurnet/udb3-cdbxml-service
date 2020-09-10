@@ -1499,6 +1499,14 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
             $event->setAgeTo((int) $ageToString);
         }
 
+        // Workaround for backwards compatibility:
+        // Since III-3399 the age "from" is always 0 if no from is given.
+        // But to maintain compatibility with previous behaviour, we don't set it on the cdbxml
+        // if there's no "to" either.
+        if ($event->getAgeFrom() === 0 && $event->getAgeTo() === null) {
+            $event->setAgeFrom();
+        }
+
         // Change the lastupdated attribute.
         $event = $this->metadataCdbItemEnricher
             ->enrich($event, $metadata);
