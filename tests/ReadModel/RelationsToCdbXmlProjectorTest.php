@@ -332,12 +332,12 @@ class RelationsToCdbXmlProjectorTest extends CdbXmlProjectorTestBase
     {
         $timestamps = [
             new Timestamp(
-                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T12:00:00+01:00'),
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T13:00:00+01:00'),
                 \DateTime::createFromFormat(\DateTime::ATOM, '2014-01-31T15:00:00+01:00')
             ),
             new Timestamp(
                 \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T12:00:00+01:00'),
-                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T15:00:00+01:00')
+                \DateTime::createFromFormat(\DateTime::ATOM, '2014-02-20T16:00:00+01:00')
             ),
         ];
 

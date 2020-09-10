@@ -9,13 +9,13 @@
             <cdb:timestamps>
                 <cdb:timestamp>
                     <cdb:date>2014-01-31</cdb:date>
-                    <cdb:timestart>12:00:00</cdb:timestart>
+                    <cdb:timestart>13:00:00</cdb:timestart>
                     <cdb:timeend>15:00:00</cdb:timeend>
                 </cdb:timestamp>
                 <cdb:timestamp>
                     <cdb:date>2014-02-20</cdb:date>
                     <cdb:timestart>12:00:00</cdb:timestart>
-                    <cdb:timeend>15:00:00</cdb:timeend>
+                    <cdb:timeend>16:00:00</cdb:timeend>
                 </cdb:timestamp>
             </cdb:timestamps>
         </cdb:calendar>

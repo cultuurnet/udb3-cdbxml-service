@@ -1071,12 +1071,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "3dd0783e697349fac63d0b04ef0e6ab42ebe62f6"
+                "reference": "d252f04d389c772cc5e114e9a3126a521b5dfd6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/3dd0783e697349fac63d0b04ef0e6ab42ebe62f6",
-                "reference": "3dd0783e697349fac63d0b04ef0e6ab42ebe62f6",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/d252f04d389c772cc5e114e9a3126a521b5dfd6b",
+                "reference": "d252f04d389c772cc5e114e9a3126a521b5dfd6b",
                 "shasum": ""
             },
             "require": {
@@ -1141,7 +1141,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2020-05-27T05:42:26+00:00"
+            "time": "2020-09-08T10:18:41+00:00"
         },
         {
             "name": "cultuurnet/udb3-models",
@@ -2992,12 +2992,12 @@
             "version": "v1.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nrk/predis.git",
+                "url": "https://github.com/predis/predis.git",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nrk/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "url": "https://api.github.com/repos/predis/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "shasum": ""
             },
@@ -4456,12 +4456,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-jwt.git",
-                "reference": "5c4e4ec6a1ff9db779f3818e0d78f1c9fc454ccc"
+                "reference": "7d9e151a586791d4f672575d377bec0d35965a51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/5c4e4ec6a1ff9db779f3818e0d78f1c9fc454ccc",
-                "reference": "5c4e4ec6a1ff9db779f3818e0d78f1c9fc454ccc",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/7d9e151a586791d4f672575d377bec0d35965a51",
+                "reference": "7d9e151a586791d4f672575d377bec0d35965a51",
                 "shasum": ""
             },
             "require": {
@@ -4473,7 +4473,13 @@
                 "phing/phing": "~2.11",
                 "phpunit/phpunit": "~5.7",
                 "satooshi/php-coveralls": "~0.7",
-                "squizlabs/php_codesniffer": "~2.3"
+                "silex/silex": "^1.3",
+                "squizlabs/php_codesniffer": "~2.3",
+                "symfony/security": "~2.7.3"
+            },
+            "suggest": {
+                "silex/silex": "To use the provided JwtServiceProvider",
+                "symfony/security": "To integrate with Symfony's firewall"
             },
             "type": "library",
             "extra": {
@@ -4497,7 +4503,7 @@
                 }
             ],
             "description": "Provides JWT service classes",
-            "time": "2018-06-29T14:15:52+00:00"
+            "time": "2020-01-21T16:55:27+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -5261,6 +5267,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2017-11-27T05:48:46+00:00"
         },
         {
