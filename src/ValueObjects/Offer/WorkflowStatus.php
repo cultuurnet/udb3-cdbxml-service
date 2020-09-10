@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\Offer;
+namespace CultuurNet\UDB3\CdbXmlService\ValueObjects\Offer;
 
 use ValueObjects\Enum\Enum;
 
