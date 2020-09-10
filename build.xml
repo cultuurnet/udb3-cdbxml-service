@@ -37,6 +37,7 @@
     <target name="test">
         <phingcall target="lint"/>
         <phingcall target="unit-tests"/>
+        <phingcall target="phpstan"/>
         <phingcall target="coding-standards"/>
     </target>
 
@@ -46,6 +47,14 @@
                 passthru="true"
                 checkreturn="true" />
     </target>
+
+    <target name="phpstan">
+        <exec
+                command="./vendor/bin/phpstan analyse src tests --level 1"
+                passthru="true"
+                checkreturn="true" />
+    </target>
+
 
     <target name="githooks">
         <copy file="contrib/pre-commit" todir=".git/hooks" />
