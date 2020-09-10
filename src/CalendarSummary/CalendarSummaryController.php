@@ -36,39 +36,51 @@ class CalendarSummaryController
 
         $calendarFormat = new Format($request->query->get('format', 'lg'));
 
+        $problem = null;
+        $defaultProblemDetail = "A problem occurred when trying to show the calendar-summary for offer with id: \"$cdbid\" in format \"$calendarFormat\" as $contentType";
+
         try {
             $summary = $this->calendarSummaryRepository->get($cdbid, $contentType, $calendarFormat);
 
             if (is_null($summary)) {
                 $problem = new ApiProblem('The summary could not be found.');
+                $problem->setDetail($defaultProblemDetail);
                 $problem->setStatus(Response::HTTP_NOT_FOUND);
+                return $this->createProblemResponse($problem);
             }
         } catch (DocumentGoneException $e) {
             $problem = new ApiProblem('The summary is gone.');
+            $problem->setDetail($defaultProblemDetail);
             $problem->setStatus(Response::HTTP_GONE);
+            return $this->createProblemResponse($problem);
         } catch (FormatterException $exception) {
             $problem = new ApiProblem('The requested content-type does not support the calendar-format.');
+            $problem->setDetail($defaultProblemDetail);
             $problem->setStatus(Response::HTTP_NOT_ACCEPTABLE);
+            return $this->createProblemResponse($problem);
         } catch (UnsupportedContentTypeException $exception) {
             $problem = new ApiProblem('Content-type not supported.');
             $problem->setDetail($exception->getMessage());
             $problem->setStatus(Response::HTTP_NOT_ACCEPTABLE);
+            return $this->createProblemResponse($problem);
         }
 
         $response = new Response();
+        $response->setContent($summary);
+        $response->headers->set('Content-Type', (string) $contentType);
+        return $response;
+    }
 
-        if (!isset($summary) && isset($problem)) {
-            $problem
-                ->setDetail("A problem occurred when trying to show the calendar-summary for offer with id: \"$cdbid\" in format \"$calendarFormat\" as $contentType")
-                ->setType('about:blank');
+    private function createProblemResponse(ApiProblem $problem): Response
+    {
+        $problem
+            ->setType('about:blank');
 
-            $response
-                ->setContent($problem->getTitle())
-                ->setStatusCode($problem->getStatus());
-        } else {
-            $response->setContent($summary);
-            $response->headers->set('Content-Type', (string) $contentType);
-        }
+        $response = new Response();
+
+        $response
+            ->setContent($problem->getTitle())
+            ->setStatusCode($problem->getStatus());
 
         return $response;
     }

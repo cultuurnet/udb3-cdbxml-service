@@ -12,6 +12,7 @@ use CultuurNet\UDB3\CdbXmlService\Relations\Label\Repository\LabelRelation;
 use CultuurNet\UDB3\CdbXmlService\Relations\Label\Repository\ReadRepositoryInterface;
 use CultuurNet\UDB3\CdbXmlService\Relations\Label\Repository\WriteRepositoryInterface;
 use CultuurNet\UDB3\Label\ValueObjects\LabelName;
+use CultuurNet\UDB3\Label\ValueObjects\RelationType;
 use CultuurNet\UDB3\LabelEventInterface;
 use CultuurNet\UDB3\LabelsImportedEventInterface;
 use CultuurNet\UDB3\Model\ValueObject\Taxonomy\Label\Label;

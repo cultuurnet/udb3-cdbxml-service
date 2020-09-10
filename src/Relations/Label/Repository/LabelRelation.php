@@ -36,7 +36,7 @@ class LabelRelation implements \JsonSerializable
      * @param StringLiteral $relationId
      * @param bool $imported
      */
-    public function __construct(
+    final public function __construct(
         LabelName $labelName,
         RelationType $relationType,
         StringLiteral $relationId,

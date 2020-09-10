@@ -162,7 +162,7 @@ class EventBusCdbXmlPublisherTest extends \PHPUnit_Framework_TestCase
             ->method('publish')
             ->with(
                 $this->callback(
-                    function ($eventStream) use ($publicationUrl, $expectedPayloadType) {
+                    function ($eventStream) use ($expectedPayloadType) {
                         /* @var DomainEventStream $eventStream */
                         /* @var DomainMessage $domainMessage */
                         $domainMessage = $eventStream->getIterator()->current();

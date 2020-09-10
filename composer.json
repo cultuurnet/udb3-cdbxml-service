@@ -33,7 +33,8 @@
         "escapestudios/symfony2-coding-standard": "~2.9",
         "squizlabs/php_codesniffer": "~2.5.1",
         "phing/phing": "~2.14",
-        "satooshi/php-coveralls": "~1.0"
+        "satooshi/php-coveralls": "~1.0",
+        "phpstan/phpstan": "^0.12.42"
     },
     "autoload": {
         "psr-4": {
@@ -61,5 +62,8 @@
             "2dotstwice/*": "source",
             "*": "dist"
         }
+    },
+    "scripts": {
+        "phing": "./vendor/bin/phing test"
     }
 }
