@@ -14,13 +14,13 @@
       <timestamps>
         <timestamp>
           <date>2014-01-31</date>
-          <timestart>12:00:00</timestart>
+          <timestart>13:00:00</timestart>
           <timeend>15:00:00</timeend>
         </timestamp>
         <timestamp>
           <date>2014-02-20</date>
           <timestart>12:00:00</timestart>
-          <timeend>15:00:00</timeend>
+          <timeend>16:00:00</timeend>
         </timestamp>
       </timestamps>
     </calendar>
