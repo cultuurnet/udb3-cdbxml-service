@@ -1922,19 +1922,17 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     {
         $calendar = $this->calendarConverter->toCdbCalendar($eventCalendar);
 
-        if (isset($calendar)) {
-            $cdbEvent->setCalendar($calendar);
+        $cdbEvent->setCalendar($calendar);
 
-            $formatter = new CalendarPlainTextFormatter();
+        $formatter = new CalendarPlainTextFormatter();
 
-            $calendarSummary = $formatter->format($calendar, 'lg');
-            // CDXML does not expect any formatting so breaks are replaced with spaces
-            $calendarSummary = str_replace(PHP_EOL, ' ', $calendarSummary);
+        $calendarSummary = $formatter->format($calendar, 'lg');
+        // CDXML does not expect any formatting so breaks are replaced with spaces
+        $calendarSummary = str_replace(PHP_EOL, ' ', $calendarSummary);
 
-            $eventDetails = $cdbEvent->getDetails();
-            $eventDetails->rewind();
-            $eventDetails->current()->setCalendarSummary($calendarSummary);
-        }
+        $eventDetails = $cdbEvent->getDetails();
+        $eventDetails->rewind();
+        $eventDetails->current()->setCalendarSummary($calendarSummary);
     }
 
     /**
