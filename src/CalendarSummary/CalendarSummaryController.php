@@ -74,7 +74,6 @@ class CalendarSummaryController
     private function createProblemResponse(ApiProblem $problem): Response
     {
         $problem
-            ->setDetail()
             ->setType('about:blank');
 
         $response = new Response();
