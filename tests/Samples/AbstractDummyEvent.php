@@ -10,10 +10,11 @@ class AbstractDummyEvent implements SerializableInterface
      * @var string
      */
     protected $id;
+
     /**
      * @param string $id
      */
-    public function __construct($id)
+    final public function __construct($id)
     {
         $this->id = $id;
     }
