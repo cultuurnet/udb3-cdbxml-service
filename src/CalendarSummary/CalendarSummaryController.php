@@ -82,6 +82,6 @@ class CalendarSummaryController
             ->setContent($problem->getTitle())
             ->setStatusCode($problem->getStatus());
 
-        return  $response;
+        return $response;
     }
 }
