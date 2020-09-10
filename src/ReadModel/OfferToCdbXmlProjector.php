@@ -79,7 +79,7 @@ use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Offer\Events\AbstractFacilitiesUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractThemeUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractTypeUpdated;
-use CultuurNet\UDB3\Offer\WorkflowStatus;
+use CultuurNet\UDB3\CdbXmlService\ValueObjects\Offer\WorkflowStatus;
 use CultuurNet\UDB3\Place\Events\ThemeUpdated as PlaceThemeUpdated;
 use CultuurNet\UDB3\Event\Events\TitleTranslated as EventTitleTranslated;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted as EventOrganizerDeleted;
