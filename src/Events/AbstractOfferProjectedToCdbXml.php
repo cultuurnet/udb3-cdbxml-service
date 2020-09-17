@@ -2,9 +2,9 @@
 
 namespace CultuurNet\UDB3\CdbXmlService\Events;
 
-use CultuurNet\UDB3\Offer\Events\AbstractEventWithIri;
+use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 
-abstract class AbstractOfferProjectedToCdbXml extends AbstractEventWithIri
+abstract class AbstractOfferProjectedToCdbXml extends AbstractEvent
 {
     /**
      * @var bool
@@ -12,18 +12,36 @@ abstract class AbstractOfferProjectedToCdbXml extends AbstractEventWithIri
     protected $isNew;
 
     /**
-     * AbstractOfferProjectedToCdbXml constructor.
-     * @param string $itemId
-     * @param string $iri
-     * @param bool $isNew
+     * @var string
      */
-    public function __construct($itemId, $iri, $isNew = false)
+    private $iri;
+
+    final public function __construct(string $itemId, string $iri, ?bool $isNew = false)
     {
-        parent::__construct($itemId, $iri);
+        parent::__construct($itemId);
+        $this->iri = $iri;
         $this->isNew = $isNew;
     }
 
-    public function isNew()
+    public function getIri(): string
+    {
+        return $this->iri;
+    }
+
+    public function serialize(): array
+    {
+        return parent::serialize() + array(
+            'iri' => $this->iri,
+            'is_new' => $this->isNew,
+        );
+    }
+
+    public static function deserialize(array $data): AbstractOfferProjectedToCdbXml
+    {
+        return new static($data['item_id'], $data['iri'], $data['is_new']);
+    }
+
+    public function isNew(): bool
     {
         return $this->isNew;
     }

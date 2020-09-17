@@ -50,9 +50,9 @@
 
     <target name="phpstan">
         <exec
-                command="./vendor/bin/phpstan analyse src tests --level 1"
-                passthru="true"
-                checkreturn="true" />
+            command="./vendor/bin/phpstan analyse"
+            passthru="true"
+            checkreturn="true" />
     </target>
 
 

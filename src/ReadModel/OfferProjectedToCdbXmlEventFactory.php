@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\CdbXmlService\ReadModel;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentParserInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\ActorCdbXmlDocumentSpecification;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\Specification\EventCdbXmlDocumentSpecification;
+use CultuurNet\UDB3\CdbXmlService\Events\AbstractOfferProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\EventProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\Events\PlaceProjectedToCdbXml;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
@@ -42,12 +43,7 @@ class OfferProjectedToCdbXmlEventFactory implements DocumentEventFactoryInterfac
         $this->actorCdbXmlDocumentSpecification = new ActorCdbXmlDocumentSpecification($cdbXmlDocumentParser);
     }
 
-    /**
-     * @param CdbXmlDocument $cdbXmlDocument
-     * @param bool $isNew
-     * @return AbstractEventWithIri
-     */
-    public function createEvent(CdbXmlDocument $cdbXmlDocument, $isNew)
+    public function createEvent(CdbXmlDocument $cdbXmlDocument, $isNew): AbstractOfferProjectedToCdbXml
     {
         if ($this->actorCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
             return new PlaceProjectedToCdbXml(
@@ -55,7 +51,9 @@ class OfferProjectedToCdbXmlEventFactory implements DocumentEventFactoryInterfac
                 $this->iriGenerator->iri('place/' . $cdbXmlDocument->getId()),
                 $isNew
             );
-        } elseif ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
+        }
+
+        if ($this->eventCdbXmlDocumentSpecification->isSatisfiedBy($cdbXmlDocument)) {
             return new EventProjectedToCdbXml(
                 $cdbXmlDocument->getId(),
                 $this->iriGenerator->iri('event/' . $cdbXmlDocument->getId()),
