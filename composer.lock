@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce78ce5d13deb5b14d57adffbf28676b",
+    "content-hash": "1a7380c07d21c47baf296b95091de94e",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -1067,16 +1067,16 @@
         },
         {
             "name": "cultuurnet/udb3",
-            "version": "dev-feature/phpstan-level-0-and-cleanup",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "936da66ac889f3cd2c2aa24604b5b774f0c43a34"
+                "reference": "d75c6226950a08893e3179811efbdb449accd9e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/936da66ac889f3cd2c2aa24604b5b774f0c43a34",
-                "reference": "936da66ac889f3cd2c2aa24604b5b774f0c43a34",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/d75c6226950a08893e3179811efbdb449accd9e2",
+                "reference": "d75c6226950a08893e3179811efbdb449accd9e2",
                 "shasum": ""
             },
             "require": {
@@ -1142,7 +1142,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2020-09-15T15:59:44+00:00"
+            "time": "2020-09-17T12:46:32+00:00"
         },
         {
             "name": "cultuurnet/udb3-models",
@@ -6403,18 +6403,9 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/phpstan-level-0-and-cleanup",
-            "package": "cultuurnet/udb3"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/udb3": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
