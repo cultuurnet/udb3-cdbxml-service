@@ -30,5 +30,5 @@ $app->get('/event/{cdbid}/calendar-summary', 'calendar_summary.controller:get');
 try {
     $app->run();
 } catch (\Throwable $throwable) {
-    $handler = $app['uncaught_error_handler']($throwable);
+    $app['uncaught_error_handler']($throwable);
 }
