@@ -28,4 +28,8 @@ $consoleApp->add(
 );
 $consoleApp->add(new \CultuurNet\UDB3\CdbXmlService\Console\InstallCommand());
 
-$consoleApp->run();
+try {
+    $consoleApp->run();
+} catch (\Throwable $throwable) {
+    $handler = $app['uncaught_error_handler']($throwable);
+}
