@@ -18,10 +18,12 @@ class SentryServiceProvider implements ServiceProviderInterface
         $app[HubInterface::class] = $app->share(
             function ($app) {
                 return new Hub(
-                    ClientBuilder::create([
-                        'dsn' => $app['config']['sentry']['dsn'],
-                        'environment' => $app['config']['sentry']['environment'],
-                    ])->getClient()
+                    ClientBuilder::create(
+                        [
+                            'dsn' => $app['config']['sentry']['dsn'],
+                            'environment' => $app['config']['sentry']['environment'],
+                        ]
+                    )->getClient()
                 );
             }
         );
@@ -36,7 +38,8 @@ class SentryServiceProvider implements ServiceProviderInterface
                     throw $throwable;
                 };
             }
-        );    }
+        );
+    }
 
     public function boot(Application $app): void
     {
