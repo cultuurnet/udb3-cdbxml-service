@@ -37,6 +37,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\Relations\Label\LabelEventRelationTypeResolver;
+use CultuurNet\UDB3\CdbXmlService\SentryServiceProvider;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
@@ -59,6 +60,8 @@ if (!isset($appConfigLocation)) {
     $appConfigLocation =  __DIR__;
 }
 $app->register(new YamlConfigServiceProvider($appConfigLocation . '/config.yml'));
+
+$app->register(new SentryServiceProvider());
 
 // Incoming event-stream from UDB3.
 $app['event_bus.udb3-core'] = $app->share(
