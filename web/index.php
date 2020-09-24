@@ -27,4 +27,8 @@ $app->get('/organizers/{cdbid}', 'cdbxml_actor.controller:get');
 // calendar-summary
 $app->get('/event/{cdbid}/calendar-summary', 'calendar_summary.controller:get');
 
-$app->run();
+try {
+    $app->run();
+} catch (\Throwable $throwable) {
+    $handler = $app['uncaught_error_handler']($throwable);
+}
