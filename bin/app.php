@@ -31,6 +31,6 @@ $consoleApp->add(new \CultuurNet\UDB3\CdbXmlService\Console\InstallCommand());
 
 try {
     $consoleApp->run();
-} catch (\Throwable $throwable) {
+} catch (Throwable $throwable) {
     $app[UncaughtErrorHandler::class]->handle($throwable);
 }
