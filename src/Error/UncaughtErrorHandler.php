@@ -6,7 +6,7 @@ namespace CultuurNet\UDB3\CdbXmlService\Error;
 
 use Sentry\State\HubInterface;
 
-class UncaughtErrorHandler implements ErrorHandler
+class UncaughtErrorHandler
 {
     /** @var HubInterface */
     private $sentryHub;
