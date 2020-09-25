@@ -9,7 +9,6 @@ use Sentry\State\Hub;
 use Sentry\State\HubInterface;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Throwable;
 
 class SentryServiceProvider implements ServiceProviderInterface
 {
@@ -25,18 +24,6 @@ class SentryServiceProvider implements ServiceProviderInterface
                         ]
                     )->getClient()
                 );
-            }
-        );
-
-        $app['uncaught_error_handler'] = $app->share(
-            function ($app) {
-                /** @var HubInterface $sentryHub */
-                $sentryHub = $app[HubInterface::class];
-
-                return static function (Throwable $throwable) use ($sentryHub) {
-                    $sentryHub->captureException($throwable);
-                    throw $throwable;
-                };
             }
         );
     }
