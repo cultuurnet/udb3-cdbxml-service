@@ -29,8 +29,8 @@ use CultureFeed_Cdb_Item_Event;
 use CultuurNet\CalendarSummary\CalendarPlainTextFormatter;
 use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\BookingInfo;
+use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\Calendar\CalendarConverter;
-use CultuurNet\UDB3\CalendarInterface;
 use CultuurNet\UDB3\Category;
 use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
@@ -1915,10 +1915,10 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     /**
      * Set the Calendar on the cdb event.
      *
-     * @param CalendarInterface $eventCalendar
+     * @param Calendar $eventCalendar
      * @param CultureFeed_Cdb_Item_Event $cdbEvent
      */
-    private function setCalendar(CalendarInterface $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
+    private function setCalendar(Calendar $eventCalendar, CultureFeed_Cdb_Item_Event $cdbEvent)
     {
         $calendar = $this->calendarConverter->toCdbCalendar($eventCalendar);
 
@@ -2296,11 +2296,11 @@ class OfferToCdbXmlProjector implements EventListenerInterface, LoggerAwareInter
     }
 
     /**
-     * @param CalendarInterface $calendar
+     * @param Calendar $calendar
      * @param \CultureFeed_Cdb_Item_Base $item
      */
     private function setItemAvailableToFromCalendar(
-        CalendarInterface $calendar,
+        Calendar $calendar,
         \CultureFeed_Cdb_Item_Base $item
     ) {
         $availableTo = AvailableTo::createFromCalendar($calendar);
