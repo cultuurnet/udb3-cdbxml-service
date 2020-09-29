@@ -22,6 +22,7 @@ use CultuurNet\UDB3\CdbXmlService\CdbXmlDocumentController;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\FlandersRegionCategoryService;
 use CultuurNet\UDB3\CdbXmlService\DatabaseSchemaInstaller;
+use CultuurNet\UDB3\CdbXmlService\Error\ErrorHandlerProvider;
 use CultuurNet\UDB3\CdbXmlService\EventBusCdbXmlPublisher;
 use CultuurNet\UDB3\CdbXmlService\EventBusRelay;
 use CultuurNet\UDB3\CdbXmlService\Iri\CallableIriGenerator;
@@ -37,6 +38,7 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\Relations\Label\LabelEventRelationTypeResolver;
+use CultuurNet\UDB3\CdbXmlService\SentryServiceProvider;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
@@ -59,6 +61,9 @@ if (!isset($appConfigLocation)) {
     $appConfigLocation =  __DIR__;
 }
 $app->register(new YamlConfigServiceProvider($appConfigLocation . '/config.yml'));
+
+$app->register(new SentryServiceProvider());
+$app->register(new ErrorHandlerProvider());
 
 // Incoming event-stream from UDB3.
 $app['event_bus.udb3-core'] = $app->share(

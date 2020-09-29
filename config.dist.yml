@@ -35,3 +35,6 @@ base_price_translations:
   fr: 'Tarif de base'
   en: 'Base tariff'
   de: 'Basisrate'
+sentry:
+  dsn: *
+  environment: development
