@@ -16,10 +16,12 @@ class SentryServiceProvider implements ServiceProviderInterface
     {
         $app[HubInterface::class] = $app->share(
             function (Application $app) {
-                init([
-                    'dsn' => $app['config']['sentry']['dsn'],
-                    'environment' => $app['config']['sentry']['environment'],
-                ]);
+                init(
+                    [
+                        'dsn' => $app['config']['sentry']['dsn'],
+                        'environment' => $app['config']['sentry']['environment'],
+                    ]
+                );
 
                 return SentrySdk::getCurrentHub();
             }
