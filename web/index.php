@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use CultuurNet\UDB3\CdbXmlService\Error\UncaughtErrorHandler;
+use CultuurNet\UDB3\CdbXmlService\Error\SentryErrorHandler;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 
@@ -31,5 +31,5 @@ $app->get('/event/{cdbid}/calendar-summary', 'calendar_summary.controller:get');
 try {
     $app->run();
 } catch (Throwable $throwable) {
-    $app[UncaughtErrorHandler::class]->handle($throwable);
+    $app[SentryErrorHandler::class]->handle($throwable);
 }

@@ -2,7 +2,7 @@
 <?php
 
 use CultuurNet\SilexAMQP\Console\ConsumeCommand;
-use CultuurNet\UDB3\CdbXmlService\Error\UncaughtErrorHandler;
+use CultuurNet\UDB3\CdbXmlService\Error\SentryErrorHandler;
 use Knp\Provider\ConsoleServiceProvider;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -32,5 +32,5 @@ $consoleApp->add(new \CultuurNet\UDB3\CdbXmlService\Console\InstallCommand());
 try {
     $consoleApp->run();
 } catch (Throwable $throwable) {
-    $app[UncaughtErrorHandler::class]->handle($throwable);
+    $app[SentryErrorHandler::class]->handle($throwable);
 }

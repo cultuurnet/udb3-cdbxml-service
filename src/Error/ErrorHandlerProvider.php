@@ -12,9 +12,9 @@ class ErrorHandlerProvider implements ServiceProviderInterface
 {
     public function register(Application $app): void
     {
-        $app[UncaughtErrorHandler::class] = $app->share(
+        $app[SentryErrorHandler::class] = $app->share(
             function ($app) {
-                return new UncaughtErrorHandler($app[HubInterface::class]);
+                return new SentryErrorHandler($app[HubInterface::class]);
             }
         );
     }
