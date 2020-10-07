@@ -26,6 +26,12 @@ class SentryServiceProvider implements ServiceProviderInterface
                 return SentrySdk::getCurrentHub();
             }
         );
+
+        $app[SentryErrorHandler::class] = $app->share(
+            function ($app) {
+                return new SentryErrorHandler($app[HubInterface::class]);
+            }
+        );
     }
 
     public function boot(Application $app): void
