@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use CultuurNet\UDB3\CdbXmlService\Error\SentryErrorHandler;
+use CultuurNet\UDB3\CdbXmlService\SentryErrorHandler;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 

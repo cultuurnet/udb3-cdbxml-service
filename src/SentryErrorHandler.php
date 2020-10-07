@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CultuurNet\UDB3\CdbXmlService\Error;
+namespace CultuurNet\UDB3\CdbXmlService;
 
 use Sentry\State\HubInterface;
 use Throwable;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CultuurNet\UDB3\CdbXmlService\Error;
 
+use CultuurNet\UDB3\CdbXmlService\SentryErrorHandler;
 use Sentry\State\HubInterface;
 use Silex\Application;
 use Silex\ServiceProviderInterface;

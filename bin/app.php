@@ -2,7 +2,7 @@
 <?php
 
 use CultuurNet\SilexAMQP\Console\ConsumeCommand;
-use CultuurNet\UDB3\CdbXmlService\Error\SentryErrorHandler;
+use CultuurNet\UDB3\CdbXmlService\SentryErrorHandler;
 use Knp\Provider\ConsoleServiceProvider;
 
 require_once __DIR__ . '/../vendor/autoload.php';
