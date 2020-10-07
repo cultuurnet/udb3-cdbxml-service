@@ -24,9 +24,11 @@ class SentryErrorHandler
 
     public function handle(Throwable $throwable): void
     {
-        $this->sentryHub->configureScope(function (Scope $scope) {
-            $scope->setTags($this->createTags($this->console));
-        });
+        $this->sentryHub->configureScope(
+            function (Scope $scope) {
+                $scope->setTags($this->createTags($this->console));
+            }
+        );
 
         $this->sentryHub->captureException($throwable);
         throw $throwable;
