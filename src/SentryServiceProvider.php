@@ -29,7 +29,10 @@ class SentryServiceProvider implements ServiceProviderInterface
 
         $app[SentryErrorHandler::class] = $app->share(
             function ($app) {
-                return new SentryErrorHandler($app[HubInterface::class]);
+                return new SentryErrorHandler(
+                    $app[HubInterface::class],
+                    isset($app['console'])
+                );
             }
         );
     }
