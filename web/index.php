@@ -32,4 +32,5 @@ try {
     $app->run();
 } catch (Throwable $throwable) {
     $app[SentryErrorHandler::class]->handle($throwable);
+    throw $throwable;
 }

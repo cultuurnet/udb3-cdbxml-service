@@ -4,6 +4,7 @@
 use CultuurNet\SilexAMQP\Console\ConsumeCommand;
 use CultuurNet\UDB3\CdbXmlService\SentryErrorHandler;
 use Knp\Provider\ConsoleServiceProvider;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -21,6 +22,7 @@ $app->register(
 
 /** @var \Knp\Console\Application $consoleApp */
 $consoleApp = $app['console'];
+$consoleApp->setCatchExceptions(false);
 
 $consoleApp->add(
     (new ConsumeCommand('consume-udb3-core', 'amqp.udb3-core'))
@@ -33,4 +35,5 @@ try {
     $consoleApp->run();
 } catch (Throwable $throwable) {
     $app[SentryErrorHandler::class]->handle($throwable);
+    $consoleApp->renderException($throwable, new ConsoleOutput());
 }
