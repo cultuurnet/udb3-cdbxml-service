@@ -31,7 +31,6 @@ class SentryErrorHandler
         );
 
         $this->sentryHub->captureException($throwable);
-        throw $throwable;
     }
 
     private function createTags(bool $console): array
