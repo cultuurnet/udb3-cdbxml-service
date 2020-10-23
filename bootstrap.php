@@ -37,6 +37,8 @@ use CultuurNet\UDB3\CdbXmlService\ReadModel\RelationsToCdbXmlProjector;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\BroadcastingDocumentRepositoryDecorator;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\CacheDocumentRepository;
 use CultuurNet\UDB3\CdbXmlService\Relations\Label\LabelEventRelationTypeResolver;
+use CultuurNet\UDB3\CdbXmlService\SentryErrorHandler;
+use CultuurNet\UDB3\CdbXmlService\SentryPsrLoggerDecorator;
 use CultuurNet\UDB3\CdbXmlService\SentryServiceProvider;
 use CultuurNet\UDB3\SimpleEventBus as UDB3SimpleEventBus;
 use DerAlex\Silex\YamlConfigServiceProvider;
@@ -500,7 +502,7 @@ $app['logger.amqp.udb2_publisher'] = $app->share(
         );
         $logger->pushHandler($logFileHandler);
 
-        return $logger;
+        return new SentryPsrLoggerDecorator($app[SentryErrorHandler::class], $logger);
     }
 );
 
@@ -517,7 +519,7 @@ $app['logger.projector'] = $app->share(
 
         $logger->pushHandler($logFileHandler);
 
-        return $logger;
+        return new SentryPsrLoggerDecorator($app[SentryErrorHandler::class], $logger);
     }
 );
 
