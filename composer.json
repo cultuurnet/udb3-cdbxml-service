@@ -16,7 +16,6 @@
         "cultuurnet/calendar-summary": "~1.1",
         "cultuurnet/deserializer": "~0.1",
         "cultuurnet/silex-amqp": "~0.1",
-        "cultuurnet/udb3": "~0.1",
         "cultuurnet/cdb": "~2.2",
         "cultuurnet/udb2-domain-events": "~0.1",
         "crell/api-problem": "^1.7",
@@ -27,7 +26,11 @@
         "commerceguys/intl": "^0.7.1",
         "guzzle/guzzle": "^3.9",
         "league/uri": "^4.2",
-        "sentry/sdk": "^2.2"
+        "sentry/sdk": "^2.2",
+        "cakephp/chronos": "^v1.1",
+        "league/period": "^v3.3",
+        "danielstjules/stringy": "^1.9",
+        "cultuurnet/geocoding": "~0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.7",
@@ -42,6 +45,9 @@
             "CultuurNet\\UDB3\\CdbXmlService\\": [
                 "src/",
                 "app/"
+            ],
+            "CultuurNet\\UDB3\\": [
+                "udb3-php/src"
             ]
         }
     },
