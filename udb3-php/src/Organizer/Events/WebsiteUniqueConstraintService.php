@@ -36,6 +36,6 @@ class WebsiteUniqueConstraintService implements UniqueConstraintServiceInterface
 
         /* @var OrganizerCreatedWithUniqueWebsite|WebsiteUpdated $payload */
         $payload = $domainMessage->getPayload();
-        return new StringLiteral((string) $payload->getWebsite());
+        return new StringLiteral($payload->getWebsite());
     }
 }
