@@ -10,7 +10,6 @@ use CultuurNet\UDB3\Cdb\ActorItemFactory;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactoryInterface;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactoryInterface;
-use CultuurNet\UDB3\CdbXmlService\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\CdbXmlService\ReadModel\Repository\DocumentRepositoryInterface;
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Organizer\Events\AbstractLabelEvent;
@@ -20,6 +19,7 @@ use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
 use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
+use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\Organizer\Events\OrganizerEvent;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
@@ -185,7 +185,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         $actor = $this->buildActorFromOrganizerEvent($organizerCreated, $metadata);
 
         $contactInfo = new \CultureFeed_Cdb_Data_ContactInfo();
-        $contactInfo->addUrl(new \CultureFeed_Cdb_Data_Url((string) $organizerCreated->getWebsite()));
+        $contactInfo->addUrl(new \CultureFeed_Cdb_Data_Url($organizerCreated->getWebsite()));
         $actor->setContactInfo($contactInfo);
 
         // Return a new CdbXmlDocument.
