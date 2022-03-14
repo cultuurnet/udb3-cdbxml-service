@@ -27,7 +27,6 @@ use CultuurNet\UDB3\Organizer\Events\TitleUpdated;
 use CultuurNet\UDB3\Organizer\Events\WebsiteUpdated;
 use CultuurNet\UDB3\Title;
 use ValueObjects\Geography\Country;
-use ValueObjects\Web\Url;
 
 class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
 {
@@ -355,7 +354,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $organizerId = 'ORG-123';
         $titleUpdated = new WebsiteUpdated(
             $organizerId,
-            Url::fromNative('http://www.destudio.com')
+            'http://www.destudio.com'
         );
 
         $domainMessage = $this->createDomainMessage(
