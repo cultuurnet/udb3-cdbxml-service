@@ -4,7 +4,6 @@ namespace CultuurNet\UDB3\Organizer\Events;
 
 use CultuurNet\UDB3\Language;
 use CultuurNet\UDB3\Title;
-use ValueObjects\Web\Url;
 
 final class OrganizerCreatedWithUniqueWebsite extends OrganizerEvent
 {
@@ -65,7 +64,7 @@ final class OrganizerCreatedWithUniqueWebsite extends OrganizerEvent
         return new static(
             $data['organizer_id'],
             new Language($data['main_language']),
-            Url::fromNative($data['website']),
+            $data['website'],
             new Title($data['title'])
         );
     }
