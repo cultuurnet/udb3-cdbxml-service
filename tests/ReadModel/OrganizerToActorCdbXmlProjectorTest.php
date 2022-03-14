@@ -10,6 +10,7 @@ use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\CdbXmlService\CultureFeed\AddressFactory;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocument;
 use CultuurNet\UDB3\CdbXmlService\CdbXmlDocument\CdbXmlDocumentFactory;
+use CultuurNet\UDB3\CdbXmlService\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\ContactPoint;
 use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\Language;
@@ -19,7 +20,6 @@ use CultuurNet\UDB3\Organizer\Events\ContactPointUpdated;
 use CultuurNet\UDB3\Organizer\Events\LabelAdded;
 use CultuurNet\UDB3\Organizer\Events\LabelRemoved;
 use CultuurNet\UDB3\Organizer\Events\OrganizerCreated;
-use CultuurNet\UDB3\Organizer\Events\OrganizerCreatedWithUniqueWebsite;
 use CultuurNet\UDB3\Organizer\Events\OrganizerImportedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\OrganizerUpdatedFromUDB2;
 use CultuurNet\UDB3\Organizer\Events\TitleTranslated;
@@ -130,7 +130,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $event = new OrganizerCreatedWithUniqueWebsite(
             $id,
             new Language('nl'),
-            Url::fromNative('http://www.destudio.com'),
+            'http://www.destudio.com',
             new Title('DE Studio')
         );
 
@@ -156,7 +156,7 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $event = new OrganizerCreatedWithUniqueWebsite(
             $id,
             new Language('en'),
-            Url::fromNative('http://www.destudio.com'),
+            'http://www.destudio.com',
             new Title('DE Studio')
         );
 
@@ -165,6 +165,32 @@ class OrganizerToActorCdbXmlProjectorTest extends CdbXmlProjectorTestBase
         $expectedCdbXmlDocument = new CdbXmlDocument(
             $id,
             $this->loadCdbXmlFromFile('actor-with-unique-website-and-english-main-language.xml')
+        );
+
+        $this->projector->handle($domainMessage);
+
+        $this->assertCdbXmlDocumentInRepository($expectedCdbXmlDocument);
+    }
+
+    /**
+     * @test
+     */
+    public function it_projects_organizer_created_with_unique__website_and_slash_in_querystring()
+    {
+        $id = 'ORG-123';
+
+        $event = new OrganizerCreatedWithUniqueWebsite(
+            $id,
+            new Language('en'),
+            'https://www.bravenewbooks.nl/site/?r=userwebsite/index&id=arnobraet',
+            new Title('DE Studio')
+        );
+
+        $domainMessage = $this->createDomainMessage($id, $event, $this->metadata);
+
+        $expectedCdbXmlDocument = new CdbXmlDocument(
+            $id,
+            $this->loadCdbXmlFromFile('actor-with-unique-website-and-slash-in-querystring.xml')
         );
 
         $this->projector->handle($domainMessage);
