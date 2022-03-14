@@ -2,24 +2,22 @@
 
 namespace CultuurNet\UDB3\Organizer\Events;
 
-use ValueObjects\Web\Url;
-
 final class WebsiteUpdated extends OrganizerEvent
 {
     /**
-     * @var Url
+     * @var string
      */
     private $website;
 
     public function __construct(
         string $organizerId,
-        Url $website
+        string $website
     ) {
         parent::__construct($organizerId);
         $this->website = $website;
     }
 
-    public function getWebsite(): Url
+    public function getWebsite(): string
     {
         return $this->website;
     }
@@ -27,7 +25,7 @@ final class WebsiteUpdated extends OrganizerEvent
     public function serialize(): array
     {
         return parent::serialize() + [
-            'website' => (string) $this->getWebsite(),
+            'website' => $this->getWebsite(),
         ];
     }
 
@@ -35,7 +33,7 @@ final class WebsiteUpdated extends OrganizerEvent
     {
         return new static(
             $data['organizer_id'],
-            Url::fromNative($data['website'])
+            $data['website']
         );
     }
 }

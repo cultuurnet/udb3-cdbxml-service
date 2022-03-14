@@ -215,7 +215,7 @@ class OrganizerToActorCdbXmlProjector implements EventListenerInterface, LoggerA
         }
 
         $contactInfo->addUrl(
-            new \CultureFeed_Cdb_Data_Url((string) $websiteUpdated->getWebsite())
+            new \CultureFeed_Cdb_Data_Url($websiteUpdated->getWebsite())
         );
         $actor->setContactInfo($contactInfo);
 
